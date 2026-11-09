@@ -1,0 +1,42 @@
+{
+  "date": "2026-11-09",
+  "kind": "observed_unauthenticated_http_probe",
+  "host": "app-api-proxy.8slp.net.cn",
+  "live_path_template": "/v1/devices/{owned_device_id}/live",
+  "authorization_sent": false,
+  "device_identifier_recorded": false,
+  "automatic_retry": false,
+  "timeout_seconds": 5,
+  "results": [
+    {
+      "transport": "http.client without explicit proxy",
+      "target": "/",
+      "status": 401,
+      "elapsed_seconds": 0.44
+    },
+    {
+      "transport": "urllib system proxy configuration",
+      "target": "/",
+      "status": 401,
+      "elapsed_seconds": 0.51
+    },
+    {
+      "transport": "http.client without explicit proxy",
+      "target": "owned_device_live",
+      "status": 401,
+      "elapsed_seconds": 1.27
+    },
+    {
+      "transport": "urllib system proxy configuration",
+      "target": "owned_device_live",
+      "status": 401,
+      "elapsed_seconds": 1.28
+    }
+  ],
+  "limitations": [
+    "Unauthenticated responses exercise access rejection, not authenticated live forwarding.",
+    "OS VPN or transparent proxy can affect both routes.",
+    "Authenticated 30s response-header timeout is user-reported, not an independently captured trace.",
+    "Official App temperature control works according to user; not independently instrumented."
+  ]
+}
