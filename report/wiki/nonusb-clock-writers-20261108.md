@@ -51,7 +51,7 @@
 
 `model/clock_cases.py` 只重述已由 `0800995c` 与 NU-05 证明的公式：`q=floor(1000/step)`、`N=floor(clock/q)`、`LOAD=N-1`、`VAL=0`、`CTRL=7`。6 组（三个软件输入 × step 1/10）得到 LOAD `15999/159999`、`31999/319999`、`7999/79999`，7 条断言 0 失败，均落在 24 位字段内。
 
-首版把条件性名义单位写成 `q/1000`，`step=10` 会得出 0.1 ms，与 USB 侧已证的「64MHz / step10 / LOAD 639999 / 10 ms」矛盾。正确推导是：一次 SysTick 为 N 个核心周期，仅在「运行中核心时钟等于该变量且中断正常服务」时等于 `1000/q` 毫秒。已改正单位、补上条件说明和防回归断言，修正过程保留在[模型结果](../analysis-tools/system-deepening/nonusb-clock-writers/MODEL_RESULTS.json)的 `corrections` 中。整数 q/N/LOAD 从未出错，修正只涉及单位解释，也不改变任何原字节证据。
+一次 SysTick 对应 N 个核心周期；仅在运行中核心时钟等于软件频率变量且中断正常服务时，名义单位为 `1000/q` 毫秒。USB 侧的 64MHz、step10、LOAD 639999 对应 10 ms，与该公式一致。单位及适用条件见[模型结果](../analysis-tools/system-deepening/nonusb-clock-writers/MODEL_RESULTS.json)。
 
 ## 适用范围与未解决问题
 

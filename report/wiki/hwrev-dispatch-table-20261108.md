@@ -12,7 +12,7 @@
 | 字符串序 K10/K05 与数值序不同 | 已解释 | 字符串表索引 4/5 是 K10/K05，阈值行 4/5 是 K05(0x0A05)/K10(0x0A10)，两表顺序相反但各自 setter 指向自己那条字符串 |
 | `0800fd25` / `0800fd31` 无函数体 | 已闭合 | 不是空洞，是工程未反汇编的两段短 Thumb setter：K87 只写名字；K90 另把配置对象 0x18c 字节清零 |
 | 累加应用 | 量化 | 实际执行 16 次 setter 调用：14 行 + K10 重放 K00 + K33 重放 K05 |
-| init 变体数量 | 修正为 7 个槽位候选 |  `08012274`（K36 装入），首指令 `bl 08012008` 复用上一变体，不时钟入口 |
+| init 变体数量 | 7 个槽位候选 |  `08012274`（K36 装入），首指令 `bl 08012008` 复用上一变体，不时钟入口 |
 
 字节核验 **109 项检查 0 失败**（525 条导出指令行、135 个 literal、7 个 BL、8 个直接分支、14 个 slot0、7 个 slot1、两段原始 Thumb 解码、5 组全镜像 BL 调用点集合）；累加模型 **16 个 hwrev 边界、26 条断言 0 失败**。见[逐项核验](../analysis-tools/system-deepening/hwrev-dispatch-table/BYTE_VALIDATION.json)与[模拟结果](../analysis-tools/system-deepening/hwrev-dispatch-table/DISPATCH_SIMULATION.json)。
 

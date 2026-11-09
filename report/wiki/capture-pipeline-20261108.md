@@ -94,11 +94,11 @@ CRC只覆盖body，长度与起始分隔符不在覆盖范围。接收器没有�
 
 ### 接收入口不等于当前固件会发送
 
-**后续补证已找到G0 USB的正常0x33/0x44生产者。** 原先只枚举已恢复函数的发送点，漏掉尚未定义的0802572c；现已由原字节BL扫描及主循环引用接通。旧报告作为历史证据保留，当前结论以[本地电容处理](algorithms/local-capacitance-temperature.md)为准。
+G0 USB 正常主循环通过 `0802572c` 生成 `0x33/0x44`，其原始 BL 指令、主循环引用与主控消费路径构成完整静态链。处理规则见[本地电容处理](algorithms/local-capacitance-temperature.md)。
 
 相邻的`0x34`和`0x35`分别生成216、176字节body（包含opcode）；发送包装没有把它们改成`0x33`，主控也先按opcode分流。命令回复的`0xb3`高位为1，同样不等于要求高位为0的`0x33`事件。
 
-制造revision为K60时已审普通采样分支选择377字节0x3c；这是普通采样选择，不能排除独立FDC分支。现已恢复0x33/0x44正常生产和消费链；用户实机是否启用仍需匹配版本、配置及方向/opcode/长度记录。[更正证据](../evidence/analysis/system-deepening-20261108/local-signal-closure/FINDINGS_ZH.txt)
+制造revision为K60时已审普通采样分支选择377字节0x3c；这是普通采样选择，不能排除独立FDC分支。0x33/0x44具有正常生产和消费链；用户实机是否启用仍需匹配版本、配置及方向/opcode/长度记录。[生产与消费链证据](../evidence/analysis/system-deepening-20261108/local-signal-closure/FINDINGS_ZH.txt)
 
 ### 旧式Sensor怎样消费0x34与0x35
 

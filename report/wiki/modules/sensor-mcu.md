@@ -70,7 +70,7 @@ SEN-03完成限定静态验收；SEN-02需首次发送的运行记录或额外�
 
 ## USB / nonUSB 运行链差分
 
-同版本号5.5.34.0的两版已逐项核对采样、队列和组包。发送层存在差异：USB等待32槽buffer有elapsed≥500的失败分支，nonUSB对应函数没有。后续USB时基审计已确认默认SysTick链，条件成立时500为名义毫秒；并非实测等待上限。两版均先pop批次再发送，局部失败不在该调用点恢复。17项对照和6个合成场景见[系统分析](../system-deepening-20261108.md)与[差分证据](../../evidence/analysis/system-deepening-20261108/sensor-diff/FINDINGS_ZH.txt)。完成回调、超时回收和gate生产链现已分析；实际失败频率仍未知，见[传感发送分析](../sensor-and-control-20261108.md)。
+同版本号5.5.34.0的两版已逐项核对采样、队列和组包。发送层存在差异：USB等待32槽buffer有elapsed≥500的失败分支，nonUSB对应函数没有。USB默认SysTick链具有独立字节证据，条件成立时500为名义毫秒；并非实测等待上限。两版均先pop批次再发送，局部失败不在该调用点恢复。17项对照和6个合成场景见[系统分析](../system-deepening-20261108.md)与[差分证据](../../evidence/analysis/system-deepening-20261108/sensor-diff/FINDINGS_ZH.txt)。完成回调、超时回收和gate生产链具有静态证据；实际失败频率仍未知，见[传感发送分析](../sensor-and-control-20261108.md)。
 
 [USB时基补充](../../evidence/analysis/system-deepening-20261108/sensor-timebase/FINDINGS_ZH.txt)保留默认增量、reset复制源与SysTick配置。寄存器定义参照[ARM官方CMSIS](https://raw.githubusercontent.com/ARM-software/CMSIS_5/develop/CMSIS/Core/Include/core_cm0plus.h)，固件调用链以原BBIN为准。
 
@@ -98,8 +98,8 @@ SEN-01仍需同源实机输入/输出。当前可复跑的是限定合成链；�
 
 ## 当前普通采样与兼容事件的区别
 
-从原字节恢复此前未识别的0802572c，已接通G0 USB正常主循环的FDC处理及0x33/0x44生产者。此前“已枚举发送点未找到0x33”的阴性结论已被补证修正。0x34/0x35仍是独立opcode；当前实机启用哪条路线仍需版本与帧记录。[正常生产者、处理与主控出口](../../evidence/analysis/system-deepening-20261108/local-signal-closure/FINDINGS_ZH.txt)
+G0 USB 正常主循环中的 `0802572c` 执行 FDC 处理并生成 `0x33/0x44`；原始指令、调用关系及主控消费链均有证据支持。`0x34/0x35` 是独立 opcode；实机启用路线仍需核对版本、配置与帧记录。[正常生产者、处理与主控出口](../../evidence/analysis/system-deepening-20261108/local-signal-closure/FINDINGS_ZH.txt)
 
-## 电容与温度处理补证
+## 电容与温度处理
 
 详见[本地公式与状态](../algorithms/local-capacitance-temperature.md)：FDC量程补偿/缓存、0x35四字段、NTC筛选均值与加权组合都已从正常入口追到输出。它们不等于生理信号分离或在床分类。

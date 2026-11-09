@@ -21,6 +21,12 @@ def main():
         nonlocal checks
         checks+=1
         if not ok:errors.append(message)
+    # Formal authored prose states current conclusions; frozen evidence keeps its context.
+    process_language=re.compile(r'本轮|上一轮|这一轮|本页撰写时|该轮结束时|旧报告|原先未|后续状态修正|不重复[^\n]*新发现')
+    prose_files=list((ROOT/'wiki').rglob('*.md'))+list((ROOT/'data/modules').glob('*.json'))+list((ROOT/'data/roadmap').glob('*.json'))+[ROOT/'data/full-evidence.json']
+    for source in prose_files:
+        matches=process_language.findall(source.read_text())
+        check(not matches,'Process narrative in authored prose '+str(source.relative_to(ROOT))+': '+', '.join(sorted(set(matches))))
     html=(ROOT/'index.html').read_text()
     payload=re.search(r'<script id="report-data" type="application/json">(.*?)</script>',html,re.S)
     check(bool(payload),'Missing embedded data')

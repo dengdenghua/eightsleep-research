@@ -35,7 +35,7 @@
 
 这些链都有输入、调用者和消费者证据。日图、期间图、摘要卡片的缺值和阈值语义不同：例如某些健康日图缺小时可形成 0，而摘要仍可空；不能把显示 0 一律当实测零事件。分期图也不能直接代替未裁剪的 wire 时间轴。[睡眠结果](../../evidence/analysis/android-findings/ANDROID_SLEEP_RESULTS_ZH.txt) · [心肺字段选择](../../evidence/analysis/android-findings/APP_CARDIORESPIRATORY_PIPELINE_ZH.txt) · [健康结果](../../evidence/analysis/android-findings/APP_SLEEP_HEALTH_RESULTS_ZH.txt)
 
-原先未读完的五个公共方法已完成静态解析。`BaseMetricChartViewModel.handleData` 将 WEEK 排成7个日期、MONTH排成31个日期；缺日期仍调用具体 processor，但传入 `sample=null`，并非统一补0。半年/部分年图按周建桶，默认年图按月份建桶，同桶后项覆盖。图表同周期刷新还会保留未返回的旧日期。[四个图表入口与 Canvas](../../evidence/analysis/finishable-20261107/app/charts/FINDINGS_ZH.txt)
+五个公共方法的静态行为如下。`BaseMetricChartViewModel.handleData` 将 WEEK 排成7个日期、MONTH排成31个日期；缺日期仍调用具体 processor，但传入 `sample=null`，并非统一补0。半年/部分年图按周建桶，默认年图按月份建桶，同桶后项覆盖。图表同周期刷新还会保留未返回的旧日期。[四个图表入口与 Canvas](../../evidence/analysis/finishable-20261107/app/charts/FINDINGS_ZH.txt)
 
 `xc.c.i` 的数据库合并另有规则：新指标覆盖同键、未返回指标保留旧值，`samples` 整组取新；`stdDev` 仅在已有同日缓存合并路径先补请求指标0，再合并旧值与新值。成功空响应且截止日期不晚于手机今日时，会插入/替换空占位，可能覆盖旧缓存；未来空响应不写。[聚合缓存解析](../../evidence/analysis/finishable-20261107/app/metrics-aggregate/FINDINGS_ZH.txt)
 

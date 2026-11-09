@@ -36,7 +36,7 @@
 
 [逐位点复核表](../analysis-tools/field-site-binding/FIELD_SITE_AUDIT.json) · [复核脚本](../analysis-tools/field-site-binding/audit_field_sites.py) · [独立复核结果](../analysis-tools/field-site-binding/VERIFICATION.json)
 
-## 两个字段窗口的修正
+## 两个字段窗口的对象绑定
 
 ### `0x0234–0x0258`：主对象闭合判断撤回
 

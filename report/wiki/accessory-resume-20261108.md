@@ -43,17 +43,17 @@ C#/IL顺序和四份官方DLL来源经独立审阅。这个结果解释配置保
 
 [注册与位置快照上游](../evidence/analysis/accessory-resume-20261108/bedframe/FINDINGS_ZH.txt) · [串口命令消费者分析](../evidence/analysis/accessory-resume-20261108/bedframe-command-followup/FINDINGS_ZH.txt)
 
-## 修正：不要把未定byte叫作保存标记
+## 位置快照 CRC 清零字段的语义边界
 
-`20003fc0`目前只知在位置快照CRC变化分支清零，没有已绑定读取者、非零writer或Flash提交条件。当前名称改为“CRC变化分支清零的未定byte”；不能从dirty这个分析命名反推必有保存消费者。相邻运动字段也不足以确定它是运动状态。
+`20003fc0`目前只知在位置快照CRC变化分支清零，没有已绑定读取者、非零writer或Flash提交条件。该字段记为“CRC变化分支清零的未定byte”；不能从dirty这个分析命名反推必有保存消费者。相邻运动字段也不足以确定它是运动状态。
 
-它与记录内扫描/序号、CRC字段以及上层快照触发条件分开记录。旧冻结证据保留历史名称，当前解释以本页修正为准。
+该字段的证据范围与记录扫描、序号、CRC 字段及上层快照触发条件分别记录。
 
 [命名复核与剩余边界](../evidence/analysis/accessory-resume-20261108/bedframe-naming-review/FINDINGS_ZH.txt)
 
 ## 后续验收条件
 
-| 项目 | 当前已补 | 仍要取得或闭合 |
+| 项目 | 已确认实现 | 仍要取得或闭合 |
 | --- | --- | --- |
 | A02 Fault1–4 | 新对象/容器调用正常参数、排除区间和字节证据 | 真实非零writer及触发/清除；未知别名仍保留 |
 | R12跨侧更新 | 具体IL锁边界、20项有限交错及独立审阅 | 实际并发、串口输出、重连及文件错误组合 |

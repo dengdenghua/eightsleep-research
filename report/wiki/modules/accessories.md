@@ -78,19 +78,19 @@ Keeson10211也已恢复普通接收、2～7命令、目标到运行状态与GPIO
 
 现有A00样本与A02不同：bag stride为0x64，单超时计数达到3写Fault1；有效压力目标每次清计数，但不清FaultLatch。未找到按60000计时自动清锁存的消费者，因此不能解释为等待60秒自动恢复。其Safety3虽然名为MANUAL_STOP，已证写入者却是过流紧急停止；未在已查紧急停止路径找到A02的过温Safety4分支。
 
-A00 Fault2–4和A02 Fault1–4仍分别列为生产者未知。更深的全部控制参数不在此次有限差分覆盖内。[A00差分来源](../../evidence/analysis/finishable-20261107/accessories/a00-faults/FINDINGS_ZH.txt)
+A00 Fault2–4和A02 Fault1–4仍分别列为生产者未知。更深的全部控制参数不在所列有限差分覆盖内。[A00差分来源](../../evidence/analysis/finishable-20261107/accessories/a00-faults/FINDINGS_ZH.txt)
 
 ## 2026-11-08 分析
 
 气囊诊断的缓存读取、配置 getter、Ready 门控及空 USB 拓扑的多种原因已分析。详情见[系统分析](../system-deepening-20261108.md)；普通账号权限和当前附件版本仍未实测。
 
-## 音箱格式与历史来源修正
+## 音箱格式与样本来源
 
-旧 C11 清单的提取路径来自历史 NXP；24个样本已逐个与 MTK 同路径文件验证字节相同，床架与 B12 默认映射也相同。仅 B13 默认由历史 V38 对应到 MTK V42，实际实机版本仍需读取。三版 FOT 的外层结构、整文件 CRC 与主控传输偏移见[系统分析](../system-deepening-20261108.md)及[来源修正](../../evidence/analysis/system-deepening-20261108/accessory-execution/MAPPING_DIFF_ZH.txt)。设备端 loader 和 DSP 执行仍未恢复。
+旧 C11 清单的提取路径来自历史 NXP；24个样本已逐个与 MTK 同路径文件验证字节相同，床架与 B12 默认映射也相同。仅 B13 默认由历史 V38 对应到 MTK V42，实际实机版本仍需读取。三版 FOT 的外层结构、整文件 CRC 与主控传输偏移见[系统分析](../system-deepening-20261108.md)及[样本来源与哈希](../../evidence/analysis/system-deepening-20261108/accessory-execution/MAPPING_DIFF_ZH.txt)。设备端 loader 和 DSP 执行仍未恢复。
 
 Keeson 10211 已补全局故障 B 的四路输入、两级滤波、基线扣除、signed16截取、门控累计和条件清除。它是附件故障链，不能拿来解释睡眠信号；实际电流单位、四轴硬件映射和物理停机仍未知。[详细公式与执行链](../../evidence/analysis/system-deepening-20261108/keeson-execution/FINDINGS_ZH.txt)
 
-TriMix V25 的 `0x23 / selector=1` 停止请求已从主机方法、接收门控、主循环和标志消费追至输出寄存器。AA只是内部完成状态，不能称机械已停稳；其余三支现已逐轴分析到输出，见[四轴分析](../sensor-and-control-20261108.md)。[停止链证据](../../evidence/analysis/system-deepening-20261108/trimix-execution/FINDINGS_ZH.txt)
+TriMix V25 的 `0x23 / selector=1` 停止请求已从主机方法、接收门控、主循环和标志消费追至输出寄存器。AA只是内部完成状态，不能称机械已停稳；其余三支的输出路径见逐轴分析，见[四轴分析](../sensor-and-control-20261108.md)。[停止链证据](../../evidence/analysis/system-deepening-20261108/trimix-execution/FINDINGS_ZH.txt)
 
 Keeson四路SAADC配置、RTC1名义回调时基和全局Fault A自检/恢复已分析。自检残差在主循环累加缓存，不等于每个新样本积分。见[采样与故障A证据](../../evidence/analysis/system-deepening-20261108/keeson-sampling-fault/FINDINGS_ZH.txt)。
 

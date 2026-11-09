@@ -62,7 +62,7 @@ TEC 保护码已追到实际消费者：
 
 保护检查非零时，周期执行路径会清 PWM、关闭使能并进入保护态。需要保留一个重要例外：主水温失效时 PID 直接返回，可能保留既有 TEC 请求；若 waterblock 与其他保护条件均允许，独立保护层仍可能返回 0。不能简化为“5 秒没有水温就必关 TEC”，也没有测得其实际出现频率或热效应。[有效性与保护条件](../../evidence/analysis/thermal-deep/FEEDBACK_SENSOR_MAP_ZH.txt)
 
-注水是独立状态机：FILL → RED → WAIT_CAP → FLUSH，读取每侧五点水位均值。缺水、盖子状态、超时、DRY/KINKED 泵诊断可改变路径；完成要求最后测量与连接侧条件通过。普通缺水允许门限的准确常量是 **18.75**，旧报告中曾出现的 19.0 已被原字节解码纠正。它不是所有注水阶段的统一门限。[注水与阈值证据](../../evidence/analysis/thermal-deep/THERMAL_REPORT_ZH.txt)
+注水是独立状态机：FILL → RED → WAIT_CAP → FLUSH，读取每侧五点水位均值。缺水、盖子状态、超时、DRY/KINKED 泵诊断可改变路径；完成要求最后测量与连接侧条件通过。普通缺水允许门限为 **18.75**，由原字节解码确认；该常量不适用于所有注水阶段。[注水与阈值证据](../../evidence/analysis/thermal-deep/THERMAL_REPORT_ZH.txt)
 
 ## 已解释和仍缺的部分
 

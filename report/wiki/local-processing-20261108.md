@@ -64,7 +64,7 @@ App / 远端目标 → 主控本地调度
 
 旧 39,704 字节 legacy v2.2.12 与 42,292 字节 Sensor v3.3.1 的两条采样路线均已独立闭合，包含内部 ADC 校正、MCP 四路拼组却只发送两路、FDC 错时缓存和温湿度处理。详见[传感固件分版覆盖](algorithms/local-sensor-versions.md)。
 
-枕头固件另有六路 IMU、电容、LIS 方向均值、温湿度、自检与振动处理，现已接到 Frank 的 0x38/3a/3b/43 消费者。正常 0x38 发送存在 11 次出队尝试但只编码 10 行的区别；实际发生率未测。[枕头本地处理](algorithms/local-pillow-processing.md)
+枕头固件另有六路 IMU、电容、LIS 方向均值、温湿度、自检与振动处理，由 Frank 的 0x38/3a/3b/43 消费者接收。正常 0x38 发送存在 11 次出队尝试但只编码 10 行的区别；实际发生率未测。[枕头本地处理](algorithms/local-pillow-processing.md)
 
 ## 已恢复的机械算法
 

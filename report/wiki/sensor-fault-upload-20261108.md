@@ -2,11 +2,10 @@
 
 把两条最影响数据清洗与时间对齐的缺口推到可核验边界：**连续失败、恢复与启停交错后新旧数据怎样进入上传**，以及 **nonUSB 独立时基**。没有实机数据、没有执行固件、没有恢复生产生理算法。[整体机会与后续优先级](reverse-plan.md)仍区分可静态推进项与需材料项。
 
-## 一、先纠正一处缺口表状态：nonUSB 时基已经闭合
+## 一、双版本时基与独立字节证据
 
-`nonUSB 独立时基`不应再列为待办。`sensor-nonusb-dispatch` 的 NU-05 已用本份 132896B BBIN 自身的
-SysTick 向量、tick 增量、`.data` 初值、除法与 LOAD/VAL/CTRL 写入给出独立证据。另做了一份
-不依赖 Ghidra 的复核：直接重读两份冻结 BBIN，**46 项字节/映射检查 0 失败**，确认该结论可在归档恢复后复现。
+nonUSB 独立时基由 `sensor-nonusb-dispatch` 的 NU-05 给出证据，输入为本份 132896B BBIN 自身的
+SysTick 向量、tick 增量、`.data` 初值、除法与 LOAD/VAL/CTRL 写入。不依赖 Ghidra 的独立复核直接重读两份冻结 BBIN，**46 项字节/映射检查 0 失败**，确认该结论可在归档恢复后复现。
 
 | 项目 | USB 5.5.34.0 | nonUSB 5.5.34.0 |
 | --- | --- | --- |
@@ -28,18 +27,13 @@ SysTick 向量、tick 增量、`.data` 初值、除法与 LOAD/VAL/CTRL 写入�
 [字节核验结果](../analysis-tools/system-deepening/nonusb-timebase-crosscheck/BYTE_CROSSCHECK.json)与
 [完整结论](../analysis-tools/system-deepening/nonusb-timebase-crosscheck/FINDINGS_ZH.txt)。
 
-**本页撰写时真正剩下的时基尾巴**：nonUSB 的频率变量 writer 及其调用者、错误辅助函数全部副作用、
-全部上游配置选择、切换过渡与累计 tick 损失；以及两版共同的物理核心时钟、中断延迟与
-ADC CLKIN/DRDY 实测。USB 侧已接到的三个频率 writer 与两个配置入口不能投影到 nonUSB。
-[传感时钟切换](sensor-clock-20261108.md)保留 USB 侧原结论。
-
-**后续状态修正**：其中前三项已在[nonUSB 时钟配置链](nonusb-clock-writers-20261108.md)用 nonUSB 自身字节闭合——三个写 `0x20000250` 的函数与写点、两个配置入口、以及错误辅助函数写 `AIRCR` 请求 SYSRESETREQ（两版字节相同）。这些不是从 USB 结论投影过去的，同时补上了 USB 侧遗留的 `08012430` 副作用。仍成立的是全部上游配置选择、切换过渡与累计 tick 损失，以及全部物理时序实测；本段之前的列表保留为撰写时点的记录，不作追溯改写。其中「全部上游配置选择」随后已在[nonUSB 上游时钟选择](upstream-clock-selection-20261108.md)覆盖到 `hwrev` 版本分派表与 6 个启动变体，但型号/晶振绑定仍未闭合。
+nonUSB 的频率变量写入函数、两个配置入口和错误辅助函数的 SYSRESETREQ 写入由自身字节支持，见[nonUSB 时钟配置链](nonusb-clock-writers-20261108.md)。hwrev 分派表与启动变体见[上游时钟选择](upstream-clock-selection-20261108.md)。仍未确定型号/晶振绑定、实际配置选择、切换过渡、累计 tick 损失，以及核心时钟、中断延迟与 ADC CLKIN/DRDY 的实测时序。USB 与 nonUSB 的地址和布局证据分别核验。
 
 ## 二、传感异常组合：旧值会带着新时间戳进入上传
 
-此前两个模型各自完整却没有接通：`local-sensor-recovery-followup` 的 MCU 故障/缓存/启停状态链
+组合模型包含两个输入边界：`local-sensor-recovery-followup` 的 MCU 故障/缓存/启停状态链
 停在 0x3c / 0x39 产物；`integrated-capture-model` 的贯通链路里「保留旧值」是人为注入的。
-让 **MCU 故障状态机驱动包序列**，每行保留来源台账，再送进 Frank 载荷边界与发布队列。
+由 **MCU 故障状态机驱动包序列**，每行保留来源台账，再送进 Frank 载荷边界与发布队列。
 14 个固定场景、53 个包、126 条契约断言 0 失败。
 
 | 发现 | 数据 | 对数据清洗的含义 |
@@ -58,9 +52,7 @@ ADC CLKIN/DRDY 实测。USB 侧已接到的三个频率 writer 与两个配置�
 **核心风险**：旧值与新时间戳一起上传，且 0x3c 包内既没有逐读 CRC/ready 序号，也没有逐通道新鲜度位。
 所以补点、重放、丢包率的判定必须有同源输入/输出记录，不能由模拟比例或解析成功代替。
 
-模型首版曾把「沿用旧 current」误判为新值（旧值计数全为 0，与既有代码结论矛盾），
-已改为按「 callback 是否真的写入」判定并复跑；修正过程在
-[完整结论](../analysis-tools/system-deepening/sensor-fault-upload-chain/FINDINGS_ZH.txt)中保留。
+模型按 callback 是否实际写入 current 判定样本新鲜度；仅复制已有 current 不计为新测量。判据与轨迹见[完整结论](../analysis-tools/system-deepening/sensor-fault-upload-chain/FINDINGS_ZH.txt)。
 
 [逐包轨迹与契约断言](../analysis-tools/system-deepening/sensor-fault-upload-chain/model/RESULTS.json) ·
 [契约来源表](../analysis-tools/system-deepening/sensor-fault-upload-chain/CONTRACTS.json) ·
@@ -72,6 +64,5 @@ ADC CLKIN/DRDY 实测。USB 侧已接到的三个频率 writer 与两个配置�
 
 两层模型都是离线合成：CRC/DRDY、启停/重初始化、publish 返回码均为显式输入，不是实机故障率或时序记录；
 抽象 body 代替 30,128B CBOR（字节级贯通已在 integrated-capture-model 完成）；不含 core 队列、KV、
-libnats ACK、NATS raw_mem、uploader、TLS 与云端接收。共享日志格式缓冲/重入专项曾被自动安全检查中止并
-标记未验收，没有重试、没有改写措辞、没有引用其草稿结论。气囊与床架的实现与残余问题另列专题；核心生理算法、
+libnats ACK、NATS raw_mem、uploader、TLS 与云端接收。共享日志格式缓冲/重入专项未验收，不纳入本章结论。气囊与床架的实现与残余问题另列专题；核心生理算法、
 Autopilot、姿态分类、实机绑定与音箱 DSP 仍依赖材料；USB `0x2B` 生产者与旧波形 RAW writer 两个旧缺口保持原状。
