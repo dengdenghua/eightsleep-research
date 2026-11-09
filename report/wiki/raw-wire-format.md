@@ -83,3 +83,8 @@ python3 report/analysis-tools/decode_uploader.py client-session.bin --kind sessi
 ## 证据与验证范围
 
 [源码归属清单](../analysis-tools/raw-wire-format/SOURCE_LEDGER.json)记录 ELF 和配置与冻结 ZIP 成员的字节一致性。[字节复核](../analysis-tools/raw-wire-format/BINARY_VERIFICATION.json)覆盖 3,185 条导出指令、12,740 字节，与原始 ELF 逐项匹配；这不是整固件逆向完成比例。[28 项指令仿真](../analysis-tools/raw-wire-format/FLAGS_EMULATION.json)和[8 项合成解码测试](../analysis-tools/raw-wire-format/DECODER_VALIDATION.json)分别记录，均未访问设备、账号或云端。
+
+
+## 本地接入实现
+
+设备 USB／SSH 配置、公钥授权边界及独立 NATS 读取工具见 [压电原始数据的本地接入](raw-local-access.md)。本机测试服务器验证通过，实机连接仍未建立。

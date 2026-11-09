@@ -1,0 +1,248 @@
+/* Reconstructed Ghidra pseudocode, not vendor source. */
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_004bb4ac(undefined8 *param_1,undefined8 *param_2,undefined8 param_3,undefined8 param_4)
+
+{
+  undefined8 uVar1;
+  undefined8 uVar2;
+  undefined1 uVar3;
+  undefined *puVar4;
+  undefined3 uVar5;
+  undefined5 uVar6;
+  undefined3 uVar7;
+  undefined5 uVar8;
+  undefined1 uVar9;
+  undefined8 *puVar10;
+  long lVar11;
+  undefined8 *puVar12;
+  long lVar13;
+  undefined8 uVar14;
+  undefined8 uVar15;
+  undefined8 uVar16;
+  undefined8 uVar17;
+  undefined8 uVar18;
+  undefined8 uVar19;
+  undefined8 uVar20;
+  undefined8 uVar21;
+  undefined8 local_130;
+  undefined8 uStack_128;
+  undefined4 local_120;
+  int iStack_11c;
+  undefined5 uStack_118;
+  undefined3 uStack_113;
+  undefined4 local_110;
+  uint uStack_10c;
+  undefined5 uStack_108;
+  undefined3 uStack_103;
+  undefined5 local_100;
+  undefined3 uStack_fb;
+  undefined5 uStack_f8;
+  undefined3 uStack_f3;
+  undefined5 local_f0;
+  undefined3 uStack_eb;
+  undefined5 uStack_e8;
+  undefined3 uStack_e3;
+  undefined5 uStack_e0;
+  undefined3 uStack_db;
+  undefined5 uStack_d8;
+  undefined3 uStack_d3;
+  undefined5 uStack_d0;
+  undefined3 uStack_cb;
+  undefined8 uStack_c8;
+  uint3 local_c0;
+  undefined5 uStack_bd;
+  undefined3 uStack_b8;
+  undefined5 uStack_b5;
+  undefined1 uStack_b0;
+  undefined2 uStack_af;
+  undefined5 uStack_ad;
+  undefined3 uStack_a8;
+  undefined5 local_9d;
+  undefined3 uStack_98;
+  
+  uVar9 = FUN_004971bc(param_2[0x14] + 0x10);
+  lVar13 = param_2[0x14];
+  FUN_004c042c(&local_130,0x20);
+  uVar8 = local_100;
+  uVar7 = uStack_103;
+  uVar6 = uStack_108;
+  uVar5 = uStack_113;
+  local_100 = uStack_118;
+  puVar4 = PTR_DAT_009faac8;
+  uStack_c8 = CONCAT35(uStack_db,uStack_e0);
+  local_9d = (undefined5)CONCAT44(uStack_10c,local_110);
+  uStack_98 = (undefined3)(uStack_10c >> 8);
+  uStack_ad = (undefined5)CONCAT44(iStack_11c,local_120);
+  uStack_a8 = (undefined3)((uint)iStack_11c >> 8);
+  uStack_b5 = (undefined5)uStack_128;
+  uStack_b0 = (undefined1)((ulong)uStack_128 >> 0x28);
+  uStack_af = (undefined2)((ulong)uStack_128 >> 0x30);
+  uStack_bd = (undefined5)local_130;
+  uStack_b8 = (undefined3)((ulong)local_130 >> 0x28);
+  local_120 = 0;
+  uStack_113 = uStack_b8;
+  local_110 = (undefined4)uStack_128;
+  iStack_11c = (uint)local_c0 << 8;
+  uStack_118 = uStack_bd;
+  uStack_103 = uStack_a8;
+  uStack_10c = (uint)((ulong)uStack_128 >> 0x20);
+  uStack_108 = uStack_ad;
+  uStack_cb = uStack_e3;
+  uStack_d3 = uStack_eb;
+  uStack_d0 = uStack_e8;
+  uStack_db = uStack_f3;
+  uStack_d8 = local_f0;
+  uStack_e3 = uStack_fb;
+  uStack_e0 = uStack_f8;
+  uStack_eb = uVar7;
+  uStack_e8 = uVar8;
+  uStack_f3 = uStack_98;
+  local_f0 = uVar6;
+  uStack_fb = uVar5;
+  uStack_f8 = local_9d;
+  uStack_128 = 1;
+  local_130 = 1;
+  uVar3 = *PTR_DAT_009faac8;
+  puVar10 = (undefined8 *)FUN_00318628(0x70,8);
+  if (puVar10 == (undefined8 *)0x0) {
+                    /* WARNING: Subroutine does not return */
+    FUN_0019139c(8,0x70);
+  }
+  uVar1 = param_2[0x10];
+  uVar2 = param_2[0x11];
+  puVar10[9] = CONCAT35(uStack_e3,uStack_e8);
+  puVar10[8] = CONCAT35(uStack_eb,local_f0);
+  puVar10[0xb] = CONCAT35(uStack_d3,uStack_d8);
+  puVar10[10] = CONCAT35(uStack_db,uStack_e0);
+  puVar10[0xd] = uStack_c8;
+  puVar10[0xc] = CONCAT35(uStack_cb,uStack_d0);
+  local_c0 = (uint3)puVar10;
+  uStack_bd = (undefined5)((ulong)puVar10 >> 0x18);
+  uStack_b8 = 0x9e27e8;
+  uStack_b5 = 0;
+  puVar10[1] = uStack_128;
+  *puVar10 = local_130;
+  puVar10[3] = CONCAT35(uStack_113,uStack_118);
+  puVar10[2] = CONCAT44(iStack_11c,local_120);
+  uStack_b0 = 2;
+  puVar10[5] = CONCAT35(uStack_103,uStack_108);
+  puVar10[4] = CONCAT44(uStack_10c,local_110);
+  puVar10[7] = CONCAT35(uStack_f3,uStack_f8);
+  puVar10[6] = CONCAT35(uStack_fb,local_100);
+  uVar17 = param_2[0x13];
+  uVar14 = param_2[0x12];
+  uVar3 = *puVar4;
+  puVar10 = (undefined8 *)FUN_00318628(0x10,8);
+  if (puVar10 == (undefined8 *)0x0) {
+                    /* WARNING: Subroutine does not return */
+    FUN_0019139c(8,0x10);
+  }
+  uVar16 = param_2[0x15];
+  uVar19 = param_2[0x16];
+  puVar10[1] = 1;
+  *puVar10 = 1;
+  uVar3 = *puVar4;
+  lVar11 = FUN_00318628(0x20,8);
+  if (lVar11 == 0) {
+                    /* WARNING: Subroutine does not return */
+    FUN_00191384(8,0x20,&PTR_s__cargo_registry_src_index_crates_009e76d0);
+  }
+  uStack_f8 = 0;
+  uStack_f3 = 0;
+  local_f0 = 0;
+  uStack_eb = 0;
+  local_110 = 0;
+  uStack_10c = uStack_10c & 0xffffff00;
+  uStack_128 = 1;
+  local_130 = 1;
+  uStack_118 = (undefined5)_UNK_00784988;
+  uStack_113 = (undefined3)((ulong)_UNK_00784988 >> 0x28);
+  local_120 = (undefined4)_DAT_00784980;
+  iStack_11c = (int)((ulong)_DAT_00784980 >> 0x20);
+  uStack_108 = 4;
+  uStack_103 = 0;
+  local_100 = (undefined5)lVar11;
+  uStack_fb = (undefined3)((ulong)lVar11 >> 0x28);
+  uVar3 = *puVar4;
+  puVar12 = (undefined8 *)FUN_00318628(0x48,8);
+  if (puVar12 != (undefined8 *)0x0) {
+    *(undefined1 *)(param_1 + 0x2a) = 1;
+    puVar12[8] = CONCAT35(uStack_eb,local_f0);
+    puVar12[5] = CONCAT35(uStack_103,uStack_108);
+    puVar12[4] = CONCAT44(uStack_10c,local_110);
+    puVar12[7] = CONCAT35(uStack_f3,uStack_f8);
+    puVar12[6] = CONCAT35(uStack_fb,local_100);
+    param_1[0x1d] = CONCAT53(uStack_ad,CONCAT21(uStack_af,uStack_b0));
+    param_1[0x1e] = param_3;
+    *param_1 = 0;
+    puVar12[1] = uStack_128;
+    *puVar12 = local_130;
+    puVar12[3] = CONCAT35(uStack_113,uStack_118);
+    puVar12[2] = CONCAT44(iStack_11c,local_120);
+    uVar21 = param_2[9];
+    uVar20 = param_2[8];
+    uVar18 = param_2[0xb];
+    uVar15 = param_2[10];
+    *(undefined1 *)((long)param_1 + 0x154) = uVar9;
+    param_1[0x21] = &DAT_009e2778;
+    param_1[0x22] = uVar16;
+    param_1[0x14] = uVar21;
+    param_1[0x13] = uVar20;
+    param_1[0x16] = uVar18;
+    param_1[0x15] = uVar15;
+    uVar20 = param_2[0xd];
+    uVar18 = param_2[0xc];
+    uVar15 = param_2[0xf];
+    uVar16 = param_2[0xe];
+    param_1[0x23] = uVar19;
+    param_1[0x24] = lVar13;
+    *(undefined1 *)((long)param_1 + 0x151) = 1;
+    param_1[0x18] = uVar20;
+    param_1[0x17] = uVar18;
+    param_1[0x1a] = uVar15;
+    param_1[0x19] = uVar16;
+    uVar18 = param_2[1];
+    uVar15 = *param_2;
+    uVar19 = param_2[3];
+    uVar16 = param_2[2];
+    param_1[4] = 0;
+    param_1[5] = 0;
+    param_1[0x1f] = param_4;
+    param_1[0x20] = puVar10;
+    param_1[0xc] = uVar18;
+    param_1[0xb] = uVar15;
+    param_1[0xe] = uVar19;
+    param_1[0xd] = uVar16;
+    uVar18 = param_2[5];
+    uVar15 = param_2[4];
+    uVar19 = param_2[7];
+    uVar16 = param_2[6];
+    *(undefined2 *)((long)param_1 + 0x152) = 0;
+    param_1[0x25] = uVar1;
+    param_1[0x26] = uVar2;
+    param_1[0x12] = uVar19;
+    param_1[0x11] = uVar16;
+    param_1[0x10] = uVar18;
+    param_1[0xf] = uVar15;
+    param_1[3] = 8;
+    param_1[2] = 0;
+    param_1[6] = 8;
+    param_1[7] = 0;
+    param_1[0x1c] = CONCAT53(uStack_b5,uStack_b8);
+    param_1[0x1b] = CONCAT53(uStack_bd,local_c0);
+    param_1[8] = 0;
+    param_1[9] = 8;
+    param_1[0x29] = uVar17;
+    param_1[0x28] = uVar14;
+    param_1[10] = 0;
+    param_1[0x27] = puVar12;
+    *(undefined1 *)((long)param_1 + 0x155) = 0;
+    return;
+  }
+                    /* WARNING: Subroutine does not return */
+  FUN_0019139c(8,0x48);
+}
+
+

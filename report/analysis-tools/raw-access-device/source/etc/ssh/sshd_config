@@ -1,0 +1,149 @@
+#	$OpenBSD: sshd_config,v 1.102 2018/02/16 02:32:40 djm Exp $
+
+# This is the sshd server system-wide configuration file.  See
+# sshd_config(5) for more information.
+
+# This sshd was compiled with PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+# The strategy used for options in the default sshd_config shipped with
+# OpenSSH is to specify options with their default value where
+# possible, but leave them commented.  Uncommented options override the
+# default value.
+
+# Pull in drop-ins (e.g. recipes-development's 99-development.conf
+# loosens PermitRootLogin / AuthorizedKeysFile / AllowUsers for dev
+# images). Must be at the TOP of the file: sshd's first-occurrence-
+# wins rule means any keyword set later here would override the
+# drop-in. With this line first, drop-ins parse first and win.
+# Production builds (no drop-ins shipped) see this as a no-op.
+Include /etc/ssh/sshd_config.d/*.conf
+
+Port 8822
+#AddressFamily any
+ListenAddress 0.0.0.0
+#ListenAddress ::
+
+#HostKey /etc/ssh/ssh_host_rsa_key
+#HostKey /etc/ssh/ssh_host_ecdsa_key
+#HostKey /etc/ssh/ssh_host_ed25519_key
+
+# Ciphers and keying
+#RekeyLimit default none
+
+# Logging
+#SyslogFacility AUTH
+#LogLevel DEBUG3
+
+# Authentication:
+
+#LoginGraceTime 2m
+PermitRootLogin no
+#StrictModes yes
+#MaxAuthTries 6
+#MaxSessions 10
+
+#PubkeyAuthentication yes
+
+# The default is to check both .ssh/authorized_keys and .ssh/authorized_keys2
+# but this is overridden so installations will only check .ssh/authorized_keys
+#
+# /ephemeral/ssh/%u/authorized_keys is here for secureboot (DEV-1968).
+# capybara's remoteconnectivity/addauthorizedkeys writes there whenever
+# /ephemeral is a mountpoint, which on mt8365-8sleep-1gb-sb is always: rootfs_a
+# and rootfs_b are dm-verity and there is no separate /home partition, so both
+# of the paths above are read-only and /ephemeral is the only writable place a
+# key can land. Without this entry that API call reports success and grants
+# nothing at all.
+#
+# APPENDED, never substituted. sshd tries each entry in turn and skips ones
+# that do not exist, so machines with no ephemeral partition (mt8365-8sleep and
+# -1gb, DISTRO "eight", writable rootfs — they take capybara's legacy
+# /etc/ssh/authorized_keys branch) are unaffected. Replacing the list with the
+# /ephemeral path alone is the hazard that
+# recipes-development/openssh/files/mt8365-8sleep/99-development.conf exists to
+# avoid: on those machines it points sshd at a path that never exists and locks
+# out key login entirely.
+#
+# Deliberately NOT paired with PermitRootLogin / AllowUsers changes. Those stay
+# as set above, so an injected key reaches the rewt account only.
+AuthorizedKeysFile	/etc/ssh/authorized_keys .ssh/authorized_keys /ephemeral/ssh/%u/authorized_keys
+
+#AuthorizedPrincipalsFile none
+
+#AuthorizedKeysCommand none
+#AuthorizedKeysCommandUser nobody
+
+# For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
+#HostbasedAuthentication no
+# Change to yes if you don't trust ~/.ssh/known_hosts for
+# HostbasedAuthentication
+#IgnoreUserKnownHosts no
+# Don't read the user's ~/.rhosts and ~/.shosts files
+#IgnoreRhosts yes
+
+# To disable tunneled clear text passwords, change to no here!
+PasswordAuthentication no
+#PermitEmptyPasswords no
+
+# Change to yes to enable challenge-response passwords (beware issues with
+# some PAM modules and threads)
+ChallengeResponseAuthentication no
+
+# Kerberos options
+#KerberosAuthentication no
+#KerberosOrLocalPasswd yes
+#KerberosTicketCleanup yes
+#KerberosGetAFSToken no
+
+# GSSAPI options
+#GSSAPIAuthentication no
+#GSSAPICleanupCredentials yes
+
+# The "UsePAM" directive is intentionally omitted. openssh in the esk
+# distro is built --without-pam (no "pam" in DISTRO_FEATURES), so the
+# binary's option parser doesn't recognise the directive at ANY value
+# (`UsePAM yes` and `UsePAM no` both produce "Unsupported option
+# UsePAM" from sshd / sshd_check_keys). Leaving it out matches what
+# the binary actually supports.
+
+#AllowAgentForwarding yes
+#AllowTcpForwarding yes
+#GatewayPorts no
+#X11Forwarding no
+#X11DisplayOffset 10
+#X11UseLocalhost yes
+#PermitTTY yes
+#PrintMotd yes
+#PrintLastLog yes
+#TCPKeepAlive yes
+#UseLogin no
+#PermitUserEnvironment no
+Compression no
+ClientAliveInterval 15
+ClientAliveCountMax 4
+#UseDNS no
+#PidFile /var/run/sshd.pid
+#MaxStartups 10:30:100
+#PermitTunnel no
+#ChrootDirectory none
+#VersionAddendum none
+
+# no default banner path
+Banner /etc/issue
+
+# override default of no subsystems
+Subsystem	sftp	/usr/libexec/sftp-server
+
+# Example of overriding settings on a per-user basis
+#Match User anoncvs
+#	X11Forwarding no
+#	AllowTcpForwarding no
+#	PermitTTY no
+#	ForceCommand cvs server
+
+#Match User rewt
+#        PasswordAuthentication yes
+#	PermitTTY yes
+
+# only rewt is allowed to ssh in:
+AllowUsers rewt
