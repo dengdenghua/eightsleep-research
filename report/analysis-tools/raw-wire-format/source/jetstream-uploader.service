@@ -1,0 +1,17 @@
+[Unit]
+Description=Jetstream Uploader
+After=persistent-manager.service nats-server.service
+Wants=persistent-manager.service nats-server.service
+
+[Service]
+SyslogIdentifier=jetstream-uploader
+WorkingDirectory=/persistent
+Environment=LC_CTYPE="en_US.utf8"
+ExecStartPre=/bin/bash -c 'while [ ! -s /persistent/deviceinfo/device-id ]; do echo "Waiting for device-id..."; sleep 4; done'
+ExecStart=/opt/eight/bin/jetstream-uploader
+Restart=always
+RestartSec=5
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
