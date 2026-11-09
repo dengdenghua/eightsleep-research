@@ -1,0 +1,250 @@
+{
+  "result": "PASS",
+  "cases": [
+    {
+      "name": "heating_ambient_clip_keeps_integral",
+      "input": {
+        "target": 30,
+        "water": 25,
+        "integral": 10,
+        "previous_e": 5,
+        "ambient": 30
+      },
+      "observed": {
+        "error": 5.0,
+        "integral_before": 10.0,
+        "attempted_integral": 15.0,
+        "integral_saved": 15.0,
+        "previous_e_saved": 5.0,
+        "cached_p": 1.5,
+        "cached_i": 0.07499999552965164,
+        "cached_d": 0.0,
+        "cached_raw_output": 1.5750000476837158,
+        "cooling_actual_cut": false,
+        "after_cooling": 1.5750000476837158,
+        "ambient_bounds": [
+          -0.800000011920929,
+          0.800000011920929
+        ],
+        "final_request": 0.800000011920929
+      },
+      "expected_fields": {
+        "integral_saved": 15.0,
+        "cached_i": 0.07499999552965164,
+        "cooling_actual_cut": false,
+        "previous_e_saved": 5.0,
+        "cached_d": 0.0,
+        "final_request": 0.800000011920929
+      }
+    },
+    {
+      "name": "cooling_cut_rolls_back_only_integral",
+      "input": {
+        "target": 20,
+        "water": 25,
+        "integral": 10,
+        "previous_e": 0,
+        "ambient": 20
+      },
+      "observed": {
+        "error": -5.0,
+        "integral_before": 10.0,
+        "attempted_integral": 5.0,
+        "integral_saved": 10.0,
+        "previous_e_saved": -5.0,
+        "cached_p": -1.5,
+        "cached_i": 0.02499999850988388,
+        "cached_d": -1.0,
+        "cached_raw_output": -2.4749999046325684,
+        "cooling_actual_cut": true,
+        "after_cooling": -0.6700000166893005,
+        "ambient_bounds": [
+          -0.800000011920929,
+          0.800000011920929
+        ],
+        "final_request": -0.6700000166893005
+      },
+      "expected_fields": {
+        "integral_saved": 10.0,
+        "attempted_integral": 5.0,
+        "cached_i": 0.02499999850988388,
+        "cached_d": -1.0,
+        "cooling_actual_cut": true,
+        "previous_e_saved": -5.0,
+        "final_request": -0.6700000166893005
+      }
+    },
+    {
+      "name": "next_cooling_step_uses_updated_previous_error",
+      "input": {
+        "target": 20,
+        "water": 25,
+        "integral": 10.0,
+        "previous_e": -5.0,
+        "ambient": 20
+      },
+      "observed": {
+        "error": -5.0,
+        "integral_before": 10.0,
+        "attempted_integral": 5.0,
+        "integral_saved": 10.0,
+        "previous_e_saved": -5.0,
+        "cached_p": -1.5,
+        "cached_i": 0.02499999850988388,
+        "cached_d": 0.0,
+        "cached_raw_output": -1.475000023841858,
+        "cooling_actual_cut": true,
+        "after_cooling": -0.6700000166893005,
+        "ambient_bounds": [
+          -0.800000011920929,
+          0.800000011920929
+        ],
+        "final_request": -0.6700000166893005
+      },
+      "expected_fields": {
+        "integral_saved": 10.0,
+        "cached_d": 0.0,
+        "cooling_actual_cut": true,
+        "final_request": -0.6700000166893005
+      }
+    },
+    {
+      "name": "ceiling_at_one_then_only_ambient_cut",
+      "input": {
+        "target": 20,
+        "water": 22,
+        "integral": -80,
+        "previous_e": -2,
+        "ambient": 20,
+        "ceiling": 1
+      },
+      "observed": {
+        "error": -2.0,
+        "integral_before": -80.0,
+        "attempted_integral": -82.0,
+        "integral_saved": -82.0,
+        "previous_e_saved": -2.0,
+        "cached_p": -0.6000000238418579,
+        "cached_i": -0.4099999964237213,
+        "cached_d": 0.0,
+        "cached_raw_output": -1.0099999904632568,
+        "cooling_actual_cut": false,
+        "after_cooling": -1.0099999904632568,
+        "ambient_bounds": [
+          -0.800000011920929,
+          0.800000011920929
+        ],
+        "final_request": -0.800000011920929
+      },
+      "expected_fields": {
+        "integral_saved": -82.0,
+        "cached_i": -0.4099999964237213,
+        "cooling_actual_cut": false,
+        "final_request": -0.800000011920929
+      }
+    },
+    {
+      "name": "heating_fallback_output_clip_keeps_integral",
+      "input": {
+        "target": 30,
+        "water": 25,
+        "integral": 10,
+        "previous_e": 5,
+        "ambient": null
+      },
+      "observed": {
+        "error": 5.0,
+        "integral_before": 10.0,
+        "attempted_integral": 15.0,
+        "integral_saved": 15.0,
+        "previous_e_saved": 5.0,
+        "cached_p": 1.5,
+        "cached_i": 0.07499999552965164,
+        "cached_d": 0.0,
+        "cached_raw_output": 1.5750000476837158,
+        "cooling_actual_cut": false,
+        "after_cooling": 1.5750000476837158,
+        "ambient_bounds": [
+          -1.0,
+          1.0
+        ],
+        "final_request": 1.0
+      },
+      "expected_fields": {
+        "integral_saved": 15.0,
+        "cooling_actual_cut": false,
+        "final_request": 1.0
+      }
+    },
+    {
+      "name": "integral_bound_is_separate_from_output_clip",
+      "input": {
+        "target": 30,
+        "water": 25,
+        "integral": 199,
+        "previous_e": 5,
+        "ambient": 30
+      },
+      "observed": {
+        "error": 5.0,
+        "integral_before": 199.0,
+        "attempted_integral": 200.0,
+        "integral_saved": 200.0,
+        "previous_e_saved": 5.0,
+        "cached_p": 1.5,
+        "cached_i": 1.0,
+        "cached_d": 0.0,
+        "cached_raw_output": 2.5,
+        "cooling_actual_cut": false,
+        "after_cooling": 2.5,
+        "ambient_bounds": [
+          -0.800000011920929,
+          0.800000011920929
+        ],
+        "final_request": 0.800000011920929
+      },
+      "expected_fields": {
+        "attempted_integral": 200.0,
+        "integral_saved": 200.0,
+        "cached_i": 1.0,
+        "final_request": 0.800000011920929
+      }
+    },
+    {
+      "name": "small_cooling_without_cut",
+      "input": {
+        "target": 24,
+        "water": 25,
+        "integral": 0,
+        "previous_e": -1,
+        "ambient": 24
+      },
+      "observed": {
+        "error": -1.0,
+        "integral_before": 0.0,
+        "attempted_integral": -1.0,
+        "integral_saved": -1.0,
+        "previous_e_saved": -1.0,
+        "cached_p": -0.30000001192092896,
+        "cached_i": -0.004999999888241291,
+        "cached_d": 0.0,
+        "cached_raw_output": -0.3050000071525574,
+        "cooling_actual_cut": false,
+        "after_cooling": -0.3050000071525574,
+        "ambient_bounds": [
+          -0.800000011920929,
+          0.800000011920929
+        ],
+        "final_request": -0.3050000071525574
+      },
+      "expected_fields": {
+        "integral_saved": -1.0,
+        "cached_d": 0.0,
+        "cooling_actual_cut": false,
+        "final_request": -0.3050000071525574
+      }
+    }
+  ],
+  "cases_count": 7,
+  "scope": "Analyst float32 finite-step transcription. Fixed ceiling is an input; no scheduling, whole-controller equivalence, NaN, or physical performance claim."
+}

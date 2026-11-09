@@ -1,0 +1,72 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+C04 补完：中国版冷启动、用户/家庭缓存、首页路由与备用温控门控
+日期：2026-11-07；样本：7.63.5-cn-tencent
+APK SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04
+
+结论与验收
+本轮把“冷启动是否必须联网”和“存在 BLE 代码是否就能使用”之间的静态调用链接通了。纯断网不是清库条件；冷启动并非无条件先联网取用户/引导状态；但凭缓存存在，也不能保证账号此时能进入温控页、获得 BLE 权限或写入成功。
+C04 的 App 静态生命周期与已指定入口验收完成。账号实际 feature flag、权限、缓存内容、系统级清数据/卸载后 Keystore 行为及实机离线成功率，仍是运行时验收，未伪装成已测结果。
+此前已闭合退出/空 token/清库顺序和 room_encryption_key 边界，见 ../../../../next-round-20261107/app-lifecycle/FINDINGS_ZH.txt（以研究根 analysis/next-round-20261107/app-lifecycle 为准）。本报告新增 cold-start 与门控，不重复声称完整 App 已穷举。
+
+证据说明
+SOURCE_LEDGER.tsv：每段 Smali 的原文件绝对路径、SHA256、准确起止行。
+SOURCE_EXCERPTS.json：40 段原始 Smali 片段，标签 C01–C40 与以下结论对应。
+REA_BLE_SUPPORT_GATE.json、REA_COLDSTART_CACHE.json：由 REA deep read 实际生成的保留证据；REA_EVIDENCE_INDEX.json 列出真实 evidence_id/index，未以手写标签冒充 REA ID。
+JADX 用于导航，关键分支已按 Smali 判断。本轮未运行 App、未读账号文件、未连接设备或网络。
+
+1. 中国版 consent 在正常启动之前
+MainViewModel 构造启动 le.c；其通过注入 ObserveChinaConsentRequiredUseCase 取得 ChinaComplianceConsentRepository.observeDetails()，来源是本地 DataStore。A9.e case 10 转 A9.d case 27，检查两项 consent 版本是否都等于固定字符串 2026-01-15。任一不匹配返回 consentRequired=true。[C01,C02,C04,C36]
+le.b 的 true 分支将 showChinaConsent 置 true；false 分支清掉该状态，然后调用 startNormalStartup。后者有“只启动一次”保护。这里不是启动时无条件向服务器查询 consent。后续 onLoginSuccess 会启动 uploadChinaConsent，但它在本地 consent 门控之后。[C03,C09；此前 L20]
+这个日期是此 APK 的代码常量，不代表任何当前服务条款版本，也不证明用户已接受。
+
+2. token → ensureAppUser → 本地用户 → 失败时远端获取
+此前链：startNormalStartup → le.O → AuthRepository.getToken → le.K → ensureAppUser；初始化 Success 经 le.N/le.L 调 onLoginSuccess。[C33,C34；此前 L05–L08]
+ensureAppUser 先以 false 调 GetAppUserUseCase(xd.m)。false 分支走 xd.C/xd.B：先从 auth token 对应 userId，再订阅 UserRepository.getAllUsers。这个 getAllUsers 来自 Room 的 SELECT * FROM user。xd.A 在列表中按 id 找当前用户，找不到产出 Error("App user not found")；找到后结合 observeSubscription 构造 app user。[C05,C06,C07,C18,C39,C40]
+ensureAppUser 的错误回退 le.i 改用 true；xd.m 的 true 分支才调 UserRepository.fetchAppUser。不能把“确保用户”这个名字解释成每次必联网，也不能因为有 user 缓存就忽略订阅/会话结果。[C08,C06]
+鉴权 token 空值/InvalidAuthTokenCacheException 会进入前轮证实的 logout+数据库清理链。普通网络不可达与这个异常不是同一条件。自动刷新中的不同异常处理继续按前轮 C9/f5.s 的上下文区分。
+
+3. onLoginSuccess 之后不只有一个首页
+onLoginSuccess 保存 appUser、设置选择用户，启动家庭刷新、数据平台登录、locale/推送/consent 等任务，然后 determineDestinationRoute(user) 并 observeOfflineData。[C09]
+路由有三个层次：[C10,C11,C12,C14]
+- featureFlags.m 为 true：ProductIdentificationGraph。
+- 账号创建日期满足邮件验证策略且 emailVerified=false：RegistrationGraphV2。
+- 否则 le.g 合并 HouseholdSummary 与 onboarding 状态，Success 后决定 Wismo/继续配对或 test-drive/Home；Error 的 le.e 只记 Onboarding State Error，在该处理器没有额外 logout/清库。[C13]
+HomeGraph 的子页也受 featureFlags.n 与订阅是否启用且包含 AUTOPILOT 限制：条件满足为 DynamicHome，否则 PodControls。不是所有账号都进入同一个首页。[C14]
+
+家庭摘要的输入由 Rb.V 明确组合 HouseholdRepository.getHousehold、DeviceRepository.getDevices、UserRepository.getAllUsers 和当前 app user。它是观察这些状态，不是本身每次请求所有云接口。[C16]
+引导状态这里尤其容易误判：f5.d.y → Mc.g → fetchRemoteOnboardingState(userId,false)。Smali 证明 false 先 getOnboardingState 读取 DAO；本地结果为 Success 就立即返回单值 Flow；只有非 Success 才构造 API 请求。方法名字中“Remote”不能用来判定每次冷启动都需联网。[C15,C17,C37]
+因此，登录缓存与 onboarding/家庭/设备等状态齐备时，代码存在使用本地数据推进的路径；没有这些状态时会走远端回退，断网可能留在加载/错误状态。这里未声称所有纯离线冷启动组合均可达控制页。
+
+4. 登录后预取离线资料：先权限，再设备筛选
+observeOfflineData 取消上一个 job，再启动 le.x。le.u 的组合函数返回的是第二个 Boolean（蓝牙权限状态），不是将两项值做 AND。le.w 仅在这个 Boolean 为 true 时订阅 ObserveOfflineDataForSelectedDeviceSetUseCase。[C24,C25,C26]
+Rb.Z 读取家庭摘要，按所选 device-set id 查找；查不到则用默认设备组；遍历其中的设备，只有 Qb.l.i()==true 的设备才调用 OfflineRepository.getOfflineDataForDevice。该方法经 kb.e/缓存 flow 获取离线资料，相关 cache-first 与 hydrate/云端补 key 在之前 offline-boundary 报告中已追踪。[C27,C21,C38]
+这不是本地传感数据预取：这里的 OfflineModeData 是 BLE 地址、安全材料等备用控制资料。
+
+5. canRunOfflineCommandFlow：不是检测“手机有无网络”
+OfflineRepository 的公共备用命令先在 cb.g0 检查 P/Q/S/T 四个功能开关是否至少一个开启；全 false 返回 OfflineApiNotEnabledException。放行后才接 canRunOfflineCommandFlow(deviceId)。[C20]
+cb.f0 先 emit Loading，再用 deviceDao 按 deviceId 读本地设备，取 modelName 解析 PodGeneration，并查看 firmwareVersion（eb.g.c，经 toString 对照确认）。正确 Smali 条件是：[C19,C35]
+  如果 device != null 且满足任一：
+  a) firmwareVersion != null 且包含 "."；或
+  b) PodGeneration == POD_1；或
+  c) PodGeneration == POD_2_PRO；
+  则返回 OfflineApiNotSupportedException；否则返回 Success(Unit)。
+JADX 此处显示过不可能的 null && contains 条件；本轮按 Smali 的 if-eqz/if-ne 更正。这个“包含点号”的写法是字面兼容性判定，不是我们推定的语义版本最低门槛。
+device==null 会绕过此处“不支持”分支，但后面的 peripheral/地址/key/扫描/连接/加密仍可失败，不能写成“设备记录缺失也可以控制”。
+Qb.l.i（用于设备支持能力与预取筛选）使用同样 firmwareVersion/老代际排除条件；同芯片不等于绕过这些客户端门槛。[C21]
+
+6. 普通温控入口还有一层系统状态门控
+ld.C0 的直接备用分支要求 BLE command 可构造、设备存在，且 Qb.u.b()==true。b() 同时要求 supportsOfflineCommands 和计算出来的 SystemStatus != NORMAL。[C22,C28]
+正常云端更新失败后，ld.y0 的 fallback 要求 command 存在且 Qb.u.a()==true；a() 要求设备支持，并且 offline/outage/phoneOffline 三个功能开关至少一个为 true。[C23,C29]
+Qb.u.c 的 DEVICE_OFFLINE/OUTAGE/PHONE_OFFLINE/POOR_CONNECTION 分支已在 APP_THERMAL_CONTROL_ZH.txt 闭合。综合 gate 后才能到 OfflineRepository.write → peripheral → 加密 BLE。代码里有备用控制，不等于服务器永久不可用时所有页面/日程仍工作。
+
+7. 正常后台/销毁与“退出账号”要分开
+MainViewModel.onPause：hideSnackBar + widgetFeatureManager；onResume：如果 appUser id 非空，refreshHouseholdSummary + mandatoryUpdateCheck + widget 管理；onCleared：super.onCleared 后停止并重置 widget runner。当前三个已读函数没有直接调用 DataCleanupUseCase 或 AppDatabase.d。[C30–C32]
+这只排除这几个直接函数中的清库调用；不等于审计整个 Android 进程退出/厂商系统行为。真正退出账号/空 token 清库仍按前轮证据。
+
+可操作的下一步验收（需要实机，不是当前还可从静态自动推出的事实）
+A. 在已正常登录、同意条款且控制成功一次的设备，分别验证手机无网但 Hub 有网、手机有网但 Hub 无网、双方无网的冷/热启动，记录路由、权限、selected device、门控输出、BLE 错误类型。
+B. 区分“系统清缓存”“系统清应用数据”“退出账号”“强行停止”，观察 user/onboarding/offline_mode_data 可用性与 key alias；不把这些动作混为一谈。
+C. 验证 token 真过期、明确401/刷新失败、纯无网络三组条件的时序与清库结果。
+D. 以脱敏控制日志观察，不索取/导出实际安全密钥；尚不做规避门控、修改 APK 或下发设备命令。

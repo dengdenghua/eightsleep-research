@@ -1,0 +1,37 @@
+TARGET 0002b680 function=0002b680
+REF_TO 00030a0c UNCONDITIONAL_CALL owner=0003098c
+REF_TO 0002989c UNCONDITIONAL_CALL owner=00029840
+FUNCTION_BODY [[0002b680, 0002b69d]]
+
+void FUN_0002b680(void)
+
+{
+  int iVar1;
+  int iVar2;
+  uint uVar3;
+  uint uVar4;
+  
+  iVar2 = DAT_0002b6a4;
+  iVar1 = DAT_0002b6a0;
+  uVar3 = 0;
+  do {
+    uVar4 = uVar3 + 1 & 0xff;
+    *(undefined4 *)(iVar2 + uVar3 * 0x28) = *(undefined4 *)(iVar1 + uVar3 * 4);
+    uVar3 = uVar4;
+  } while (uVar4 < 4);
+  return;
+}
+
+
+INSN 0002b680 10b5 push {r4,lr}
+INSN 0002b682 074a ldr r2,[0x0002b6a0] REF[READ:0002b6a0=20003c68]
+INSN 0002b684 0749 ldr r1,[0x0002b6a4] REF[READ:0002b6a4=20003bc8]
+INSN 0002b686 0020 movs r0,#0x0
+INSN 0002b688 00eb8004 add.w r4,r0,r0, lsl #0x2
+INSN 0002b68c 52f82030 ldr.w r3,[r2,r0,lsl #0x2] REF[READ:20003c68] REF[READ:20003c6c]
+INSN 0002b690 401c adds r0,r0,#0x1
+INSN 0002b692 c0b2 uxtb r0,r0
+INSN 0002b694 41f83430 str.w r3,[r1,r4,lsl #0x3] REF[WRITE:20003bc8] REF[WRITE:20003bf0]
+INSN 0002b698 0428 cmp r0,#0x4
+INSN 0002b69a f5d3 bcc 0x0002b688 REF[CONDITIONAL_JUMP:0002b688]
+INSN 0002b69c 10bd pop {r4,pc}

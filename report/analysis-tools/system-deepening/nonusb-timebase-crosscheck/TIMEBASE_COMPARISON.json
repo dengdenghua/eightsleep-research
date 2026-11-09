@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-08",
+  "purpose": "Side-by-side audit of the two G0 sensor software timebases. Confirms that the nonUSB conclusion is independent, and isolates what is still genuinely unverified.",
+  "method": "Prior read-only Ghidra exports plus an independent re-read of the frozen BBIN bytes (BYTE_CROSSCHECK.json, 46 checks, 0 failures). No firmware execution.",
+  "samples": {
+    "usb": {
+      "file": "firmware-sensor-g0-usb.bbin",
+      "bytes": 140828,
+      "sha256": "1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563",
+      "mapping_base": "0x08010000",
+      "primary_record": "report/analysis-tools/system-deepening/sensor-timebase/FINDINGS_ZH.txt"
+    },
+    "nonusb": {
+      "file": "firmware-sensor-g0.bbin",
+      "bytes": 132896,
+      "sha256": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+      "mapping_base": "0x08008000",
+      "primary_record": "report/analysis-tools/system-deepening/sensor-nonusb-dispatch/FINDINGS_ZH.txt (NU-05)"
+    }
+  },
+  "rows": [
+    {"item": "SysTick vector at file offset 188", "usb": "0x080114a3", "nonusb": "0x080094a3", "status": "independently verified in both"},
+    {"item": "Handler after clearing Thumb bit", "usb": "0x080114a2", "nonusb": "0x080094a2", "status": "independently verified in both"},
+    {"item": "Reset vector at file offset 132", "usb": "not recorded in RAW_INIT_FACTS.json", "nonusb": "0x0801fd01", "status": "nonUSB has byte record; USB reset vector not re-checked here"},
+    {"item": "Tick increment function", "usb": "0x080119d4", "nonusb": "0x080099d4", "status": "independently verified in both"},
+    {"item": "Tick read function", "usb": "0x080119ec", "nonusb": "0x080099ec", "status": "independently verified in both"},
+    {"item": "32-bit tick RAM address", "usb": "0x2000121c", "nonusb": "0x20001144", "status": "different addresses; not interchangeable"},
+    {"item": "tick_step RAM address", "usb": "0x20000258", "nonusb": "0x20000258", "status": "same address, different source offset"},
+    {"item": "clock_frequency_variable RAM address", "usb": "0x20000250", "nonusb": "0x20000250", "status": "same address, different source offset"},
+    {"item": ".data Flash load address", "usb": "0x08032288", "nonusb": "0x08028464", "status": "independently verified in both"},
+    {"item": ".data destination RAM range", "usb": "0x20000200..0x20000594", "nonusb": "0x20000200..0x200004bc", "status": "different lengths; both end exactly at their BBIN file end"},
+    {"item": ".data source file offset", "usb": 139912, "nonusb": 132196, "status": "recomputed from mapping base; consistent"},
+    {"item": "clock variable file offset", "usb": 139992, "nonusb": 132276, "status": "recomputed from Flash+RAM delta; matches record"},
+    {"item": "tick_step file offset", "usb": 140000, "nonusb": 132284, "status": "recomputed from Flash+RAM delta; matches record"},
+    {"item": "priority field file offset", "usb": 140004, "nonusb": 132288, "status": "recomputed from Flash+RAM delta; matches record"},
+    {"item": "bss zero range", "usb": "0x20000594..0x2000b344", "nonusb": "0x200004bc..0x2000ac14", "status": "both cover their own tick RAM"},
+    {"item": "SysTick config function", "usb": "0x0801195c", "nonusb": "0x0800995c", "status": "independently verified in both"},
+    {"item": "unsigned division helper", "usb": "0x08010174", "nonusb": "0x08008174", "status": "independently verified in both"},
+    {"item": "LOAD/VAL/CTRL writer", "usb": "0x0801244c", "nonusb": "0x0800a44c", "status": "independently verified in both"},
+    {"item": "tick_step setter", "usb": "0x080119f8", "nonusb": "0x080099f8", "status": "independently verified in both"},
+    {"item": "priority argument at init call site", "usb": "not independently recorded", "nonusb": "3 at 0x080099ac/0x080099bc", "status": "RAM initial value 4 is not the call argument"},
+    {"item": "default tick_step", "usb": 1, "nonusb": 1, "status": "byte-verified"},
+    {"item": "default software clock Hz", "usb": 16000000, "nonusb": 16000000, "status": "byte-verified"},
+    {"item": "q = floor(1000/step)", "usb": 1000, "nonusb": 1000, "status": "integer arithmetic"},
+    {"item": "N = floor(clock/q)", "usb": 16000, "nonusb": 16000, "status": "integer arithmetic"},
+    {"item": "SysTick LOAD = N-1", "usb": 15999, "nonusb": 15999, "status": "within 24-bit range"},
+    {"item": "CTRL value written", "usb": 7, "nonusb": 7, "status": "core clock source + count + interrupt enable, per CMSIS register semantics"},
+    {"item": "nominal unit", "usb": "1 ms/tick conditional", "nonusb": "1 ms/tick conditional", "status": "same formula, independently evidenced"},
+    {"item": "cache window 8 ticks", "usb": "nominal 8 ms", "nonusb": "nominal 8 ms", "status": "not wall-clock measurement"},
+    {"item": "send gate 500 ticks", "usb": "nominal 500 ms", "nonusb": "nominal 500 ms", "status": "not wall-clock measurement"},
+    {"item": "step setter failure rollback", "usb": "old step byte restored; reload not guaranteed", "nonusb": "old step byte restored; reload not guaranteed", "status": "same conditional weakness"},
+    {"item": "clock variable writers bound to callers", "usb": "3 writers + 2 config entries + error halt 0x08010C04", "nonusb": "NOT DONE", "status": "remaining static gap"},
+    {"item": "error helper full side effects", "usb": "0x08012430 not followed", "nonusb": "not identified", "status": "remaining static gap in both"},
+    {"item": "all upstream config selections / PLL transition", "usb": "not exhausted", "nonusb": "not exhausted", "status": "remaining static gap in both"},
+    {"item": "physical core clock, tick loss, interrupt latency, ADC CLKIN/DRDY", "usb": "needs measurement", "nonusb": "needs measurement", "status": "not resolvable by static analysis"}
+  ],
+  "conclusion": "The nonUSB timebase is independently established, not borrowed from USB. Both images implement the same SysTick formula with different addresses and separate .data source offsets. Shared nominal millisecond arithmetic must not be read as shared physical timing, and USB-specific clock-switch/failure findings must not be projected onto nonUSB.",
+  "documentation_correction": "sensor-timebase/FINDINGS_ZH.txt line 39 and workspace/algorithm-opportunities/sensor-clock/FINDINGS_ZH.txt line 27 state that the nonUSB timebase was not yet checked. Those statements describe the state at the time of writing; NU-05 in sensor-nonusb-dispatch since closed it. The historical records are left unchanged; this crosscheck and the current Wiki/roadmap carry the corrected state."
+}

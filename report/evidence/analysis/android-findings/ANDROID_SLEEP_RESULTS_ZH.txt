@@ -1,0 +1,139 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方中国 Android 7.63.5：睡眠结果请求、分期 schema 与显示处理
+日期：2026-11-07。仅静态分析，不安装或执行 App，不登录，不请求用户/设备 API。
+
+结论
+
+已恢复这份官方客户端的一条实际结果消费链：GET trends → Moshi DTO → 本地 daily_trends 缓存 → 领域对象 → SleepStagesViewModel → 阶段图/触摸提示。客户端接收的是阶段标签与秒数，不是原始压电样本。五个 JSON 标签为 awake、rem、light、deep、out；OUT 是独立值，不能丢成四类 schema。
+
+手机端有确定的处理：只把首段和末段中 AWAKE/OUT 的持续时间各限制为最多 600 秒，标签保留；其余阶段在该 mapper 中不改。原 session.duration、stageSummary 和 score 分别传递，未按这份裁剪后的列表重算。睡眠分数在已追的 day 显示链中直接消费响应值；>=80 和 Deep/REM 比例阈值属于 UI 状态，不是睡眠阶段分类器。
+
+本次拿到的是具体协议和结果显示实现，仍未拿到服务器从原始信号产生阶段、置信度和分数的模型/权重/训练流程。不能用请求参数 model-version=v3 代替后台实际算法版本，也不能从 duration 单位推定 30 秒或 5 秒固定 epoch。
+
+一、样本、索引与可复核文件
+
+APK：../sleep-pipeline/distribution-followup/com.eightsleep.eight_7.63.5-cn-tencent.apk
+package=com.eightsleep.eight；versionName=7.63.5-cn-tencent；versionCode=1007063005。
+151778699 字节；SHA256=8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+官方来源、应用宝页面、下载 URL、商店 MD5、APK v2 签名与来源交叉验证见 ../sleep-pipeline/OFFICIAL_DISTRIBUTION_FOLLOWUP_ZH.txt。
+
+工作区 W：../android-volume/cn-7.63.5
+index_id=462a22f663ae482ea93bab3130b96eaf
+index_sha256=4a6a63564ae05b2404ebdd218a5c579798c3486a83ddbf92bc913274641843a4
+J= W/java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/
+S= W/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/
+后文 J/S 相对路径的行号属于保留的当前索引，不是官方源仓库行号。
+
+完整提取、Apktool/Smali、签名与索引阶段成功；JADX exit3 报告 350 个错误，workspace.status=partial。Java 只作可读表示，关键协议、裁剪、时间转换、DI 与 day 分派用 Smali 互证。BaseMetricChartViewModel.handleData 的 Java 反编译失败，本文只使用其中明确的 Smali 调用段；并未宣称整个巨型方法/Canvas 绘制全部恢复。
+
+sleep-results/EVIDENCE_LEDGER.json 逐条关联结论、当前 REA evidence_id、完整源文件 SHA256 与保留片段；sleep-results/source/ 保存此次实际引用源文件的副本；sleep-results/*.json 为原样工具结果；SLEEP_PSEUDOCODE.txt 为人工转写，不能当成后台算法源码。verify_sleep_evidence.py 核验索引、APK、工具证据、源副本和引用行内容；verification.json 是实际结果。
+
+二、实际请求和服务选择 [SLP-01]
+
+接口为 Loc/c（JADX 名 p357oc.c），方法 d：
+  GET https://client-api-proxy.8slp.net.cn/v1/users/{USER_ID}/trends
+  query: tz, from, to, include-main, include-all-sessions, model-version, consistent-read
+  response: MetricsTrendsResponse
+
+这里的绝对域不是凭域名字串拼猜：
+  S/ce/k.smali:1998–2026 创建 MetricsTrendsRepository，Loc/c 是 Lce/l.Z3().create(Loc/c) 的产物；
+  J/p061ce/C2685l.java:1613–1622 和 root 已保留的 Z3 完整 Smali 指向 client-api；
+  root 的 APP_RUNTIME_AND_HARDWARE_ZH.txt 第一节已验证 provider id5→CHINA→8slp.net.cn、subdomain 加 -proxy、默认 HTTPS。
+温控服务使用的 app-api 与此服务不同，不能互相替换。
+
+S/oc/c.smali:151–194 保留 Retrofit path/query 注解，J/Xq/W.java:576–577 解释该注解为 GET。实际调用点 J/p378pc/Z.java:52–66 / S/pc/Z.smali:94–159 传入 include-main=false、include-all-sessions=true、model-version="v3"，consistent-read 来自调用参数。没有执行网络请求；上述是编译包中的构建与调用行为，不证明账号可用性、服务连通性、实际响应或当前部署模型。
+
+三、响应类型与分期编码 [SLP-02、03、04]
+
+MetricsTrendsResponseJsonAdapter 的顶层字段含 days、avgScore、avgPresenceDuration、avgSleepDuration、avgDeepPercent、avgTnt、modelVersion、sfsCalculator；days 元素为 DailyTrendsResponse。DailyTrendsResponse.sessions 是 SessionResponse 列表。
+
+SessionResponseJsonAdapter.java:23 的已消费键：
+  id, deviceTimeAtUpdate, incomplete, processing, ts, stages, snoring,
+  mitigationEvents, sleepAlgorithmVersion, presenceAlgorithmVersion,
+  hrvAlgorithmVersion, score, timeseries, timezone, device, duration,
+  presenceEnd, sleepStart, sleepEnd, stageSummary, edit
+
+阶段元素是 JSON OBJECT：{"stage": <字符串标签>, "duration": <int秒数>}。
+这只是类型示意，没有使用用户数据；它也不是一个完整可调用请求/完整 session fixture。
+
+  wire string    enum    本包内部 ordinal（仅供反汇编对应）
+  awake          AWAKE   0
+  rem            REM     1
+  light          LIGHT   2
+  deep           DEEP    3
+  out            OUT     4
+
+wire 值由 S/com/eightsleep/data_core/enums/SleepStage.smali:59–88 的 @Json(name=...) 直接证明。ordinal 不是网络数值编码。OUT 与 AWAKE 使用相同 labelResId、常用 stages 列表仅含前四项，但 enum 与 JSON 注解仍保留 OUT。不能由 UI 的四层外观反推服务器只有四种值。
+
+StageResponseJsonAdapter.fromJson（S/.../StageResponseJsonAdapter.smali:141–273）明确 beginObject，只识别 stage/duration，缺失/null 会抛异常，未知键会 skipName/skipValue。该 DTO 没有每段 confidence、probability、epoch、start/end 字段；这是已消费 schema 的边界，不证明后端永远不输出额外字段或其他 API 没有置信度。
+
+StageResponse.toDomain 用 Duration.ofSeconds(duration)，session.duration 和 stageSummary 的各 Duration 同样以秒转换。没有在这里强制固定时段粒度；不能拿传感 MCU 的 2 ms 快照或历史公开 batching 示例的 5 秒参数来填这个缺口。
+
+deviceTimeAtUpdate/ts/presenceEnd/sleepStart/sleepEnd 的 Moshi 类型为 java.time.Instant。InstantAdapter.fromJson 读取字符串，先 Instant.parse；若抛 DateTimeParseException，再把 ISO_LOCAL_DATE_TIME 以 UTC 解释。它们不是该响应 adapter 中的整数 Unix epoch 字段。UI 内部随后使用 toEpochMilli/Duration.toMillis，不等于 wire 单位为毫秒。
+
+sleepAlgorithmVersion、presenceAlgorithmVersion、hrvAlgorithmVersion 是三个 String 字段；顶层另有 modelVersion/sfsCalculator。代码证明客户端保留这些名字和类型，不能给它们编造本次用户 session 的具体值，不能据此证明三个独立物理模型，更不能令它们等于请求的 "v3"。
+
+四、手机端真正做了什么后处理 [SLP-05]
+
+J/.../SessionResponse.java:331–397；S/.../SessionResponse.smali:1877–2174：
+  for each stage at index i:
+    if (i==0 OR i==last) AND label in {AWAKE, OUT}:
+       duration = min(duration, 600)
+    preserve label; then convert duration with Duration.ofSeconds
+
+Smali 中边界谓词、两种 enum、const 0x258 和 Math.min 都已核对。不是把所有 awake/out 段截短，也不是裁剪整晚只剩 10 分钟；只有一段时仍只处理这一段一次。该代码没有针对负数做下界 clamp，不能把它转写为 clamp(duration,0,600)。
+
+同一 mapper 继续独立传递 ts、sleepStart、sleepEnd、presenceEnd、原 session.duration、stageSummary、score、算法版本、timeseries 和 edit。stageSummary 来自独立 DTO 转换；这里没有据裁剪后的 stages 重求总时长、比例或 score。RawDailyTrends.a 再把 Instant 包装为显示时钟对象，Session 的 stage/summary/score 仍原样透传。
+
+因此，图表数据中的首尾时长可能与服务端 session 的完整汇总有意分开，不能仅根据图形段长重建“原始云端 epochs”。上述是客户端消费/显示准备逻辑，未恢复后台平滑、去伪迹、HMM 或模型 logits 后处理。
+
+五、缓存、状态与图表时间 [SLP-06、07、08]
+
+已证连接：
+  MetricsTrendsRepository.a → pc.b0 → pc.Z（请求）/pc.a0（成功处理）
+  pc.a0 取 response.days → DailyTrendsResponse.toEntity(user)
+  DailyTrendsResponse.toDomain → SessionResponse.toDomain（含上述裁剪）
+  Room daily_trends 缓存；返回日期缺项建立 raw 值为空的日期记录
+  MetricsTrendsRepository.trendsByDate → uc.E0/uc.D0 → uc.C0
+  RawDailyTrends.a(displaySettings) → DailyTrends/Session
+  BaseMetricChartViewModel.handleData → SleepStagesMetricDataProcessor.transformDayData
+  packageMetricData/updateData → wg.a1/wg.W0/wg.Z0 → Ag.M → Eg.m0 图表调用
+
+主要锚点：pc/a0.java:60–84；DailyTrendsResponse.java:556–621；MetricsTrendsRepository.java:150–158,267–271；uc/D0.java:43、uc/C0.java:38；RawDailyTrends.java:180–331。Base handleData 的 S:3609 直接调用 transformDayData，3733 打包、3834 更新状态；其 lambda 在 S:4011/4036 调用 updateData。SleepStagesViewModel.java:176–181 将 metricData 复制到 UI state；S/Ag/M.smali:2173 实际调用 Eg/m0.a。此链是静态调用关系，不是执行轨迹或成功请求的抓包。
+
+SleepStagesMetricDataProcessor.transformDayData 完整 Smali（S:73–157）构造 StagesHypnogramUiModel：
+  anchor = session.sleepStart 若非空，否则 session.ts
+  end = session.sleepEnd 若非空，否则 session.ts + session.duration
+  values = session.stages；另带 timeseries.shortAwakes
+注意 end 的 fallback 以 ts 为基准，不是把 sleepStart 加 session.duration。
+
+触摸阶段提示另有精确累加规则（J/Cg/o0.java:153–190；S/Cg/o0.smali:593–752）：
+  pre = first stage 仅当标签是 AWAKE/OUT，否则 null
+  rest = pre存在 ? stages.drop(1) : stages
+  i==0: start = anchor - (pre.duration 或 0)
+  i>0 : start = anchor + sum(rest.take(i-1).duration)
+  end = start + stages[i].duration
+Ga.s.o/q 分别是 minusMillis/plusMillis；Im.r.b1/V0/M1 已核为 firstOrNull/drop/take。
+对通常首段为 awake/out 的情况，这把首段放在 sleepStart 之前。这里保留代码在无 pre 情况仍 take(i-1) 的原样公式，不擅自“修正”为通用理想累计；没有运行 App 验证异常数据或所有 Canvas 几何分支。
+
+六、分期汇总和睡眠分数 [SLP-09、10]
+
+SessionStageSummaryResponse 提供 total/sleep/out/awake/light/deep/rem 时长、睡前/睡中/睡后 awake、睡中 out、wasoDuration，以及 deep/rem/lightPercentOfSleep。各时长独立按秒转换，比例直接传递。
+SleepStagesViewModel.getSleepStageBreakdown 优先从选中 Session 的 stageSummary 读取阶段时长/比例，而不是在该处重做生理分类。其 packageMetricData 把经过 H helper 的 Deep 比例与 0.15、REM 比例与 0.20 比较形成 UI Boolean；本文没有把这个 helper 继续解释成临床规则。
+
+DailyTrendsResponse.toDomain:605–608 读 sfsCalculator、score、sleepQualityScore、sleepRoutineScore；RawDailyTrends.a:261/331 继续传递。
+SleepFitnessScoreMetricDataProcessor.transformDayData:20–39 把 daily.score、SQS.total、SRS.total 和有关权重/子分数字段装入图表模型；>=80 产生 Boolean。SQS.toDomain 的 Java 失败，但完整 Smali 1370–1627 已核：total 在 1379 读入 v1，1624 作为 SleepQualityScore 构造器首个 int 传出，未做 total 的本地组合运算。SRS.toDomain:164 同样直接传 this.total。
+据此能断言：已追到的 day 结果显示链不从 HR/原始压电重算 SFS/SQS/SRS 总分；它消费服务器提供的 total/score、格式化并分类显示。不能扩大为“整个 App 不存在任何计算”，也没有恢复后端这些分数的权重公式、正常范围依据或临床准确率。
+
+七、仍然未知及分析边界 [SLP-11]
+
+1. 未取得真实 session 响应，算法版本具体值、段长分布、缺失值行为、当前账号的 feature flags 均未知。
+2. 没有恢复后台输入信号/特征、模型结构/权重、推理窗口、固定 epoch 长度、置信度计算及云端后处理。
+3. presence/sleep/HRV version 字段证明协议分开命名，不证明独立网络、算法世代或 Pod6 独占模型。
+4. 本 APK 的 Pod6 显示元数据与 MCU 物理通道/安装位置之间没有由这条结果链建立标定映射；不能把 OUT 当作一个硬件传感通道。
+5. partial Java、动态反射/JNI、未分析的其他分支与运行时下载仍是覆盖边界。本文不以扫描关键词、文件数或缺少 .tflite 扩展名作“模型不存在”的证据。
+6. 历史 lunasleep/batching 公开 fork 是另一份独立来源，不能因同样出现 stages/窗口就绑定为这个 APK/Pod6 的部署模型。
+
+结论与未知项已写入当前 REA finding ledger；全局 deep report 由主分析线程统一导出。本报告没有改动 APK、工作区源文件、总览或全局 manifest。

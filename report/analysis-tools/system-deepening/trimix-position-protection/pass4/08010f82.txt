@@ -1,0 +1,23 @@
+TARGET 08010f82 function=08010f82
+REF_TO 08018dba UNCONDITIONAL_CALL owner=08018db2
+REF_TO 08018e16 UNCONDITIONAL_CALL owner=08018e12
+FUNCTION_BODY [[08010f82, 08010f95]]
+
+bool FUN_08010f82(int param_1,ushort param_2)
+
+{
+  return (*(ushort *)(param_1 + 0x10) & param_2) != 0 && (*(ushort *)(param_1 + 0xc) & param_2) != 0
+  ;
+}
+
+
+INSN 08010f82 038a ldrh r3,[r0,#0x10]
+INSN 08010f84 8089 ldrh r0,[r0,#0xc]
+INSN 08010f86 0022 movs r2,#0x0
+INSN 08010f88 0840 ands r0,r1
+INSN 08010f8a 0b42 tst r3,r1
+INSN 08010f8c 1cbf itt ne
+INSN 08010f8e 0028 cmp.ne r0,#0x0
+INSN 08010f90 0122 mov.ne r2,#0x1
+INSN 08010f92 1046 mov r0,r2
+INSN 08010f94 7047 bx lr

@@ -1,0 +1,75 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+undefined8 FUN_080210e0(uint param_1,undefined4 param_2,undefined4 param_3)
+
+{
+  byte bVar1;
+  ushort uVar2;
+  uint uVar3;
+  undefined4 uVar4;
+  
+  *(undefined1 **)(param_1 + 0x2c) = &LAB_08021162_1;
+  *(undefined1 *)(param_1 + 0x30) = 2;
+  uVar3 = param_1;
+  FUN_08016fce(param_1 + 0x34,*(undefined4 *)(param_1 + 0x28));
+  uVar4 = *(undefined4 *)(param_1 + 0x20);
+  *(undefined2 *)(param_1 + 0x3c) = 0;
+  uVar2 = FUN_08010160(uVar4,*(undefined4 *)(param_1 + 0x28));
+  bVar1 = *(byte *)(param_1 + 0x10);
+  *(ushort *)(param_1 + 0x3e) = uVar2;
+  if (*(byte *)(param_1 + 0xf) < bVar1) {
+    if (uVar2 != 0) {
+      uVar3 = (uint)uVar2;
+      FUN_08017634("[pwm_pumps] ramping up from %u%% to %u%% over %ums (%u steps)",
+                   *(byte *)(param_1 + 0xf),bVar1,uVar4,uVar3,param_2,param_3);
+      goto LAB_08021118;
+    }
+    FUN_08020fbc(param_1,bVar1);
+  }
+  FUN_0801e9a4(param_1);
+LAB_08021118:
+  return CONCAT44(param_2,uVar3);
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+080210e0 154b ldr r3,[0x08021138]
+080210e2 37b5 push {r0,r1,r2,r4,r5,lr}
+080210e4 c362 str r3,[r0,#0x2c]
+080210e6 0300 movs r3,r0
+080210e8 0222 movs r2,#0x2
+080210ea 0400 movs r4,r0
+080210ec 3033 adds r3,#0x30
+080210ee 1a70 strb r2,[r3,#0x0]
+080210f0 a16a ldr r1,[r4,#0x28]
+080210f2 3430 adds r0,#0x34
+080210f4 f5f76bff bl 0x08016fce
+080210f8 0023 movs r3,#0x0
+080210fa 256a ldr r5,[r4,#0x20]
+080210fc a16a ldr r1,[r4,#0x28]
+080210fe a387 strh r3,[r4,#0x3c]
+08021100 2800 movs r0,r5
+08021102 eff72df8 bl 0x08010160
+08021106 e17b ldrb r1,[r4,#0xf]
+08021108 227c ldrb r2,[r4,#0x10]
+0802110a 83b2 uxth r3,r0
+0802110c e387 strh r3,[r4,#0x3e]
+0802110e 9142 cmp r1,r2
+08021110 03d3 bcc 0x0802111a
+08021112 2000 movs r0,r4
+08021114 fdf746fc bl 0x0801e9a4
+08021118 37bd pop {r0,r1,r2,r4,r5,pc}
+0802111a 002b cmp r3,#0x0
+0802111c 04d1 bne 0x08021128
+0802111e 1100 movs r1,r2
+08021120 2000 movs r0,r4
+08021122 fff74bff bl 0x08020fbc
+08021126 f4e7 b 0x08021112
+08021128 044c ldr r4,[0x0802113c]
+0802112a 80b2 uxth r0,r0
+0802112c 0090 str r0,[sp,#0x0]
+0802112e 2b00 movs r3,r5
+08021130 2000 movs r0,r4
+08021132 f6f77ffa bl 0x08017634
+08021136 efe7 b 0x08021118

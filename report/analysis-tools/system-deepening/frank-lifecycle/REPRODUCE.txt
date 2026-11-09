@@ -1,0 +1,19 @@
+只读复核（目标作为数据，不执行）
+
+1. 原始异常表和线程vtable重定位：
+python3 scripts/inspect_unwind.py /path/to/frankenfirmware UNWIND_MAP.json 00179600 00189bb0 001afe00 001af7c0 0019feb0 002463a0 00196550 00175154 001813a0 001813c0
+
+2. 限定异常控制流：
+python3 scripts/check_lifecycle_flow.py
+
+3. 每个导出阶段的指令字节：
+python3 scripts/verify_asm_bytes.py /path/to/frankenfirmware --exports pass3 --output ASM_PASS3_VERIFICATION.json
+将pass3分别换成baseline/pass1/pass2可复核全部来源。pass2中的UNDECODED是中间状态，其最终反汇编在pass3。
+
+4. Ghidra：12.1.4 / OpenJDK21。复用analysis/signal-host/ghidra/SignalHost工程的frankenfirmware。
+三个headless-pass*.log保留各自精确的ExportLifecycle.java参数；均-process frankenfirmware -noanalysis -readOnly。
+脚本仅在原LSDA确定的代码范围内按需临时反汇编；日志确认Discarding changes，原数据库不保存这些临时修正。
+Ghidra输出伪代码和工程类型是派生分析；独立ELF字节核验与UNWIND_MAP不依赖相信这些类型。
+
+LIFECYCLE_FLOW_CHECK假设普通调用返回、同时保留条件分支两边。没有把间接调用当作已递归恢复。
+SOURCE_MANIFEST列出全部输入和输出哈希；该manifest自身不自包含哈希。

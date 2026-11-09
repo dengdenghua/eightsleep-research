@@ -1,0 +1,115 @@
+{
+  "reviewer": "wiki_app_cloud",
+  "status": "pass_with_minor_wording_issues",
+  "scope": "对扩展算法主页、7张算法卡和本地算法详解的跨层/数学/条件复核；有限读取原ADC函数、补点函数与既有来源报告；未执行目标固件或访问账号。",
+  "issues": [
+    {
+      "id": "ALG-MAIN-01",
+      "severity": "low",
+      "file": "wiki/modules/physiology-algorithms.md",
+      "location": "ADC 滤波的确切公式末段",
+      "finding": "“Si5351 的活动 R-divider 与物理连线仍未验证”没有区分旧输出7缺口与后续K60分支已从寄存器表闭合的输出2/3 R-divider=1。本地详解已正确区分，主文读起来略显矛盾。",
+      "recommendation": "改成“当前实机的最终分频状态、物理输入和连线仍未验证；K60条件代码中的输出2/3已给定R-divider=1”，或简写为“绝对频率仍缺当前实机时钟与布线验证”。",
+      "evidence": "wiki/algorithms/local-preprocessing.md §3；analysis/account-readonly/k60-binding/FINDINGS_ZH.txt。"
+    },
+    {
+      "id": "ALG-MAIN-02",
+      "severity": "low",
+      "file": "data/algorithms.json",
+      "location": "front.operation 与主页“通道置换”表述",
+      "finding": "正常K60表是一个置换，但运行期map setter只验证范围，允许多个源映到同一目的槽；本地详解正确说明后写覆盖。卡片“槽位置换”和主页“通道置换”若读作通用无损重排会过强。",
+      "recommendation": "统一改成“通道映射/按表写入”，必要时注明重复目的槽可覆盖；无需改公式。",
+      "evidence": "wiki/algorithms/local-preprocessing.md §1；原0x0801D7DC按map直接STR。"
+    },
+    {
+      "id": "ALG-MAIN-03",
+      "severity": "low",
+      "file": "data/algorithms.json",
+      "location": "cardio.output",
+      "finding": "“手机图表与本地摘要”容易让用户以为current摘要由本地从RMSSD曲线计算。详解明确current来自SQS字段，基准来自aggregate，手机算的是范围和比较。",
+      "recommendation": "改成“手机图表、摘要呈现与本地范围/比较；生产波形到指标的链仍缺”。",
+      "evidence": "analysis/android-findings/APP_CARDIORESPIRATORY_PIPELINE_ZH.txt §6；wiki/algorithms/results-and-staging.md §2。"
+    }
+  ],
+  "checked": [
+    {
+      "path": "wiki/modules/physiology-algorithms.md",
+      "sha256": "8ad1c58598f67f9eb359934d3c35e6b088b46fa6ac86a2bd2811d59a424f2a5f"
+    },
+    {
+      "path": "data/algorithms.json",
+      "sha256": "5b60ab55992ed142bb2c32244818f66b4c62415f4cfbe1ddb603f3d3ff9202e2"
+    },
+    {
+      "path": "wiki/algorithms/local-preprocessing.md",
+      "sha256": "cb47fb668e2715c6a2708449a6a08388fcb68842cb736535375f545fa03160e9"
+    }
+  ],
+  "checks": [
+    {
+      "item": "ready缓存伪代码",
+      "result": "pass",
+      "detail": "原0x0801D7DC禁用时成功不改数组；<8ms备份复制；读失败/zero-ready不写；非零ready逐源map写；主文省略对象细节但没有错误算式，CRC已写条件性。"
+    },
+    {
+      "item": "sinc稳态公式与数字",
+      "result": "pass",
+      "detail": "两级时域采样率关系、1024间隔第二级、DC=1、群延迟及半功率独立计算一致。500SPS仅条件换算，未作心呼吸分离器声明。"
+    },
+    {
+      "item": "单缺点100/104例",
+      "result": "pass",
+      "detail": "在last_tick非零、调用方使能补点、无跨秒且门控接受等所写条件下，delta=4=2step，102位置取当前30，不取均值20。主文已写“符合该分支”和“等条件”，未泛化为通用插值。"
+    },
+    {
+      "item": "时间mapping公式",
+      "result": "pass",
+      "detail": "uint32差、整秒anchor与名义500Hz槽位正确；卡片注明不涵盖全部重置/溢出，详解保留水位与共享状态。"
+    },
+    {
+      "item": "三生产版本未知参数",
+      "result": "pass",
+      "detail": "问题清单明确不是已知参数或架构；输出stage不认定五分类网络、hrv不认定SDNN、30秒公约数/300秒输出不认定模型窗。"
+    },
+    {
+      "item": "算法位置与样本边界",
+      "result": "pass",
+      "detail": "结果交付与生产实现分开，实际实机未绑定，限定函数未发现不能推出全云或全端不存在；附件未合并到床垫生理链。"
+    },
+    {
+      "item": "全部ADC通道的置换性",
+      "result": "needs_wording_clarification",
+      "detail": "正常映射和运行期非单射映射需统一术语，见ALG-MAIN-02。"
+    }
+  ],
+  "independent_numeric_check": {
+    "half_power_normalized": 0.4370728417205424,
+    "delay_modulator_periods": 5118.5,
+    "delay_output_periods": 0.62481689453125,
+    "conditional_500_SPS_half_power_Hz": 218.5364208602712,
+    "conditional_delay_ms": 1.2496337890625,
+    "dc_limit": 1,
+    "copy_example": {
+      "step_ms": 2,
+      "last_tick": 100,
+      "current_tick": 104,
+      "gap_equals_2step": true,
+      "copied_position": 102,
+      "copied_value": 30,
+      "interpolated_value_not_used": 20
+    }
+  },
+  "source_reads": [
+    "analysis/cloud-cleaning-followup/code-only/MCU_PREUPLOAD_CODE_ZH.txt",
+    "analysis/cloud-cleaning-followup/code-only/HOST_PREUPLOAD_CODE_ZH.txt",
+    "analysis/sensor-mcu/ADC_FILTER_DERIVATION.txt",
+    "analysis/sensor-mcu/freshness/0801d7dc.txt",
+    "analysis/sensor-mcu/frontend/0801d228.txt",
+    "analysis/signal-host/pass3/0021a5c0.c"
+  ],
+  "limitations": [
+    "这是内容/公式审阅；未检查HTML渲染、完整程序执行或实机频响。",
+    "主文短伪代码明确省略对象与错误计数；若作为可执行重建应增加禁用对象、ready=0、备份更新和具体调用方门控。",
+    "未改被审文件；hash用于后续变更识别。"
+  ]
+}

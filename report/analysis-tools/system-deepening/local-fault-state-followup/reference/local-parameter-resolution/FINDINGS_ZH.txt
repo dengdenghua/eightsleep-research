@@ -1,0 +1,97 @@
+A02 气囊参数：选择、暂存、持久化与运行时覆盖
+
+结论
+同一个 A02 镜像里存在三套不同角色的数据：按硬件/SKU/side 选出的默认值、准备保存的校准记录 staging、闭环真正读取的运行对象。它们不是自动同步的。启动时，有效 flash 校准与 SKU/side 默认是互斥分支；0x60/1 只改 staging，0x60/2 成功保存后才将 staging 复制到运行对象；0x53/9 则只改运行对象。模式命令改泵上限、阀时序、调度时间，不改这五个补偿系数。
+最容易误判的三个结果：Persist=false 不等于已经临时应用；校准 Get 读到的是 staging，不是运行系数快照；clear 当场回通用默认，而重启后可能重新选到不同的 SKU 默认。
+
+1. 样本与覆盖范围
+原件 R/mediatek/rootfs-selected/opt/eight/firmware/balloon/A02/firmware-balloon-g0.bbin，143360 B，BBIN 0.2.71.0，SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a。完整 BBIN 按 0x08010000 映射。R 为 /Users/dangbei/Downloads/eightsleep-firmware-research-20261107。
+本轮使用既有静态证据与独立外盘工程 BalloonParameters，补导出平台 callback、flash 读写、0x60、0x53/9、模式 setter 和原始指令范围；主控选定类型以原 Eight.Firmness.dll 重新导出 IL。没有运行厂商程序、接触设备/账号/API。没有修改旧证据或网页。
+范围：本镜像正常硬件门槛与 side/SKU 默认选择，五系数从初始化/flash/staging/运行时命令到既有闭环消费者，demo/sleep 主要配置包，以及主控校准和模式对应入口。不是所有 MCU 命令、历史镜像、全 Capybara 配置源或实机当前配置的穷尽证明。
+主循环使用 BL 作为长距离内部跳转；旧 Ghidra 将 0801DE3A/0801DE62 拆成伪函数，其伪 C 的顺序/返回不能当真实执行流。这里按原指令 0801CDE2–0801CE08、0801DE3A–0801DE9E 追分支与共享 continuation。辅助分析定义的 0x53 分支也不是独立真实函数，入口寄存器来自 0801972C 的 r4=context、r5=len、r6=payload；不使用反编译尾部的伪无限循环作结论。
+
+2. 硬件版本先建立平台，SKU 与 side 再选补偿默认
+硬件记录来自 0x0807F804；pn、sku、hwrev 最终存于 0x200015AC、0x200015B0、0x200015B4。记录区域不在这份 143360 B 应用镜像内，无法从镜像直接读出用户实机取值。
+0801BD72–0801BD88 顺序扫 0x0802FB64 的十个 12 B 条目，仅比较 entry.min_hwrev<=hwrev，满足即调用 callback；本循环没有比较条目首字的 PN。每个门槛有两条相同 callback，因此符合门槛的配置会被重复调用，而后续门槛继续覆盖前面已填字段。
+  hwrev 门槛  callback    最终名称族      主要配置 callback 覆盖
+  0           0801598C    A00 / Ext      基础完整配置；补偿 callback=080179AC
+  1           08015AC0    A01 / Ext      替换平台初始化/PWM/压力映射，仍用 080179AC
+  2           08015BC8    A02 / Ext      替换 PWM、压力映射、附加映射
+  4           08015C30    A04 / Ext      再替换这三项
+  5           08015C6C    A05 / Ext      替换 PWM、压力映射，附加映射继承 A04
+因此 hwrev=3 到 A02 层，>=5 到 A05 层；不是按 PN 找到一条后立即停止。这个表的用途是本镜像内部平台选择，不能用来证明某个量产附件型号实际运行本镜像。
+08015AA4 将 PN==0x4FB1 变为 side=1，其余为 0；名称也据此加 Ext。主控 BalloonOptions 的默认 SidePartNumbers 将 20400/0x4FB0 对到 Left、20401/0x4FB1 对到 Right，MCU 日志对应 L/R。下表 L/R 是这条代码约定，没有观察实机线束或床上物理安装方向。袋数由 08015F10 给出：hwrev<=1 为 5，>1 为 4。
+080179AC 对 SKU 1/2 且 bag<4 读取下表；其他 SKU 或 bag4 用 a=al≈1.65、b≈0.43。ci=cl=0，运行补偿 enabled=1。
+  SKU   side/PN             bag0 a  bag1 a  bag2 a  bag3 a
+  1     0 / 非0x4FB1(L)       1.92    2.06    1.90    1.69
+  1     1 / 0x4FB1(R/Ext)     1.97    2.55    2.12    1.69
+  2     0 / 非0x4FB1(L)       3.08    2.03    1.94    1.74
+  2     1 / 0x4FB1(R/Ext)     1.89    1.95    2.36    1.78
+a 与 al 相同；b 虽然也按 SKU/side/bag 索引，但原表 16 项全部为同一个 binary32 的 ≈0.43。表中数值为便于阅读的两位小数，RAW_TABLES.json 保留地址、原字节和完整 float 值。不能从这些 SKU 数字推断床尺寸/营销名。
+证据：platform-pass1/0801598c.txt、08015ac0.txt、08015bc8.txt、08015c30.txt、08015c6c.txt、08015aa4.txt、080179ac.txt；ranges/0801bcbc-0801cf00.asm.txt:82 起；RAW_TABLES.json 的 0802FA28/48/68 与 0802FB64。
+
+3. 通用默认、flash 与运行对象的准确关系
+每袋运行补偿 C=0x2000C79C+bag*0x18：+00=b（充气偏置，kPa），+04=a，+08=ci，+0C=al，+10=cl，+14=enabled。通用初始化 08020FA8 为 b≈0.43、a=al≈1.65、ci=cl=0、enabled=1。这里 b 不是放气截距；普通放气截距是 ci，低压截距是 cl。
+staging R=0x200014B0：+00 袋数，+04 timestamp，+08 起每袋 0x18 B，顺序是 a/b/ci/al/cl/c。c 在主控模型中叫 Calibrated；它与运行对象 +14 的 enabled 不是同一语义。R+0xC8 是有效 flash 标记。08016000 重置整个 R：袋数按硬件，timestamp=0，五系数为通用默认，c=false。
+08018684 从 flash 0x0807F000 读：首字节 0xCA，长度 LE16 位于 +2、范围 1..512，CRC32 位于 +4、payload 位于 +8；通过 CRC 与 CBOR 根 map 检查后解析 v/n/ts/bags。v 被读取，但此路径不据版本数字选择另一算法。每袋 a/al 在 [.5,5]、b/ci/cl 在 [-2,2] 时接受；缺失或无效字段保留默认。若没有有效 al，额外令 al=a、cl=0。n 合法范围 1..8，末尾再夹到硬件袋数。c 读入校准标志。
+不能把“有效 flash”写成“每袋五系数完整有效”：完整、正常的 map 可以缺少字段；没有强制要求所有系数出现才置有效标志。本轮未枚举畸形 CBOR。
+初始化运行补偿后，主循环检查 R.valid：
+  有效：只复制前 min(R.count,5) 袋的五系数到 C；不复制 c，不调用 SKU 默认 callback。
+  无效：调用平台 080179AC，依 SKU/side 给五个槽填默认；活动袋数仍由硬件决定。
+所以一个 count 较小但有效的记录，其未复制活动袋保留通用初始化值，而不是 SKU 默认。已复制袋即使 c=false，也不因此关闭运行补偿。此处不能把 calibrated 与 enabled 混用。
+证据：parameter-pass2/08016000.txt；platform-pass1/08018684.txt、08018c18.txt；ranges/0801bcbc-0801cf00.asm.txt:1490 起与 ranges/0801de3a-0801dec0.asm.txt:3–52；source/mcu-retained/08020fa8.*。
+
+4. 0x60：暂存、保存和清除不是一个动作
+命令路由 0801DF6A 的 case 0x60 到 0801A5DC；packet 命令字不计入以下 payload 长度。
+  sub=0 Get：0801A584→08021DFC 将当前 staging 编成 CBOR v=2,n,ts,bags；每袋 a,b,c,ci,al,cl。返回成功只说明读到了 staging，不证明这些值已经在控制环生效或已落 flash。
+  sub=1 set_bag：完整 payload 22 B = sub1+bag1+五个 LE float32；兼容较短格式（10 B 只有 a/b；14 B 加 ci；18 B 再加 al；22 B 加 cl）。ci 缺省 0、al 缺省 a、cl 缺省 0。要求 bag<5 且 bag<R.count；边界 a/al [.5,5]，其他三项 [-2,2]。成功只写 staging 五系数并令 c=true；不写 C，不写 flash。
+  sub=2 save：sub 后至少 4 B timestamp，先改 R.timestamp，再由 08018550 编码 staging、擦除和写 flash。记录封装为 0xCA/长度/CRC/payload，按 8 B 写入；成功后置 valid 并复制前 min(R.count,5) 袋五系数到 C。不复制 c/不重置 C.enabled。写失败返回错误，不进入 live copy；timestamp 已经改过，不能声称失败完全无状态变化。
+  sub=3 clear：先 08016000 重置 staging，再擦 flash。成功后给五个运行槽复制完整通用默认（包括 enabled=1）；没有调用 SKU callback。若擦除失败，运行系数未在本路径重置，但 staging 已重置。
+正常顺序造成的可复现差异：
+  ① 启动无有效 flash、SKU2/L/袋0 运行 a≈3.08；staging 的袋0 a 仍≈1.65。单独 Get 校准并不能看到 3.08。
+  ② 只 stage 袋0 后 save，会按整个 R.count 应用 staging。其他袋来自原 staging；没有有效校准时就是通用默认，并不会自动保留运行中的 SKU 表值。
+  ③ clear 成功当场运行 a≈1.65；之后重启因 flash 无有效记录，会重新走 SKU2/L 默认，袋0 又可为≈3.08。
+证据：parameter-pass2/0801a5dc.txt:60–365、08018550.txt、0801840c.txt、0801a584.txt；parameter-pass3/08021dfc.txt。对真实 flash 写入可靠性、掉电和并发没有作运行测试。
+
+5. 0x53/9：独立、立即的运行补偿覆盖
+0801972C 按 subcommand 查 08019770 的表，sub9 落到 08019D0C。正常进入要求 context 与控制模块已初始化；payload 至少 10 B，bag 0..4，a/b 用 LE float32，长度>=14 时读取 ci，否则 ci=0。对正常有限数，a 范围 [.5,5]，b/ci [-2,2]。
+08019ECE–08019EDA 直接写 C：a=a、b=b、ci=ci、al=a、cl=ci。没有写 C.enabled，没有写 staging 或 flash。这不是“五系数设置接口”；它会把高低压两组重新合并成同一对 a/ci。
+因此后到的运行写与 save 在共同的五个数值上覆盖前者；先 0x53/9 后 0x60/save 会被 staging 覆盖。反过来 save 后再 0x53/9 只改当前运行，重启仍按持久记录恢复。模式命令不会替它保存校准。
+主控 CalibrationRunner 的 Landing 临时补偿与 restore 使用这个 0x53/9 编码器，只携带 a/b/ci。故不能将该 restore 描述成“逐一恢复五个原始系数”：MCU 最终 al=a、cl=ci；原低压组是否本来相同，要看当时入口配置。这是静态可见的表达能力边界，不是已经观察到实机故障。
+证据：RAW_TABLES.json control_subcommand_table_raw；parameter-pass3/08019d0c.txt 原指令 08019D0C–08019EDA；source/managed/Eight.Firmness.Protocol/ControlLoopEncoder.cs:67；CalibrationRunner.cs:472–540 与 il/CalibrationRunner.il.txt 对应 SendLandingAction/SendLandingRestoreBestEffort。
+
+6. 系数到消费者；模式覆盖另有作用域
+运行 C 由每袋 B+20 指向；闭环消费者沿用已闭合、逐哈希复制的 0801B7B8/0801B800/0801B824/08021304/08022034：
+  普通放气：SP>=1 kPa 用 a/ci；低压 SP<1 用 al/cl。补偿 enabled 且乘数>0 时停止目标=(SP-intercept)/multiplier，否则 SP。
+  充气：使用 b，先按 binary32 得 (SP+b)-SP，再乘 duty 缩放，得到停止目标；duty 又来自泵调度。a/ci 不参与这条充气偏置计算。
+  DEFLATE 过 settle 时间后，以实测 p<0.1 或 p<=停止目标转稳态；没有将预测压力替换实测压力。
+符号更正：旧 local-balloon-control/FINDINGS_ZH.txt 第2节曾把充气有效偏置临时命名 ci，并在放气公式 (SP-b)/a 中以 b 表示截距；这两个匿名数学符号不等于主控校准字段 ci/b。旧公式的计算语义不变，但与本轮已绑定字段同页时必须改名：充气 b_eff=f32(f32(SP+b)-SP)，S_in=f32(SP+f32(b_eff*scale))；普通放气 S_out=f32(f32(SP-ci)/a)，低压换 al/cl。不要把旧文的“ci”读成运行 C+08。
+字段绑定与消费原指令：0801DE46/0801DE4A 将 staging R+08(a) 写 C+04；0801DE3C/0801DE4E 将 R+0C(b) 写 C+00；0801DE42/0801DE54 将 R+10(ci) 写 C+08。0801B810 读取 C+00，0801B814 做 SP+b，0801B81A 再减 SP；0801B7FA/0801B7FC 读取普通 C+04/+08，0801B7D6/0801B7D8 读取低压 C+0C/+10，0801B7EA 减截距、0801B7F0 除乘数。0x53/9 的 08019ECE/08019ED0/08019ED2 给出同样的 a/b/ci 存储顺序。
+旧 control_contracts.py 的 inflate_stop.offset 对应本轮 b，其内部变量 ci 对应本轮 b_eff；deflate_stop.high_b 对应本轮 ci，low_b 对应本轮 cl，high_a/low_a 对应 a/al。旧模型按位置参数验证原公式，本轮 parameter_contracts.py 的字典 a/b/ci/al/cl 按主控字段名，并将 1 kPa 选择边界、写入来源与覆盖顺序连接起来。两个模型均为合成静态合同；旧证据保持原样，本节承担命名映射与更正。
+模式控制 08021AB0 在启动应用 mode0；0x54 可正常选择 mode0/demo 或 mode1/sleep。表 0802FAE8 两条各 0x34 B：
+  字段                     demo                 sleep
+  泵最大占空比             100%                 80%
+  调度 sleep duration      5 s                  600 s
+  idle cycles required     60                   60
+  inflate grant            120000 ms            240000 ms
+  deflate grant             90000 ms            180000 ms
+  其他 grant               240000 ms            480000 ms
+  阀 ramp                  每10ms增5%           相同
+  全开 hold / maintain     50ms / 70%           相同
+  关闭两阶段               40%×250ms→30%×250ms   相同
+mode setter 同时写各泵 cap 与调度器 max duty，更新已初始化阀对两侧的时序，再更新 sleep/idle/grants 和 mode。阀 setter 08021A14 自身有范围检查；表内值在正常接受范围。它不写补偿 C、tolerance bins、deflate settle。后续 mode 写会覆盖同一批模式字段，而不会覆盖上述校准系数；不能推成全部运行配置都由 mode 决定。
+已抽核容差初始化：十档先通用 .3/.3，随后范围设为0..10，档值按 .10/.15/.25/.30/.40/.40/.40/.50/.50/.50 写 arrival/departure。08021C28/08021D58 为范围/档 setter，08023EB8 为消费者；主控 Ready 初始化能重发侧别保存的范围及档值。该支仅记录与补偿/模式分离的参数域，不宣称全 0x53 命令已闭合。
+证据：source/mcu-retained 相应地址；parameter-pass2/08021ab0.txt、08021a14.txt、08021c28.txt、08021d58.txt；RAW_TABLES.json mode_records；source/managed/.../FirmnessReadyState.cs:113–120、344–373。
+
+7. 主控入口与“已应用”的判定
+CalibrationController.Set 先确认 side 对应 FirmnessReadyState、无 calibration handoff；BagCalibrationWrite 检查非空、bag 0..4、重复与五个 double 有限值。此手工入口的 validator 没有自动校准拟合那套 a/al 1.1..3 门槛，不能把两条入口的校验混为一谈；MCU 仍对最终 float32 施加其范围条件。
+FirmnessReadyState.ApplyBagCalibrationAsync 按 bagId 排序发 0x60/1；仅 saveAtUnixSeconds 有值才发 0x60/2。Controller 由 Persist 决定是否带当前 Unix seconds。因此 Persist=false 成功表示暂存完成，不代表当前闭环已换系数。该写入方法没有追加运行系数 readback。
+IL 独立核对：il/FirmnessReadyState.il.txt 的 <<ApplyBagCalibrationAsync>b__0>d.MoveNext，IL_0070 命令96，IL_007F/86/8D/94/9B 转 float32，IL_009C 编码 set_bag；IL_014B/0150 检查 nullable timestamp并跳过save，IL_016C/016F 编码命令96 save。il/CalibrationProtocolEncoder.il.txt 保留 sub1/sub2 及 LE 布局；Controller 与 BagCalibrationWrite IL 保留条件。
+mode 主控链：FirmnessController.SetMode→队列 SetModeRequest→Ready.RunTick 取本批最后一个 mode→保存该 side 的目标 mode→发0x54。Ready.Initialize 先硬件信息，再恢复目标压力及配置 mode，再恢复容差和遥测 profile；配置存在而 mode 为空时 GetValueOrDefault 为 demo。保存目标 mode 在发送前，发送异常被记录，不能把持久化的“目标 mode”当设备已确认运行 mode。这里只闭合可见 Ready 链，不给未知外部生产服务指定优先级。
+主控默认 Left/Right PN 及配置绑定来自 BalloonOptions、ServiceCollectionExtensions（firmness 节）。全局配置文件/远程修改的实际合并顺序不在本轮范围；本样本 DLL 存在这些入口不等于用户账户已开放相应操作。
+
+8. 验证、交付与确切剩余
+RAW_TABLES.json 保存 SKU 数组、mode 结构、硬件层表、0x53 子命令表及字面 key；SOURCE_LEDGER.json 将复制源码与原 BBIN/DLL 逐项绑定 SHA256。VERIFICATION.json 核对新导出指令字节与原件、独立解码 BL 目标、原表切片、来源未变、IL 命令成功。它没有声称重解码每个助记符。
+scripts/parameter_contracts.py 与 MODEL_RESULTS.json：34 项有限正常合同，包括平台层累积、SKU/side/袋4回退、partial count、c与enabled分离、短字段缺省、stage不生效、save时机、运行写与staging冲突、clear与重启差异、模式作用域、SP=1边界。它是静态规则的合成模型，不是 MCU/flash 仿真或实测；不扩大到畸形输入、全浮点异常或安全故障组合。
+已经闭合：这份镜像上述参数正常选择/覆盖规则，以及选定主控入口→线格式→MCU存储/运行消费者。尚缺的实机材料很具体：硬件记录 pn/sku/hwrev、活动 firmware CRC/版本、当时 flash 校准内容/运行配置读数、主控侧已保存 mode/tolerance 与操作时序。只有把这些与同一实机绑定，才能说该机“此刻用的是哪组”。应用镜像本身不含 0x0807F000/0x0807F804 的出厂或用户持久内容。
+其他未扩展入口：0x53 其余独立控制/调度/体动参数写法、0x50/0x51 直接执行器配置与所有运行写交错、全局主控配置来源合并、所有板型最终 GPIO/PWM 的改版映射。它们没有妨碍本报告明确界定的五系数/模式覆盖链；也不能由本报告反推出已经全部研究完。

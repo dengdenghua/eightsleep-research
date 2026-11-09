@@ -1,0 +1,32 @@
+TARGET 08008460 function=08008460
+REF_TO 0801adda UNCONDITIONAL_CALL
+REF_TO 0800846e CONDITIONAL_JUMP
+FUNCTION_BODY [[08008460, 08008473]]
+
+int FUN_08008460(byte *param_1,byte *param_2)
+
+{
+  byte bVar1;
+  uint uVar2;
+  
+  do {
+    uVar2 = (uint)*param_1;
+    bVar1 = *param_2;
+    if (uVar2 == 0) break;
+    param_1 = param_1 + 1;
+    param_2 = param_2 + 1;
+  } while (uVar2 == bVar1);
+  return uVar2 - bVar1;
+}
+
+
+INSN 08008460 0278 ldrb r2,[r0,#0x0]
+INSN 08008462 0b78 ldrb r3,[r1,#0x0]
+INSN 08008464 002a cmp r2,#0x0
+INSN 08008466 03d0 beq 0x08008470 REF[CONDITIONAL_JUMP:08008470]
+INSN 08008468 0130 adds r0,#0x1
+INSN 0800846a 0131 adds r1,#0x1
+INSN 0800846c 9a42 cmp r2,r3
+INSN 0800846e f7d0 beq 0x08008460 REF[CONDITIONAL_JUMP:08008460]
+INSN 08008470 d01a subs r0,r2,r3
+INSN 08008472 7047 bx lr

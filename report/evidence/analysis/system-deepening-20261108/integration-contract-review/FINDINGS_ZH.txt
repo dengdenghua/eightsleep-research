@@ -1,0 +1,92 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+离线管线集成前的独立契约审计
+2026-11-08 / Asia/Shanghai。只读现有材料，不执行固件、设备、网络或账号请求。
+
+目的与结论
+这些材料能接成有明确假设的离线重放模型，但不是直接把几个main函数串起来。应区分：合成源记录、MCU缓存/排队模型、规范线协议字节、严格离线解析器、主控桶和编码模型、编码后的发送队列模型。每层都要保留身份/哈希及截断信息。模型标签、callback ordinal、source/token/copied和注入的发布结果不得写进原厂线格式后又称为设备自带字段。
+本轮独立运行9个Python契约探针，全部通过；它们验证现有工具接口和边界，不是独立原生固件执行，也不证明所依赖模型全面正确。
+
+1. 样本版本和范围必须固定
+- 原目标是USB传感MCU 5.5.34.0，BBIN SHA 1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563；Frank ELF SHA 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+- 这两个是已分析文件身份，不等于用户Pod当前运行版本。MCU板修订、主控板修订、销售Pod代数和地区不能互换。
+- 0x3c支持多通道的路径与pillow不是同一种输入契约。host.production_pairs虽建立sensor/pillow两对独立共享原子，不会证明pillow可用该0x3c生产者。
+- 当前集成若限定compat=False，代表已选定的buzzer+IMU窄路径，不能称已含所有raw类型、extADC/multi或云端处理。所审主控rev>=0xA30走该两类输出；有相应路径不证明实机rev匹配。
+
+2. 现有MCU模型不是记录编码器
+upload-distortion/model.py：
+- Queues.tick(n)只保存callback ordinal，ADC容量30、IMU容量12、每五次一个IMU；满拒绝新项且相位继续前进。drain()直接返回若干五ADC+一IMU的序号列表，没有80B/48B内部记录，也没有ADC数值、状态、微秒或USB发送。
+- freshness()/cache_case只追五个代表分量的generation age，不等于恢复两ADS完整缓存、板级map、CRC、8ms缓存回用或中断调度。helper成功不表示所有分量有新值。
+- queue_case让消费者在stall结束后立即全量可用；不能把该脚本的排队序号直接解释为现场USB延迟。恢复后-30的单位为callback间隔；换算60ms以500Hz假设为前提。
+- host_map/buzzer_load是更早的单标量/固定锚点/手选桶门控符号实验。集成要使用完整host Pipeline，不应再跑一次host_map而双重补点。
+- 不要导入 sensor-mcu/freshness/freshness_model.py 作为库：它在模块顶层直接写旧freshness-model.json。本审计只读它，未导入。upload-distortion/model.py本身有main guard，导入所加载的既有dual/parser只定义接口。
+
+新适配器若构造数值，应明确“根据记录字段语义构造的合成记录”，不要用“实机记录”。signed24符号扩展、软件倍率×1/×4、ADC map与部分ready更新属于MCU侧；不能把host gain=400与×4当成同一个量。若不模拟SPI帧CRC/配置，应标为已给定合法缓存更新后的入口，不宣称已模拟完整ADC采集。
+MCU在线记录仅序列化首ADC tick、发送时current_flags、固定frequency及五组数值；内部requested_gain、其余四个tick、IMU实际generation没有上线。需要保留旁路provenance用于评价失真，但不能让适配器凭这些旁路字段“修正”主控本来不可见的配对。
+
+3. 0x3c/LSP → host的适配必须显式
+规范5帧payload=376 B；加opcode后LSP body=377 B。多字节wire字段BE；LSP CRC初值1D0F，ADC SPI CRC初值FFFF，两者不能复用seed。bit7仅保留为header flag，不能自行解释成ACK。
+parse_lsp(data,length_bytes=2,side=...)返回frames；0x3c帧在frame['stealth']。parse_usb只接受裸0x3c payload，不含opcode/LSP。不要把USB端点packet碎片直接当0x3c payload。
+
+必须填入host.ingest的字段：
+- side：来自fixture/捕获上下文。单个设备的16个ADC槽不是床的左右两侧。
+- tick：来自解析后每个sample的device_tick_ms，按包内首tick+i*(1000//frequency)并uint32回绕；不能恢复原包未携带的四个真实内部tick。
+- now：独立注入的host墙钟参考秒，不是callback ordinal，也不是从wire可直接读到的Unix时间。排队时间、生成时间、到达时间必须分开。
+- adc：解析结果16项；禁用组为None，进入host前转0x7fffffff。不能用0补缺失。
+- imu：顶层imu_groups_wire_order为4组，每组6项（gyro XYZ、accel XYZ）；disabled group为None，展开成6个0x7fff。24项同一包共享附到五个ADC样本，不能当成五次独立IMU转换。
+- version：整个parsed['flags'] & 0xffff。不是固件版本，不是flags低字节。caller/0027e7b0.c从+0x214取旗标放到sample+0x7a，频率+0x216放到+0x78；001ffa70.asm在001ffcb8读取+0x7a。证据最小上下文与源hash另存。
+- source/token：每侧每次实际入host必须唯一，包ID+包内下标+side等仅为旁路审计标识。
+
+危险默认值：host.Sample默认ADC=range(16)、IMU=range(24)、version=1；ingest遗漏adc/imu会保留这些值，而不是缺样。适配器必须显式传完三个字段并校验长度和int范围。原IMU输出对正32767钳制32766，负32768保留；0x7fff为缺样保留值。合成MCU入口若使用32767，应实现该钳制或明确限定源值范围。
+
+严格离线parser故意比固件更窄：多余payload余数拒绝，而所审固件按64B向下取整、可能忽略余数；LSP坏CRC、新marker打断、尾部截断均抛异常。它不是可持续流式喂入的decoder对象，也没有完整恢复固件重同步/错误恢复状态。因此本轮通过规范帧可验证端序、长度、CRC、转义，不可据离线异常推断设备将如何恢复、是否继续接收下一帧。遇损坏场景须标“工具拒绝”，不能直接统计为云端丢样。
+
+4. 时间与桶模型的固定条件
+完整host-model/model.py继承previous_model的Timing/enqueue。当前Timing把4ms间隔判为复制点，复制当前值并减relative 2ms；slot=(relative%1000)//2，IMU槽间隔10ms，CBOR频率固定500/100。parser可以接受333Hz并产生3ms步长，但这个host模型不是任意频率实现。当前集成必须限定500Hz，其他频率拒绝或标为未覆盖，不可静默套500Hz。
+Timing的uint32回绕、首次previous=0哨兵、1000次检查、>2秒重锚和共享位都有语义；如果当前场景限定稳定锚点及顺序到达，明确写出该条件。单点复制保留当前epoch，跨秒不是把复制点送回上一秒。source/copied只是模型标签，线协议无此标识。
+
+ready门控是按桶数量：单侧>=3；双侧双方>=3或任一>=10。主侧由桶数选择，平局左侧；不能为了漂亮结果固定主侧而不说明。副侧按同一桶下标读，时间/落槽取主侧，未独立时间对齐。删桶和watermark前进发生在loader之后，即使提前退出或后续编码失败也不自动恢复。
+
+API陷阱：
+- Pipeline.ingest最终调用继承的offer，默认auto_flush=True会在插入前刷写。所有新增wire_payloads应按增长捕获，不能只取最后一次手动flush的结果。
+- auto_flush=False仅取消ready预刷；enqueue遇容量仍会flush一次再重试。探针以11个单侧稀疏桶确认产生1个输出且剩10桶。
+- 新Pipeline.flush()即使load()返回None，仍调用encode生成epoch0全sentinel候选。收尾不能无条件调用flush直到返回None；需明确检查桶/状态，仅把实际存在的候选接下游。
+- begin_offer/poll_gate/resume_offer才覆盖显式协程等待。直接ingest是顺序立即刷写抽象，不包含真实调度公平性、50000 steady tick等待、并发或取消；当前集成无需为了“完整”伪装这些已经运行。
+
+5. host→CBOR并非每个数据类型一条消息
+实际选择用host.encode生成的wire_payloads：compat=False时stealth = buzzer map + IMU map，直接拼接两个CBOR值，无外层数组。compat=True再拼multi；extADC为另一独立body。不能把四个独立流编码又分别入队后说等价于原调用点。
+buffer数据为通道列存，样本blob为LE int32/int16；wire输入的BE转换必须到这里才完成。未写槽完整保留sentinel，不压缩为有效点列表。count增加次数不等于独特槽数，更不等于有效新转换数。
+
+元数据是装填时整块字段：最后一次成功装填的version可标记同秒中早先不同版本数值；gain在装填时从host当前配置取，不从旧样本还原。单侧模式缺侧version镜像主侧，缺侧buzzer/multi gain用400；缺侧数据仍sentinel。编码清epoch/count/数据，但保留metadata。probe显式验证这些行为，不能把它们当逐点传感器状态历史。
+encode_buffers只实现成功字节编码。host.fail_streams模拟布尔失败仍清各buffer；任何一个主stream失败使整个stealth body不可用，但extADC可独立候选。None表示无body，不能转b''后入队冒充正常消息。encode实际虽为失败分支计算过参考字节，那些字节不是可发布产物。
+parse_cbor会解连续CBOR值；describe_record没有自动展开piezo-dual的left1/right1 blob。compat=False无需此分支，但以后扩展extADC不能把未解释bytes误标成已解析样本。
+
+6. CBOR候选→发布前队列的唯一应接边界
+RawCaller.flush(record_id,subject,body,mask=0x04000000)入口是成功生成body且分配无异常后的正常bool路径。Queue模型不决定什么时候生成body。可传host.wire_payloads[k]['stealth']，保留同一body SHA，并将旁路record_id连回该批source/token；不要重新编码一个近似body。
+
+raw环有17槽、16条可用；这是消息条数，不是16秒/样本/固定字节数。mask==1去log，所有其他已路由raw共用raw环；当前仅stealth的集成不包含其他raw压力。预载15/16条消息是允许的明确fixture，但必须区分外部预载与MCU模型产物，统计不能混算来源。
+- 成功入队复制subject/body；满时拒新，既有头尾保留。不是NATS raw_mem的discard-old策略。
+- Caller正常bool返回后无论接受与否都释放临时对象、清ready、推进logger sequence。不重试被拒的新body。
+- worker API返回0才pop并推进cursor；非0保留原头、连接失效，再扫描时cursor不变。重连成功需外部fixture显式注入。
+- 重试同一队首不再次调用RawCaller.flush，不重编CBOR，不再推进caller sequence。logger序号也不是MCU tick、CBOR时间、uploader chunk号。
+- 失败码不能证明远端未收到；0也不伪造观察到ACK。possible_remote_accept仅外部情景标签。模型不执行NATS、去重、落盘、传输重试定时或云端接收。
+- core优先及三JS轮转在模型内有边界；若只用raw，应写明另两队/core为空。失败队列始终首个非空才形成示例阻塞，不声称绝对锁死。
+
+7. 建议的少量贯通场景
+① 正常500Hz、固定flags、稳定host参考、两侧规范LSP：数值/端序/缺侧/两个CBOR map/body哈希全过程核对；记录留下的未来桶，避免把预刷门控省略成“每秒必传”。
+② 部分ADC更新或明确的缓存回用：同一flags仍有效，但部分数值generation不变。线上值不携带generation，结果只能用旁路来源评价；不声称模型识别了真实生理信号质量。
+③ MCU消费者停60次callback：ADC丢新30，IMU不丢；恢复后的五ADC对应旧IMU，序号差-30。保留原配对，不让adapter按旁路时间重配。
+④ 丢一个完整0x3c包：是5个ADC点，不等于4ms单点空隙。比较缺包侧成为主侧/副侧时的loader提前退出。若另测4ms复制，应通过明确的单callback缺失来源，或标为host输入注入，不伪装为一次整包丢失。
+⑤ raw队列15/16条外部预载，再给同一个真实格式合成body：验证容量、拒新、caller序号与上游已消费不可回滚；统计分开预载/链路产物。
+⑥ 一条body非0发布返回→注入重连→0返回：验证两次尝试body SHA不变、仅一次admission、同caller序号；远端结果保持未知。
+需要进一步压缩时保留①③⑤⑥；②④可用现有局部模型与旁路演示。metadata变更、非500Hz和空flush作为适配器防错检查，不必扩成大量“实机场景”。
+
+验收要求
+保存每层规范bytes和SHA、来源唯一ID与显式删失原因；分别统计MCU cache freshness、MCU queue drop、host缺失/复制/覆盖/提前删桶、无body编码结果、raw admission、publish attempt/API返回。一个源点被复制或多流编码时不得用总point数当唯一原始采样数。最终指标止于所选静态边界，不把body_candidate、enqueue、API返回或fixture ACK互相混用。
+
+独立产物
+PROBE_RESULTS.json及scripts/probe_contracts.py：9个可信已有Python契约探针，仅写本目录。
+SOURCE_MANIFEST.json：全部审阅输入文件SHA和行数；EVIDENCE_MAP.json：关键契约精确行号。
+source-context/：版本/flags的最小C与汇编上下文，注明完整来源。
+本轮尚未审阅root的新integrated-capture-model实现，不能把本审计当成其最终通过记录。

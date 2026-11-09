@@ -1,0 +1,361 @@
+// IL code: Microsoft.Extensions.Hosting.Abstractions
+.class public auto ansi abstract beforefieldinit Microsoft.Extensions.Hosting.BackgroundService
+	extends [System.Runtime]System.Object
+	implements Microsoft.Extensions.Hosting.IHostedService,
+	           [System.Runtime]System.IDisposable
+{
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit '<StopAsync>d__6'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Microsoft.Extensions.Hosting.BackgroundService '<>4__this'
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		.field private object '<>7__wrap1'
+		.field private int32 '<>7__wrap2'
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable/ConfiguredTaskAwaiter '<>u__1'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x27f0
+			// Header size: 12
+			// Code size: 261 (0x105)
+			.maxstack 3
+			.locals init (
+				[0] int32,
+				[1] class Microsoft.Extensions.Hosting.BackgroundService,
+				[2] object,
+				[3] valuetype [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable/ConfiguredTaskAwaiter,
+				[4] valuetype [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable,
+				[5] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Microsoft.Extensions.Hosting.BackgroundService Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse.s IL_008d
+
+				IL_0011: ldloc.1
+				IL_0012: ldfld class [System.Runtime]System.Threading.Tasks.Task Microsoft.Extensions.Hosting.BackgroundService::_executeTask
+				IL_0017: brtrue.s IL_001e
+
+				IL_0019: leave IL_00f1
+
+				IL_001e: ldarg.0
+				IL_001f: ldnull
+				IL_0020: stfld object Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>7__wrap1'
+				IL_0025: ldarg.0
+				IL_0026: ldc.i4.0
+				IL_0027: stfld int32 Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>7__wrap2'
+				.try
+				{
+					IL_002c: ldloc.1
+					IL_002d: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Microsoft.Extensions.Hosting.BackgroundService::_stoppingCts
+					IL_0032: callvirt instance void [System.Runtime]System.Threading.CancellationTokenSource::Cancel()
+					IL_0037: leave.s IL_0043
+				} // end .try
+				catch [System.Runtime]System.Object
+				{
+					IL_0039: stloc.2
+					IL_003a: ldarg.0
+					IL_003b: ldloc.2
+					IL_003c: stfld object Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>7__wrap1'
+					IL_0041: leave.s IL_0043
+				} // end handler
+
+				IL_0043: ldloc.1
+				IL_0044: ldfld class [System.Runtime]System.Threading.Tasks.Task Microsoft.Extensions.Hosting.BackgroundService::_executeTask
+				IL_0049: ldarg.0
+				IL_004a: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::cancellationToken
+				IL_004f: callvirt instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Threading.Tasks.Task::WaitAsync(valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_0054: ldc.i4.2
+				IL_0055: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable [System.Runtime]System.Threading.Tasks.Task::ConfigureAwait(valuetype [System.Runtime]System.Threading.Tasks.ConfigureAwaitOptions)
+				IL_005a: stloc.s 4
+				IL_005c: ldloca.s 4
+				IL_005e: call instance valuetype [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable/ConfiguredTaskAwaiter [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable::GetAwaiter()
+				IL_0063: stloc.3
+				IL_0064: ldloca.s 3
+				IL_0066: call instance bool [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable/ConfiguredTaskAwaiter::get_IsCompleted()
+				IL_006b: brtrue.s IL_00a9
+
+				IL_006d: ldarg.0
+				IL_006e: ldc.i4.0
+				IL_006f: dup
+				IL_0070: stloc.0
+				IL_0071: stfld int32 Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>1__state'
+				IL_0076: ldarg.0
+				IL_0077: ldloc.3
+				IL_0078: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable/ConfiguredTaskAwaiter Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>u__1'
+				IL_007d: ldarg.0
+				IL_007e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>t__builder'
+				IL_0083: ldloca.s 3
+				IL_0085: ldarg.0
+				IL_0086: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable/ConfiguredTaskAwaiter, valuetype Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'>(!!0&, !!1&)
+				IL_008b: leave.s IL_0104
+
+				IL_008d: ldarg.0
+				IL_008e: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable/ConfiguredTaskAwaiter Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>u__1'
+				IL_0093: stloc.3
+				IL_0094: ldarg.0
+				IL_0095: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable/ConfiguredTaskAwaiter Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>u__1'
+				IL_009a: initobj [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable/ConfiguredTaskAwaiter
+				IL_00a0: ldarg.0
+				IL_00a1: ldc.i4.m1
+				IL_00a2: dup
+				IL_00a3: stloc.0
+				IL_00a4: stfld int32 Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>1__state'
+
+				IL_00a9: ldloca.s 3
+				IL_00ab: call instance void [System.Runtime]System.Runtime.CompilerServices.ConfiguredTaskAwaitable/ConfiguredTaskAwaiter::GetResult()
+				IL_00b0: ldarg.0
+				IL_00b1: ldfld object Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>7__wrap1'
+				IL_00b6: stloc.2
+				IL_00b7: ldloc.2
+				IL_00b8: brfalse.s IL_00cf
+
+				IL_00ba: ldloc.2
+				IL_00bb: isinst [System.Runtime]System.Exception
+				IL_00c0: dup
+				IL_00c1: brtrue.s IL_00c5
+
+				IL_00c3: ldloc.2
+				IL_00c4: throw
+
+				IL_00c5: call class [System.Runtime]System.Runtime.ExceptionServices.ExceptionDispatchInfo [System.Runtime]System.Runtime.ExceptionServices.ExceptionDispatchInfo::Capture(class [System.Runtime]System.Exception)
+				IL_00ca: callvirt instance void [System.Runtime]System.Runtime.ExceptionServices.ExceptionDispatchInfo::Throw()
+
+				IL_00cf: ldarg.0
+				IL_00d0: ldnull
+				IL_00d1: stfld object Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>7__wrap1'
+				IL_00d6: leave.s IL_00f1
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_00d8: stloc.s 5
+				IL_00da: ldarg.0
+				IL_00db: ldc.i4.s -2
+				IL_00dd: stfld int32 Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>1__state'
+				IL_00e2: ldarg.0
+				IL_00e3: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>t__builder'
+				IL_00e8: ldloc.s 5
+				IL_00ea: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_00ef: leave.s IL_0104
+			} // end handler
+
+			IL_00f1: ldarg.0
+			IL_00f2: ldc.i4.s -2
+			IL_00f4: stfld int32 Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>1__state'
+			IL_00f9: ldarg.0
+			IL_00fa: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>t__builder'
+			IL_00ff: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_0104: ret
+		} // end of method '<StopAsync>d__6'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x2920
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<StopAsync>d__6'::SetStateMachine
+
+	} // end of class <StopAsync>d__6
+
+
+	// Fields
+	.field private class [System.Runtime]System.Threading.Tasks.Task _executeTask
+	.field private class [System.Runtime]System.Threading.CancellationTokenSource _stoppingCts
+
+	// Methods
+	.method public hidebysig specialname newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task get_ExecuteTask () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		// Method begins at RVA 0x2391
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Threading.Tasks.Task Microsoft.Extensions.Hosting.BackgroundService::_executeTask
+		IL_0006: ret
+	} // end of method BackgroundService::get_ExecuteTask
+
+	.method family hidebysig newslot abstract virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task ExecuteAsync (
+			valuetype [System.Runtime]System.Threading.CancellationToken stoppingToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 01 00 00
+		)
+	} // end of method BackgroundService::ExecuteAsync
+
+	.method public hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task StartAsync (
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 01 00 00
+		)
+		// Method begins at RVA 0x2399
+		// Header size: 1
+		// Code size: 52 (0x34)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: call class [System.Runtime]System.Threading.CancellationTokenSource [System.Runtime]System.Threading.CancellationTokenSource::CreateLinkedTokenSource(valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0007: stfld class [System.Runtime]System.Threading.CancellationTokenSource Microsoft.Extensions.Hosting.BackgroundService::_stoppingCts
+		IL_000c: ldarg.0
+		IL_000d: ldarg.0
+		IL_000e: ldftn instance class [System.Runtime]System.Threading.Tasks.Task Microsoft.Extensions.Hosting.BackgroundService::'<StartAsync>b__5_0'()
+		IL_0014: newobj instance void class [System.Runtime]System.Func`1<class [System.Runtime]System.Threading.Tasks.Task>::.ctor(object, native int)
+		IL_0019: ldarg.0
+		IL_001a: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Microsoft.Extensions.Hosting.BackgroundService::_stoppingCts
+		IL_001f: callvirt instance valuetype [System.Runtime]System.Threading.CancellationToken [System.Runtime]System.Threading.CancellationTokenSource::get_Token()
+		IL_0024: call class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Threading.Tasks.Task::Run(class [System.Runtime]System.Func`1<class [System.Runtime]System.Threading.Tasks.Task>, valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0029: stfld class [System.Runtime]System.Threading.Tasks.Task Microsoft.Extensions.Hosting.BackgroundService::_executeTask
+		IL_002e: call class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Threading.Tasks.Task::get_CompletedTask()
+		IL_0033: ret
+	} // end of method BackgroundService::StartAsync
+
+	.method public hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task StopAsync (
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 01 00 00
+		)
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 3e 4d 69 63 72 6f 73 6f 66 74 2e 45 78 74
+			65 6e 73 69 6f 6e 73 2e 48 6f 73 74 69 6e 67 2e
+			42 61 63 6b 67 72 6f 75 6e 64 53 65 72 76 69 63
+			65 2b 3c 53 74 6f 70 41 73 79 6e 63 3e 64 5f 5f
+			36 00 00
+		)
+		// Method begins at RVA 0x23d0
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Microsoft.Extensions.Hosting.BackgroundService Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld valuetype [System.Runtime]System.Threading.CancellationToken Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::cancellationToken
+		IL_001c: ldloca.s 0
+		IL_001e: ldc.i4.m1
+		IL_001f: stfld int32 Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>1__state'
+		IL_0024: ldloca.s 0
+		IL_0026: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>t__builder'
+		IL_002b: ldloca.s 0
+		IL_002d: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'>(!!0&)
+		IL_0032: ldloca.s 0
+		IL_0034: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Microsoft.Extensions.Hosting.BackgroundService/'<StopAsync>d__6'::'<>t__builder'
+		IL_0039: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_003e: ret
+	} // end of method BackgroundService::StopAsync
+
+	.method public hidebysig newslot virtual 
+		instance void Dispose () cil managed 
+	{
+		// Method begins at RVA 0x241b
+		// Header size: 1
+		// Code size: 17 (0x11)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Microsoft.Extensions.Hosting.BackgroundService::_stoppingCts
+		IL_0006: dup
+		IL_0007: brtrue.s IL_000b
+
+		IL_0009: pop
+		IL_000a: ret
+
+		IL_000b: call instance void [System.Runtime]System.Threading.CancellationTokenSource::Cancel()
+		IL_0010: ret
+	} // end of method BackgroundService::Dispose
+
+	.method family hidebysig specialname rtspecialname 
+		instance void .ctor () cil managed 
+	{
+		// Method begins at RVA 0x242d
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0006: ret
+	} // end of method BackgroundService::.ctor
+
+	.method private hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task '<StartAsync>b__5_0' () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x2435
+		// Header size: 1
+		// Code size: 18 (0x12)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.0
+		IL_0002: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Microsoft.Extensions.Hosting.BackgroundService::_stoppingCts
+		IL_0007: callvirt instance valuetype [System.Runtime]System.Threading.CancellationToken [System.Runtime]System.Threading.CancellationTokenSource::get_Token()
+		IL_000c: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Microsoft.Extensions.Hosting.BackgroundService::ExecuteAsync(valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0011: ret
+	} // end of method BackgroundService::'<StartAsync>b__5_0'
+
+	// Properties
+	.property instance class [System.Runtime]System.Threading.Tasks.Task ExecuteTask()
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		.get instance class [System.Runtime]System.Threading.Tasks.Task Microsoft.Extensions.Hosting.BackgroundService::get_ExecuteTask()
+	}
+
+} // end of class Microsoft.Extensions.Hosting.BackgroundService

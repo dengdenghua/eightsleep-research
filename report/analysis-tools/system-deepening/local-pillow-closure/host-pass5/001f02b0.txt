@@ -1,0 +1,93 @@
+TARGET 001f02b0 function=001f02b0
+REF_TO 004cc4c4 INDIRECTION owner=none
+REF_TO 004ef81c DATA owner=none
+REF_TO 0058eb58 DATA owner=none
+FUNCTION_BODY [[001f02b0, 001f0377]]
+
+undefined8 FUN_001f02b0(long param_1,long param_2)
+
+{
+  long lVar1;
+  long lVar2;
+  long lVar3;
+  
+  lVar1 = FUN_001d7ab0(param_2 + 0x10,*(undefined8 *)(param_1 + 8));
+  if (lVar1 == 0) {
+    return 0;
+  }
+  lVar1 = *(long *)(param_1 + 8);
+  if (-1 < lVar1) {
+    if (lVar1 == 0) {
+      return 1;
+    }
+    lVar3 = lVar1 + -1;
+    lVar2 = 0;
+    do {
+      if (lVar1 <= lVar2) break;
+      lVar1 = FUN_001d7390(param_2 + 0x10,*(undefined2 *)(*(long *)(param_1 + 0x10) + lVar2 * 2));
+      if (lVar1 == 0) {
+        return 0;
+      }
+      lVar1 = *(long *)(param_1 + 8);
+      if (lVar1 <= lVar2) break;
+      if (lVar2 == lVar3) {
+        return 1;
+      }
+      lVar2 = lVar2 + 1;
+    } while (lVar2 != -0x8000000000000000);
+  }
+                    /* WARNING: Subroutine does not return */
+  std::terminate();
+}
+
+
+INSN 001f02b0 3f2303d5 paciasp
+INSN 001f02b4 fd7bbca9 stp x29,x30,[sp, #-0x40]! REF[WRITE:Stack[-0x40]]
+INSN 001f02b8 fd030091 mov x29,sp
+INSN 001f02bc f35301a9 stp x19,x20,[sp, #0x10] REF[WRITE:Stack[-0x30]]
+INSN 001f02c0 f30300aa mov x19,x0
+INSN 001f02c4 34400091 add x20,x1,#0x10
+INSN 001f02c8 e00314aa mov x0,x20
+INSN 001f02cc 610640f9 ldr x1,[x19, #0x8]
+INSN 001f02d0 f89dff97 bl 0x001d7ab0 REF[UNCONDITIONAL_CALL:001d7ab0]
+INSN 001f02d4 c00000b5 cbnz x0,0x001f02ec REF[CONDITIONAL_JUMP:001f02ec]
+INSN 001f02d8 00008052 mov w0,#0x0
+INSN 001f02dc f35341a9 ldp x19,x20,[sp, #0x10] REF[READ:Stack[-0x30]]
+INSN 001f02e0 fd7bc4a8 ldp x29,x30,[sp], #0x40 REF[DATA:Stack[-0x40]]
+INSN 001f02e4 bf2303d5 autiasp
+INSN 001f02e8 c0035fd6 ret
+INSN 001f02ec 600640f9 ldr x0,[x19, #0x8]
+INSN 001f02f0 f55b02a9 stp x21,x22,[sp, #0x20] REF[WRITE:Stack[-0x20]]
+INSN 001f02f4 f71b00f9 str x23,[sp, #0x30] REF[WRITE:Stack[-0x10]]
+INSN 001f02f8 1f0000f1 cmp x0,#0x0
+INSN 001f02fc 8b020054 b.lt 0x001f034c REF[CONDITIONAL_JUMP:001f034c]
+INSN 001f0300 80020054 b.eq 0x001f0350 REF[CONDITIONAL_JUMP:001f0350]
+INSN 001f0304 160400d1 sub x22,x0,#0x1
+INSN 001f0308 150080d2 mov x21,#0x0
+INSN 001f030c 1700f0d2 mov x23,#-0x8000000000000000
+INSN 001f0310 1f0015eb cmp x0,x21
+INSN 001f0314 cd010054 b.le 0x001f034c REF[CONDITIONAL_JUMP:001f034c]
+INSN 001f0318 610a40f9 ldr x1,[x19, #0x10]
+INSN 001f031c e00314aa mov x0,x20
+INSN 001f0320 21787578 ldrh w1,[x1, x21, LSL #0x1]
+INSN 001f0324 1b9cff97 bl 0x001d7390 REF[UNCONDITIONAL_CALL:001d7390]
+INSN 001f0328 200200b4 cbz x0,0x001f036c REF[CONDITIONAL_JUMP:001f036c]
+INSN 001f032c 600640f9 ldr x0,[x19, #0x8]
+INSN 001f0330 bf0200eb cmp x21,x0
+INSN 001f0334 ca000054 b.ge 0x001f034c REF[CONDITIONAL_JUMP:001f034c]
+INSN 001f0338 bf0216eb cmp x21,x22
+INSN 001f033c a0000054 b.eq 0x001f0350 REF[CONDITIONAL_JUMP:001f0350]
+INSN 001f0340 b5060091 add x21,x21,#0x1
+INSN 001f0344 bf0217eb cmp x21,x23
+INSN 001f0348 41feff54 b.ne 0x001f0310 REF[CONDITIONAL_JUMP:001f0310]
+INSN 001f034c a10dfe97 bl 0x001739d0 REF[UNCONDITIONAL_CALL:001739d0]
+INSN 001f0350 20008052 mov w0,#0x1
+INSN 001f0354 f35341a9 ldp x19,x20,[sp, #0x10] REF[READ:Stack[-0x30]]
+INSN 001f0358 f55b42a9 ldp x21,x22,[sp, #0x20] REF[READ:Stack[-0x20]]
+INSN 001f035c f71b40f9 ldr x23,[sp, #0x30] REF[READ:Stack[-0x10]]
+INSN 001f0360 fd7bc4a8 ldp x29,x30,[sp], #0x40 REF[DATA:Stack[-0x40]]
+INSN 001f0364 bf2303d5 autiasp
+INSN 001f0368 c0035fd6 ret
+INSN 001f036c f55b42a9 ldp x21,x22,[sp, #0x20] REF[READ:Stack[-0x20]]
+INSN 001f0370 f71b40f9 ldr x23,[sp, #0x30] REF[READ:Stack[-0x10]]
+INSN 001f0374 daffff17 b 0x001f02dc REF[UNCONDITIONAL_JUMP:001f02dc]

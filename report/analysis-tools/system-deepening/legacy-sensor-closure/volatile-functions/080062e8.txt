@@ -1,0 +1,130 @@
+FUNCTION 080062e8 FUN_080062e8 BODY [[080062e8, 08006377]]
+INCOMING 080088d0 UNCONDITIONAL_CALL
+INCOMING 080089a2 UNCONDITIONAL_CALL
+INCOMING 0800a74a UNCONDITIONAL_CALL
+INCOMING 08008c74 UNCONDITIONAL_CALL
+INCOMING 08008c9c UNCONDITIONAL_CALL
+INCOMING 08008cb8 UNCONDITIONAL_CALL
+INCOMING 0800b45c UNCONDITIONAL_CALL
+INCOMING 0800b4de UNCONDITIONAL_CALL
+
+uint FUN_080062e8(uint param_1)
+
+{
+  int iVar1;
+  uint uVar2;
+  uint uVar3;
+  uint uVar4;
+  
+  if (param_1 == 0) {
+    param_1 = 0;
+    uVar2 = 0;
+    uVar4 = 0;
+  }
+  else {
+    uVar4 = param_1 + ((int)param_1 >> 0x1f) ^ (int)param_1 >> 0x1f;
+    param_1 = param_1 >> 0x1f;
+    iVar1 = FUN_080080ac(uVar4);
+    uVar2 = 0x9e - iVar1;
+    if ((int)uVar2 < 0x97) {
+      uVar2 = uVar2 & 0xff;
+      if (iVar1 < 9) {
+        uVar4 = uVar4 & 0x7fffff;
+      }
+      else {
+        uVar4 = uVar4 << (iVar1 - 8U & 0xff) & 0x7fffff;
+      }
+    }
+    else {
+      if (0x99 < (int)uVar2) {
+        uVar4 = uVar4 >> (5U - iVar1 & 0xff) | (uint)(uVar4 << (iVar1 + 0x1bU & 0xff) != 0);
+      }
+      if (5 < iVar1) {
+        uVar4 = uVar4 << (iVar1 - 5U & 0xff);
+      }
+      uVar3 = uVar4 & 0xfbffffff;
+      if ((((uVar4 & 7) != 0) && ((uVar4 & 0xf) != 4)) &&
+         (uVar3 = uVar3 + 4, (int)(uVar3 * 0x20) < 0)) {
+        uVar3 = uVar3 & 0xfbffffff;
+        uVar2 = 0x9f - iVar1;
+      }
+      uVar4 = (uVar3 & 0x3ffffff) >> 3;
+      uVar2 = uVar2 & 0xff;
+    }
+  }
+  return uVar4 | uVar2 << 0x17 | param_1 << 0x1f;
+}
+
+
+ASSEMBLY
+080062e8 push {r4,r5,r6,lr} BYTES 70b5
+080062ea cmp r0,#0x0 BYTES 0028
+080062ec beq 0x0800636a BYTES 3dd0 REF CONDITIONAL_JUMP=0800636a
+080062ee asrs r3,r0,#0x1f BYTES c317
+080062f0 adds r5,r0,r3 BYTES c518
+080062f2 eors r5,r3 BYTES 5d40
+080062f4 lsrs r4,r0,#0x1f BYTES c40f
+080062f6 movs r0,r5 BYTES 2800
+080062f8 bl 0x080080ac BYTES 01f0d8fe REF UNCONDITIONAL_CALL=080080ac
+080062fc movs r2,#0x9e BYTES 9e22
+080062fe subs r2,r2,r0 BYTES 121a
+08006300 cmp r2,#0x96 BYTES 962a
+08006302 bgt 0x08006314 BYTES 07dc REF CONDITIONAL_JUMP=08006314
+08006304 uxtb r2,r2 BYTES d2b2
+08006306 cmp r0,#0x8 BYTES 0828
+08006308 ble 0x08006372 BYTES 33dd REF CONDITIONAL_JUMP=08006372
+0800630a subs r0,#0x8 BYTES 0838
+0800630c lsls r5,r0 BYTES 8540
+0800630e lsls r0,r5,#0x9 BYTES 6802
+08006310 lsrs r0,r0,#0x9 BYTES 400a
+08006312 b 0x0800635c BYTES 23e0 REF UNCONDITIONAL_JUMP=0800635c
+08006314 cmp r2,#0x99 BYTES 992a
+08006316 ble 0x08006330 BYTES 0bdd REF CONDITIONAL_JUMP=08006330
+08006318 movs r3,#0x5 BYTES 0523
+0800631a movs r1,r5 BYTES 2900
+0800631c subs r3,r3,r0 BYTES 1b1a
+0800631e lsrs r1,r3 BYTES d940
+08006320 movs r3,r0 BYTES 0300
+08006322 adds r3,#0x1b BYTES 1b33
+08006324 lsls r5,r3 BYTES 9d40
+08006326 movs r3,r5 BYTES 2b00
+08006328 subs r5,r3,#0x1 BYTES 5d1e
+0800632a sbcs r3,r5 BYTES ab41
+0800632c orrs r1,r3 BYTES 1943
+0800632e movs r5,r1 BYTES 0d00
+08006330 cmp r0,#0x5 BYTES 0528
+08006332 ble 0x08006338 BYTES 01dd REF CONDITIONAL_JUMP=08006338
+08006334 subs r3,r0,#0x5 BYTES 431f
+08006336 lsls r5,r3 BYTES 9d40
+08006338 movs r3,r5 BYTES 2b00
+0800633a ldr r1,[0x08006378] BYTES 0f49 REF READ=08006378 WORD=fbffffff
+0800633c ands r3,r1 BYTES 0b40
+0800633e lsls r6,r5,#0x1d BYTES 6e07
+08006340 beq 0x08006356 BYTES 09d0 REF CONDITIONAL_JUMP=08006356
+08006342 movs r6,#0xf BYTES 0f26
+08006344 ands r5,r6 BYTES 3540
+08006346 cmp r5,#0x4 BYTES 042d
+08006348 beq 0x08006356 BYTES 05d0 REF CONDITIONAL_JUMP=08006356
+0800634a adds r3,#0x4 BYTES 0433
+0800634c lsls r5,r3,#0x5 BYTES 5d01
+0800634e bpl 0x08006356 BYTES 02d5 REF CONDITIONAL_JUMP=08006356
+08006350 movs r2,#0x9f BYTES 9f22
+08006352 ands r3,r1 BYTES 0b40
+08006354 subs r2,r2,r0 BYTES 121a
+08006356 lsls r3,r3,#0x6 BYTES 9b01
+08006358 lsrs r0,r3,#0x9 BYTES 580a
+0800635a uxtb r2,r2 BYTES d2b2
+0800635c lsls r0,r0,#0x9 BYTES 4002
+0800635e lsls r2,r2,#0x17 BYTES d205
+08006360 lsrs r0,r0,#0x9 BYTES 400a
+08006362 lsls r4,r4,#0x1f BYTES e407
+08006364 orrs r0,r2 BYTES 1043
+08006366 orrs r0,r4 BYTES 2043
+08006368 pop {r4,r5,r6,pc} BYTES 70bd
+0800636a movs r4,#0x0 BYTES 0024
+0800636c movs r2,#0x0 BYTES 0022
+0800636e movs r0,#0x0 BYTES 0020
+08006370 b 0x0800635c BYTES f4e7 REF UNCONDITIONAL_JUMP=0800635c
+08006372 lsls r0,r5,#0x9 BYTES 6802
+08006374 lsrs r0,r0,#0x9 BYTES 400a
+08006376 b 0x0800635c BYTES f1e7 REF UNCONDITIONAL_JUMP=0800635c

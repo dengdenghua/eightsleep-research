@@ -1,0 +1,1582 @@
+// IL code: Eight.DeviceApiClient
+.class public auto ansi beforefieldinit Eight.DeviceApiClient.Client
+	extends [Microsoft.Extensions.Hosting.Abstractions]Microsoft.Extensions.Hosting.BackgroundService
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit '<<-ctor>b__4_0>d'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Eight.DeviceApiClient.Client '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request a
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter '<>u__1'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x36fc
+			// Header size: 12
+			// Code size: 181 (0xb5)
+			.maxstack 3
+			.locals init (
+				[0] int32,
+				[1] class Eight.DeviceApiClient.Client,
+				[2] valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter,
+				[3] valuetype [System.Runtime]System.Threading.CancellationToken,
+				[4] valuetype [System.Runtime]System.Threading.Tasks.ValueTask,
+				[5] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse.s IL_0063
+
+				IL_0011: ldloc.1
+				IL_0012: ldfld class [System.Threading.Channels]System.Threading.Channels.Channel`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client::serverRequests
+				IL_0017: callvirt instance class [System.Threading.Channels]System.Threading.Channels.ChannelWriter`1<!0> class [System.Threading.Channels]System.Threading.Channels.Channel`2<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request, class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request>::get_Writer()
+				IL_001c: ldarg.0
+				IL_001d: ldfld class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::a
+				IL_0022: ldloca.s 3
+				IL_0024: initobj [System.Runtime]System.Threading.CancellationToken
+				IL_002a: ldloc.3
+				IL_002b: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask class [System.Threading.Channels]System.Threading.Channels.ChannelWriter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request>::WriteAsync(!0, valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_0030: stloc.s 4
+				IL_0032: ldloca.s 4
+				IL_0034: call instance valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter [System.Runtime]System.Threading.Tasks.ValueTask::GetAwaiter()
+				IL_0039: stloc.2
+				IL_003a: ldloca.s 2
+				IL_003c: call instance bool [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::get_IsCompleted()
+				IL_0041: brtrue.s IL_007f
+
+				IL_0043: ldarg.0
+				IL_0044: ldc.i4.0
+				IL_0045: dup
+				IL_0046: stloc.0
+				IL_0047: stfld int32 Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>1__state'
+				IL_004c: ldarg.0
+				IL_004d: ldloc.2
+				IL_004e: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>u__1'
+				IL_0053: ldarg.0
+				IL_0054: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>t__builder'
+				IL_0059: ldloca.s 2
+				IL_005b: ldarg.0
+				IL_005c: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter, valuetype Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'>(!!0&, !!1&)
+				IL_0061: leave.s IL_00b4
+
+				IL_0063: ldarg.0
+				IL_0064: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>u__1'
+				IL_0069: stloc.2
+				IL_006a: ldarg.0
+				IL_006b: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>u__1'
+				IL_0070: initobj [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter
+				IL_0076: ldarg.0
+				IL_0077: ldc.i4.m1
+				IL_0078: dup
+				IL_0079: stloc.0
+				IL_007a: stfld int32 Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>1__state'
+
+				IL_007f: ldloca.s 2
+				IL_0081: call instance void [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::GetResult()
+				IL_0086: leave.s IL_00a1
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_0088: stloc.s 5
+				IL_008a: ldarg.0
+				IL_008b: ldc.i4.s -2
+				IL_008d: stfld int32 Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>1__state'
+				IL_0092: ldarg.0
+				IL_0093: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>t__builder'
+				IL_0098: ldloc.s 5
+				IL_009a: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_009f: leave.s IL_00b4
+			} // end handler
+
+			IL_00a1: ldarg.0
+			IL_00a2: ldc.i4.s -2
+			IL_00a4: stfld int32 Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>1__state'
+			IL_00a9: ldarg.0
+			IL_00aa: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>t__builder'
+			IL_00af: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_00b4: ret
+		} // end of method '<<-ctor>b__4_0>d'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x37d0
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<<-ctor>b__4_0>d'::SetStateMachine
+
+	} // end of class <<-ctor>b__4_0>d
+
+	.class nested private auto ansi sealed beforefieldinit '<ExecuteAsync>d__6'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Eight.DeviceApiClient.Client '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken stoppingToken
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x37e0
+			// Header size: 12
+			// Code size: 271 (0x10f)
+			.maxstack 3
+			.locals init (
+				[0] int32,
+				[1] class Eight.DeviceApiClient.Client,
+				[2] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[3] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse.s IL_0056
+
+				IL_0011: ldloc.0
+				IL_0012: ldc.i4.1
+				IL_0013: beq IL_00bf
+
+				IL_0018: ldloc.1
+				IL_0019: ldarg.0
+				IL_001a: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::stoppingToken
+				IL_001f: call instance class [System.Runtime]System.Threading.Tasks.Task Eight.DeviceApiClient.Client::SetupConnection(valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_0024: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+				IL_0029: stloc.2
+				IL_002a: ldloca.s 2
+				IL_002c: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+				IL_0031: brtrue.s IL_0072
+
+				IL_0033: ldarg.0
+				IL_0034: ldc.i4.0
+				IL_0035: dup
+				IL_0036: stloc.0
+				IL_0037: stfld int32 Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>1__state'
+				IL_003c: ldarg.0
+				IL_003d: ldloc.2
+				IL_003e: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>u__1'
+				IL_0043: ldarg.0
+				IL_0044: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>t__builder'
+				IL_0049: ldloca.s 2
+				IL_004b: ldarg.0
+				IL_004c: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'>(!!0&, !!1&)
+				IL_0051: leave IL_010e
+
+				IL_0056: ldarg.0
+				IL_0057: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>u__1'
+				IL_005c: stloc.2
+				IL_005d: ldarg.0
+				IL_005e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>u__1'
+				IL_0063: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+				IL_0069: ldarg.0
+				IL_006a: ldc.i4.m1
+				IL_006b: dup
+				IL_006c: stloc.0
+				IL_006d: stfld int32 Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>1__state'
+
+				IL_0072: ldloca.s 2
+				IL_0074: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+				IL_0079: ldloc.1
+				IL_007a: ldloc.1
+				IL_007b: ldfld class [System.Threading.Channels]System.Threading.Channels.Channel`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client::serverRequests
+				IL_0080: callvirt instance class [System.Threading.Channels]System.Threading.Channels.ChannelReader`1<!1> class [System.Threading.Channels]System.Threading.Channels.Channel`2<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request, class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request>::get_Reader()
+				IL_0085: ldarg.0
+				IL_0086: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::stoppingToken
+				IL_008b: call instance class [System.Runtime]System.Threading.Tasks.Task Eight.DeviceApiClient.Client::ProcessRequests(class [System.Threading.Channels]System.Threading.Channels.ChannelReader`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request>, valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_0090: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+				IL_0095: stloc.2
+				IL_0096: ldloca.s 2
+				IL_0098: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+				IL_009d: brtrue.s IL_00db
+
+				IL_009f: ldarg.0
+				IL_00a0: ldc.i4.1
+				IL_00a1: dup
+				IL_00a2: stloc.0
+				IL_00a3: stfld int32 Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>1__state'
+				IL_00a8: ldarg.0
+				IL_00a9: ldloc.2
+				IL_00aa: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>u__1'
+				IL_00af: ldarg.0
+				IL_00b0: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>t__builder'
+				IL_00b5: ldloca.s 2
+				IL_00b7: ldarg.0
+				IL_00b8: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'>(!!0&, !!1&)
+				IL_00bd: leave.s IL_010e
+
+				IL_00bf: ldarg.0
+				IL_00c0: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>u__1'
+				IL_00c5: stloc.2
+				IL_00c6: ldarg.0
+				IL_00c7: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>u__1'
+				IL_00cc: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+				IL_00d2: ldarg.0
+				IL_00d3: ldc.i4.m1
+				IL_00d4: dup
+				IL_00d5: stloc.0
+				IL_00d6: stfld int32 Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>1__state'
+
+				IL_00db: ldloca.s 2
+				IL_00dd: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+				IL_00e2: leave.s IL_00fb
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_00e4: stloc.3
+				IL_00e5: ldarg.0
+				IL_00e6: ldc.i4.s -2
+				IL_00e8: stfld int32 Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>1__state'
+				IL_00ed: ldarg.0
+				IL_00ee: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>t__builder'
+				IL_00f3: ldloc.3
+				IL_00f4: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_00f9: leave.s IL_010e
+			} // end handler
+
+			IL_00fb: ldarg.0
+			IL_00fc: ldc.i4.s -2
+			IL_00fe: stfld int32 Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>1__state'
+			IL_0103: ldarg.0
+			IL_0104: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>t__builder'
+			IL_0109: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_010e: ret
+		} // end of method '<ExecuteAsync>d__6'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x390c
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<ExecuteAsync>d__6'::SetStateMachine
+
+	} // end of class <ExecuteAsync>d__6
+
+	.class nested private auto ansi sealed beforefieldinit '<ProcessRequest>d__8'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Eight.DeviceApiClient.Client '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request 'request'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> '<>u__1'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__2'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x391c
+			// Header size: 12
+			// Code size: 341 (0x155)
+			.maxstack 4
+			.locals init (
+				[0] int32,
+				[1] class Eight.DeviceApiClient.Client,
+				[2] class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response,
+				[3] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>,
+				[4] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[5] class [System.Runtime]System.Exception,
+				[6] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: ldc.i4.1
+				IL_0010: pop
+				IL_0011: pop
+				IL_0012: nop
+				.try
+				{
+					IL_0013: ldloc.0
+					IL_0014: brfalse.s IL_0060
+
+					IL_0016: ldloc.0
+					IL_0017: ldc.i4.1
+					IL_0018: beq IL_00c5
+
+					IL_001d: ldloc.1
+					IL_001e: ldfld class Eight.DeviceApiClient.IRouter Eight.DeviceApiClient.Client::router
+					IL_0023: ldarg.0
+					IL_0024: ldfld class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'request'
+					IL_0029: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.DeviceApiClient.IRouter::ExecuteRequest(class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request)
+					IL_002e: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<!0> class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::GetAwaiter()
+					IL_0033: stloc.3
+					IL_0034: ldloca.s 3
+					IL_0036: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::get_IsCompleted()
+					IL_003b: brtrue.s IL_007c
+
+					IL_003d: ldarg.0
+					IL_003e: ldc.i4.0
+					IL_003f: dup
+					IL_0040: stloc.0
+					IL_0041: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>1__state'
+					IL_0046: ldarg.0
+					IL_0047: ldloc.3
+					IL_0048: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>u__1'
+					IL_004d: ldarg.0
+					IL_004e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>t__builder'
+					IL_0053: ldloca.s 3
+					IL_0055: ldarg.0
+					IL_0056: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>, valuetype Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'>(!!0&, !!1&)
+					IL_005b: leave IL_0154
+
+					IL_0060: ldarg.0
+					IL_0061: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>u__1'
+					IL_0066: stloc.3
+					IL_0067: ldarg.0
+					IL_0068: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>u__1'
+					IL_006d: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>
+					IL_0073: ldarg.0
+					IL_0074: ldc.i4.m1
+					IL_0075: dup
+					IL_0076: stloc.0
+					IL_0077: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>1__state'
+
+					IL_007c: ldloca.s 3
+					IL_007e: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::GetResult()
+					IL_0083: stloc.2
+					IL_0084: ldloc.1
+					IL_0085: ldloc.2
+					IL_0086: ldarg.0
+					IL_0087: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::cancellation
+					IL_008c: call instance class [System.Runtime]System.Threading.Tasks.Task Eight.DeviceApiClient.Client::TrySendResponse(class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response, valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_0091: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+					IL_0096: stloc.s 4
+					IL_0098: ldloca.s 4
+					IL_009a: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+					IL_009f: brtrue.s IL_00e2
+
+					IL_00a1: ldarg.0
+					IL_00a2: ldc.i4.1
+					IL_00a3: dup
+					IL_00a4: stloc.0
+					IL_00a5: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>1__state'
+					IL_00aa: ldarg.0
+					IL_00ab: ldloc.s 4
+					IL_00ad: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>u__2'
+					IL_00b2: ldarg.0
+					IL_00b3: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>t__builder'
+					IL_00b8: ldloca.s 4
+					IL_00ba: ldarg.0
+					IL_00bb: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'>(!!0&, !!1&)
+					IL_00c0: leave IL_0154
+
+					IL_00c5: ldarg.0
+					IL_00c6: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>u__2'
+					IL_00cb: stloc.s 4
+					IL_00cd: ldarg.0
+					IL_00ce: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>u__2'
+					IL_00d3: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+					IL_00d9: ldarg.0
+					IL_00da: ldc.i4.m1
+					IL_00db: dup
+					IL_00dc: stloc.0
+					IL_00dd: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>1__state'
+
+					IL_00e2: ldloca.s 4
+					IL_00e4: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+					IL_00e9: leave.s IL_0126
+				} // end .try
+				filter
+				{
+					IL_00eb: isinst [System.Runtime]System.Threading.Tasks.TaskCanceledException
+					IL_00f0: dup
+					IL_00f1: brtrue.s IL_00f7
+
+					IL_00f3: pop
+					IL_00f4: ldc.i4.0
+					IL_00f5: br.s IL_0106
+
+					IL_00f7: pop
+					IL_00f8: ldarg.0
+					IL_00f9: ldflda valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::cancellation
+					IL_00fe: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+					IL_0103: ldc.i4.0
+					IL_0104: cgt.un
+
+					IL_0106: endfilter
+				} // end filter
+				{
+					IL_0108: pop
+					IL_0109: leave.s IL_0126
+				} // end handler
+				catch [System.Runtime]System.Exception
+				{
+					IL_010b: stloc.s 5
+					IL_010d: ldloc.1
+					IL_010e: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.DeviceApiClient.Client> Eight.DeviceApiClient.Client::logger
+					IL_0113: ldloc.s 5
+					IL_0115: ldstr "Unhandled exception while processing request."
+					IL_011a: call !!0[] [System.Runtime]System.Array::Empty<object>()
+					IL_011f: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogError(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+					IL_0124: leave.s IL_0126
+				} // end handler
+
+				IL_0126: leave.s IL_0141
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_0128: stloc.s 6
+				IL_012a: ldarg.0
+				IL_012b: ldc.i4.s -2
+				IL_012d: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>1__state'
+				IL_0132: ldarg.0
+				IL_0133: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>t__builder'
+				IL_0138: ldloc.s 6
+				IL_013a: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_013f: leave.s IL_0154
+			} // end handler
+
+			IL_0141: ldarg.0
+			IL_0142: ldc.i4.s -2
+			IL_0144: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>1__state'
+			IL_0149: ldarg.0
+			IL_014a: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>t__builder'
+			IL_014f: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_0154: ret
+		} // end of method '<ProcessRequest>d__8'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x3acc
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<ProcessRequest>d__8'::SetStateMachine
+
+	} // end of class <ProcessRequest>d__8
+
+	.class nested private auto ansi sealed beforefieldinit '<ProcessRequests>d__7'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class [System.Threading.Channels]System.Threading.Channels.ChannelReader`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> requests
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		.field public class Eight.DeviceApiClient.Client '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private class [System.Runtime]System.Collections.Generic.IAsyncEnumerator`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> '<>7__wrap1'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field private object '<>7__wrap2'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private int32 '<>7__wrap3'
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool> '<>u__2'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter '<>u__3'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x3adc
+			// Header size: 12
+			// Code size: 568 (0x238)
+			.maxstack 4
+			.locals init (
+				[0] int32,
+				[1] class Eight.DeviceApiClient.Client,
+				[2] valuetype [System.Runtime]System.Threading.CancellationToken,
+				[3] class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request,
+				[4] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[5] valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool>,
+				[6] valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>,
+				[7] object,
+				[8] valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter,
+				[9] valuetype [System.Runtime]System.Threading.Tasks.ValueTask,
+				[10] class [System.Runtime]System.Exception,
+				[11] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: ldc.i4.2
+				IL_0010: pop
+				IL_0011: pop
+				IL_0012: nop
+				.try
+				{
+					IL_0013: ldloc.0
+					IL_0014: ldc.i4.1
+					IL_0015: ble.un.s IL_0051
+
+					IL_0017: ldloc.0
+					IL_0018: ldc.i4.2
+					IL_0019: beq IL_0194
+
+					IL_001e: ldarg.0
+					IL_001f: ldarg.0
+					IL_0020: ldfld class [System.Threading.Channels]System.Threading.Channels.ChannelReader`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::requests
+					IL_0025: ldarg.0
+					IL_0026: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::cancellation
+					IL_002b: callvirt instance class [System.Runtime]System.Collections.Generic.IAsyncEnumerable`1<!0> class [System.Threading.Channels]System.Threading.Channels.ChannelReader`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request>::ReadAllAsync(valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_0030: ldloca.s 2
+					IL_0032: initobj [System.Runtime]System.Threading.CancellationToken
+					IL_0038: ldloc.2
+					IL_0039: callvirt instance class [System.Runtime]System.Collections.Generic.IAsyncEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IAsyncEnumerable`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request>::GetAsyncEnumerator(valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_003e: stfld class [System.Runtime]System.Collections.Generic.IAsyncEnumerator`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap1'
+					IL_0043: ldarg.0
+					IL_0044: ldnull
+					IL_0045: stfld object Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap2'
+					IL_004a: ldarg.0
+					IL_004b: ldc.i4.0
+					IL_004c: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap3'
+
+					IL_0051: nop
+					.try
+					{
+						IL_0052: ldloc.0
+						IL_0053: brfalse.s IL_00ab
+
+						IL_0055: ldloc.0
+						IL_0056: ldc.i4.1
+						IL_0057: beq IL_0112
+
+						IL_005c: br.s IL_00cf
+
+						IL_005e: ldarg.0
+						IL_005f: ldfld class [System.Runtime]System.Collections.Generic.IAsyncEnumerator`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap1'
+						IL_0064: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IAsyncEnumerator`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request>::get_Current()
+						IL_0069: stloc.3
+						IL_006a: ldloc.1
+						IL_006b: ldloc.3
+						IL_006c: ldarg.0
+						IL_006d: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::cancellation
+						IL_0072: call instance class [System.Runtime]System.Threading.Tasks.Task Eight.DeviceApiClient.Client::ProcessRequest(class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request, valuetype [System.Runtime]System.Threading.CancellationToken)
+						IL_0077: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+						IL_007c: stloc.s 4
+						IL_007e: ldloca.s 4
+						IL_0080: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+						IL_0085: brtrue.s IL_00c8
+
+						IL_0087: ldarg.0
+						IL_0088: ldc.i4.0
+						IL_0089: dup
+						IL_008a: stloc.0
+						IL_008b: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>1__state'
+						IL_0090: ldarg.0
+						IL_0091: ldloc.s 4
+						IL_0093: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>u__1'
+						IL_0098: ldarg.0
+						IL_0099: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>t__builder'
+						IL_009e: ldloca.s 4
+						IL_00a0: ldarg.0
+						IL_00a1: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'>(!!0&, !!1&)
+						IL_00a6: leave IL_0237
+
+						IL_00ab: ldarg.0
+						IL_00ac: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>u__1'
+						IL_00b1: stloc.s 4
+						IL_00b3: ldarg.0
+						IL_00b4: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>u__1'
+						IL_00b9: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+						IL_00bf: ldarg.0
+						IL_00c0: ldc.i4.m1
+						IL_00c1: dup
+						IL_00c2: stloc.0
+						IL_00c3: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>1__state'
+
+						IL_00c8: ldloca.s 4
+						IL_00ca: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+
+						IL_00cf: ldarg.0
+						IL_00d0: ldfld class [System.Runtime]System.Collections.Generic.IAsyncEnumerator`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap1'
+						IL_00d5: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool> class [System.Runtime]System.Collections.Generic.IAsyncEnumerator`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request>::MoveNextAsync()
+						IL_00da: stloc.s 6
+						IL_00dc: ldloca.s 6
+						IL_00de: call instance valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<!0> valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>::GetAwaiter()
+						IL_00e3: stloc.s 5
+						IL_00e5: ldloca.s 5
+						IL_00e7: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool>::get_IsCompleted()
+						IL_00ec: brtrue.s IL_012f
+
+						IL_00ee: ldarg.0
+						IL_00ef: ldc.i4.1
+						IL_00f0: dup
+						IL_00f1: stloc.0
+						IL_00f2: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>1__state'
+						IL_00f7: ldarg.0
+						IL_00f8: ldloc.s 5
+						IL_00fa: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>u__2'
+						IL_00ff: ldarg.0
+						IL_0100: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>t__builder'
+						IL_0105: ldloca.s 5
+						IL_0107: ldarg.0
+						IL_0108: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool>, valuetype Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'>(!!0&, !!1&)
+						IL_010d: leave IL_0237
+
+						IL_0112: ldarg.0
+						IL_0113: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>u__2'
+						IL_0118: stloc.s 5
+						IL_011a: ldarg.0
+						IL_011b: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>u__2'
+						IL_0120: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool>
+						IL_0126: ldarg.0
+						IL_0127: ldc.i4.m1
+						IL_0128: dup
+						IL_0129: stloc.0
+						IL_012a: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>1__state'
+
+						IL_012f: ldloca.s 5
+						IL_0131: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool>::GetResult()
+						IL_0136: brtrue IL_005e
+
+						IL_013b: leave.s IL_0149
+					} // end .try
+					catch [System.Runtime]System.Object
+					{
+						IL_013d: stloc.s 7
+						IL_013f: ldarg.0
+						IL_0140: ldloc.s 7
+						IL_0142: stfld object Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap2'
+						IL_0147: leave.s IL_0149
+					} // end handler
+
+					IL_0149: ldarg.0
+					IL_014a: ldfld class [System.Runtime]System.Collections.Generic.IAsyncEnumerator`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap1'
+					IL_014f: brfalse.s IL_01b8
+
+					IL_0151: ldarg.0
+					IL_0152: ldfld class [System.Runtime]System.Collections.Generic.IAsyncEnumerator`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap1'
+					IL_0157: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask [System.Runtime]System.IAsyncDisposable::DisposeAsync()
+					IL_015c: stloc.s 9
+					IL_015e: ldloca.s 9
+					IL_0160: call instance valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter [System.Runtime]System.Threading.Tasks.ValueTask::GetAwaiter()
+					IL_0165: stloc.s 8
+					IL_0167: ldloca.s 8
+					IL_0169: call instance bool [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::get_IsCompleted()
+					IL_016e: brtrue.s IL_01b1
+
+					IL_0170: ldarg.0
+					IL_0171: ldc.i4.2
+					IL_0172: dup
+					IL_0173: stloc.0
+					IL_0174: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>1__state'
+					IL_0179: ldarg.0
+					IL_017a: ldloc.s 8
+					IL_017c: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>u__3'
+					IL_0181: ldarg.0
+					IL_0182: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>t__builder'
+					IL_0187: ldloca.s 8
+					IL_0189: ldarg.0
+					IL_018a: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter, valuetype Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'>(!!0&, !!1&)
+					IL_018f: leave IL_0237
+
+					IL_0194: ldarg.0
+					IL_0195: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>u__3'
+					IL_019a: stloc.s 8
+					IL_019c: ldarg.0
+					IL_019d: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>u__3'
+					IL_01a2: initobj [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter
+					IL_01a8: ldarg.0
+					IL_01a9: ldc.i4.m1
+					IL_01aa: dup
+					IL_01ab: stloc.0
+					IL_01ac: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>1__state'
+
+					IL_01b1: ldloca.s 8
+					IL_01b3: call instance void [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::GetResult()
+
+					IL_01b8: ldarg.0
+					IL_01b9: ldfld object Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap2'
+					IL_01be: stloc.s 7
+					IL_01c0: ldloc.s 7
+					IL_01c2: brfalse.s IL_01db
+
+					IL_01c4: ldloc.s 7
+					IL_01c6: isinst [System.Runtime]System.Exception
+					IL_01cb: dup
+					IL_01cc: brtrue.s IL_01d1
+
+					IL_01ce: ldloc.s 7
+					IL_01d0: throw
+
+					IL_01d1: call class [System.Runtime]System.Runtime.ExceptionServices.ExceptionDispatchInfo [System.Runtime]System.Runtime.ExceptionServices.ExceptionDispatchInfo::Capture(class [System.Runtime]System.Exception)
+					IL_01d6: callvirt instance void [System.Runtime]System.Runtime.ExceptionServices.ExceptionDispatchInfo::Throw()
+
+					IL_01db: ldarg.0
+					IL_01dc: ldnull
+					IL_01dd: stfld object Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap2'
+					IL_01e2: ldarg.0
+					IL_01e3: ldnull
+					IL_01e4: stfld class [System.Runtime]System.Collections.Generic.IAsyncEnumerator`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>7__wrap1'
+					IL_01e9: leave.s IL_0209
+				} // end .try
+				catch [System.Runtime]System.Threading.Tasks.TaskCanceledException
+				{
+					IL_01eb: pop
+					IL_01ec: leave.s IL_0209
+				} // end handler
+				catch [System.Runtime]System.Exception
+				{
+					IL_01ee: stloc.s 10
+					IL_01f0: ldloc.1
+					IL_01f1: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.DeviceApiClient.Client> Eight.DeviceApiClient.Client::logger
+					IL_01f6: ldloc.s 10
+					IL_01f8: ldstr "Unhandled exception while processing server requests."
+					IL_01fd: call !!0[] [System.Runtime]System.Array::Empty<object>()
+					IL_0202: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogError(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+					IL_0207: rethrow
+				} // end handler
+
+				IL_0209: leave.s IL_0224
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_020b: stloc.s 11
+				IL_020d: ldarg.0
+				IL_020e: ldc.i4.s -2
+				IL_0210: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>1__state'
+				IL_0215: ldarg.0
+				IL_0216: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>t__builder'
+				IL_021b: ldloc.s 11
+				IL_021d: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_0222: leave.s IL_0237
+			} // end handler
+
+			IL_0224: ldarg.0
+			IL_0225: ldc.i4.s -2
+			IL_0227: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>1__state'
+			IL_022c: ldarg.0
+			IL_022d: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>t__builder'
+			IL_0232: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_0237: ret
+		} // end of method '<ProcessRequests>d__7'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x3d84
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<ProcessRequests>d__7'::SetStateMachine
+
+	} // end of class <ProcessRequests>d__7
+
+	.class nested private auto ansi sealed beforefieldinit '<SetupConnection>d__5'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Eight.DeviceApiClient.Client '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x3d94
+			// Header size: 12
+			// Code size: 185 (0xb9)
+			.maxstack 3
+			.locals init (
+				[0] int32,
+				[1] class Eight.DeviceApiClient.Client,
+				[2] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[3] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse.s IL_0069
+
+				IL_0011: ldloc.1
+				IL_0012: ldfld class [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection Eight.DeviceApiClient.Client::hubConnection
+				IL_0017: callvirt instance valuetype [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnectionState [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection::get_State()
+				IL_001c: brfalse.s IL_0029
+
+				IL_001e: ldstr "already connected"
+				IL_0023: newobj instance void [System.Runtime]System.InvalidOperationException::.ctor(string)
+				IL_0028: throw
+
+				IL_0029: ldloc.1
+				IL_002a: ldfld class [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection Eight.DeviceApiClient.Client::hubConnection
+				IL_002f: ldarg.0
+				IL_0030: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::cancellationToken
+				IL_0035: callvirt instance class [System.Runtime]System.Threading.Tasks.Task [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection::StartAsync(valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_003a: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+				IL_003f: stloc.2
+				IL_0040: ldloca.s 2
+				IL_0042: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+				IL_0047: brtrue.s IL_0085
+
+				IL_0049: ldarg.0
+				IL_004a: ldc.i4.0
+				IL_004b: dup
+				IL_004c: stloc.0
+				IL_004d: stfld int32 Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>1__state'
+				IL_0052: ldarg.0
+				IL_0053: ldloc.2
+				IL_0054: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>u__1'
+				IL_0059: ldarg.0
+				IL_005a: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>t__builder'
+				IL_005f: ldloca.s 2
+				IL_0061: ldarg.0
+				IL_0062: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.DeviceApiClient.Client/'<SetupConnection>d__5'>(!!0&, !!1&)
+				IL_0067: leave.s IL_00b8
+
+				IL_0069: ldarg.0
+				IL_006a: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>u__1'
+				IL_006f: stloc.2
+				IL_0070: ldarg.0
+				IL_0071: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>u__1'
+				IL_0076: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+				IL_007c: ldarg.0
+				IL_007d: ldc.i4.m1
+				IL_007e: dup
+				IL_007f: stloc.0
+				IL_0080: stfld int32 Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>1__state'
+
+				IL_0085: ldloca.s 2
+				IL_0087: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+				IL_008c: leave.s IL_00a5
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_008e: stloc.3
+				IL_008f: ldarg.0
+				IL_0090: ldc.i4.s -2
+				IL_0092: stfld int32 Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>1__state'
+				IL_0097: ldarg.0
+				IL_0098: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>t__builder'
+				IL_009d: ldloc.3
+				IL_009e: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_00a3: leave.s IL_00b8
+			} // end handler
+
+			IL_00a5: ldarg.0
+			IL_00a6: ldc.i4.s -2
+			IL_00a8: stfld int32 Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>1__state'
+			IL_00ad: ldarg.0
+			IL_00ae: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>t__builder'
+			IL_00b3: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_00b8: ret
+		} // end of method '<SetupConnection>d__5'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x3e6c
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<SetupConnection>d__5'::SetStateMachine
+
+	} // end of class <SetupConnection>d__5
+
+	.class nested private auto ansi sealed beforefieldinit '<TrySendResponse>d__9'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Eight.DeviceApiClient.Client '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response response
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<bool> '<>u__1'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x3e7c
+			// Header size: 12
+			// Code size: 240 (0xf0)
+			.maxstack 4
+			.locals init (
+				[0] int32,
+				[1] class Eight.DeviceApiClient.Client,
+				[2] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<bool>,
+				[3] class [System.Runtime]System.Exception,
+				[4] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: pop
+				IL_0010: nop
+				.try
+				{
+					IL_0011: ldloc.0
+					IL_0012: brfalse.s IL_0062
+
+					IL_0014: ldloc.1
+					IL_0015: ldfld class [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection Eight.DeviceApiClient.Client::hubConnection
+					IL_001a: ldstr "Response"
+					IL_001f: ldarg.0
+					IL_0020: ldfld class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::response
+					IL_0025: ldarg.0
+					IL_0026: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::cancellation
+					IL_002b: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnectionExtensions::InvokeAsync<bool>(class [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection, string, object, valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_0030: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<!0> class [System.Runtime]System.Threading.Tasks.Task`1<bool>::GetAwaiter()
+					IL_0035: stloc.2
+					IL_0036: ldloca.s 2
+					IL_0038: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<bool>::get_IsCompleted()
+					IL_003d: brtrue.s IL_007e
+
+					IL_003f: ldarg.0
+					IL_0040: ldc.i4.0
+					IL_0041: dup
+					IL_0042: stloc.0
+					IL_0043: stfld int32 Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>1__state'
+					IL_0048: ldarg.0
+					IL_0049: ldloc.2
+					IL_004a: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<bool> Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>u__1'
+					IL_004f: ldarg.0
+					IL_0050: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>t__builder'
+					IL_0055: ldloca.s 2
+					IL_0057: ldarg.0
+					IL_0058: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<bool>, valuetype Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'>(!!0&, !!1&)
+					IL_005d: leave IL_00ef
+
+					IL_0062: ldarg.0
+					IL_0063: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<bool> Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>u__1'
+					IL_0068: stloc.2
+					IL_0069: ldarg.0
+					IL_006a: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<bool> Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>u__1'
+					IL_006f: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<bool>
+					IL_0075: ldarg.0
+					IL_0076: ldc.i4.m1
+					IL_0077: dup
+					IL_0078: stloc.0
+					IL_0079: stfld int32 Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>1__state'
+
+					IL_007e: ldloca.s 2
+					IL_0080: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<bool>::GetResult()
+					IL_0085: pop
+					IL_0086: leave.s IL_00c1
+				} // end .try
+				filter
+				{
+					IL_0088: isinst [System.Runtime]System.Threading.Tasks.TaskCanceledException
+					IL_008d: dup
+					IL_008e: brtrue.s IL_0094
+
+					IL_0090: pop
+					IL_0091: ldc.i4.0
+					IL_0092: br.s IL_00a3
+
+					IL_0094: pop
+					IL_0095: ldarg.0
+					IL_0096: ldflda valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::cancellation
+					IL_009b: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+					IL_00a0: ldc.i4.0
+					IL_00a1: cgt.un
+
+					IL_00a3: endfilter
+				} // end filter
+				{
+					IL_00a5: pop
+					IL_00a6: leave.s IL_00c1
+				} // end handler
+				catch [System.Runtime]System.Exception
+				{
+					IL_00a8: stloc.3
+					IL_00a9: ldloc.1
+					IL_00aa: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.DeviceApiClient.Client> Eight.DeviceApiClient.Client::logger
+					IL_00af: ldloc.3
+					IL_00b0: ldstr "Unhandled exception while responding to server."
+					IL_00b5: call !!0[] [System.Runtime]System.Array::Empty<object>()
+					IL_00ba: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogError(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+					IL_00bf: leave.s IL_00c1
+				} // end handler
+
+				IL_00c1: leave.s IL_00dc
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_00c3: stloc.s 4
+				IL_00c5: ldarg.0
+				IL_00c6: ldc.i4.s -2
+				IL_00c8: stfld int32 Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>1__state'
+				IL_00cd: ldarg.0
+				IL_00ce: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>t__builder'
+				IL_00d3: ldloc.s 4
+				IL_00d5: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_00da: leave.s IL_00ef
+			} // end handler
+
+			IL_00dc: ldarg.0
+			IL_00dd: ldc.i4.s -2
+			IL_00df: stfld int32 Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>1__state'
+			IL_00e4: ldarg.0
+			IL_00e5: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>t__builder'
+			IL_00ea: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_00ef: ret
+		} // end of method '<TrySendResponse>d__9'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x3fa0
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<TrySendResponse>d__9'::SetStateMachine
+
+	} // end of class <TrySendResponse>d__9
+
+
+	// Fields
+	.field family initonly class [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection hubConnection
+	.field private initonly class Eight.DeviceApiClient.IRouter router
+	.field family initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.DeviceApiClient.Client> logger
+	.field family initonly class [System.Threading.Channels]System.Threading.Channels.Channel`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> serverRequests
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection hubConnection,
+			class Eight.DeviceApiClient.IRouter router,
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.DeviceApiClient.Client> logger
+		) cil managed 
+	{
+		// Method begins at RVA 0x2094
+		// Header size: 12
+		// Code size: 69 (0x45)
+		.maxstack 4
+		.locals init (
+			[0] class [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection,
+			[1] class Eight.DeviceApiClient.IRouter,
+			[2] class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.DeviceApiClient.Client>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: call class [System.Threading.Channels]System.Threading.Channels.Channel`1<!!0> [System.Threading.Channels]System.Threading.Channels.Channel::CreateUnbounded<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request>()
+		IL_0006: stfld class [System.Threading.Channels]System.Threading.Channels.Channel`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client::serverRequests
+		IL_000b: ldarg.0
+		IL_000c: call instance void [Microsoft.Extensions.Hosting.Abstractions]Microsoft.Extensions.Hosting.BackgroundService::.ctor()
+		IL_0011: ldarg.1
+		IL_0012: stloc.0
+		IL_0013: ldarg.2
+		IL_0014: stloc.1
+		IL_0015: ldarg.3
+		IL_0016: stloc.2
+		IL_0017: ldarg.0
+		IL_0018: ldloc.0
+		IL_0019: stfld class [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection Eight.DeviceApiClient.Client::hubConnection
+		IL_001e: ldarg.0
+		IL_001f: ldloc.1
+		IL_0020: stfld class Eight.DeviceApiClient.IRouter Eight.DeviceApiClient.Client::router
+		IL_0025: ldarg.0
+		IL_0026: ldloc.2
+		IL_0027: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.DeviceApiClient.Client> Eight.DeviceApiClient.Client::logger
+		IL_002c: ldarg.1
+		IL_002d: ldstr "Request"
+		IL_0032: ldarg.0
+		IL_0033: ldftn instance class [System.Runtime]System.Threading.Tasks.Task Eight.DeviceApiClient.Client::'<.ctor>b__4_0'(class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request)
+		IL_0039: newobj instance void class [System.Runtime]System.Func`2<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request, class [System.Runtime]System.Threading.Tasks.Task>::.ctor(object, native int)
+		IL_003e: call class [System.Runtime]System.IDisposable [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnectionExtensions::On<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request>(class [Microsoft.AspNetCore.SignalR.Client.Core]Microsoft.AspNetCore.SignalR.Client.HubConnection, string, class [System.Runtime]System.Func`2<!!0, class [System.Runtime]System.Threading.Tasks.Task>)
+		IL_0043: pop
+		IL_0044: ret
+	} // end of method Client::.ctor
+
+	.method family hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task SetupConnection (
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 32 45 69 67 68 74 2e 44 65 76 69 63 65 41
+			70 69 43 6c 69 65 6e 74 2e 43 6c 69 65 6e 74 2b
+			3c 53 65 74 75 70 43 6f 6e 6e 65 63 74 69 6f 6e
+			3e 64 5f 5f 35 00 00
+		)
+		// Method begins at RVA 0x20e8
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.DeviceApiClient.Client/'<SetupConnection>d__5'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::cancellationToken
+		IL_001c: ldloca.s 0
+		IL_001e: ldc.i4.m1
+		IL_001f: stfld int32 Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>1__state'
+		IL_0024: ldloca.s 0
+		IL_0026: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>t__builder'
+		IL_002b: ldloca.s 0
+		IL_002d: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.DeviceApiClient.Client/'<SetupConnection>d__5'>(!!0&)
+		IL_0032: ldloca.s 0
+		IL_0034: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<SetupConnection>d__5'::'<>t__builder'
+		IL_0039: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_003e: ret
+	} // end of method Client::SetupConnection
+
+	.method family hidebysig virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task ExecuteAsync (
+			valuetype [System.Runtime]System.Threading.CancellationToken stoppingToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 2f 45 69 67 68 74 2e 44 65 76 69 63 65 41
+			70 69 43 6c 69 65 6e 74 2e 43 6c 69 65 6e 74 2b
+			3c 45 78 65 63 75 74 65 41 73 79 6e 63 3e 64 5f
+			5f 36 00 00
+		)
+		// Method begins at RVA 0x2134
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::stoppingToken
+		IL_001c: ldloca.s 0
+		IL_001e: ldc.i4.m1
+		IL_001f: stfld int32 Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>1__state'
+		IL_0024: ldloca.s 0
+		IL_0026: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>t__builder'
+		IL_002b: ldloca.s 0
+		IL_002d: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'>(!!0&)
+		IL_0032: ldloca.s 0
+		IL_0034: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ExecuteAsync>d__6'::'<>t__builder'
+		IL_0039: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_003e: ret
+	} // end of method Client::ExecuteAsync
+
+	.method family hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task ProcessRequests (
+			class [System.Threading.Channels]System.Threading.Channels.ChannelReader`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> requests,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 32 45 69 67 68 74 2e 44 65 76 69 63 65 41
+			70 69 43 6c 69 65 6e 74 2e 43 6c 69 65 6e 74 2b
+			3c 50 72 6f 63 65 73 73 52 65 71 75 65 73 74 73
+			3e 64 5f 5f 37 00 00
+		)
+		// Method begins at RVA 0x2180
+		// Header size: 12
+		// Code size: 71 (0x47)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class [System.Threading.Channels]System.Threading.Channels.ChannelReader`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request> Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::requests
+		IL_001c: ldloca.s 0
+		IL_001e: ldarg.2
+		IL_001f: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::cancellation
+		IL_0024: ldloca.s 0
+		IL_0026: ldc.i4.m1
+		IL_0027: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>1__state'
+		IL_002c: ldloca.s 0
+		IL_002e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>t__builder'
+		IL_0033: ldloca.s 0
+		IL_0035: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'>(!!0&)
+		IL_003a: ldloca.s 0
+		IL_003c: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequests>d__7'::'<>t__builder'
+		IL_0041: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_0046: ret
+	} // end of method Client::ProcessRequests
+
+	.method private hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task ProcessRequest (
+			class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request 'request',
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 31 45 69 67 68 74 2e 44 65 76 69 63 65 41
+			70 69 43 6c 69 65 6e 74 2e 43 6c 69 65 6e 74 2b
+			3c 50 72 6f 63 65 73 73 52 65 71 75 65 73 74 3e
+			64 5f 5f 38 00 00
+		)
+		// Method begins at RVA 0x21d4
+		// Header size: 12
+		// Code size: 71 (0x47)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'request'
+		IL_001c: ldloca.s 0
+		IL_001e: ldarg.2
+		IL_001f: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::cancellation
+		IL_0024: ldloca.s 0
+		IL_0026: ldc.i4.m1
+		IL_0027: stfld int32 Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>1__state'
+		IL_002c: ldloca.s 0
+		IL_002e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>t__builder'
+		IL_0033: ldloca.s 0
+		IL_0035: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'>(!!0&)
+		IL_003a: ldloca.s 0
+		IL_003c: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<ProcessRequest>d__8'::'<>t__builder'
+		IL_0041: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_0046: ret
+	} // end of method Client::ProcessRequest
+
+	.method private hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task TrySendResponse (
+			class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response response,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 32 45 69 67 68 74 2e 44 65 76 69 63 65 41
+			70 69 43 6c 69 65 6e 74 2e 43 6c 69 65 6e 74 2b
+			3c 54 72 79 53 65 6e 64 52 65 73 70 6f 6e 73 65
+			3e 64 5f 5f 39 00 00
+		)
+		// Method begins at RVA 0x2228
+		// Header size: 12
+		// Code size: 71 (0x47)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::response
+		IL_001c: ldloca.s 0
+		IL_001e: ldarg.2
+		IL_001f: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::cancellation
+		IL_0024: ldloca.s 0
+		IL_0026: ldc.i4.m1
+		IL_0027: stfld int32 Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>1__state'
+		IL_002c: ldloca.s 0
+		IL_002e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>t__builder'
+		IL_0033: ldloca.s 0
+		IL_0035: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'>(!!0&)
+		IL_003a: ldloca.s 0
+		IL_003c: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<TrySendResponse>d__9'::'<>t__builder'
+		IL_0041: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_0046: ret
+	} // end of method Client::TrySendResponse
+
+	.method private hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task '<.ctor>b__4_0' (
+			class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request a
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 2d 45 69 67 68 74 2e 44 65 76 69 63 65 41
+			70 69 43 6c 69 65 6e 74 2e 43 6c 69 65 6e 74 2b
+			3c 3c 2d 63 74 6f 72 3e 62 5f 5f 34 5f 30 3e 64
+			00 00
+		)
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x227c
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.DeviceApiClient.Client Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class [Eight.DeviceProtocol]Eight.DeviceProtocol.Request Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::a
+		IL_001c: ldloca.s 0
+		IL_001e: ldc.i4.m1
+		IL_001f: stfld int32 Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>1__state'
+		IL_0024: ldloca.s 0
+		IL_0026: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>t__builder'
+		IL_002b: ldloca.s 0
+		IL_002d: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'>(!!0&)
+		IL_0032: ldloca.s 0
+		IL_0034: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.DeviceApiClient.Client/'<<-ctor>b__4_0>d'::'<>t__builder'
+		IL_0039: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_003e: ret
+	} // end of method Client::'<.ctor>b__4_0'
+
+} // end of class Eight.DeviceApiClient.Client

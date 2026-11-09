@@ -1,0 +1,178 @@
+TARGET 0800eb30 function=0800eb30
+REF_TO 0800ec28 UNCONDITIONAL_CALL
+REF_TO 0800ec54 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800eb30, 0800ebf1]]
+
+undefined4 FUN_0800eb30(int *param_1,uint param_2,uint param_3,int param_4,uint param_5)
+
+{
+  bool bVar1;
+  int iVar2;
+  uint uVar3;
+  int *piVar4;
+  
+  while( true ) {
+    do {
+      if (((*(uint *)(*param_1 + 0x1c) & param_2) == param_2) != param_3) {
+        return 0;
+      }
+    } while (param_5 == 0xffffffff);
+    iVar2 = FUN_080099ec();
+    if ((param_5 < (uint)(iVar2 - param_4)) || (param_5 == 0)) break;
+    piVar4 = (int *)*param_1;
+    if ((*piVar4 << 0x1d < 0) && ((piVar4[7] & 0x800U) != 0)) {
+      piVar4[8] = 0x800;
+      uVar3 = 0;
+      bVar1 = (bool)isCurrentModePrivileged();
+      if (bVar1) {
+        uVar3 = isIRQinterruptsEnabled();
+      }
+      bVar1 = (bool)isCurrentModePrivileged();
+      if (bVar1) {
+        enableIRQinterrupts(1);
+      }
+      *(uint *)*param_1 = *(uint *)*param_1 & 0xfffffe5f;
+      bVar1 = (bool)isCurrentModePrivileged();
+      if (bVar1) {
+        enableIRQinterrupts((uVar3 & 1) == 1);
+      }
+      uVar3 = 0;
+      bVar1 = (bool)isCurrentModePrivileged();
+      if (bVar1) {
+        uVar3 = isIRQinterruptsEnabled();
+      }
+      bVar1 = (bool)isCurrentModePrivileged();
+      if (bVar1) {
+        enableIRQinterrupts(1);
+      }
+      *(uint *)(*param_1 + 8) = *(uint *)(*param_1 + 8) & 0xfffffffe;
+      bVar1 = (bool)isCurrentModePrivileged();
+      if (bVar1) {
+        enableIRQinterrupts((uVar3 & 1) == 1);
+      }
+      param_1[0x22] = 0x20;
+      param_1[0x23] = 0x20;
+      param_1[0x24] = 0x20;
+LAB_0800eb9a:
+      *(undefined1 *)(param_1 + 0x21) = 0;
+      return 3;
+    }
+  }
+  uVar3 = 0;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    uVar3 = isIRQinterruptsEnabled();
+  }
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts(1);
+  }
+  *(uint *)*param_1 = *(uint *)*param_1 & 0xfffffe5f;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts((uVar3 & 1) == 1);
+  }
+  uVar3 = 0;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    uVar3 = isIRQinterruptsEnabled();
+  }
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts(1);
+  }
+  *(uint *)(*param_1 + 8) = *(uint *)(*param_1 + 8) & 0xfffffffe;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts((uVar3 & 1) == 1);
+  }
+  param_1[0x22] = 0x20;
+  param_1[0x23] = 0x20;
+  goto LAB_0800eb9a;
+}
+
+
+INSN 0800eb30 f8b5 push {r3,r4,r5,r6,r7,lr}
+INSN 0800eb32 0400 movs r4,r0
+INSN 0800eb34 0d00 movs r5,r1
+INSN 0800eb36 1700 movs r7,r2
+INSN 0800eb38 1e00 movs r6,r3
+INSN 0800eb3a 2268 ldr r2,[r4,#0x0]
+INSN 0800eb3c d369 ldr r3,[r2,#0x1c]
+INSN 0800eb3e 2b40 ands r3,r5
+INSN 0800eb40 5b1b subs r3,r3,r5
+INSN 0800eb42 5942 rsbs r1,r3
+INSN 0800eb44 4b41 adcs r3,r1
+INSN 0800eb46 bb42 cmp r3,r7
+INSN 0800eb48 01d0 beq 0x0800eb4e REF[CONDITIONAL_JUMP:0800eb4e]
+INSN 0800eb4a 0020 movs r0,#0x0
+INSN 0800eb4c 29e0 b 0x0800eba2 REF[UNCONDITIONAL_JUMP:0800eba2]
+INSN 0800eb4e 069b ldr r3,[sp,#0x18] REF[READ:Stack[0x0]]
+INSN 0800eb50 0133 adds r3,#0x1
+INSN 0800eb52 f3d0 beq 0x0800eb3c REF[CONDITIONAL_JUMP:0800eb3c]
+INSN 0800eb54 faf74aff bl 0x080099ec REF[UNCONDITIONAL_CALL:080099ec]
+INSN 0800eb58 069b ldr r3,[sp,#0x18] REF[READ:Stack[0x0]]
+INSN 0800eb5a 801b subs r0,r0,r6
+INSN 0800eb5c 9842 cmp r0,r3
+INSN 0800eb5e 01d8 bhi 0x0800eb64 REF[CONDITIONAL_JUMP:0800eb64]
+INSN 0800eb60 002b cmp r3,#0x0
+INSN 0800eb62 1fd1 bne 0x0800eba4 REF[CONDITIONAL_JUMP:0800eba4]
+INSN 0800eb64 eff31080 mrs r0,primask
+INSN 0800eb68 0122 movs r2,#0x1
+INSN 0800eb6a 82f31088 msr primask,r2
+INSN 0800eb6e 2168 ldr r1,[r4,#0x0]
+INSN 0800eb70 204d ldr r5,[0x0800ebf4] REF[READ:0800ebf4=fffffe5f]
+INSN 0800eb72 0b68 ldr r3,[r1,#0x0]
+INSN 0800eb74 2b40 ands r3,r5
+INSN 0800eb76 0b60 str r3,[r1,#0x0]
+INSN 0800eb78 80f31088 msr primask,r0
+INSN 0800eb7c eff31080 mrs r0,primask
+INSN 0800eb80 82f31088 msr primask,r2
+INSN 0800eb84 2168 ldr r1,[r4,#0x0]
+INSN 0800eb86 8b68 ldr r3,[r1,#0x8]
+INSN 0800eb88 9343 bics r3,r2
+INSN 0800eb8a 8b60 str r3,[r1,#0x8]
+INSN 0800eb8c 80f31088 msr primask,r0
+INSN 0800eb90 2300 movs r3,r4
+INSN 0800eb92 1f32 adds r2,#0x1f
+INSN 0800eb94 8833 adds r3,#0x88
+INSN 0800eb96 1a60 str r2,[r3,#0x0]
+INSN 0800eb98 5a60 str r2,[r3,#0x4]
+INSN 0800eb9a 0023 movs r3,#0x0
+INSN 0800eb9c 0320 movs r0,#0x3
+INSN 0800eb9e 8434 adds r4,#0x84
+INSN 0800eba0 2370 strb r3,[r4,#0x0]
+INSN 0800eba2 f8bd pop {r3,r4,r5,r6,r7,pc}
+INSN 0800eba4 2368 ldr r3,[r4,#0x0]
+INSN 0800eba6 1a68 ldr r2,[r3,#0x0]
+INSN 0800eba8 5207 lsls r2,r2,#0x1d
+INSN 0800ebaa c6d5 bpl 0x0800eb3a REF[CONDITIONAL_JUMP:0800eb3a]
+INSN 0800ebac 8022 movs r2,#0x80
+INSN 0800ebae d969 ldr r1,[r3,#0x1c]
+INSN 0800ebb0 1201 lsls r2,r2,#0x4
+INSN 0800ebb2 1142 tst r1,r2
+INSN 0800ebb4 c1d0 beq 0x0800eb3a REF[CONDITIONAL_JUMP:0800eb3a]
+INSN 0800ebb6 1a62 str r2,[r3,#0x20]
+INSN 0800ebb8 eff31080 mrs r0,primask
+INSN 0800ebbc 0122 movs r2,#0x1
+INSN 0800ebbe 82f31088 msr primask,r2
+INSN 0800ebc2 2168 ldr r1,[r4,#0x0]
+INSN 0800ebc4 0b4d ldr r5,[0x0800ebf4] REF[READ:0800ebf4=fffffe5f]
+INSN 0800ebc6 0b68 ldr r3,[r1,#0x0]
+INSN 0800ebc8 2b40 ands r3,r5
+INSN 0800ebca 0b60 str r3,[r1,#0x0]
+INSN 0800ebcc 80f31088 msr primask,r0
+INSN 0800ebd0 eff31080 mrs r0,primask
+INSN 0800ebd4 82f31088 msr primask,r2
+INSN 0800ebd8 2168 ldr r1,[r4,#0x0]
+INSN 0800ebda 8b68 ldr r3,[r1,#0x8]
+INSN 0800ebdc 9343 bics r3,r2
+INSN 0800ebde 8b60 str r3,[r1,#0x8]
+INSN 0800ebe0 80f31088 msr primask,r0
+INSN 0800ebe4 2200 movs r2,r4
+INSN 0800ebe6 2023 movs r3,#0x20
+INSN 0800ebe8 8832 adds r2,#0x88
+INSN 0800ebea 1360 str r3,[r2,#0x0]
+INSN 0800ebec 5360 str r3,[r2,#0x4]
+INSN 0800ebee 9360 str r3,[r2,#0x8]
+INSN 0800ebf0 d3e7 b 0x0800eb9a REF[UNCONDITIONAL_JUMP:0800eb9a]

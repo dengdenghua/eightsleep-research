@@ -1,0 +1,120 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+主机 gain 元数据来源与 MCU PGA 控制：有界审计
+2026-11-07
+
+对象：mediatek/rootfs-selected/opt/eight/bin/frankenfirmware
+SHA256 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375
+交叉证据：sensor MCU firmware-sensor-g0-usb.bbin 5.5.34.0，SHA256
+1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563。
+这是共享 MT8365 主机样本的代码证据，不据 CPU、文件名或 board revision 指定 Pod5/Pod6 或国行 SKU。
+下列相对路径以本文件所在 signal-host/ 为基准；../sensor-mcu/ 为 MCU 证据目录。
+
+结论
+
+1. 0x3C → Stealth 的 gain 不是逐帧收到的两组 PGA 请求。主机单独初始化每侧16个 uint16 元数据槽：前8个100，后8个400；buzzer5、兼容 extADC1、multi2 都从后8个槽取值。已检查的初始化、采样入队、双/单侧装载、输出、启停路径没有修改这张表的运行时 setter。
+2. 主机的两个“增益变化”概念不同：loader 可以把源表复制到输出 buffer 并打印 gain change；这不等于源表收到过 MCU 增益更新。已恢复的 0x2B 回包只写旧 Sensor 对象的两个设置字段，不写 Stealth 表。
+3. 默认表100/400与多通道 MCU 的 PGA请求100、软件倍率1/4在槽位上吻合。因此“默认名义总缩放按100编码”为有依据的解释；代码没有把这两个数明确标为物理单位，也没有证明运行时PGA改变后表会同步。不能把 Stealth gain=400 直接称为实际PGA=4×、软件倍率实时读回或已校准压力单位。
+4. 旧 extADC 是另一条元数据来源：从数据包头解析 gain，随样本更新输出 buffer，再写 CBOR。其元数据确实可以动态变化，但不是从主机的0x2B ACK字段直接复制。对未绑定的旧 MCU/模拟前端保留单位未知。
+
+一、Stealth：初始化常量 → 按ADC槽取值 → 输出
+
+enableA30Mode = 0x001F6920。仅当 logger+0x14D8 的同步对象尚未存在时，分配0x9420 bytes并复制常量；已有对象复用，不在每次启用时重新取设备设置。
+证据：pass5/001f6920.c:90..124；gain/stealth-default-metadata.txt:1..32。
+
+同步对象 sync 的元数据布局：
+  gain_slot(side,j) = uint16_le(sync + 0x68 + side*0x20 + j*2)
+  side=0/1；j=0..15。
+  side0 初始化常量VA0046BDF8..0046BE16；side1 VA0046BE18..0046BE36。
+  每侧值：[100,100,100,100,100,100,100,100,400,400,400,400,400,400,400,400]。
+
+输出类型              ADC槽     源元数据字节偏移（另加side*0x20）
+piezo-buzzer          8..12     0x78,0x7A,0x7C,0x7E,0x80
+兼容piezo-dual/extADC 13        0x82
+piezo-multi-channel   14..15    0x84,0x86
+已审阅Stealth输出没有消费ADC0..7；它们的100也没有因此证明另一个生理输出流存在。
+
+双侧 loader 0x001FFA70：pass1/001ffa70.c:199..202、244..259读5路元数据；425..430、464..513读extADC与multi2。单侧 loader 0x001FEE40：pass1/001fee40.c:123起及340..381，同类字段。
+缺侧样本填 sentinel，同时5路/2路gain仍使用字面400。故“有400标签”本身不能证明该侧存在有效传感读数。
+extADC兼容输出有单侧复制/两侧放置的逻辑，单侧分支把所选一侧gain复制到两边；不要用兼容输出的两个gain键反推两个独立ADC器件。
+证据：pass1/001fee40.c:343..386；双侧pass1/001ffa70.c:464..542。
+
+输出buffer：
+  buzzer左5×u16 = sync+0x4F04，右=+0x4F0E；
+  multi左2×u16 = sync+0x9414，右=+0x9418；
+  extADC指针=*(sync+0xC0)，两个u32 gain字段在其+0x1F40/+0x1F44。
+loader比较源gain与输出buffer，变化时拷贝并打日志；counts的装载没有乘/除这些gain。
+证据：pass1/001fee40.c:181..209、376..400；pass1/001ffa70.c对应gain change分支。
+
+CBOR：
+  0x001F1730取buzzer buffer+0x4E3C/+0x4E46，逐元素编码5个gain；其buffer基址为sync+0xC8。
+  0x001F1BF0取multi buffer+0x1F5C/+0x1F60，逐元素编码2个gain；基址sync+0x74B8。
+  0x001FB0B0取extADC+0x1F40/+0x1F44编码gain；兼容flags决定旧/新schema字段。
+证据：pass1/001f1730.c:65..82、129..146；pass1/001f1bf0.c:57..83、129..137；pass1/001fb0b0.c:55..74、125..133。
+此处没有将gain换算成伏特、位移、压力，也没有以其归一化样本。
+
+什么时候更新400？
+  源表：只确认首次分配时写固定表；在已追路径未找到运行时更新。
+  buzzer/multi输出表：构造已是400，loader只在比较不同后拷贝；相同默认值时不发生“change”。
+  extADC输出表：构造为0，首次收到/装载有效样本时可变为400；旧extADC包的后续gain也可改这个共享类别的输出buffer。
+  缺侧回填：标签400可与sentinel共存。
+证据：pass5/001f6920.c:61..65、148..153、201..208；pass1/001fee40.c与001ffa70.c。
+
+写入审计边界：gain/metadata-slot-instruction-candidates.txt列出已识别指令中对logger+0x14D8的直接访问，并核对global alias DAT005E5588的xref。相关函数是全局初始化、enableA30Mode、enqueueStealthSideSample、encodeChunkBody及setSideExpected；后者仅改side enabled与队列（gain/followup/001ddf70.c:17..34）。tryEnqueue仅复制124-byte samples，不能携带那张独立表的值（timing/001fdec0.c:126..160）。
+这支持“已恢复常规Stealth路径中的固定名义元数据”，不声称已形式化排除所有计算地址别名、内存破坏或其他版本中的setter。
+
+二、DeviceSettings 与旧 Sensor 的0x2B命令/回包
+
+读取设置：0x0024F440先写两个默认400，再从settings/settings.cbr读取CBOR键gl、gr。缺失键保留相应默认值；只有两键都读到才返回true。
+证据：gain/final/0024f440.c:16..25；gain/followup/0024f270.c:22..50；键静态值gain/stealth-default-metadata.txt:38..40。
+
+初始化：0x00205A20把gl/gr写到旧Sensor+0x211A/+0x211C，并注册callback 0x00205940。
+启动采样：0x00207A14读取上述两值→0x00204940，生成opcode0x2B、4-byte payload=[BE16 gain0, BE16 gain1]，再发启动/采样参数。
+证据：pass11/00205a20.c:83..84；pass1/00207a14.c:20..30；pass1/00204940.c:16..25。
+
+运行时入口：DeviceSettings init注册IPC函数号8→0x0024FF80 sparkfuncSetSettings；它接受十六进制编码CBOR map，再调0x0024F5D0 translateSettings。
+后者用0x0024F140选择每个gain：优先incoming中<=6400的值；否则取旧值；旧值也缺失则400。此入口没有100下界，也不把非2的幂请求预量化；旧值回退分支不再重复6400上界检查。
+新map写回settings/settings.cbr成功后，调用已注册DAT005EA8F0 callback(u16 gl,u16 gr)，callback0x00205940直接向旧Sensor发送同样0x2B。
+证据：gain/followup/0024fb60.c:24..39；gain/final/0024ff80.c:27..101；gain/final/0024f140.c:13..20及asm；gain/final/0024f5d0.c:61..66、118..132、171..172；gain/settings/00205940.c:16..27。
+这是静态注册/调用链，不证明本机某时刻收到过远端请求；本审计未接入账户/云API。
+
+回包：旧Sensor handler的opcode0x2B、长度4分支读两个BE16，覆盖Sensor+0x211A/+0x211C，再调0x0024FD84 setGainResult。
+setGainResult的持久化不是无条件：若当前gl/gr都为400则不改文件；若一侧为400，保持这一侧400，另一侧使用回包值。写回期间暂时清空callback，避免持久化触发再次发命令，再恢复callback。
+证据：physiology/legacy-fixed/002097a0.c:527..536；gain/final/0024fd84.c:26..68、75。
+因此0x2B回包改变旧Sensor字段，不等于更新Stealth gain表，也不等于把读回值无条件保存为gl/gr。
+
+已恢复的新SensorUSB接收/启动链没有与这条旧callback建立连接；0x0027E7B0的0x3C接收只解码timestamp、flags、frequency、16ADC与4IMU。没有观察到0x2B ACK→Stealth gain_slot的连接。不能把旧Sensor里称left/right的两个gain自动解释为新USB模块对应床的左右侧；MCU0x2B控制的是该模块内两组ADS。
+
+三、与MCU0x2B量化、ACK、清队列的关系
+
+MCU命令表0x2B→0x080213C6，要求长度4。两BE16中为0的项替换为当前请求值，然后0x08026758 setter只接受>99且不同的值，给该组8个channel写同一请求并置dirty。
+随后handler立即回显所处理的两个数；它没有等待GAIN寄存器写入/readback。非零1..99可被回显但setter不接受，所以ACK不能作为硬件生效证明。
+证据：../sensor-mcu/frontend/0801f0d0.txt:3740..3776（VA080213C6..08021414）；../sensor-mcu/frontend/08026758.txt:12..37。
+
+量化规则是区间映射：请求<200→code0；[200,400)→1；[400,800)→2；依次至[6400,12800)→6、>=12800→7。code对应PGA1/2/4/8/16/32/64/128倍；100/200/400等精确档位可称“PGA倍数×100”的编码，但任意请求并不等于其数值/100的实际PGA，例如500仍是4×。
+0x0801D940写GAIN1/GAIN2并与读回比较。它没有把量化后的精确档位改写为请求字段。
+证据：../sensor-mcu/frontend/0801d940.txt:29..40、47..81。
+
+主循环检测dirty后依次尝试两个ADS增益写入；每组成功才清对应dirty。无论本轮写入成功与否，进入该dirty处理块后都会继续调用0x08026722清ADC/IMU软件队列与0x08026810同步；失败保留dirty供后续重试。
+这是汇编中的分支关系，不应简化为“仅成功后才清队列”。证据：../sensor-mcu/frontend/0801f0d0.txt:1950..1997（VA0801F23E..0801F2AC）。
+增益写入前重启timer，<8ms时ADC读函数可复用旧缓存，详../sensor-mcu/FRONTEND_DSP_ZH.txt:70..72。因此控制ACK、寄存器生效、下一条有效样本之间不能仅凭主机日志推导精确一一对应时间。
+
+采样内部record确实保存两个请求值，但0x3C serializer从record+0x0C开始只发送16ADC，跳过record+4/+8的gain请求。flags低byte在已恢复路径为1，bit8/9与12..15标初始化状态，不编码PGA。
+证据：../sensor-mcu/frontend/FLAGS_ADDENDUM.txt:56..83。主机CBOR version/lver/rver来自完整flags，不能填补gain动态来源的缺口。
+
+四、旧extADC与旧16-bit piezo：确有包内gain，但不能混为Stealth表
+
+旧extADC头解析0x0021A960：byte0 flags，后续三个BE32为frequency、timestamp、gain0。若flags&0x3E为0，gain1=gain0；否则再读BE16 gain1。0x0021AA70把这两个值带入每个内部sample，enqueueExtAdc 0x001EEF70再比较、复制到buffer的两个u32 gain字段，最后0x001FB0B0直接编码。
+证据：physiology/trace4/0021a960.c:20..36；0021aa70.c:14..24；physiology/trace2/001eef70.c:62..74、155..166；pass1/001fb0b0.c:55..74、125..133。
+这是“包头→样本→输出buffer→CBOR”的闭环，与主机0x2B response持久化是平行路线。主机没有在这一链以gain数值缩放counts，也不验证包内gain与最近ACK相等。
+旧16-bit piezo头0x0021A7E0另读两个BE16 gain，0x0021A870把它们复制到sample；它们也不是Stealth默认表。证据：physiology/trace4/0021a7e0.c:13..22、0021a870.c:17..26。
+由于旧包可能来自不同sensor硬件/固件版本，且未在本次任务逐个绑定producer，旧包gain的最终物理/模拟单位与是否包含软件倍率保留未知；不能仅因字段名一样就套用MCU多通道默认倍率。
+
+五、可用结论与剩余缺口
+
+可用：将Stealth gain保存为原始名义元数据；分别保留ADC raw count、主机gain标签、控制请求、实际寄存器配置四个概念。默认多通道MCU PGA=1×、software=1/4与host表100/400吻合，但此一致性只支持默认配置解释。
+仍未知：运行中是否经其他未绑定通道修改PGA/channel_map；实际采样时的读回寄存器；云端是否结合设备配置/固件版本纠正名义gain；模拟放大/参考电压/压电灵敏度；确切SKU部署范围。
+在没有这些证据时，不能以CBOR gain直接恢复绝对量程、物理量，或保证不同时间段幅值可以直接比较。
+
+方法：复用既有Ghidra项目，全部-noanalysis -readOnly；新增小范围gain/证据、汇编、xref及静态常量读出。getUpdatedGain/getGain返回值和参数按AArch64汇编修正后在gain/final/导出，修改未保存到项目；原始asm一并保留。没有执行固件、修改既有总览/manifest、连接设备或访问账号。timing/与buttons/为父任务要求的旁路小导出，与gain结论分开。

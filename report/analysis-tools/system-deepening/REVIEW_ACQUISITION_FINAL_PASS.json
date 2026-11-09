@@ -1,0 +1,75 @@
+{
+  "schema": "bounded-independent-review-v1",
+  "recorded_at": "2026-11-08T03:37:30.660429+00:00",
+  "reviewer": "live_backend_tests",
+  "subject_relative": "local-acquisition-final-pass",
+  "status": "PASS_WITH_BOUNDED_REVIEW_SCOPE",
+  "blocking_findings": [],
+  "reviewed_artifacts_at_review": [
+    {
+      "path": "model/normal_driver_contracts.py",
+      "sha256": "0a1361ea998123f377f4f4d018da16a1e7a62307e8750b1c63553307faeaf320",
+      "scope": "完整阅读模型源码；未执行模型"
+    },
+    {
+      "path": "MODEL_RESULTS.json",
+      "sha256": "34e7bf0872cd3c191adc29d6d7c76772945987ba2767a9d0695a863313c136c9",
+      "scope": "读取落盘33项结果并独立比较 observed 与 expected，33项一致"
+    },
+    {
+      "path": "FINDINGS_ZH.txt",
+      "sha256": "2f417d1919a5ff4dbb9b0d3b48fe73b74862620ee6c2b30fd61e703eb3566fc8",
+      "scope": "读取审阅时正文；支持范围限定为下列关键主张，未验收仍在补充的内部热敏及MSP尾部"
+    }
+  ],
+  "selected_native_exports_read": [
+    "pass5/0801315c.txt",
+    "pass5/0801310c.txt",
+    "pass6/0801301c.txt",
+    "pass6/08018ab4.txt",
+    "pass5/080130f4.txt",
+    "pass4/08012ee4.txt",
+    "pass3/0801a1ec.txt",
+    "pass3/0801a264.txt",
+    "pass4/0801963c.txt",
+    "pass7/0801c598.txt",
+    "pass3/08012f2c.txt",
+    "pass3/0801a194.txt",
+    "pass1/08019128.txt",
+    "pass1/080192ac.txt",
+    "source/0801c688.txt",
+    "pass2/0801a134.txt",
+    "pass2/08013c7a.txt"
+  ],
+  "supported_findings": [
+    "在选定普通请求链中，DMA完成、STOP后软件bus成功状态、main上层回调是不同阶段。",
+    "NACK与DMA错误模型显式提供cleanup completion事件，不把错误检测直接等同上层成功回调；清理耗时及IRQ调度未建模。",
+    "I2C包装函数HAL返回0映为wrapper 1；选定SPI包装函数HAL返回0映为wrapper 0，源码与原指令一致。",
+    "0xa10对应函数重新调用A00配置；0xa33重新调用A05后修改第二ADC的CS，六SPI描述符范围的模型与选定原指令一致。",
+    "硬件错误位映射及恢复门槛严格大于9999，与所审原指令一致。"
+  ],
+  "saved_result_check": {
+    "case_count": 33,
+    "observed_equal_expected": 33,
+    "model_rerun": false
+  },
+  "nonblocking_limitations": [
+    {
+      "item": "pump单次fixture",
+      "detail": "所审版本I2C.pump()未模拟清除current。同一实例重复调用会重复累计callback；现有单次pump fixture不受影响。该模型不能被解释为完整队列消费模型。已通知作者可明确此限定或增加consumed状态；本记录不声明已审其后修改。"
+    },
+    {
+      "item": "native范围",
+      "detail": "直接阅读上述导出的反编译及原指令，未重新运行Ghidra、逐字节核验全部原固件、穷尽HAL或校验硬件时序。"
+    },
+    {
+      "item": "正文尾部",
+      "detail": "未审仍在补充的内部热敏ADC与MSP pin来源尾部，不将本记录用于验收这些新增内容。"
+    },
+    {
+      "item": "版本边界",
+      "detail": "哈希对应本次实际阅读版本。若模型、结果或正文随后变化，本记录不自动覆盖新版本。"
+    }
+  ],
+  "actions": "本次仅将已经完成的只读审阅写入独立验收记录；未修改被审目录，未运行原厂程序、设备或账号请求。"
+}

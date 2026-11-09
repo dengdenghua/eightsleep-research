@@ -1,0 +1,153 @@
+FUNCTION 0800b710 analyst_temperature_routed BODY [[0800b710, 0800b7bb]]
+INCOMING 0800b7d8 UNCONDITIONAL_CALL
+INCOMING 0800b812 UNCONDITIONAL_CALL
+INCOMING 0800b854 UNCONDITIONAL_CALL
+
+/* WARNING: Unknown calling convention -- yet parameter storage is locked */
+
+float analyst_temperature_routed(uint arg0)
+
+{
+  undefined4 extraout_r0;
+  uint uVar1;
+  undefined4 extraout_r0_00;
+  undefined4 extraout_r0_01;
+  undefined4 extraout_r0_02;
+  undefined4 extraout_r0_03;
+  undefined4 extraout_r0_04;
+  undefined4 extraout_r0_05;
+  undefined4 extraout_r0_06;
+  undefined4 extraout_r0_07;
+  undefined4 extraout_r0_08;
+  undefined4 uVar2;
+  undefined4 uVar3;
+  float in_s0;
+  float fVar4;
+  
+  if (10 < arg0) {
+    return in_s0;
+  }
+  if (arg0 == 9) {
+    fVar4 = (float)FUN_08008c5c();
+    return fVar4;
+  }
+  if (arg0 == 0) {
+    arg0 = 3;
+    if (3 < DAT_20000228) {
+      if (0x1ff < DAT_20000228) {
+        analyst_temperature_channel(2);
+        analyst_temperature_channel(3);
+        uVar1 = 4;
+        uVar2 = extraout_r0_02;
+        uVar3 = extraout_r0_03;
+LAB_0800b766:
+        analyst_temperature_channel(uVar1);
+        analyst_temperature_channel(8);
+        fVar4 = (float)FUN_08008e2c(uVar2,uVar3,extraout_r0_04,extraout_r0_05);
+        return fVar4;
+      }
+      analyst_temperature_channel(2);
+      uVar1 = 4;
+      uVar2 = extraout_r0;
+LAB_0800b73e:
+      analyst_temperature_channel(uVar1);
+      analyst_temperature_channel(8);
+      fVar4 = (float)FUN_08008ef4(uVar2,extraout_r0_00,extraout_r0_01);
+      return fVar4;
+    }
+  }
+  else if (arg0 == 1) {
+    if (3 < DAT_20000228) {
+      if (0x1ff < DAT_20000228) {
+        analyst_temperature_channel(7);
+        analyst_temperature_channel(6);
+        uVar1 = 5;
+        uVar2 = extraout_r0_07;
+        uVar3 = extraout_r0_08;
+        goto LAB_0800b766;
+      }
+      analyst_temperature_channel(7);
+      uVar1 = 5;
+      uVar2 = extraout_r0_06;
+      goto LAB_0800b73e;
+    }
+    arg0 = 6;
+  }
+  fVar4 = analyst_temperature_channel(arg0);
+  return fVar4;
+}
+
+
+ASSEMBLY
+0800b710 push {r4,r5,r6,lr} BYTES 70b5
+0800b712 cmp r0,#0xa BYTES 0a28
+0800b714 bhi 0x0800b7b8 BYTES 50d8 REF CONDITIONAL_JUMP=0800b7b8
+0800b716 cmp r0,#0x9 BYTES 0928
+0800b718 bne 0x0800b720 BYTES 02d1 REF CONDITIONAL_JUMP=0800b720
+0800b71a bl 0x08008c5c BYTES fdf79ffa REF UNCONDITIONAL_CALL=08008c5c
+0800b71e pop {r4,r5,r6,pc} BYTES 70bd
+0800b720 cmp r0,#0x0 BYTES 0028
+0800b722 bne 0x0800b780 BYTES 2dd1 REF CONDITIONAL_JUMP=0800b780
+0800b724 ldr r3,[0x0800b7bc] BYTES 254b REF READ=0800b7bc WORD=20000218
+0800b726 adds r0,#0x3 BYTES 0330
+0800b728 ldrh r3,[r3,#0x10] BYTES 1b8a REF READ=20000228
+0800b72a cmp r3,#0x3 BYTES 032b
+0800b72c bls 0x0800b78e BYTES 2fd9 REF CONDITIONAL_JUMP=0800b78e
+0800b72e ldr r2,[0x0800b7c0] BYTES 244a REF READ=0800b7c0 WORD=1ff
+0800b730 movs r0,#0x2 BYTES 0220
+0800b732 cmp r3,r2 BYTES 9342
+0800b734 bhi 0x0800b756 BYTES 0fd8 REF CONDITIONAL_JUMP=0800b756
+0800b736 bl 0x0800b400 BYTES fff763fe REF UNCONDITIONAL_CALL=0800b400
+0800b73a adds r4,r0,#0x0 BYTES 041c
+0800b73c movs r0,#0x4 BYTES 0420
+0800b73e bl 0x0800b400 BYTES fff75ffe REF UNCONDITIONAL_CALL=0800b400
+0800b742 adds r5,r0,#0x0 BYTES 051c
+0800b744 movs r0,#0x8 BYTES 0820
+0800b746 bl 0x0800b400 BYTES fff75bfe REF UNCONDITIONAL_CALL=0800b400
+0800b74a adds r1,r5,#0x0 BYTES 291c
+0800b74c adds r2,r0,#0x0 BYTES 021c
+0800b74e adds r0,r4,#0x0 BYTES 201c
+0800b750 bl 0x08008ef4 BYTES fdf7d0fb REF UNCONDITIONAL_CALL=08008ef4
+0800b754 b 0x0800b71e BYTES e3e7 REF UNCONDITIONAL_JUMP=0800b71e
+0800b756 bl 0x0800b400 BYTES fff753fe REF UNCONDITIONAL_CALL=0800b400
+0800b75a adds r4,r0,#0x0 BYTES 041c
+0800b75c movs r0,#0x3 BYTES 0320
+0800b75e bl 0x0800b400 BYTES fff74ffe REF UNCONDITIONAL_CALL=0800b400
+0800b762 adds r5,r0,#0x0 BYTES 051c
+0800b764 movs r0,#0x4 BYTES 0420
+0800b766 bl 0x0800b400 BYTES fff74bfe REF UNCONDITIONAL_CALL=0800b400
+0800b76a adds r6,r0,#0x0 BYTES 061c
+0800b76c movs r0,#0x8 BYTES 0820
+0800b76e bl 0x0800b400 BYTES fff747fe REF UNCONDITIONAL_CALL=0800b400
+0800b772 adds r2,r6,#0x0 BYTES 321c
+0800b774 adds r3,r0,#0x0 BYTES 031c
+0800b776 adds r1,r5,#0x0 BYTES 291c
+0800b778 adds r0,r4,#0x0 BYTES 201c
+0800b77a bl 0x08008e2c BYTES fdf757fb REF UNCONDITIONAL_CALL=08008e2c
+0800b77e b 0x0800b71e BYTES cee7 REF UNCONDITIONAL_JUMP=0800b71e
+0800b780 cmp r0,#0x1 BYTES 0128
+0800b782 bne 0x0800b78e BYTES 04d1 REF CONDITIONAL_JUMP=0800b78e
+0800b784 ldr r3,[0x0800b7bc] BYTES 0d4b REF READ=0800b7bc WORD=20000218
+0800b786 ldrh r3,[r3,#0x10] BYTES 1b8a REF READ=20000228
+0800b788 cmp r3,#0x3 BYTES 032b
+0800b78a bhi 0x0800b794 BYTES 03d8 REF CONDITIONAL_JUMP=0800b794
+0800b78c adds r0,#0x5 BYTES 0530
+0800b78e bl 0x0800b400 BYTES fff737fe REF UNCONDITIONAL_CALL=0800b400
+0800b792 b 0x0800b71e BYTES c4e7 REF UNCONDITIONAL_JUMP=0800b71e
+0800b794 ldr r2,[0x0800b7c0] BYTES 0a4a REF READ=0800b7c0 WORD=1ff
+0800b796 movs r0,#0x7 BYTES 0720
+0800b798 cmp r3,r2 BYTES 9342
+0800b79a bhi 0x0800b7a6 BYTES 04d8 REF CONDITIONAL_JUMP=0800b7a6
+0800b79c bl 0x0800b400 BYTES fff730fe REF UNCONDITIONAL_CALL=0800b400
+0800b7a0 adds r4,r0,#0x0 BYTES 041c
+0800b7a2 movs r0,#0x5 BYTES 0520
+0800b7a4 b 0x0800b73e BYTES cbe7 REF UNCONDITIONAL_JUMP=0800b73e
+0800b7a6 bl 0x0800b400 BYTES fff72bfe REF UNCONDITIONAL_CALL=0800b400
+0800b7aa adds r4,r0,#0x0 BYTES 041c
+0800b7ac movs r0,#0x6 BYTES 0620
+0800b7ae bl 0x0800b400 BYTES fff727fe REF UNCONDITIONAL_CALL=0800b400
+0800b7b2 adds r5,r0,#0x0 BYTES 051c
+0800b7b4 movs r0,#0x5 BYTES 0520
+0800b7b6 b 0x0800b766 BYTES d6e7 REF UNCONDITIONAL_JUMP=0800b766
+0800b7b8 ldr r0,[0x0800b7c4] BYTES 0248 REF READ=0800b7c4 WORD=c2c80000
+0800b7ba b 0x0800b71e BYTES b0e7 REF UNCONDITIONAL_JUMP=0800b71e

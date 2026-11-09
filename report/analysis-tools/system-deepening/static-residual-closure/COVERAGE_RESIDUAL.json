@@ -1,0 +1,59 @@
+{
+  "schema": "eightsleep.nonusb.static-residual-coverage-residual.v1",
+  "date": "2026-11-08",
+  "scope": "All four static gaps listed at the end of the previous round: the three secondary data tables, the 0x18c byte cleared by K90, the callback/timeout slots written by the 14 setters, and the 0800e8b4 USART baud-rate register recomputation. Model and marketing-model / oscillator binding stayed explicitly out of scope because static bytes cannot answer them without new material or a device.",
+  "closed_this_round": [
+    {
+      "id": "RES-01",
+      "previous": "Data tables 08025f00 / 08025f08 / 08025ee8 contents were unread; their consumers and the role of the neighbouring tables were unknown.",
+      "now": "They are three of five 8-byte permutations of 0..7 (three distinct maps R/S/T), consumed through config slot +0x1a4. The neighbouring 0x08025ec0 mask table, 0x08025ed0 / 0x08025f10 peripheral address tables, 0x08025f28 tail array and 0x0802420c u16 divisor table are all decoded. All nine pointer references are exact full-image hit sets. The previous round's byte/offset note was found to be wrong and is corrected by a fresh dump.",
+      "evidence": ["RESIDUAL_TABLES.json", "BYTE_VALIDATION.json", "FINDINGS_ZH.txt"]
+    },
+    {
+      "id": "RES-02",
+      "previous": "The 0x18c byte cleared by K90 had no known reader or semantics; every 0xc6 immediate in the image was being treated as this slot.",
+      "now": "0x18c is built only by movs #0xc6; lsls #1 at three sites: 0800f744 (writes 1 to the global 0x2000a4c0 object with DSB/DMB/SEV), 0800fd3a (K90 clears the config object byte) and 0801e68a (main dispatcher reads it). It is copied to report +0x3a80, the adjacent +0x18d byte goes to +0x3a81, and 0xff is a sentinel branching to 0801ea3e. lsls #2 (0x318) and lsls #5 (0x18c0) sites are different slots.",
+      "evidence": ["CONFIG_SLOTS.json", "RESIDUAL_TABLES.json", "pass1/0801d8b4.txt", "pass2/0800f738_0800f760.txt"]
+    },
+    {
+      "id": "RES-03",
+      "previous": "Which callback/timeout slots the 14 setters write was only a loose list; +0x1a4 and +0x1a0 had no role.",
+      "now": "A 14-row slot ledger is derived from the pass2 setter exports with derived-base offsets (adds rN,#0xfc) correctly accumulated. +0x1a0 and +0x1a4 are pointers to 8-byte tables copied into the report when non-NULL; +0x1a4 has three writers selected by hwrev / sku / devicesn. High slots are attributed to consumers in 0801d888 (+0x114 block copy, +0x188 bounded count, +0x190 side callback, +0x194 post-init callback, +0x19c report field). The 1000ms timeout is assembled by the dispatcher into the report object, not stored as a standalone config slot.",
+      "evidence": ["CONFIG_SLOTS.json", "MODEL_RESULTS.json", "pass2/*.txt"]
+    },
+    {
+      "id": "RES-04",
+      "previous": "0800e8b4 USART baud-rate register values were not recomputed from 64MHz; the 08008174 division semantics were only inferred from call sites.",
+      "now": "08008174 is confirmed at instruction level as unsigned division (quotient r0 / remainder r1). Both BRR paths are reproduced: path A writes (clock//divisor + baud/2)//baud verbatim; path B doubles that quotient and encodes a 3-bit fraction as (N & 0xfff0) | ((N & 0xf) >> 1). Range check is 0x10..0xffff with failure return 1. 256 parameterised cases plus worked examples (64MHz/115200 -> 0x22c / 0x453; 16MHz/115200 -> 0x8b / 0x113) show the RCC clock-source branch changes BRR by 4x. No standard baud-rate constant exists anywhere in the image, so all baud values are explicit model assumptions.",
+      "evidence": ["MODEL_RESULTS.json", "RESIDUAL_TABLES.json", "pass1/0800e8b4_0800ea30.txt", "pass1/0800eca6.txt"]
+    }
+  ],
+  "residual": [
+    "Which physical sensor channel each permutation index denotes needs a schematic or a device",
+    "param_1[1] (baud) and param_1[9] (divisor index) are runtime values; the published BRR numbers are parameterised model outputs, not image constants",
+    "64MHz remains a conditional computed SYSCLK from the previous round, not a measured oscillator or core clock",
+    "RCC 0x40021054 is a live register, so the clock-source branch taken on hardware is not statically fixed",
+    "0x2000a4c0 + 0x18c and param_1 + 0x18c share an offset but not a base object; static bytes do not prove they are the same field",
+    "Callback / purpose names come from consumer call sites; the image is stripped of symbols",
+    "PLL lock completion, SW switch transition, SWS readback, cumulative tick loss and interrupt latency need a device",
+    "hwrev / sku / devicesn are not bound to a marketing model, board revision or external oscillator BOM",
+    "ADC CLKIN/DRDY, real sampling rates and all physical timing need measurement"
+  ],
+  "unchanged_boundaries": [
+    "air bladder / bed frame work stays deferred",
+    "core physiological algorithm, Autopilot, posture classification, device binding and speaker DSP still depend on new material",
+    "USB 0x2B first producer and legacy waveform RAW writer gaps stay as-is",
+    "shared log formatting buffer / reentrancy special topic was halted by automated safety checks and is not retried, reworded or cited",
+    "no firmware executed; no device, account, API or network access"
+  ],
+  "verification": {
+    "byte_checks": 5269,
+    "byte_failures": 0,
+    "model_assertions": 60,
+    "model_failures": 0,
+    "brr_cases": 256,
+    "setter_rows": 14,
+    "source_manifest_entries": 41,
+    "executes_firmware": false
+  }
+}

@@ -1,0 +1,35 @@
+TARGET 08012410 function=08012410
+REF_TO 08020c54 UNCONDITIONAL_CALL owner=0801f0d0
+REF_TO 0801bf0a UNCONDITIONAL_CALL owner=0801bef4
+REF_TO 08011120 UNCONDITIONAL_CALL owner=080110e8
+REF_TO 0801cac2 UNCONDITIONAL_CALL owner=none
+REF_TO 0801cac8 UNCONDITIONAL_CALL owner=none
+REF_TO 0801cfce UNCONDITIONAL_CALL owner=none
+REF_TO 0801cfd4 UNCONDITIONAL_CALL owner=none
+FUNCTION_BODY [[08012410, 08012429]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_08012410(uint param_1)
+
+{
+  if (-1 < (int)param_1) {
+    _DAT_e000e180 = 1 << (param_1 & 0x1f);
+    DataSynchronizationBarrier(0xf);
+    InstructionSynchronizationBarrier(0xf);
+  }
+  return;
+}
+
+
+INSN 08012410 0028 cmp r0,#0x0
+INSN 08012412 09db blt 0x08012428 REF[CONDITIONAL_JUMP:08012428]
+INSN 08012414 1f23 movs r3,#0x1f
+INSN 08012416 1840 ands r0,r3
+INSN 08012418 1e3b subs r3,#0x1e
+INSN 0801241a 8340 lsls r3,r0
+INSN 0801241c 034a ldr r2,[0x0801242c] REF[READ:0801242c=e000e104]
+INSN 0801241e d367 str r3,[r2,#0x7c] REF[WRITE:e000e180]
+INSN 08012420 bff34f8f dsb #0xf
+INSN 08012424 bff36f8f isb #0xf
+INSN 08012428 7047 bx lr

@@ -1,0 +1,91 @@
+{
+  "reviewed_at": "2026-11-08T10:05:18.018819+08:00",
+  "reviewer": "/root/live_frontend",
+  "result": "pass_no_blocking_issue_in_reviewed_scope",
+  "subject": "local-aggregate-version-followup",
+  "input": {
+    "source_relative": "mediatek/rootfs-selected/opt/eight/bin/frankenfirmware",
+    "bytes": 5060488,
+    "sha256": "84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375",
+    "mapping": "Ghidra VA = original ELF virtual address + 0x100000; PT_LOAD file-backed mapping"
+  },
+  "core_exports": [
+    {
+      "path": "local-aggregate-version-followup/host-pass1/001fe650.txt",
+      "sha256": "e9cd48ec14a164549e32a83786ca1fd83f693c59d49a5aa55e3d71a691b1967c",
+      "instructions": 158,
+      "bytes": 632,
+      "original_bytes_match": true
+    },
+    {
+      "path": "local-aggregate-version-followup/host-pass1/001f6920.txt",
+      "sha256": "67363d65156a79be5e650a2b09791efc9520b2de896b9a8b26549b786b23de0c",
+      "instructions": 472,
+      "bytes": 1888,
+      "original_bytes_match": true
+    },
+    {
+      "path": "local-aggregate-version-followup/host-pass1/0027a980.txt",
+      "sha256": "aa29b722aa6be3970933272067355b6783bd30ea6ad80a79e896e15da765f9ea",
+      "instructions": 144,
+      "bytes": 576,
+      "original_bytes_match": true
+    },
+    {
+      "path": "local-aggregate-version-followup/host-pass1/001e2bb0.txt",
+      "sha256": "ef008f1fd8e65b40dc420e36c7cd247627ad904cc8b7aa2c408bf85e2e8053e4",
+      "instructions": 6,
+      "bytes": 24,
+      "original_bytes_match": true
+    },
+    {
+      "path": "local-aggregate-version-followup/host-pass2/001e9e44.txt",
+      "sha256": "83d36105e37cf2d4069e2f81a910274a959dae4c6878056bb8b55f57797f5e78",
+      "instructions": 235,
+      "bytes": 940,
+      "original_bytes_match": true
+    },
+    {
+      "path": "local-aggregate-version-followup/host-pass2/001f5320.txt",
+      "sha256": "61b0b0315fbe8e7e86f167e30db035a17e8a455bfd9cf7a620643c00cc342533",
+      "instructions": 213,
+      "bytes": 852,
+      "original_bytes_match": true
+    }
+  ],
+  "byte_check": {
+    "instructions": 1228,
+    "bytes": 4912,
+    "all_match": true
+  },
+  "additional_readonly_helpers": [
+    {
+      "path": "local-aggregate-version-followup/host-pass2/001d7390.txt",
+      "sha256": "e4d0b7e8655c9e4db21d5ebe6fe08d2a1d5a294a533220c5aa89735fdf3110ac",
+      "review": "readonly source semantics; excluded from 1228-instruction byte subtotal"
+    },
+    {
+      "path": "local-aggregate-version-followup/host-pass3/001d66c0.txt",
+      "sha256": "68357f9f710e4d452f85ec16beb3863d7f6e072513776ccadfb61a92df530ead",
+      "review": "readonly source semantics; excluded from 1228-instruction byte subtotal"
+    }
+  ],
+  "confirmed": [
+    "001fe650 initializes the aggregate snapshot version byte to 0.",
+    "0027a980 rev > 0x9ff branch passes object side and rev < 0xa30 condition through 001e2bb0 to 001f6920.",
+    "001f6920 clears the selected-side deque and then stores low byte 0x82 at rawlogger + 0x1a64; store is independent of the supplied mode.",
+    "001e9e44 copies rawlogger + 0x1a64 into the aggregate snapshot version at +0x1adc.",
+    "001f5320 loads the version as an unsigned byte; 001d7390 and 001d66c0 encode numeric 130 as CBOR 18 82.",
+    "The report limits this result to software state and the traced normal lifecycle, without asserting current physical-device deployment or equivalence to the 0x39 wire version."
+  ],
+  "not_covered": [
+    "No new Ghidra session or vendor binary execution; no hardware, account, or API request.",
+    "Did not repeat all offset-candidate scans or establish whole-program absence of aliased writers.",
+    "Did not rerun the complete model suite or revalidate all 3070 instructions in the parent evidence set.",
+    "Did not re-audit every object construction, transport selection, or main-loop scheduling path.",
+    "Additional CBOR helper semantics were read but their bytes are not included in the six-core-function 1228/4912 subtotal."
+  ],
+  "files_modified": [
+    "analysis/system-deepening-20261108/REVIEW_AGGREGATE_VERSION_FOLLOWUP.json"
+  ]
+}

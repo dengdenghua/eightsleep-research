@@ -1,0 +1,101 @@
+{
+  "kind": "static-recovered-contracts; no runtime device observation",
+  "source_sha256": "84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375",
+  "address_space": "Ghidra image base 0x100000, not live process ASLR addresses",
+  "usb_runtime_binding": {
+    "object_globals": [
+      "005e36a0",
+      "005e36a8"
+    ],
+    "constructor": "0019e7f0",
+    "vptr": "005c79f8",
+    "rtti": "9UsbSensor",
+    "update_creator": "00233350",
+    "update_coroutine": "002349f0",
+    "wrapper_offset": "0x20f0",
+    "runtime_length_flag": 1,
+    "runtime_initializer": [
+      "0027a980",
+      "0027abc0"
+    ],
+    "other_modes": "Flag 0 also exists during init/unknown/bootloader; not all USB lifetime uses BE16.",
+    "read_callback": "00280ad0 -> 002379a0 -> read(port_table[index].fd,buffer,size)",
+    "input_refill_max": 2048,
+    "port_index_field": "wrapper+0x1070",
+    "port_table": "005e0a30, stride8",
+    "body_offset": "owner+0x3170",
+    "body_capacity": 2048,
+    "out_length_offset": "owner+0x3168"
+  },
+  "token_decoder": {
+    "entry": "001d9e40",
+    "delimiter": 126,
+    "escape": 125,
+    "escape_xor": 32,
+    "escape_acceptance": "Any next byte, including 7e; no canonical restriction",
+    "no_input": "Return false while preserving parser state and escape_pending",
+    "delimiter_priority": "Unescaped 7e resets frame parser in every state; escaped 7e is ordinary 5e"
+  },
+  "frame_parser": {
+    "entry": "001d9bc0",
+    "length_format": "unsigned BE16 in runtime binding",
+    "crc_wire_format": "BE16 after declared body length",
+    "state_names": {
+      "0": "seek delimiter",
+      "1": "length high",
+      "2": "length low",
+      "3": "body",
+      "4": "CRC high",
+      "5": "CRC low"
+    },
+    "delimiter_reset_fields": [
+      "state to1",
+      "declared length to0",
+      "received count to0",
+      "temporary CRC to0"
+    ],
+    "zero_length": "No special handling; state3 increments count before equality check. Finite case only; uint64 counter wrap not exhausted.",
+    "capacity_guard": "Store only if old count < capacity; increment count regardless.",
+    "crc_read_length": "Full received count, not min(count,capacity)",
+    "oversize_condition": "declared>2048 and enough ordinary body/CRC tokens, without an intervening unescaped delimiter",
+    "oversize_claim": "CRC reads beyond configured body subbuffer; whole-object/allocation bounds and runtime outcome are not inferred.",
+    "crc_mismatch": "Continue scanning same input; no success return, counter or dedicated log in audited function",
+    "crc_match": "Return true, not a cloud/USB ACK and not proof of freshness"
+  },
+  "crc": {
+    "entry": "001d9dc0",
+    "initial": "0x1d0f",
+    "polynomial": "0x1021",
+    "final_xor": "none observed",
+    "coverage": "body only, including opcode/flag byte; excludes length and delimiter",
+    "collision_bound": "No exhaustive collision proof or frequency estimate"
+  },
+  "business_boundary": {
+    "header_decoder": "00219b34",
+    "opcode": "first body byte &0x7f",
+    "flag": "first body byte >>7",
+    "payload": "body+1, length-1",
+    "generic_handler_vtable_offset": "0x60",
+    "generic_handler": "002334f0 -> 00236174",
+    "usb_handler_vtable_offset": "0x68",
+    "usb_handler": "00278c00 -> 0027e7b0",
+    "dispatch_gate": "Update timing/state conditions plus nonzero length; generic handler flag0 and object state2 for audited USB dispatch branch. Other flags/states follow other branches.",
+    "not_proved": "CRC accepted frame always becomes accepted 0x3c sample; detailed payload error checks are next scope."
+  },
+  "prior_packet_read_link": {
+    "directory": "../sensor-usb-packet-read",
+    "conditions": [
+      "Old lower transfer still active",
+      "Slot reused and actual source RAM bytes changed",
+      "Changed byte lies beyond already-copied prefix",
+      "Write precedes that byte’s corresponding later PMA copy"
+    ],
+    "not_asserted": [
+      "actual corruption event",
+      "actual failure rate",
+      "all mixtures rejected",
+      "one-frame-only loss",
+      "sleep staging impact"
+    ]
+  }
+}

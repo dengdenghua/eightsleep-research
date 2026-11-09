@@ -1,0 +1,75 @@
+// IL code: Eight.Capybara
+.method public hidebysig 
+	instance class [System.Runtime]System.Threading.Tasks.Task`1<class Eight.Capybara.DeviceAPI.Handlers.StartSshResponse> StartSsh2 (
+		class Eight.Capybara.DeviceAPI.Handlers.StartSsh2Request args
+	) cil managed 
+{
+	.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.FunctionHandlerAttribute::.ctor(string) = (
+		01 00 1b 72 65 6d 6f 74 65 63 6f 6e 6e 65 63 74
+		69 76 69 74 79 2f 73 74 61 72 74 73 73 68 00 00
+	)
+	.param [1]
+		.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.SerializedRequestArgAttribute::.ctor() = (
+			01 00 00 00
+		)
+	// Method begins at RVA 0xeb18
+	// Header size: 12
+	// Code size: 121 (0x79)
+	.maxstack 3
+	.locals init (
+		[0] int32,
+		[1] valuetype [System.Runtime]System.Nullable`1<int32>,
+		[2] int32,
+		[3] valuetype [System.Runtime]System.Threading.CancellationToken
+	)
+
+	IL_0000: ldc.i4.0
+	IL_0001: stloc.0
+	IL_0002: ldarg.1
+	IL_0003: callvirt instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Capybara.DeviceAPI.Handlers.StartSsh2Request::get_Port()
+	IL_0008: stloc.1
+	IL_0009: ldloca.s 1
+	IL_000b: call instance bool valuetype [System.Runtime]System.Nullable`1<int32>::get_HasValue()
+	IL_0010: brfalse.s IL_002f
+
+	IL_0012: ldarg.1
+	IL_0013: callvirt instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Capybara.DeviceAPI.Handlers.StartSsh2Request::get_Port()
+	IL_0018: stloc.1
+	IL_0019: ldc.i4.0
+	IL_001a: stloc.2
+	IL_001b: ldloca.s 1
+	IL_001d: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::GetValueOrDefault()
+	IL_0022: ldloc.2
+	IL_0023: ceq
+	IL_0025: ldloca.s 1
+	IL_0027: call instance bool valuetype [System.Runtime]System.Nullable`1<int32>::get_HasValue()
+	IL_002c: and
+	IL_002d: brfalse.s IL_0044
+
+	IL_002f: call class [System.Runtime]System.Random [System.Runtime]System.Random::get_Shared()
+	IL_0034: ldc.i4 1025
+	IL_0039: ldc.i4 65535
+	IL_003e: callvirt instance int32 [System.Runtime]System.Random::Next(int32, int32)
+	IL_0043: stloc.0
+
+	IL_0044: ldloc.0
+	IL_0045: ldc.i4 1024
+	IL_004a: bgt.s IL_005e
+
+	IL_004c: ldc.i4.0
+	IL_004d: ldloc.0
+	IL_004e: ldstr "Invalid port number supplied"
+	IL_0053: newobj instance void Eight.Capybara.DeviceAPI.Handlers.StartSshResponse::.ctor(bool, int32, string)
+	IL_0058: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class Eight.Capybara.DeviceAPI.Handlers.StartSshResponse>(!!0)
+	IL_005d: ret
+
+	IL_005e: ldarg.0
+	IL_005f: ldfld class Eight.Capybara.DeviceAPI.Handlers.RemoteConnectivityService Eight.Capybara.DeviceAPI.Handlers.RemoteConnectivityController::service
+	IL_0064: ldloc.0
+	IL_0065: ldloca.s 3
+	IL_0067: initobj [System.Runtime]System.Threading.CancellationToken
+	IL_006d: ldloc.3
+	IL_006e: callvirt instance class Eight.Capybara.DeviceAPI.Handlers.StartSshResponse Eight.Capybara.DeviceAPI.Handlers.RemoteConnectivityService::RunRemoteConnectivity(int32, valuetype [System.Runtime]System.Threading.CancellationToken)
+	IL_0073: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class Eight.Capybara.DeviceAPI.Handlers.StartSshResponse>(!!0)
+	IL_0078: ret
+} // end of method RemoteConnectivityController::StartSsh2

@@ -1,0 +1,63 @@
+TARGET 001d9dc0 function=001d9dc0
+REF_TO 004cbbc4 INDIRECTION owner=none
+REF_TO 004ee6f8 DATA owner=none
+REF_TO 001d9b40 UNCONDITIONAL_CALL owner=001d9ac0
+REF_TO 001d9d04 UNCONDITIONAL_CALL owner=001d9bc0
+FUNCTION_BODY [[001d9dc0, 001d9e17]]
+
+uint FUN_001d9dc0(byte *param_1,long param_2)
+
+{
+  uint uVar1;
+  uint uVar2;
+  uint uVar3;
+  char cVar4;
+  byte *pbVar5;
+  byte *pbVar6;
+  
+  if (param_2 != 0) {
+    uVar3 = 0x1d0f;
+    pbVar6 = param_1;
+    do {
+      pbVar5 = pbVar6 + 1;
+      cVar4 = '\b';
+      uVar3 = uVar3 ^ (uint)*pbVar6 << 8;
+      do {
+        uVar2 = (uVar3 & 0x7fff) << 1;
+        uVar1 = uVar3 & 0x8000;
+        cVar4 = cVar4 + -1;
+        uVar3 = uVar2 ^ 0x1021;
+        if (uVar1 == 0) {
+          uVar3 = uVar2;
+        }
+      } while (cVar4 != '\0');
+      pbVar6 = pbVar5;
+    } while (pbVar5 != param_1 + param_2);
+    return uVar3;
+  }
+  return 0x1d0f;
+}
+
+
+INSN 001d9dc0 5f2403d5 bti c
+INSN 001d9dc4 e40300aa mov x4,x0
+INSN 001d9dc8 410200b4 cbz x1,0x001d9e10 REF[CONDITIONAL_JUMP:001d9e10]
+INSN 001d9dcc 0500018b add x5,x0,x1
+INSN 001d9dd0 23048252 mov w3,#0x1021
+INSN 001d9dd4 e0a18352 mov w0,#0x1d0f
+INSN 001d9dd8 82144038 ldrb w2,[x4], #0x1
+INSN 001d9ddc 01018052 mov w1,#0x8
+INSN 001d9de0 0020024a eor w0,w0,w2, LSL #0x8
+INSN 001d9de4 1f2003d5 nop
+INSN 001d9de8 02381f53 ubfiz w2,w0,#0x1,#0xf
+INSN 001d9dec 1f0071f2 tst x0,#0x8000
+INSN 001d9df0 21040051 sub w1,w1,#0x1
+INSN 001d9df4 4000034a eor w0,w2,w3
+INSN 001d9df8 0010821a csel w0,w0,w2,ne
+INSN 001d9dfc 211c0072 ands w1,w1,#0xff
+INSN 001d9e00 41ffff54 b.ne 0x001d9de8 REF[CONDITIONAL_JUMP:001d9de8]
+INSN 001d9e04 9f0005eb cmp x4,x5
+INSN 001d9e08 81feff54 b.ne 0x001d9dd8 REF[CONDITIONAL_JUMP:001d9dd8]
+INSN 001d9e0c c0035fd6 ret
+INSN 001d9e10 e0a18352 mov w0,#0x1d0f
+INSN 001d9e14 c0035fd6 ret

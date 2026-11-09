@@ -1,0 +1,25 @@
+附件来源修正：旧C11/NXP与本轮MTK
+2026-11-08；只读对照两个原配置与旧24样本，没有重跑固件逆向，也未修改旧报告/冻结包。
+
+配置身份：
+历史：selected-rootfs/opt/eight/config/default.json
+  SHA256 424768dbcd478701d67a0ca39c61659318dc7c368e82a2c15f199f10ec54998b
+MTK：mediatek/rootfs-selected/opt/eight/config/default.json
+  SHA256 3e985f0dcd28d876600031629fc237f01d48f4cf1414eac4e74a4652ebbb58aa
+
+旧C11的24个附件样本原始提取路径属于历史selected-rootfs，并非MTK根目录。但本轮重算原路径和对应MTK路径：
+  TriMix 7/7相同；Keeson 5/5相同；B12 10/10相同；B13 2/2相同。
+  总24/24同字节、原记录SHA全部匹配；仅存在于历史NXP的0个；MTK同名而字节不同的0个。
+因此修正文案应明确“原证据从历史包提取；已按SHA验证MTK也含完全相同文件”，不应删去仍有效的板级代码结论，也不应把两套包的默认配置当一套。
+
+默认附件映射：
+1. adjustableBase.trimix：两包完全相同。hardwareVersion 2–7 → 8Sleep_H6_SW-V25-2025-07-24.bin / expectedVersion25；hardwareVersion -1 → 8Sleep_H4_SW-V18-2024-07-19.bin / expectedVersion18。
+2. adjustableBase.keeson：两包完全相同。OTA_KS8S08C010000001_V10211_nRF52832_202602070917.zip / expectedVersion10211。
+3. speaker：两包完全相同。hardwareVersion2 → Speaker/B12/v28.MVA / expectedVersion28。
+4. speakerFota：不同。历史NXP为B13_SOFT_20260804_V38.fot / expectedVersion38；MTK为B13_SOFT_20260922_V42.fot / expectedVersion42。
+
+故报告中TriMix V25、Keeson10211作为“所分析MTK包默认映射”的说法经本轮核对成立；“实机当前安装版本”仍不成立。B12 v28同理。
+B13需要更正：V37/V38仍是MTK包中存在的历史文件，但MTK默认选V42。旧“B13共2个FOT”的数量只覆盖旧C11选择的样本集，不能作为MTK完整目录计数；当前MTK B13目录3个。
+主控仍以alias==B13进入FOTA分支、取fotaConfigurations.FirstOrDefault，不按该条hardwareVersion再筛选；配置表硬件字段不等于真实选择算法。
+
+MAPPING_DIFF.json列24条原件路径/SHA和MTK对应路径/SHA、四段完整配置比较。本轮额外文件枚举限定B12/B13/Keeson目录，发现新增于旧C11集合的是V42；没有据此宣称根目录所有类型固件均已完整盘点。

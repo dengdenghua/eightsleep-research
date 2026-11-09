@@ -1,0 +1,504 @@
+{
+  "cases": [
+    {
+      "label": "partial map update preserves absent metrics; replaces samples",
+      "input_rows": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 60,
+              "hrv": 30
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 2
+            },
+            "samples": [
+              "old"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "week",
+          "date": "2026-11-01",
+          "doubleAvg": {
+            "hr": 65
+          },
+          "intAvg": {},
+          "durationAvg": {},
+          "timeAvg": {},
+          "trueFalseCountAvg": {},
+          "doubleSum": {},
+          "stdDev": {},
+          "samples": []
+        }
+      ],
+      "to": "2026-11-01",
+      "result": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 65,
+              "hrv": 30
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 2,
+              "hrv": 0.0
+            },
+            "samples": []
+          }
+        }
+      ]
+    },
+    {
+      "label": "new stdDev overrides cached stdDev",
+      "input_rows": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 60,
+              "hrv": 30
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 2
+            },
+            "samples": [
+              "old"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "week",
+          "date": "2026-11-01",
+          "doubleAvg": {},
+          "intAvg": {},
+          "durationAvg": {},
+          "timeAvg": {},
+          "trueFalseCountAvg": {},
+          "doubleSum": {},
+          "stdDev": {
+            "hr": 4
+          },
+          "samples": []
+        }
+      ],
+      "to": "2026-11-01",
+      "result": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 60,
+              "hrv": 30
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 4,
+              "hrv": 0.0
+            },
+            "samples": []
+          }
+        }
+      ]
+    },
+    {
+      "label": "uncached row has no synthetic stdDev defaults",
+      "input_rows": [],
+      "response": [
+        {
+          "name": "week",
+          "date": "2026-11-01",
+          "doubleAvg": {
+            "hr": 65
+          },
+          "intAvg": {},
+          "durationAvg": {},
+          "timeAvg": {},
+          "trueFalseCountAvg": {},
+          "doubleSum": {},
+          "stdDev": {},
+          "samples": []
+        }
+      ],
+      "to": "2026-11-01",
+      "result": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 65
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {},
+            "samples": []
+          }
+        }
+      ]
+    },
+    {
+      "label": "empty past response overwrites same-key cached row",
+      "input_rows": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 60,
+              "hrv": 30
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 2
+            },
+            "samples": [
+              "old"
+            ]
+          }
+        }
+      ],
+      "response": [],
+      "to": "2026-11-01",
+      "result": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {},
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 0.0,
+              "hrv": 0.0
+            },
+            "samples": []
+          }
+        }
+      ]
+    },
+    {
+      "label": "empty future response writes nothing",
+      "input_rows": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 60,
+              "hrv": 30
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 2
+            },
+            "samples": [
+              "old"
+            ]
+          }
+        }
+      ],
+      "response": [],
+      "to": "2026-11-08",
+      "result": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 60,
+              "hrv": 30
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 2
+            },
+            "samples": [
+              "old"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "label": "same group duplicate rows merge against prewrite snapshot",
+      "input_rows": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 60,
+              "hrv": 30
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 2
+            },
+            "samples": [
+              "old"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "week",
+          "date": "2026-11-01",
+          "doubleAvg": {
+            "hr": 65
+          },
+          "intAvg": {},
+          "durationAvg": {},
+          "timeAvg": {},
+          "trueFalseCountAvg": {},
+          "doubleSum": {},
+          "stdDev": {},
+          "samples": []
+        },
+        {
+          "name": "week",
+          "date": "2026-11-01",
+          "doubleAvg": {
+            "hrv": 40
+          },
+          "intAvg": {},
+          "durationAvg": {},
+          "timeAvg": {},
+          "trueFalseCountAvg": {},
+          "doubleSum": {},
+          "stdDev": {},
+          "samples": []
+        }
+      ],
+      "to": "2026-11-01",
+      "result": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 60,
+              "hrv": 40
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 2,
+              "hrv": 0.0
+            },
+            "samples": []
+          }
+        }
+      ]
+    },
+    {
+      "label": "unreturned dates remain cached",
+      "input_rows": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 60,
+              "hrv": 30
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 2
+            },
+            "samples": [
+              "old"
+            ]
+          }
+        }
+      ],
+      "response": [
+        {
+          "name": "week",
+          "date": "2026-11-02",
+          "doubleAvg": {
+            "hr": 66
+          },
+          "intAvg": {},
+          "durationAvg": {},
+          "timeAvg": {},
+          "trueFalseCountAvg": {},
+          "doubleSum": {},
+          "stdDev": {},
+          "samples": []
+        }
+      ],
+      "to": "2026-11-01",
+      "result": [
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-01"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-01",
+            "doubleAvg": {
+              "hr": 60,
+              "hrv": 30
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {
+              "hr": 2
+            },
+            "samples": [
+              "old"
+            ]
+          }
+        },
+        {
+          "key": [
+            "fixture",
+            "week",
+            "2026-11-02"
+          ],
+          "row": {
+            "name": "week",
+            "date": "2026-11-02",
+            "doubleAvg": {
+              "hr": 66
+            },
+            "intAvg": {},
+            "durationAvg": {},
+            "timeAvg": {},
+            "trueFalseCountAvg": {},
+            "doubleSum": {},
+            "stdDev": {},
+            "samples": []
+          }
+        }
+      ]
+    }
+  ],
+  "passed": true,
+  "count": 7
+}

@@ -1,0 +1,128 @@
+{
+  "scope": "两份历史MCU正常温控选侧与振动报警，独立复用冻结证据+补8份函数导出；不代表Pod6运行镜像或全固件穷尽",
+  "status": "normal_static_paths_closed",
+  "questions": [
+    {
+      "topic": "温控请求→零limit保护→单侧/双侧仲裁→GPIO",
+      "status": "closed_static",
+      "sources": [
+        "sources/39704/pass7",
+        "sources/39704/configure/0800ba70.txt",
+        "sources/42292/final-functions/0800bedc.txt",
+        "new42292/0800911c.txt"
+      ],
+      "boundary": "非零powerLimit未在本选侧链线性转PWM；其他故障仲裁不在本轮"
+    },
+    {
+      "topic": "四组hwrev最终GPIO mapping",
+      "status": "closed_static",
+      "sources": [
+        "RAW_TABLES.json",
+        "sources/39704/pass8/08008b6c.txt",
+        "sources/42292/final-functions/08008bf4.txt"
+      ],
+      "boundary": "port内位号，不是连接器脚号/电气实测"
+    },
+    {
+      "topic": "六路PWM配置表→GPIO复用/定时器→CCR",
+      "status": "closed_static",
+      "sources": [
+        "new39704/080084c0.txt",
+        "sources/42292/final-functions/080084ec.txt",
+        "RAW_TABLES.json"
+      ],
+      "boundary": "缓存period2400；未测引脚频率/电压"
+    },
+    {
+      "topic": "39704正常pattern0/1、槽计数、渐强、切侧、时长停止",
+      "status": "closed_static",
+      "sources": [
+        "sources/39704/pass8/0800a238.txt",
+        "sources/39704/configure/0800ba70.txt",
+        "sources/39704/configure/0800b448.txt"
+      ],
+      "boundary": "保留uint8后再clamp；其他pattern不纳入正常模型"
+    },
+    {
+      "topic": "42292正常pattern0/1的阶段/步长/切侧/渐强/停止",
+      "status": "closed_static",
+      "sources": [
+        "sources/42292/final-functions/08009774.txt",
+        "sources/42292/final-functions/080095e8.txt",
+        "sources/42292/final-functions/0800bedc.txt",
+        "RAW_TABLES.json"
+      ],
+      "boundary": "pattern2静态指针范围不吻合，不当作第三种有效模式；未发命令"
+    },
+    {
+      "topic": "真实硬件与当前机型绑定",
+      "status": "requires_hardware",
+      "sources": [],
+      "boundary": "未登录、未API、未连接设备；不凭历史镜像推断当前Pod6"
+    }
+  ],
+  "new_function_exports": [
+    {
+      "path": "new39704/080084c0.txt",
+      "sha256": "ff4a3cfe3f717fd2c9054ce7a38302eb87df0251ebc8e46aeb5a87b295a17def"
+    },
+    {
+      "path": "new39704/080089cc.txt",
+      "sha256": "a6c993f7a7b10662f52c44c075306f8f5c8a6dedda6041a02abb29a412264b6e"
+    },
+    {
+      "path": "new39704/080090a4.txt",
+      "sha256": "d12b1edb72d8488f75d05e06e35c74334f1ade2539db3be27409f0834765d26c"
+    },
+    {
+      "path": "new39704/0800da58.txt",
+      "sha256": "31e0e99d9bac5adb875ffee1e32fade078931124db234facb0e1d4d35f0fd3d3"
+    },
+    {
+      "path": "new39704/0800da84.txt",
+      "sha256": "5a75f5f63a2eea2a66e612a779ba176305942460716fc6f7348c49a7320883b4"
+    },
+    {
+      "path": "new42292/0800829c.txt",
+      "sha256": "813eab6184e02d9dd6931228594e1b016c44dfd854df75b34a079b487ffd6c07"
+    },
+    {
+      "path": "new42292/080090d0.txt",
+      "sha256": "c95ebf3454a41469ae0979f7577e3ecc147efe660fe5cc833ad02e448aa4d3e1"
+    },
+    {
+      "path": "new42292/0800911c.txt",
+      "sha256": "fabdfe0ef82958261be3685710b43eb31b5a515d07ee0594979a539b52311084"
+    }
+  ],
+  "independent_projects": [
+    "/Volumes/My Passport/eightsleep-analysis-work-20261108/legacy-control/sensor39704.gpr",
+    "/Volumes/My Passport/eightsleep-analysis-work-20261108/legacy-control/sensor42292.gpr"
+  ],
+  "metadata_repairs": "42292 callback 0800911c 创建函数；080090d0 body明确为080090d0..08009115，按已存在指令完整导出；不修改任何厂商字节。",
+  "not_claimed": [
+    "全部命令/全部故障组合",
+    "所有历史参数/所有第三方库",
+    "电路负载和引脚实际频率/强度",
+    "原固件在仿真器或实机运行",
+    "生产睡眠/分期/融合云端算法"
+  ],
+  "verification": {
+    "status": "passed",
+    "copied_sources_unchanged": 47,
+    "versions": {
+      "39704": {
+        "instruction_rows_matched": 4502,
+        "table_spans_matched": 58
+      },
+      "42292": {
+        "instruction_rows_matched": 5043,
+        "table_spans_matched": 102
+      }
+    },
+    "model": 33,
+    "vendor_execution": false,
+    "device_requests": false,
+    "scope": "retained instruction bytes, referenced raw tables, unchanged source copies, analyst normal models; no real hardware claim"
+  }
+}

@@ -1,0 +1,49 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+同包 libnats：同步发布、超时与去重边界
+2026-11-08；本机静态分析，不执行固件，不连接账号或设备。
+
+一、样本及方法
+输入是本次 MTK rootfs 的 lib64/libnats.so.3.11.0，498120 字节。
+SHA256=c58cea8d5e6a77c0f0530ea0ee8d7c34d28b624f592459541983f740408170f4。
+使用本地 Ghidra 12.1.4，新建独立持久工程 Nats；首次静态导入后，其余导出 -readOnly -noanalysis。会话未加载 REA MCP，不冒称 REA Evidence ID。
+下文地址是基址 00100000 的 Ghidra 地址，不能直接作为 ELF 文件偏移。
+27 份函数导出（包含 PLT 桩）、2465 条指令、9860 字节均已通过原 ELF 的 PT_LOAD 映射逐条比对。见 ASM_BYTE_VERIFICATION.json 和各 PASS 校验文件；字节相同不保证伪代码类型推断正确。
+另外保存官方 nats.c v3.11.0 源码作交叉参考，tag 对应提交 d457fac164db35d3a5d9e6caac187a0462756339。URL 和哈希见 upstream/PROVENANCE.json。版本名称相同不足以证明固件就是未经修改的该源码构建，结论以本包分支为准。
+
+二、js_Publish 返回 0 到底表示什么
+Frank 001970e0 连接 nats://localhost:4222，构造 JS 上下文；001afe00 的 worker 调用同步 js_Publish，不是 js_PublishAsync。
+本库 00122950 js_Publish 先初始化临时消息，调用 001225c0 js_PublishMsg，再清理临时消息头。
+001225c0 调用 0014d7f0 natsConnection_RequestMsg 等待响应；收到响应后交给 001218f0 js_unmarshalResponse 解析 JSON，检查 API error 的 code/err_code，随后尝试读出 stream、seq、duplicate、domain 到 PubAck。
+成功并不是单纯写 socket 成功；这是“本机请求收到响应，库解析流程未报错”。Frank 随后弹出发送队首并销毁 PubAck，不使用里面的 stream/seq/duplicate 另做一致性核验。
+但不要把它升级为“严格验证了完整 ACK”：00153634 nats_JSONGetField 遇到字段不存在或 JSON null 返回成功；00153794/00153d70/00153c14 分别将缺字段置为 null/0/false。因此，按已审计分支，一个可解析且没有非零 API 错误的空 JSON 对象也可走成功路径。此为静态推演，未向设备或服务端注入响应。
+该确认不证明 raw_mem 已落到磁盘，更不等于 uploader 的云端批次确认、云端持久化或睡眠算法完成。
+
+三、默认等待与超时后的歧义
+00122520 jsPubOptions_Init 清零64字节；MaxWait=0时，001225c0使用上下文 js+0x20。
+00121ee4 natsConnection_JetStream 在 options.Wait=0时写入5000。Frank已审计构造传入零初始化JS options，因此这条默认路径的请求等待参数是5000毫秒。
+0015c810 natsCondition_TimedWait 将毫秒目标转成 timespec，再调用 pthread_cond_timedwait。此参数不是整个发布操作严格不超过5秒的证明：连接、发送、调度以及可能再次等待均另有耗时。
+正常请求模式 0014d7f0 为请求登记 reply inbox，调用一次 natsConn_publish，再等待回应。它的等待循环不重新发布正文；Frank 外层失败后仍可重试，底层连接缓冲也属于另一层，不能据此写成“全链路绝无自动重发”。
+超时返回前会检查已到达的响应：若响应已经存入等待对象，仍可成功；无响应才返回 Timeout。退出会标记等待对象并移除映射。
+响应回调0014c7a0在正常inbox前缀/ID匹配分支按映射投递；对应请求已经移除/完成时，会释放迟到消息。另有兼容分支：subject较短或前缀不匹配，且映射恰有一项时，取出该唯一等待项。因此不把正常匹配分支泛化为任意异常subject下的全称保证；也不能将后来的迟到ACK自动计入下一次发布成功。
+于是，“已经被NATS接受但回应丢失/迟到”与“没有被接受”都可能在上层体现为失败。只有时间对齐的实机发送/服务端接收记录才能区分。
+状态文字通过本 ELF 的0014ee80索引表直接核验：0x0d Not Found、0x1a Timeout、0x22 No responders available for request，见STATUS_TABLE.json。连接状态枚举另有定义，不能把同一个数字跨枚举混用。
+
+四、消息ID与去重
+00120264仅在 options.MsgId（偏移+8）非空且首字节非零时添加 Nats-Msg-Id；没有自动生成MsgId。ExpectStream、ExpectLastMsgId、ExpectLastSeq等也仅在相应选项非零时设置。
+0013fbb0 natsMsg_init 清空消息头与相关字段；Frank调用的js_Publish使用此临时消息，不继承应用预设header。
+结合 Frank 当前已识别构造、worker与全局对象引用审计：其发布选项被清零，未找到把MsgId设置为每条消息稳定ID的路径。Frank 的正文seq字段不因此自动成为 NATS 去重头。
+限定结论：所审计Frank路径没有请求按 Nats-Msg-Id 去重；不能据此声称云端没有任何去重，也不能声称设备已实际产生重复。
+duplicate=true 若以正常响应返回，库仍可返回0；Frank不因该标记保留队首。它是响应状态，不是Frank主动执行了去重算法。
+
+五、默认请求模式与配置覆盖
+0014b470 natsOptions_Create calloc清零对象，001180d0 ConnectTo仅为此路径设置URL并建立连接。0015a8e0配置覆盖只写+0x50、+0x160、+0x161，不写选择旧请求模式的+0x168。因此已审计默认链选择共享reply映射的请求分支。
+旧请求分支也保留在0014d7f0中：独立订阅、发送一次、NextMsg等待。没有把未走的异步发布重试行为套在Frank同步调用上。
+
+六、剩余验证
+1. 与当前实机绑定Frank和libnats哈希，检查实际JS stream配置与消息headers。
+2. 在有合法主控观测入口后，对齐Frank入队/发布尝试、NATS stream seq与uploader批次ACK；记录重连、迟到回应、重复与缺口，不能从timeout单独推断。
+3. 生产心搏、呼吸、分离、融合、HRV和分期实现仍未取得。本项只解释传输确认，不补造生理算法。
+
+原始证据：pass1..pass4中的 .c/.asm.txt/.refs.txt，STATUS_TABLE.json，upstream/PROVENANCE.json，EVIDENCE_MAP.json，SOURCE_MANIFEST.json。

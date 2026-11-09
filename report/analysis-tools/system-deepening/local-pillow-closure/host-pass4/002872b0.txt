@@ -1,0 +1,59 @@
+TARGET 002872b0 function=002872b0
+REF_TO 004ceba4 INDIRECTION owner=none
+REF_TO 0056c241 DATA owner=none
+REF_TO 00505f24 DATA owner=none
+REF_TO 00220810 UNCONDITIONAL_CALL owner=00220590
+FUNCTION_BODY [[002872b0, 0028732b]]
+
+ulong FUN_002872b0(undefined1 *param_1,ulong param_2,long param_3)
+
+{
+  long lVar1;
+  long lVar2;
+  
+  if (param_2 < 10) {
+    return param_2;
+  }
+  *(undefined1 *)(param_3 + 10) = *param_1;
+  lVar1 = FUN_0045f6e0(param_1 + 1,param_3 + 4);
+  lVar2 = FUN_0045f6b4(param_1 + lVar1 + 1,param_3);
+  lVar2 = lVar1 + 1 + lVar2;
+  lVar1 = FUN_0045f6b4(param_1 + lVar2,param_3 + 8);
+                    /* catch(type#1 @ 00000000) { ... } // from try @ 00288cb8 with catch @ 00287310
+                       catch(type#1 @ 00000000) { ... } // from try @ 00288ce8 with catch @ 00287310
+                        */
+  return lVar2 + lVar1;
+}
+
+
+INSN 002872b0 5f2403d5 bti c
+INSN 002872b4 3f2400f1 cmp x1,#0x9
+INSN 002872b8 68000054 b.hi 0x002872c4 REF[CONDITIONAL_JUMP:002872c4]
+INSN 002872bc e00301aa mov x0,x1
+INSN 002872c0 c0035fd6 ret
+INSN 002872c4 3f2303d5 paciasp
+INSN 002872c8 fd7bbda9 stp x29,x30,[sp, #-0x30]! REF[WRITE:Stack[-0x30]]
+INSN 002872cc 41100091 add x1,x2,#0x4
+INSN 002872d0 fd030091 mov x29,sp
+INSN 002872d4 f35301a9 stp x19,x20,[sp, #0x10] REF[WRITE:Stack[-0x20]]
+INSN 002872d8 f40302aa mov x20,x2
+INSN 002872dc f51300f9 str x21,[sp, #0x20] REF[WRITE:Stack[-0x10]]
+INSN 002872e0 f50300aa mov x21,x0
+INSN 002872e4 02144038 ldrb w2,[x0], #0x1
+INSN 002872e8 822a0039 strb w2,[x20, #0xa]
+INSN 002872ec fd600794 bl 0x0045f6e0 REF[UNCONDITIONAL_CALL:0045f6e0]
+INSN 002872f0 13040091 add x19,x0,#0x1
+INSN 002872f4 e10314aa mov x1,x20
+INSN 002872f8 a002138b add x0,x21,x19
+INSN 002872fc ee600794 bl 0x0045f6b4 REF[UNCONDITIONAL_CALL:0045f6b4]
+INSN 00287300 7302008b add x19,x19,x0
+INSN 00287304 81220091 add x1,x20,#0x8
+INSN 00287308 a002138b add x0,x21,x19
+INSN 0028730c ea600794 bl 0x0045f6b4 REF[UNCONDITIONAL_CALL:0045f6b4]
+INSN 00287310 6102008b add x1,x19,x0
+INSN 00287314 e00301aa mov x0,x1
+INSN 00287318 f35341a9 ldp x19,x20,[sp, #0x10] REF[READ:Stack[-0x20]]
+INSN 0028731c f51340f9 ldr x21,[sp, #0x20] REF[READ:Stack[-0x10]]
+INSN 00287320 fd7bc3a8 ldp x29,x30,[sp], #0x30 REF[DATA:Stack[-0x30]]
+INSN 00287324 bf2303d5 autiasp
+INSN 00287328 c0035fd6 ret

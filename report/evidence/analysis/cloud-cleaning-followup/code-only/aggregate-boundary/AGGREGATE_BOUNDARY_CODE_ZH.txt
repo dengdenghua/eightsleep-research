@@ -1,0 +1,90 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+国行 App 三条健康界限序列：请求 → 响应 → Sample map → UI
+日期：2026-11-07；只使用已下载 APK 的代码和 Smali，不使用专利或宣传作实现证明。
+
+结论
+在 7.63.5-cn-tencent 的健康首页路径中，心率上界、HRV 下界、呼吸率上界是客户端向 aggregate 接口请求并接受的数值序列。三个具体处理器只是按枚举键从 Sample.double map 取值并包装图点，没有在此处用历史值、均值、标准差或原始传感信号生成界限。代码证明的是客户端职责；未取得服务器界限生成算法，也没有证明某台 Pod6 的当夜实际请求/响应。
+
+样本与定位
+APK SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+REA index_id：462a22f663ae482ea93bab3130b96eaf；index SHA256：4a6a63564ae05b2404ebdd218a5c579798c3486a83ddbf92bc913274641843a4。
+W=${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5/
+J=W/java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/
+S=W/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/
+S1=同一 decoded APK 目录下的 smali/。
+A01–A29 是本目录相同数字前缀的 request/response.json；E## 是既有 analysis/android-findings/hr-metrics/queries/ 证据；H## 是既有 health-results/queries/ 证据。全部来源、直接绝对路径、SHA256、REA ID 和行范围见 SOURCE_LEDGER.json。未重新提取或索引，未运行 APK、访问账户 API 或抓取真实数据。
+
+一、本轮新增与旧证据复核的区别
+新增闭合：健康首页实际调用默认参数函数，metrics 取 AggregateMetricType 全枚举；枚举 query 如何进入请求字符串；三个 wire name 如何解析成 DoubleStatistic、进入逐日 Sample.double map，以及三个 TrendMetricDataProcessor 的完整取值方法。
+旧结论复核：aggregate API/Retrofit 域名、response.periods 入缓存、聚合 avg/stdDev 的合并、健康首页把三对序列送入显示模型。这些在 APP_CARDIORESPIRATORY_PIPELINE_ZH.txt、APP_SLEEP_HEALTH_RESULTS_ZH.txt、APP_BASELINE_CODE_ZH.txt 已有证据，不计为本轮新算法发现。
+
+二、实际请求包含哪些 metric
+HealthCheckHomeViewModel$2$invokeSuspend$$inlined$flatMapLatest$1.invokeSuspend 在 194 行取 SmartFetchMetricAggregatesUseCase；204–206 行传两个 null 和 flags=0xE 调 P2.c.y。该调用是健康页实际观察流的一部分，不是只看到 METRIC_TYPES 常量。[A01]
+P2.c.y 的完整 Smali（6233–6295）先取 ZoneId.systemDefault；flags&4 非零时以 AggregateMetricType.getEntries() 转成 metrics 列表；flags&8 非零时 periods=[WEEK]。0xE 同时满足两项，随后传入 uc/g1。[A02]
+uc/g1.invokeSuspend 在 129–145 行把同一 metrics/periods 交给 MetricsRepository.smartFetchAggregates。smartFetch 先查询对应周期缓存，取组合流结果，只有该结果列表非空时才调用 fetchAggregates$default；否则返回成功结果流。因此这是“走到网络分支时会携带这些 metric”的静态证据，不是每次开页面必发请求，也不是已观察到线上服务器返回。[A03–A05]
+fetchAggregates$default 不筛选 metrics，只默认 refreshCache=false；正常 fetch 将 metrics 同时交给 pc/B（网络）与 pc/C（缓存响应处理）。[A26–A27]
+pc/B 将 metrics 用 k1/I(27) 映射后逗号连接，k1/I 的 case 27 明确返回 AggregateMetricType.getQuery()，再交给 Loc/b.a 的 metrics 查询参数。[E41,E66；A06]
+
+三对显示数据与 wire name：
+  HEART_RATE / WELLBEING_HR_UPPER  → hr / wellbeing_hr_upper
+  HRV / WELLBEING_HRV_LOWER        → hrv / wellbeing_hrv_lower
+  BREATH_RATE / WELLBEING_RR_UPPER → br / wellbeing_rr_upper
+这些六项均在全枚举中；三个界限枚举的 type 均是 AggregateStatisticResponse.DoubleStatistic。[A07,A25]
+注意 METRIC_TYPES 的六项是本页后续处理的选择集，不能把它误写成网络只请求六项。
+
+复用的网络边界：Loc/b.a 是 GET v1/users/{USER_ID}/metrics/aggregate?v2=true，含 to/tz/metrics/periods/refreshCache。MetricsRepository 注入的服务来自 ce/l.X3，CHINA 配置组合出的 host 是 app-api-proxy.8slp.net.cn；与 trends 的 client-api-proxy.8slp.net.cn 不同。[E36,E82,E83；旧报告的 X3/CHINA 构造证据]
+
+直接来源：
+S/com/eightsleep/presentation_metrics/viewmodel/HealthCheckHomeViewModel$2$invokeSuspend$$inlined$flatMapLatest$1.smali:188–230
+S1/P2/c.smali:6233–6295
+S/uc/g1.smali:129–155
+S/com/eightsleep/data_metrics/data/repository/MetricsRepository.smali:1646–1887、382–411
+J/com/eightsleep/data_metrics/data/repository/MetricsRepository.java:269–276
+J/p378pc/B.java:65–70；S/pc/B.smali:100–197；J/p247k1/I.java:122–125
+J/com/eightsleep/data_metrics/enums/AggregateMetricType.java:142、157–159、172–174、186–214
+
+三、返回数值如何成为 Sample.double map
+pc/C 取 MetricsAggregateResponse.periods 调 xc/c.i；AggregatePeriodResponseJsonAdapter 的字段包含 samples。AggregatePeriodResponse.toDomain 在 267–273 行逐项调用 SampleResponse.toDomain，并把列表交给 RawAggregatePeriod。[E42,E46,E48]
+SampleResponseJsonAdapter 读取 date、metrics；metrics 是 List<AggregateStatisticResponse>。AggregateStatisticResponseAdapter.fromJson 读取 name，并按 getQuery 匹配 AggregateMetricType；对应 DoubleStatistic 的 value 走 JsonReader.nextDouble，然后直接构造 DoubleStatistic(name,value)。ce/l.m3 的 Moshi 配置确实注册了这个 adapter。[A08–A11；H41 的 ce/l.smali:8487–8491]
+这条解析路径没有从 hr/hrv/br 数值推导 wellbeing_* 界限。wire name 决定类型和值的归属；数值本身来自 JSON。这里没有构造“真实响应样本”。
+SampleResponse.toDomain 筛出 DoubleStatistic，然后执行 map.put(getName(),getValue())。构造 RawSample 的第二个参数就是该 map；RawSample 保存为 b。RawAggregatePeriod.b(displaySettings) 创建 Sample 时继续传 RawSample.b，时间/LocalTime 另做显示包装。[A12–A14,A24,A29；E52]
+
+缓存范围必须分清：xc/c.i 对 aggregate 级别的 map 有旧新合并，stdDev map 还有缺省 0，旧报告已指出，不能称整个缓存无条件透传。[E68]
+本次专门复核的合并分支在 1016–1026 行把 RawAggregatePeriod.j 样本列表交给新 RawAggregatePeriod，随后形成缓存实体。三个界限消费者读取的是 Sample.b，既不是 aggregate.stdDev，也不执行那个缺省 0 分支。[A15；E68] 本报告不穷尽缓存失效、网络错误与新鲜度策略。
+
+直接来源：
+J/com/eightsleep/data_metrics/data/model/SampleResponseJsonAdapter.java:10–21、40–66
+J/com/eightsleep/data_metrics/data/adapters/AggregateStatisticResponseAdapter.java:12–30、54–59
+S/com/eightsleep/data_metrics/data/adapters/AggregateStatisticResponseAdapter.smali:108–210、429–470
+S/com/eightsleep/data_metrics/data/model/SampleResponse.smali:273–359、935–941
+J/com/eightsleep/data_metrics/data/model/SampleResponse.java:67–197
+J/com/eightsleep/data_metrics/domain/model/RawSample.java:35–44
+S/com/eightsleep/data_metrics/domain/model/RawAggregatePeriod.smali:343–398
+S/xc/c.smali:1010–1077
+
+四、Sample → processor → 三对 UI 序列
+旧 H64 已闭合健康页观察者将 trends、aggregate 列表最后项、tags、pregnancyMode 交给 updateContent。这是实际消费者入口。[H64]
+updateContent 从 AggregatePeriod.j 取 Sample，按显示日期筛选，建立 date→Sample map（1421–1510）；随后遍历 METRIC_TYPES，为每项选 dataProcessors 中同 key 的处理器，按日期取 Sample，以 WEEK 调 transformPeriodData（2065–2288），把返回图点加入列表，存入 metric→list map（2392–2446）。[A16–A19,A23]
+三个具体处理器 constructor 绑定各自界限枚举；完整 transformPeriodData 均为 66–109 行：
+  RestingHeartRateTrendMetricDataProcessor     → Sample.b[WELLBEING_HR_UPPER]
+  HeartRateVariabilityTrendMetricDataProcessor → Sample.b[WELLBEING_HRV_LOWER]
+  BreathRateTrendMetricDataProcessor          → Sample.b[WELLBEING_RR_UPPER]
+每个方法只有取 map、按 key get、转 Double、构造 wg/r0；Sample 不存在或键缺失时值为 null。wg/r0 的完整构造器只保存 Double/date/标志，没有改变 Double。[A20–A22,A28]
+最后 updateContent 在 2488–2872 行取三对列表构造显示模型：HEART_RATE+HR_UPPER、HRV+HRV_LOWER、BREATH_RATE+RR_UPPER。这里复用上轮 detail-ui-2460/2590/2720 的完整保存证据，不重复生成。[原 app-bridge 三项]
+
+直接来源：
+J/com/eightsleep/presentation_metrics/viewmodel/HealthCheckHomeViewModel.java:59–65
+S/com/eightsleep/presentation_metrics/viewmodel/HealthCheckHomeViewModel.smali:1421–1510、2065–2210、2288、2392–2446、2488–2872
+S/com/eightsleep/presentation_metrics/viewmodel/chartprocessors/RestingHeartRateTrendMetricDataProcessor.smali:54–109
+S/com/eightsleep/presentation_metrics/viewmodel/chartprocessors/HeartRateVariabilityTrendMetricDataProcessor.smali:54–109
+S/com/eightsleep/presentation_metrics/viewmodel/chartprocessors/BreathRateTrendMetricDataProcessor.smali:54–109
+S/wg/r0.smali:20–38
+
+五、能与不能据此得出的执行位置结论
+能：在这条已编译客户端链上，界限已作为响应数值到达，手机承担类型解析、map/缓存组织、日期选择和图点包装。三项处理器没有本地生成/重算界限的调用，也未见它们把 dayOfWeekAverage、dayOfWeekStdDev 或异常上下界 DTO 字段送入生成器。没有在此链发现尚需追踪的本地界限生产函数。
+不能：据此指定服务端用 EMA、固定窗长、特定异常分布、U-Net 或任何融合/清洗公式；不能把返回上界/下界等同整个后台异常判定；不能证明固件或 App 其它路径完全无数据处理。原始波形清洗、心搏/呼吸提取、多通道融合和界限的服务端 producer 仍未取得。
+本轮没有新的原始生理算法入口。可执行的后续只在新增原厂服务端实现/部署物或经授权的实际响应出现后，验证具体生成逻辑和版本绑定；从这三个图点消费者继续追一般绘图不会补出原始清洗算法。
+
+覆盖边界：同一国行 APK 静态观察；JADX partial（原有约 350 errors），关键默认参数、parser Double 分支、map 与三个完整处理器另有 Smali。只保留了所需 parser 分支，不声称对所有统计子类型、所有缓存分支或整个 App 做完审计。SOURCE_LEDGER.json 记录原始查询是否仍有后续文件行；read 的 has_more 仅表示文件还未到尾，不代表已声明完整的三个处理器正文被截断。

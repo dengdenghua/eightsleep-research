@@ -1,0 +1,69 @@
+TARGET 0800a0ec function=0800a0ec
+REF_TO 0800b4e6 UNCONDITIONAL_CALL owner=0800b448
+REF_TO 0800b656 UNCONDITIONAL_CALL owner=0800b448
+REF_TO 0800b6b0 UNCONDITIONAL_CALL owner=0800b448
+FUNCTION_BODY [[0800a0ec, 0800a133]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_0800a0ec(int param_1)
+
+{
+  int iVar1;
+  char *pcVar2;
+  
+  if (*(char *)(param_1 + 0x1c) == '\0') {
+    return;
+  }
+  if (0x6ff < DAT_200001e4) {
+    _DAT_e000e180 = 0x80;
+    iVar1 = FUN_08009dcc(*(undefined4 *)(param_1 + 0x34),0);
+    if (iVar1 == 0) {
+      pcVar2 = "failed to set external adc channels";
+      goto LAB_0800a114;
+    }
+    *(undefined1 *)(param_1 + 0x44) = 0;
+  }
+  pcVar2 = "Sampling stopped";
+  _DAT_40002000 = _DAT_40002000 & 0xfffe;
+  *(undefined1 *)(param_1 + 0x1c) = 0;
+LAB_0800a114:
+  FUN_0800991c(pcVar2);
+  return;
+}
+
+
+INSN 0800a0ec 10b5 push {r4,lr}
+INSN 0800a0ee 037f ldrb r3,[r0,#0x1c]
+INSN 0800a0f0 0400 movs r4,r0
+INSN 0800a0f2 002b cmp r3,#0x0
+INSN 0800a0f4 10d0 beq 0x0800a118 REF[CONDITIONAL_JUMP:0800a118]
+INSN 0800a0f6 0f4a ldr r2,[0x0800a134] REF[READ:0800a134=200001d4]
+INSN 0800a0f8 0f4b ldr r3,[0x0800a138] REF[READ:0800a138=6ff]
+INSN 0800a0fa 128a ldrh r2,[r2,#0x10] REF[READ:200001e4]
+INSN 0800a0fc 9a42 cmp r2,r3
+INSN 0800a0fe 10d9 bls 0x0800a122 REF[CONDITIONAL_JUMP:0800a122]
+INSN 0800a100 8022 movs r2,#0x80
+INSN 0800a102 0e4b ldr r3,[0x0800a13c] REF[READ:0800a13c=e000e104]
+INSN 0800a104 0021 movs r1,#0x0
+INSN 0800a106 da67 str r2,[r3,#0x7c] REF[WRITE:e000e180]
+INSN 0800a108 406b ldr r0,[r0,#0x34]
+INSN 0800a10a fff75ffe bl 0x08009dcc REF[UNCONDITIONAL_CALL:08009dcc]
+INSN 0800a10e 0028 cmp r0,#0x0
+INSN 0800a110 03d1 bne 0x0800a11a REF[CONDITIONAL_JUMP:0800a11a]
+INSN 0800a112 0b48 ldr r0,[0x0800a140] REF[READ:0800a140=800e9fd] REF[PARAM:0800e9fd=6c696166]
+INSN 0800a114 fff702fc bl 0x0800991c REF[UNCONDITIONAL_CALL:0800991c]
+INSN 0800a118 10bd pop {r4,pc}
+INSN 0800a11a 2300 movs r3,r4
+INSN 0800a11c 0022 movs r2,#0x0
+INSN 0800a11e 4433 adds r3,#0x44
+INSN 0800a120 1a70 strb r2,[r3,#0x0]
+INSN 0800a122 0121 movs r1,#0x1
+INSN 0800a124 074a ldr r2,[0x0800a144] REF[READ:0800a144=40002000] REF[PARAM:40002000]
+INSN 0800a126 0848 ldr r0,[0x0800a148] REF[READ:0800a148=800ea21] REF[PARAM:0800ea21=706d6153]
+INSN 0800a128 1388 ldrh r3,[r2,#0x0] REF[READ:40002000]
+INSN 0800a12a 8b43 bics r3,r1
+INSN 0800a12c 1380 strh r3,[r2,#0x0] REF[WRITE:40002000]
+INSN 0800a12e 0023 movs r3,#0x0
+INSN 0800a130 2377 strb r3,[r4,#0x1c]
+INSN 0800a132 efe7 b 0x0800a114 REF[UNCONDITIONAL_JUMP:0800a114]

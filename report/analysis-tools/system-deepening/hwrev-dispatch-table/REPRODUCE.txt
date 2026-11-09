@@ -1,0 +1,83 @@
+nonUSB hwrev 14 项分派表 · 复跑说明
+2026-11-08
+
+一、不需要 Ghidra 的复核（推荐先跑）
+
+  cd report/analysis-tools/system-deepening/hwrev-dispatch-table
+  python3 scripts/verify_dispatch_map.py       # 109 项字节核验
+  python3 model/apply_dispatch.py             # 16 边界 / 26 断言
+  python3 scripts/write_source_manifest.py    # 输入 SHA256 清单
+
+前提只有本目录 pass1/pass2 的导出文本，以及冻结归档里的原件：
+
+  materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/lib/subsystem_updates/
+    firmware-sensor-g0.bbin   132896B   SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+
+verify_dispatch_map.py 逐条把导出 INSN 机器码、flash literal、BL/直接分支目标对回
+原件；独立断言 0x08025da4 的 14 行阈值表、0x08024234 的 14 个版本字符串、
+0801d8cc 的 cmp r5,#0xe、8MHz 常数；对 14 个 setter 各自检查字符串指针 literal
+在**整个镜像中唯一**、slot0 写入指令及其字节、7 个 slot1 写入及 literal；对
+0800fd25 / 0800fd31 这两段工程未反汇编的 setter 直接断言原始字节，并用一个只覆盖
+所需指令的 16 位 Thumb 子集解码器复算每条半字语义；最后做一次全镜像 Thumb-2 BL
+目标扫描，核对 5 组调用点集合。输出 BYTE_VALIDATION.json 与 DISPATCH_TABLE_MAP.json。
+
+model/apply_dispatch.py 只读 DISPATCH_TABLE_MAP.json，按阈值累加应用 14 行（含两次
+内联 BL 重放），在 16 个 hwrev 边界算出最终版本名、init 指针、时钟入口与 HSE 软件
+输入，含 26 条断言，输出 DISPATCH_SIMULATION.json。
+
+三个脚本都只把 BBIN 当数据读，不执行固件、不联网、不访问设备或账号。
+
+二、需要 Ghidra 才能重做的事：重新导出
+
+工具与工程（都在分析机上，不属于交付包）：
+
+  analyzeHeadless  /opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless
+  JAVA_HOME        /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+  工程目录          /Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra
+  工程文件          NonUsbSensor.gpr        程序名 firmware-sensor-g0.bbin
+  脚本目录          report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts
+  脚本              ExportSensorDiff.java
+
+设置变量（把 EIGHTSLEEP 换成本项目根目录的绝对路径）：
+
+  EIGHTSLEEP="/Volumes/My Passport/EightSleep"
+  GHIDRA_PROJECT_DIR="/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra"
+  SCRIPT_DIR="$EIGHTSLEEP/report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts"
+  HEADLESS="/opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless"
+  export JAVA_HOME="/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home"
+  export PATH="$JAVA_HOME/bin:$PATH"
+  D="$EIGHTSLEEP/report/analysis-tools/system-deepening/hwrev-dispatch-table"
+
+  "$HEADLESS" "$GHIDRA_PROJECT_DIR" NonUsbSensor \
+    -process firmware-sensor-g0.bbin -readOnly -noanalysis \
+    -scriptPath "$SCRIPT_DIR" -postScript ExportSensorDiff.java \
+    "$D/pass1" 0800f58d 0800f719 0800f761 0800f969 0800fafd 0800fae1 \
+      0800fc05 0800fc65 0800fc99 0800fcc1 0800fce1 0800fd0d 0800fd25 0800fd31 \
+      "0800fd00:0800fd70"
+
+  "$HEADLESS" "$GHIDRA_PROJECT_DIR" NonUsbSensor \
+    -process firmware-sensor-g0.bbin -readOnly -noanalysis \
+    -scriptPath "$SCRIPT_DIR" -postScript ExportSensorDiff.java \
+    "$D/pass2" 08012275 08012274 "08012270:08012320"
+
+说明：
+
+  - -readOnly -noanalysis：只读打开既有工程、不自动分析、不写回工程。
+  - ExportSensorDiff.java 内置 SHA256 守门，输入不是 51531576…c6a891 会直接报错退出。
+  - 表里 callee 是 Thumb 奇数指针，脚本用 getFunctionContaining 解析到偶数入口；
+    function=none 时只输出 TARGET/REF_TO，这类区域改用 start:end 范围导出。
+  - 0800fd00:0800fd70 里 0800fd1a..0800fd44 没有任何已解码指令是预期结果：
+    工程没反汇编这两段 setter，所以本轮改用原始半字解码，不修改工程。
+  - 重跑会覆盖 pass* 里的导出文本；要保留本次产物就先另存目录。
+  - 交付包不依赖这个 Ghidra 工程。工程丢失时，已发布结论仍可用第「一」步复核。
+
+三、产物对照
+
+  FINDINGS_ZH.txt            完整中文结论与边界
+  DISPATCH_TABLE_MAP.json    14 行一一映射、表布局、字符串序差异、调用图
+  DISPATCH_SIMULATION.json   16 个 hwrev 边界的累加结果 / 26 条断言
+  BYTE_VALIDATION.json       109 项逐字节 / literal / 分支 / BL 核验
+  SOURCE_MANIFEST.json       输入文件 SHA256 清单
+  COVERAGE_RESIDUAL.json     本轮闭合项与残余缺口
+  EXPORT_COMMANDS.json       机器可读的导出命令与参数
+  REPRODUCE.txt              本文件

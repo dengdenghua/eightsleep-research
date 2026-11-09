@@ -1,0 +1,39 @@
+TARGET 08012d1c function=08012d1c
+REF_TO 08013a1a UNCONDITIONAL_CALL owner=08013988
+REF_TO 08013a98 UNCONDITIONAL_CALL owner=08013988
+REF_TO 08013b50 UNCONDITIONAL_CALL owner=08013ac0
+REF_TO 08013bce UNCONDITIONAL_CALL owner=08013ac0
+REF_TO 080132ae UNCONDITIONAL_CALL owner=none
+REF_TO 08013394 UNCONDITIONAL_CALL owner=none
+REF_TO 08013c3c UNCONDITIONAL_CALL owner=08013bf8
+FUNCTION_BODY [[08012d1c, 08012d41]]
+
+void FUN_08012d1c(int *param_1,uint param_2,int param_3,uint param_4,uint param_5)
+
+{
+  *(uint *)(*param_1 + 4) =
+       (param_3 << 0x10 | param_4 | param_5) & 0x7fffffff | param_2 & 0x3ff |
+       *(uint *)(*param_1 + 4) & ~(param_5 >> 0x15 | 0x3ff63ff);
+  return;
+}
+
+
+INSN 08012d1c 30b5 push {r4,r5,lr}
+INSN 08012d1e 039c ldr r4,[sp,#0xc] REF[READ:Stack[0x0]]
+INSN 08012d20 0068 ldr r0,[r0,#0x0]
+INSN 08012d22 2343 orrs r3,r4
+INSN 08012d24 1204 lsls r2,r2,#0x10
+INSN 08012d26 8905 lsls r1,r1,#0x16
+INSN 08012d28 1a43 orrs r2,r3
+INSN 08012d2a 890d lsrs r1,r1,#0x16
+INSN 08012d2c 054b ldr r3,[0x08012d44] REF[READ:08012d44=3ff63ff]
+INSN 08012d2e 4568 ldr r5,[r0,#0x4]
+INSN 08012d30 0a43 orrs r2,r1
+INSN 08012d32 640d lsrs r4,r4,#0x15
+INSN 08012d34 2343 orrs r3,r4
+INSN 08012d36 5200 lsls r2,r2,#0x1
+INSN 08012d38 9d43 bics r5,r3
+INSN 08012d3a 5208 lsrs r2,r2,#0x1
+INSN 08012d3c 2a43 orrs r2,r5
+INSN 08012d3e 4260 str r2,[r0,#0x4]
+INSN 08012d40 30bd pop {r4,r5,pc}

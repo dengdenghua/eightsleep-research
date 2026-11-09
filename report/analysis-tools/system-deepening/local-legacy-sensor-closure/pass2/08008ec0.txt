@@ -1,0 +1,78 @@
+TARGET 08008ec0 function=08008ec0
+REF_TO 080095ac UNCONDITIONAL_CALL owner=08009528
+REF_TO 08009606 UNCONDITIONAL_CALL owner=08009528
+FUNCTION_BODY [[08008ec0, 08008f07]]
+
+int FUN_08008ec0(undefined1 *param_1,uint param_2,undefined4 *param_3)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  undefined4 uVar3;
+  int iVar4;
+  
+  if (DAT_20000154 == 1) {
+    uVar3 = param_3[2];
+    uVar2 = param_3[3];
+  }
+  else {
+    uVar3 = *param_3;
+    uVar2 = param_3[1];
+  }
+  iVar4 = 0;
+  if (3 < param_2) {
+    *param_1 = (char)((uint)uVar3 >> 0x18);
+    param_1[1] = (char)((uint)uVar3 >> 0x10);
+    param_1[2] = (char)((uint)uVar3 >> 8);
+    param_1[3] = (char)uVar3;
+    iVar4 = 4;
+  }
+  iVar1 = 0;
+  if (3 < param_2 - iVar4) {
+    param_1 = param_1 + iVar4;
+    *param_1 = (char)((uint)uVar2 >> 0x18);
+    param_1[1] = (char)((uint)uVar2 >> 0x10);
+    param_1[2] = (char)((uint)uVar2 >> 8);
+    iVar1 = 4;
+    param_1[3] = (char)uVar2;
+  }
+  return iVar1 + iVar4;
+}
+
+
+INSN 08008ec0 114b ldr r3,[0x08008f08] REF[READ:08008f08=20000154]
+INSN 08008ec2 30b5 push {r4,r5,lr}
+INSN 08008ec4 1b68 ldr r3,[r3,#0x0] REF[READ:20000154]
+INSN 08008ec6 012b cmp r3,#0x1
+INSN 08008ec8 1bd1 bne 0x08008f02 REF[CONDITIONAL_JUMP:08008f02]
+INSN 08008eca 9468 ldr r4,[r2,#0x8]
+INSN 08008ecc d368 ldr r3,[r2,#0xc]
+INSN 08008ece 0025 movs r5,#0x0
+INSN 08008ed0 0329 cmp r1,#0x3
+INSN 08008ed2 07d9 bls 0x08008ee4 REF[CONDITIONAL_JUMP:08008ee4]
+INSN 08008ed4 220e lsrs r2,r4,#0x18
+INSN 08008ed6 0270 strb r2,[r0,#0x0]
+INSN 08008ed8 220c lsrs r2,r4,#0x10
+INSN 08008eda 4270 strb r2,[r0,#0x1]
+INSN 08008edc 220a lsrs r2,r4,#0x8
+INSN 08008ede 8270 strb r2,[r0,#0x2]
+INSN 08008ee0 c470 strb r4,[r0,#0x3]
+INSN 08008ee2 0435 adds r5,#0x4
+INSN 08008ee4 491b subs r1,r1,r5
+INSN 08008ee6 0022 movs r2,#0x0
+INSN 08008ee8 0329 cmp r1,#0x3
+INSN 08008eea 08d9 bls 0x08008efe REF[CONDITIONAL_JUMP:08008efe]
+INSN 08008eec 4019 adds r0,r0,r5
+INSN 08008eee 1a0e lsrs r2,r3,#0x18
+INSN 08008ef0 0270 strb r2,[r0,#0x0]
+INSN 08008ef2 1a0c lsrs r2,r3,#0x10
+INSN 08008ef4 4270 strb r2,[r0,#0x1]
+INSN 08008ef6 1a0a lsrs r2,r3,#0x8
+INSN 08008ef8 8270 strb r2,[r0,#0x2]
+INSN 08008efa 0422 movs r2,#0x4
+INSN 08008efc c370 strb r3,[r0,#0x3]
+INSN 08008efe 5019 adds r0,r2,r5
+INSN 08008f00 30bd pop {r4,r5,pc}
+INSN 08008f02 1468 ldr r4,[r2,#0x0]
+INSN 08008f04 5368 ldr r3,[r2,#0x4]
+INSN 08008f06 e2e7 b 0x08008ece REF[UNCONDITIONAL_JUMP:08008ece]

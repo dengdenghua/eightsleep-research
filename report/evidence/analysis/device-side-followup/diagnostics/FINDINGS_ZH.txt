@@ -1,0 +1,67 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+气囊附件诊断：字段字节布局、状态枚举与故障后的校准动作
+2026-11-07；已下载官方 MTK 样本的 Eight.Firmness / Capybara 离线分析。未连接账号、设备、RPC、邮箱或网络，没有发控制命令或读取凭据。
+
+结论与新增内容
+此前只读入口报告已经证明 debugfirmness/get 存在并返回 FirmwareInfo；本报告不把这一点重复算作新发现。本次补到：遥测命令→字节布局→最新状态→调试DTO，以及状态 5/6 导致校准失败/恢复动作的正向调用链。
+这是 Balloon/Firmness 的充放气附件：有气囊、泵、充气阀和放气阀；不能拿它替代 Pod6 K60 压电/IMU 生理传感器诊断。默认允许配件件号为 20400/20401，且可受运行配置覆盖；没有证明用户实机安装此附件。未恢复 SafetyReason/FaultReason 的具体值或各故障位定义。
+
+1. 已注册入口及状态来源 [D01–D08]
+Capybara HandlerExtensions.RegisterHandlers(fullFeatures=true)→RegisterFirmnessController→AddScopedController<FirmnessDebugController>。handler 属性为 debugfirmness/get，接 Side；它沿既有 DeviceAPI function 分派，不等于一个可以猜出的手机 HTTP GET 地址。
+FirmnessReadyState.DeviceType="Balloon"，逐包更新 DeviceState：
+  0x59 → ParsePressureTelemetry → PressureTelemetry
+  0x5A → ParseControlTelemetry → ControlTelemetry
+  0x5B → ParseCurrentTelemetry → CurrentTelemetry
+  0x5D → ParseHealthTelemetry → HealthTelemetry
+每类独立替换最新状态；解析失败捕获并记录警告，未把先前缓存自动清零。调试GET必须有至少4路pressure和4个control bag，且hardware/firmware已就绪；电流/健康遥测允许null。
+普通状态分类另外有 UnknownAccessory（未配置）、OfflineAccessory（断开/bootloader无响应）、AccessoryInitialization（启动/更新/恢复中）以及校准中的 BadRequest。这些是服务状态错误分类，不是 MCU SafetyReason/FaultReason 数值表。
+
+2. 压力 0x59：协议偏移从 payload 起算 [D05,D09,D10]
+  0..1：u16大端 frequency；2：u8 sensorCount S；3..6：u32大端 deviceTimestampMs。
+  7起：按传感器分组，每组 N 个样本；每个样本 float32大端 pressure，然后 float32大端 temperature，共8字节。
+  N=(payloadLength-7)/(8*S)，不整除抛异常；压力值直接保存，温度四舍五入至两位小数。
+ambient 并非硬编码最后一个索引：从尾部向前找到“至少一个pressure>0”的通道作为ambient；全无则回退最后通道，其余作为Sensors。无S=0显式保护，零计数会在解析中出错；不能据此推断实机实际发送零计数。
+调试 GaugePressureKpa=该bag压力列表末值−ambient列表末值；空列表分别回退0。RawPressureTelemetry 的压力/温度数组仍保留各通道列表，CurrentPressureKpa/TargetPressureKpa 则另来自控制包。因此两个“当前压力”来源不同，不能假定逐点同步或数值必相等。
+此代码未作跨传感器时间对齐/设备时钟新鲜度验证；debug/get 是最新缓存快照，不能当成完整连续波形导出。
+
+3. 控制状态 0x5A：可以解码状态，不能猜故障原因 [D05,D11–D13]
+头8字节：
+  0..3 u32大端deviceTimestampMs；4 schedulerState；5 selectedBagsMask；6 numBagsSteady；7 isSleeping=(byte!=0)。
+余下每bag 11字节，bag数必须4或5，总长度52或63：
+  B=8+11*i；B..B+3 float32大端setpointKpa；B+4..B+7 float32大端currentPressureKpa；
+  B+8 fsmState；B+9 safetyReason；B+10 faultReason。
+两个压力保存为两位小数；bagId来自循环索引i。
+
+BagFsmState精确枚举：0 Off，1 Steady，2 Inflate，3 Deflate，4 HoldOpen，5 Safety，6 Fault，7 Oscillation。
+SchedulerState精确枚举：0 Scheduling，1 Setup，2 Running，3 Cleanup，4 Sleep。
+SelectedBagsMask 的位0..4分别选择bag0..4，GetSelectedBagIds 实际用 mask&(1<<i)。这是已证位掩码；SafetyReason/FaultReason 没有相同证据，不能宣称它们也是bitmask。
+IsAdjusting 仅FSM 2/3为true；本次从原 Eight.Firmness.dll 导出方法IL确认 unsigned 比较 (state-2)<=1，避免照抄反编译器的模糊enum算式。
+调试DTO把FSM转字符串，但SafetyReason/FaultReason保持byte；普通/增强NATS上报同样传递原因值。限定源码搜索只找到解析、记录、转发，没有找到数值→故障名称映射或逐位判断。
+isSleeping 是此气囊控制遥测里的状态字节；本链没有给出它由人体睡眠算法生成的证据。
+
+4. 电流 0x5B 与健康遥测 0x5D [D05,D14–D16]
+0x5B：同0x59的7字节头；sensorCount必须4。每通道N个float32大端；总长度7+16*N；通道顺序绑定V12Ma、V5Ma、SolenoidMa、PumpMa，值保留两位小数。代码单位名为mA，没有在此乘比例。不能据此拿到硬件ADC标定或实际电流阈值。
+0x5D：最少53字节，先u32大端deviceTimestampMs。
+  v1按长度识别：第4字节为4/5气囊数，长度5+8*bagCount+16，即53/61。
+  其余分支：第4字节version>=2，第5字节bagCount=4/5，长度6+8*bagCount+16+4，即58/66。
+  每气囊先充气阀温度、再放气阀温度，各float32大端；随后pump0温、pump1温、ambient温、ambient湿度各float32大端；保存两位小数。
+  v>=2末尾多两个u16大端pump0Rpm/pump1Rpm；v1这两个值由主机填0，不代表实测泵停止。
+调试DTO明确温度命名TempC、湿度HumidityPct。解析器接受>=2的相同布局，并不证明所有未来版本真实兼容。未在这条遥测消费链发现温度/电流越限阈值。
+
+5. 找到真实故障后软件动作，但范围是landing校准 [D17–D24]
+LandingTelemetry.FsmState 从增强0x5E control的bag状态读取，不能把它说成普通debug GET触发控制，也不能混作普通0x5A刷新路径。
+LandingRunStateMachine.Guard 对已选bag检查FSM 5/6（Safety/Fault）；本次独立导出Guard IL，确认 unsigned (state-5)<=1。命中时返回错误；提示列举了压力传感器故障、过压、过流、过温这些可能类别，但没有把具体FaultReason值映射到这些词。
+Advance将运行结果置Failed并进入Restore；Restore产生AllOff与恢复原补偿系数动作。AllOff生成各bag的-1f setpoint；CalibrationRunner.TickLanding执行返回动作，SendLandingAction经0x52发送float32小端setpoint；补偿经0x53发送。这个主机意图是停止控制并恢复入口配置，未实测MCU执行效果；不宣称所有日常故障都经过此校准逻辑。
+另有可见guard：MaxGaugeKpa达到CeilingKpa，或距最近有效定时压力样本超过TelemetryStale也进入失败恢复；LandingTimings默认12kPa/10秒，可init覆盖，不是全产品故障阈值。
+校准的定时压力消费另有真实筛选：压力与时间轴按DeviceTimestampMs/LegacyFirstTimestampMs连接；仅当两路压力有限且>=50kPa、时间点存在时，才做bag−ambient并更新有效样本时间。它属于气囊校准数据筛选，不能当作睡眠/心搏信号清洗算法。
+
+6. 剩余缺口
+- SafetyReason/FaultReason的数值/bit含义及MCU如何触发/锁定/解除，仍需对应气囊板固件实现。现有C#证据不足以列出“bit0过流、bit1过温”等表。
+- 没有把这份气囊组件绑定到用户Pod6的真实运行版本/附件清单，未获得实际故障码或测量值。
+- 设备RPC→账号可用手机HTTP接口仍未建立。这里没有新增可直接调用的云端诊断GET。
+- 已有FirmwareInfo.RawData是固件信息响应，不是固件镜像；本报告没有新增固件下载入口。
+
+复核材料
+SOURCE_EXCERPTS.json：本文D编号的精确原文件、SHA256、行号与源码片段；ASSEMBLIES.json：原程序集哈希；il/：从同一原DLL仅导出的两个成员IL，工具11.2.0.10050、--disable-updatecheck、成功退出且无stderr。没有执行目标程序集。VALIDATION.json只核对所引用文件和片段，不宣称实机验证。

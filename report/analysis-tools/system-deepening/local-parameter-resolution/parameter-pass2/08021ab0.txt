@@ -1,0 +1,247 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+char FUN_08021ab0(int *param_1,uint param_2)
+
+{
+  undefined1 uVar1;
+  char cVar2;
+  char *pcVar3;
+  int iVar4;
+  undefined4 uVar5;
+  int iVar6;
+  undefined4 uVar7;
+  undefined1 *puVar8;
+  uint local_20;
+  
+  if (((char)param_1[5] != '\0') && (param_2 < 2)) {
+    iVar6 = *param_1;
+    puVar8 = (undefined1 *)(param_1[4] + param_2 * 0x34);
+    uVar1 = *(undefined1 *)(param_1[4] + param_2 * 0x34);
+    if (iVar6 == 0) {
+      pcVar3 = "[mode] failed to set pump speed cap to %u%%";
+    }
+    else {
+      iVar4 = iVar6 + (uint)*(byte *)(iVar6 + 0x230) * 0x44;
+      for (; iVar6 != iVar4; iVar6 = iVar6 + 0x44) {
+        *(undefined1 *)(iVar6 + 0x10) = uVar1;
+      }
+      *(undefined1 *)(param_1[1] + 0x115) = uVar1;
+      iVar6 = param_1[2];
+      local_20 = 0;
+      if (iVar6 != 0) {
+        for (; local_20 < *(byte *)(iVar6 + 0x3f0); local_20 = local_20 + 1 & 0xff) {
+          iVar4 = local_20 * 0xa8;
+          if (*(char *)(iVar6 + iVar4 + 0xa4) != '\0') {
+            FUN_08021a14(iVar6 + iVar4 + 4,*(undefined4 *)(puVar8 + 4),puVar8[8],
+                         *(undefined4 *)(puVar8 + 0xc),puVar8[0x10],puVar8[0x11],
+                         *(undefined4 *)(puVar8 + 0x14),puVar8[0x18],*(undefined4 *)(puVar8 + 0x1c))
+            ;
+            FUN_08021a14(iVar6 + iVar4 + 0x54,*(undefined4 *)(puVar8 + 4),puVar8[8],
+                         *(undefined4 *)(puVar8 + 0xc),puVar8[0x10],puVar8[0x11],
+                         *(undefined4 *)(puVar8 + 0x14),puVar8[0x18],*(undefined4 *)(puVar8 + 0x1c))
+            ;
+          }
+        }
+      }
+      iVar6 = param_1[1];
+      if ((iVar6 == 0) || (*(char *)(iVar6 + 0x14c) == '\0')) {
+        pcVar3 = "[mode] failed to set sleep duration %u";
+      }
+      else {
+        *(undefined4 *)(iVar6 + 0x140) = *(undefined4 *)(puVar8 + 0x20);
+        FUN_08017634("[scheduler] sleep duration set to %u sec");
+        iVar6 = param_1[1];
+        if (((iVar6 != 0) && (*(char *)(iVar6 + 0x14c) != '\0')) &&
+           (*(int *)(puVar8 + 0x24) - 1U < 0xe10)) {
+          *(int *)(iVar6 + 0x144) = *(int *)(puVar8 + 0x24);
+          FUN_08017634("[scheduler] idle cycles required set to %u");
+          iVar6 = param_1[1];
+          uVar5 = *(undefined4 *)(puVar8 + 0x2c);
+          uVar7 = *(undefined4 *)(puVar8 + 0x30);
+          if ((iVar6 != 0) && (cVar2 = *(char *)(iVar6 + 0x14c), cVar2 != '\0')) {
+            *(undefined4 *)(iVar6 + 0xf4) = *(undefined4 *)(puVar8 + 0x28);
+            *(undefined4 *)(iVar6 + 0xf8) = uVar5;
+            *(undefined4 *)(iVar6 + 0xfc) = uVar7;
+            FUN_08017634("[scheduler] grant durations set (inflate=%u deflate=%u default=%u)");
+            pcVar3 = "demo";
+            *(char *)(param_1 + 3) = (char)param_2;
+            if (param_2 == 1) {
+              pcVar3 = "sleep";
+            }
+            FUN_08017634("[mode] applied %s mode (pump cap %u%%, sleep %us)",pcVar3,*puVar8,
+                         *(undefined4 *)(puVar8 + 0x20));
+            return cVar2;
+          }
+          FUN_08017634("[mode] failed to set grant durations: %u/%u/%u");
+          return '\0';
+        }
+        pcVar3 = "[mode] failed to set idle cycles %u";
+      }
+    }
+    FUN_08017634(pcVar3);
+  }
+  return '\0';
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08021ab0 f0b5 push {r4,r5,r6,r7,lr}
+08021ab2 89b0 sub sp,#0x24
+08021ab4 0791 str r1,[sp,#0x1c]
+08021ab6 037d ldrb r3,[r0,#0x14]
+08021ab8 0500 movs r5,r0
+08021aba 002b cmp r3,#0x0
+08021abc 01d0 beq 0x08021ac2
+08021abe 0129 cmp r1,#0x1
+08021ac0 03d9 bls 0x08021aca
+08021ac2 0026 movs r6,#0x0
+08021ac4 3000 movs r0,r6
+08021ac6 09b0 add sp,#0x24
+08021ac8 f0bd pop {r4,r5,r6,r7,pc}
+08021aca 3422 movs r2,#0x34
+08021acc 079b ldr r3,[sp,#0x1c]
+08021ace 0169 ldr r1,[r0,#0x10]
+08021ad0 5a43 muls r2,r3
+08021ad2 0368 ldr r3,[r0,#0x0]
+08021ad4 8c18 adds r4,r1,r2
+08021ad6 895c ldrb r1,[r1,r2]
+08021ad8 002b cmp r3,#0x0
+08021ada 16d0 beq 0x08021b0a
+08021adc 8c22 movs r2,#0x8c
+08021ade 9200 lsls r2,r2,#0x2
+08021ae0 985c ldrb r0,[r3,r2]
+08021ae2 ed3a subs r2,#0xed
+08021ae4 ff3a subs r2,#0xff
+08021ae6 4243 muls r2,r0
+08021ae8 9a18 adds r2,r3,r2
+08021aea 9342 cmp r3,r2
+08021aec 11d1 bne 0x08021b12
+08021aee 6b68 ldr r3,[r5,#0x4]
+08021af0 ff33 adds r3,#0xff
+08021af2 9975 strb r1,[r3,#0x16]
+08021af4 0023 movs r3,#0x0
+08021af6 af68 ldr r7,[r5,#0x8]
+08021af8 0693 str r3,[sp,#0x18]
+08021afa 9f42 cmp r7,r3
+08021afc 3ad1 bne 0x08021b74
+08021afe 6b68 ldr r3,[r5,#0x4]
+08021b00 216a ldr r1,[r4,#0x20]
+08021b02 002b cmp r3,#0x0
+08021b04 3dd1 bne 0x08021b82
+08021b06 3e48 ldr r0,[0x08021c00]
+08021b08 00e0 b 0x08021b0c
+08021b0a 3e48 ldr r0,[0x08021c04]
+08021b0c f5f792fd bl 0x08017634
+08021b10 d7e7 b 0x08021ac2
+08021b12 1974 strb r1,[r3,#0x10]
+08021b14 4433 adds r3,#0x44
+08021b16 e8e7 b 0x08021aea
+08021b18 a826 movs r6,#0xa8
+08021b1a 069b ldr r3,[sp,#0x18]
+08021b1c 5e43 muls r6,r3
+08021b1e bb19 adds r3,r7,r6
+08021b20 a433 adds r3,#0xa4
+08021b22 1b78 ldrb r3,[r3,#0x0]
+08021b24 002b cmp r3,#0x0
+08021b26 21d0 beq 0x08021b6c
+08021b28 e369 ldr r3,[r4,#0x1c]
+08021b2a 227a ldrb r2,[r4,#0x8]
+08021b2c 0493 str r3,[sp,#0x10]
+08021b2e 237e ldrb r3,[r4,#0x18]
+08021b30 301d adds r0,r6,#0x4
+08021b32 0393 str r3,[sp,#0xc]
+08021b34 6369 ldr r3,[r4,#0x14]
+08021b36 3818 adds r0,r7,r0
+08021b38 0293 str r3,[sp,#0x8]
+08021b3a 637c ldrb r3,[r4,#0x11]
+08021b3c 5436 adds r6,#0x54
+08021b3e 0193 str r3,[sp,#0x4]
+08021b40 237c ldrb r3,[r4,#0x10]
+08021b42 0093 str r3,[sp,#0x0]
+08021b44 e368 ldr r3,[r4,#0xc]
+08021b46 6168 ldr r1,[r4,#0x4]
+08021b48 fff764ff bl 0x08021a14
+08021b4c e369 ldr r3,[r4,#0x1c]
+08021b4e 227a ldrb r2,[r4,#0x8]
+08021b50 0493 str r3,[sp,#0x10]
+08021b52 237e ldrb r3,[r4,#0x18]
+08021b54 b819 adds r0,r7,r6
+08021b56 0393 str r3,[sp,#0xc]
+08021b58 6369 ldr r3,[r4,#0x14]
+08021b5a 0293 str r3,[sp,#0x8]
+08021b5c 637c ldrb r3,[r4,#0x11]
+08021b5e 0193 str r3,[sp,#0x4]
+08021b60 237c ldrb r3,[r4,#0x10]
+08021b62 0093 str r3,[sp,#0x0]
+08021b64 e368 ldr r3,[r4,#0xc]
+08021b66 6168 ldr r1,[r4,#0x4]
+08021b68 fff754ff bl 0x08021a14
+08021b6c 069b ldr r3,[sp,#0x18]
+08021b6e 0133 adds r3,#0x1
+08021b70 dbb2 uxtb r3,r3
+08021b72 0693 str r3,[sp,#0x18]
+08021b74 fc23 movs r3,#0xfc
+08021b76 9b00 lsls r3,r3,#0x2
+08021b78 fb5c ldrb r3,[r7,r3]
+08021b7a 069a ldr r2,[sp,#0x18]
+08021b7c 9342 cmp r3,r2
+08021b7e cbd8 bhi 0x08021b18
+08021b80 bde7 b 0x08021afe
+08021b82 a626 movs r6,#0xa6
+08021b84 7600 lsls r6,r6,#0x1
+08021b86 9a5d ldrb r2,[r3,r6]
+08021b88 002a cmp r2,#0x0
+08021b8a bcd0 beq 0x08021b06
+08021b8c fc33 adds r3,#0xfc
+08021b8e 5964 str r1,[r3,#0x44]
+08021b90 1d48 ldr r0,[0x08021c08]
+08021b92 f5f74ffd bl 0x08017634
+08021b96 6b68 ldr r3,[r5,#0x4]
+08021b98 616a ldr r1,[r4,#0x24]
+08021b9a 002b cmp r3,#0x0
+08021b9c 01d1 bne 0x08021ba2
+08021b9e 1b48 ldr r0,[0x08021c0c]
+08021ba0 b4e7 b 0x08021b0c
+08021ba2 9a5d ldrb r2,[r3,r6]
+08021ba4 002a cmp r2,#0x0
+08021ba6 fad0 beq 0x08021b9e
+08021ba8 e120 movs r0,#0xe1
+08021baa 4a1e subs r2,r1,#0x1
+08021bac 0001 lsls r0,r0,#0x4
+08021bae 8242 cmp r2,r0
+08021bb0 f5d2 bcs 0x08021b9e
+08021bb2 fc33 adds r3,#0xfc
+08021bb4 9964 str r1,[r3,#0x48]
+08021bb6 1648 ldr r0,[0x08021c10]
+08021bb8 f5f73cfd bl 0x08017634
+08021bbc 6868 ldr r0,[r5,#0x4]
+08021bbe a16a ldr r1,[r4,#0x28]
+08021bc0 e26a ldr r2,[r4,#0x2c]
+08021bc2 236b ldr r3,[r4,#0x30]
+08021bc4 0028 cmp r0,#0x0
+08021bc6 03d1 bne 0x08021bd0
+08021bc8 1248 ldr r0,[0x08021c14]
+08021bca f5f733fd bl 0x08017634
+08021bce 78e7 b 0x08021ac2
+08021bd0 865d ldrb r6,[r0,r6]
+08021bd2 002e cmp r6,#0x0
+08021bd4 f8d0 beq 0x08021bc8
+08021bd6 0700 movs r7,r0
+08021bd8 fc30 adds r0,#0xfc
+08021bda f437 adds r7,#0xf4
+08021bdc 06c7 stmia r7!,{r1,r2}
+08021bde 0360 str r3,[r0,#0x0]
+08021be0 0d48 ldr r0,[0x08021c18]
+08021be2 f5f727fd bl 0x08017634
+08021be6 079b ldr r3,[sp,#0x1c]
+08021be8 0c49 ldr r1,[0x08021c1c]
+08021bea 2b73 strb r3,[r5,#0xc]
+08021bec 012b cmp r3,#0x1
+08021bee 00d1 bne 0x08021bf2
+08021bf0 0b49 ldr r1,[0x08021c20]
+08021bf2 2278 ldrb r2,[r4,#0x0]
+08021bf4 0b48 ldr r0,[0x08021c24]
+08021bf6 236a ldr r3,[r4,#0x20]
+08021bf8 f5f71cfd bl 0x08017634
+08021bfc 62e7 b 0x08021ac4

@@ -1,0 +1,109 @@
+{
+  "versions": [
+    {
+      "primary": "TriMix V25",
+      "payload_sha256": "b5099dad86bd475a3e0fc5a208d6921eccb3302e176bc9876d795475f875f239"
+    },
+    {
+      "primary": "Keeson V10211",
+      "payload_sha256": "1856c1baec5f9bca7151e5b550fdf0a8d749e87f889d963a3a343293a4160966"
+    }
+  ],
+  "matrix": [
+    {
+      "version": "TriMix V25",
+      "module": "batch acquisition and 41-slot reduction",
+      "status": "closed static",
+      "entry_evidence": "trimix1/080147de.txt",
+      "known": [
+        "40 fresh slots + one carried slot; 39 bubble passes; mean indices10..29"
+      ],
+      "remaining": [
+        "real sampling interval and physical units"
+      ]
+    },
+    {
+      "version": "TriMix V25",
+      "module": "smoothing, scaling and startup histories",
+      "status": "closed static normal finite domain",
+      "entry_evidence": "trimix1/08014822.txt",
+      "known": [
+        "difference>=30 resets10 history; else average11",
+        "BSS range binds normal startup zero",
+        "binary64 *1.3 then truncate"
+      ],
+      "remaining": [
+        "soft-float special-value exhaustive equivalence",
+        "bootloader entry actually used"
+      ]
+    },
+    {
+      "version": "TriMix V25",
+      "module": "position snapshot, record and normal restore",
+      "status": "closed static selected paths",
+      "entry_evidence": "trimix2/0800fd54.txt",
+      "known": [
+        "14B 6u16+CRC; snapshot trigger/readback traced"
+      ],
+      "remaining": [
+        "meaning of two extra words",
+        "actual flash contents/completion and hardware units"
+      ]
+    },
+    {
+      "version": "Keeson V10211",
+      "module": "normal selftest trigger and completed repeat",
+      "status": "closed static",
+      "entry_evidence": "keeson1/0002b044.txt",
+      "known": [
+        "stage0 trigger does not resetmode; stage6 clears totals"
+      ],
+      "remaining": [
+        "runtime enable/physical interpretation"
+      ]
+    },
+    {
+      "version": "Keeson V10211",
+      "module": "32B record scan and P/E/T consistency",
+      "status": "closed local contract",
+      "entry_evidence": "keeson1/00029840.txt",
+      "known": [
+        "restore writes P only; conditional later E/T update overwrites P"
+      ],
+      "remaining": [
+        "whole-program alias/init interleavings",
+        "actual persisted records"
+      ]
+    },
+    {
+      "version": "Keeson V10211",
+      "module": "RAM snapshot and CRC",
+      "status": "closed static",
+      "entry_evidence": "keeson1/0002b6a8.txt",
+      "known": [
+        "4P snapshot plus CRC on first24bytes when eligible"
+      ],
+      "remaining": [
+        "two unnamed record words"
+      ]
+    },
+    {
+      "version": "Keeson V10211",
+      "module": "32B append producer",
+      "status": "not bound in covered set",
+      "entry_evidence": "KEESON_APPEND_SEARCH.json",
+      "known": [
+        "all6 known direct write API calls and application completion callback distinguished"
+      ],
+      "remaining": [
+        "arbitrary indirect/alias invocation",
+        "other versions",
+        "missing system service/bootloader implementation"
+      ]
+    }
+  ],
+  "other_versions": "Not analyzed in this closure; no equivalence assertion.",
+  "physical_board_or_axis_identity": "Not inferred from family/module names.",
+  "scope": "normal data processing and persistence generation/readback; not complete whole-program reverse engineering",
+  "native_sessions_closed": true
+}

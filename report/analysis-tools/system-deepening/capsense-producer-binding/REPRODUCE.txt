@@ -1,0 +1,10 @@
+本轮仅离线分析，禁止把原BBIN/ELF当宿主程序执行。
+
+1. INPUTS.json固定原件路径、大小、SHA256和映射基址。SOURCES.json固定每份已有/新导出来源和SHA256；source/是未改写复制，不冒充原始固件。
+2. export-log/COMMANDS.json保留实际委托headless argv，export-log/JOBS.json记录唯一补导session完成exit0。该命令只读既有NonUsbSensor工程，-readOnly -noanalysis；脚本未使用disassemble/createFunction等数据库写入操作。脚本副本见scripts/ExportCapsenseNonUsb.java。重导需将输出目录设为新空目录，不能覆盖本轮冻结证据；不要与他人同时打开同一Ghidra项目。
+3. 有限合成契约检查：
+python3 /Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/capsense-producer-binding/model/check_contract.py
+4. 原字节/Thumb BL/flash literal复核，并生成不包含清单自身的哈希清单：
+python3 /Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/capsense-producer-binding/scripts/validate_and_manifest.py
+
+验证器仅读取原固件。生成结果只写本目录。主控ELF的原指令由PT_LOAD映射核验，此轮不重做其全部重定位值或全CFG；既有host-payload-boundaries有对应先前深入验证。

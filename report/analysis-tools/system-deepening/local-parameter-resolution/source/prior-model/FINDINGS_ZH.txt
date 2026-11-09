@@ -1,0 +1,73 @@
+A02 气囊压力闭环与压力体动门控：正常本地计算链
+
+结论
+这份 MCU 固件确实在本地完成袋压目标补偿、稳态判定、充放气调度、泵速与单双泵选择，以及根据袋压波动暂缓自动调压。压力体动的生产算法已找到：每袋 20 个合格压力值的总体标准差，跨袋取最大值，再经过阈值和计时状态机。它服务于气囊机械控制，不是睡眠传感器的在床/分期模型。
+放气速度和平滑后的预测压力也存在，但本版正常停止判断使用实测压力；不能把写入 B+CC 的预测值宣称为已参与预测停阀。
+
+1. 样本、方法与对象
+原件：mediatek/rootfs-selected/opt/eight/firmware/balloon/A02/firmware-balloon-g0.bbin，143360 B，SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a，BBIN 0.2.71.0。完整文件按 0x08010000 映射，沿用已核对的 A02 装载依据；未证明用户附件运行此版。
+复用 finishable-20261107/accessories/a02-faults/resolved 的 C/汇编/引用，另以 -readOnly 打开既有 BalloonA02 工程，补定义并导出 10 个调度与阀泵 callback。所有输入字节保持不变，分析元数据在退出时丢弃。没有执行固件、操作设备或调用账号接口。
+本目录 source/ 是逐哈希保留的旧证据，callbacks/ 是新定点导出，均非原厂源码。反编译器对 softfloat 调用有丢失参数/返回类型的问题；公式按汇编中的 r0/r1 和原始常量复核，不以伪 C 的 void/漏参为准。
+softfloat：2AEB8 加、2B814 减、2B598 乘、2B1CC 除；26FB0 无符号整数转 float，26F80 float 转整数；2959C 清符号位取绝对值；2944C→295A4 为平方根。10530/3C/50/64/78 分别为 ==、<、<=、>、>= 包装。上述均是分析得到的语义，非原符号名。
+每袋 B=0x2000BF88+i*0xE0：+01 当前状态，+02 前状态，+04 目标 SP，+08 arrival tolerance，+0C departure tolerance，+10 阀对，+14 压力对象，+18 容差表，+20 补偿表，+24 泵 duty，+28 motion 对象，+2C commanded/held 标记；+DC 初始化标记。p 的单位为 kPa，时间差以 ms 参与计算。
+
+2. 目标补偿：实际如何决定停止
+充气 1B800→1B824：补偿启用时先按 float 运算得到 ci=(SP+inflateOffset)-SP；未启用则 ci=0。不能在逐位复现时直接省略这次加减，因为存在 binary32 舍入。
+若 B+24 为 0，scale=1；否则 scale=clamp(sqrt(float(duty)/100),0.55,1)。充气停止目标 S_in=SP+ci*scale。22034 的 INFLATE 分支在 p>=S_in 时转 STEADY。此 duty 来自后述本地泵调度，非固定云端常量。
+放气 1B7B8：SP<1.0 选低压乘数/截距，SP>=1.0 选普通乘数/截距。补偿已启用且乘数 a>0 时，S_out=(SP-b)/a；否则返回 SP。在 DEFLATE 已持续至少 B+D4 ms 后，p<0.1 或 p<=S_out 才转 STEADY。这里读的是实测 p。
+补偿对象 +00 inflateOffset，+04/+08 普通 a/b，+0C/+10 低压 a/b，+14 enabled。20FA8 的通用初始化为 offset≈0.43、两组 a≈1.65、b=0、enabled=1；后续平台配置/校准可覆盖，不能当成全部设备的现用值。本轮不穷举所有 SKU、校准记录或历史配置。
+证据：source/0801b800.c、0801b824.asm.txt:1 起，0801b7b8.asm.txt:1 起；08022034.c:222–245；原指令 080226F4、0802272A、08022734、08022740。
+
+3. 放气速度、预测压力和稳态窗口
+DEFLATE 进入时记录 p 与 tick，初始速度 v=(p/5)*1.5，B+CC=p。这个初值未经过后续的 0..1.5 截断。
+每次 DEFLATE 更新，在已过 settle time、previousTick!=0 且 1<=dt<=999 ms 时：
+  instantaneous=(previousP-p)/(float(dt)/1000)
+  v=clamp(0.3*instantaneous+0.7*v,0,1.5)
+  predictedP=p-v*(float(B+D0)/1000)
+无论这一轮是否允许更新 v，previousP/tick 都刷新，再计算 predictedP。初始 B+D0=200 ms，B+D4=240 ms；这些是初始化值，配置可能改变。
+重要消费边界：B+C8 的 v 进入 enhanced telemetry；B+CC 的 predictedP 在已核正常 DEFLATE 停止分支没有读取，停止仍比较 p 与 S_out。对保留的已识别 C 和正常遥测/目标函数搜索，只见本函数写 B+CC；这不是对任意别名/未识别机器码的形式化未使用证明。
+STEADY 状态每累计至少 500 ms 计算 slope=(p-previousP)/(dt/1000)。abs(slope)<0.06 kPa/s 才让计数 +1，上限 3；否则清 0，并刷新基准压力/计时器。
+1B880 的可离开稳态条件为 t>=SteadyTimeRequiredMs 且 (t>=8000 ms 或 stableCount>=3)。满 8 秒只绕过斜率计数，仍不绕过可配置的最低停留时间。进入 STEADY 会重置基准、斜率和计数。
+证据：08022034.c:42–100、438–496；0801b880.c；08022034.asm.txt 的 08022064–0802211C、08022124–0802218C。原常量 080223C0=1000、080223C4≈0.3、080223C8≈0.7。
+
+4. 普通状态、容差、振荡和零压排气
+状态名称来自原表：0 OFF、1 STEADY、2 INFLATE、3 DEFLATE、4 VENTING、5 SAFETY、6 FAULT、7 OSCILLATION。以下是传感正常、安全检查通过后的正常分支，不替代已有 Safety/Fault 分析。
+以 error=p-SP、dep=B+0C 为准：OFF 在 error>dep 请求放气，error<-dep 请求充气，落在闭区间 [-dep,+dep] 转 STEADY。STEADY 先经过第 3 节等待，再按同样边界修正。开始修正还要通过 motion gate；被挡时置 B+2E=1。
+23EB8 按 SP 从 10 档容差表取值：低端夹到档 0，高端夹到档 9，中间 floor((SP-min)/width)，width=(max-min)/10。arrival 和 departure 均保留，但本版上述离开稳态及 commanded arrived 检查实际读 B+0C，不能仅凭字段名将 B+08 写成实际停止阈值。
+若从 STEADY 在停留<3000 ms 时又启动充/放气，oscillationCount 增 1，超过 4 切 OSCILLATION；停留>=3000 ms 的分支不增。稳定维持>=10000 ms 清计数，调度 SLEEP 醒来也清计数；有变化的目标命令另有健康重置，沿用旧证据，不概括成“任意请求都重置”。
+SP 在 [0,0.1] 的小零区走 VENTING 逻辑，允许压力带为 [-0.3,+0.3] kPa。超带且未休息/休眠时请求排气；压力在带内、无效等分支不是普通非零目标调节。
+进入 VENTING 时，有效且 abs(p)<=13 的非负压力取 ventMs=trunc(p)*2000+8000；有效负压力取 30000 ms；无效/失败/超范围取 28000 ms。到期标记完成、转 OFF 的下一轮消费随状态机执行，不能等同这一行瞬间机械关阀。排气后休息 30000 ms；连续第 3 次排气设置 dormant，持续 3600000 ms。休息后压力回到带内（或本分支 p==-1）会清连续次数。dormant 结束清次数/标志。
+证据：08022034.c:135–307、338–400、530–557、620–664；08023eb8.c；0801f10c.c；08024530.c:1469 起。
+
+5. 压力体动：输入、20 点窗口、评分与门控状态
+生产端在 24530 的 pressure 周期块中，初始化周期 50 ms（1BCBC.c:241）。每轮最多考察 5 袋，必须同时满足：已初始化、袋状态 OFF 或 STEADY、阀对存在、充气与放气 solenoid state 都为 0、传感失败标志为 0、p!=-1。任何条件不满足或压力为 NaN，该袋的 0x60 B 窗口清零。它取当前压力槽，没有在此另核“这轮是否新的采样序号”；20 点对应名义约 1 秒，不保证无重复值或严格等时间间隔。
+每袋窗口结构：20 个 float 压力值；baseline、sumDeviation、sumDeviationSquared；count 上限 20；循环写索引。新值先 d=p-baseline，满窗时减去被覆盖旧值相对于同一 baseline 的 d 和 d²，再加入新值。每写满一圈，重新以 20 点均值作 baseline，并全量重算两个和，降低滚动累计的误差。
+满 20 点才有 score：sqrt(max(sum(d²)/20-(sum(d)/20)²,0))，是总体标准差，不是相邻点差分的标准差，也不是样本方差分母 19。所有已有合法 score 的袋取最大值；没有 score 时保存 NaN。不是把袋压平均后做体动，也未做睡眠体征分离。
+汇编互证：08024DCE/DE2 为旧项减除与平方；08024DF8–08024E06 明确把同一个 d 置入 r0/r1 后相乘，修正伪 C 漏参；08024E30–08024E64 为 /20、均值平方、差值负数夹 0、sqrt；08024E96–08024EF6 为全窗口重基准；08024E7A–84 为跨袋取最大。
+motion 对象 M=0x2000C538：+00 enabled；+02 uint16 阈值（除 1000 得 kPa）；+04 uint16 quiet hold ms；+08 uint32 最大阻挡 ms；+1EC 状态；+1F0 score；+1F4 本次开始 tick；+1F8 quiet 起点；+1FC quiet 标记；+200 启动计数。初始化 enabled=1、阈值=50（0.050 kPa）、quiet hold=3000 ms、最大阻挡=60000 ms。
+状态号按实际消费者解读，非臆造原厂枚举名：
+  0：不阻挡。score>threshold 进入 1，记录开始时间并增加启动次数；等于阈值不触发。
+  1：正在阻挡。score<=threshold 开始 quiet 计时并转 2。
+  2：仍阻挡，等待连续 quiet 达到 hold。期间再次超过阈值回 1，清 quiet 标记，但不重置本次总开始时间。
+  1/2：若距离本次开始>=maximum，转 3。状态 3 不属于 gate，因此达到上限后可恢复自动调压；持续高波动保持 3，不立刻重新开始一轮。待连续 quiet 达 hold 后回 0。
+  无合法 score：状态 1/2 立即回 0并清 quiet；状态 3 保留。不能说任何数据缺失都要等 3 秒。
+  disabled：状态 4，gate=false。窗口运算位于 enabled 分支之前，不宣称关闭配置会停止所有计算。
+202D4 仅在对象已启用且状态为 1 或 2 返回 true。1B95A 再限制该 gate：只对非 commanded（B+2C!=1）的 OFF/STEADY/OSCILLATION 生效。用户/命令指定的调压和安全主动泄压不是一概被体动阻挡；也不会因为此 gate 在本函数直接中断已启动的 INFLATE/DEFLATE。gate 从 true 变 false 会调用 217A0，若调度器在 SLEEP，令其退出 SLEEP。
+证据：08024530.c:276–498、080202d4.c、0801b95a.c、08020dd8.c、080217a0.c；初始化 0801BCBC.c:588–595。模型只验证这些静态合同，未采集人体压力记录，不评价阈值对人动作的准确率。
+
+6. 调度怎样选袋、算泵速并落到阀泵
+20F20 将袋状态与压力、目标、容差和 gate 复制到调度快照；1E6A0 产生 3 B 的 desiredState / priority / needsAction。实际选择器 callback 0801EB38 本轮已补出：忽略 needsAction=false 和 FAULT；若存在 Safety action，只选择这些 Safety 袋；否则若有充/放请求，先列所有 DEFLATE，再列所有 INFLATE，合并为本轮集合；否则选择其他 action。它没有按快照第二字节的 priority 数值排序，也不是总共只允许一袋动作。
+主循环先用 allowActive=0 更新各袋状态，选集后进入 RUNNING。RUNNING 对选中的袋调用 22034(...,1)，未选袋仍用 0。22034 的非主动状态允许关闭输出；充气、放气、排气与过压泄压要获得调度授权。B+AC 防止同一状态重复下发；切换状态/清理会重置它。
+状态输出：INFLATE 关放气阀、申请开充气阀；DEFLATE/VENTING 关充气阀、申请开放气阀；OFF/FAULT/OSCILLATION 关双阀。INFLATE→STEADY 对充气阀安排 100 ms 延迟关闭，其他稳态关闭路径直接提出关闭请求；关闭本身仍可分段，不等同 GPIO 当场归零。
+21304 的泵参考选择与袋集合选择是两层：只看当前选集中的 INFLATE；commanded 优先，在相同类别中选 abs(SP-p) 最小者，相同误差保留先遇到者。令 e=该袋 SP-p、ci=1B800 的充气偏置，x=e+ci。比例控制启用时 duty=clamp(trunc(max(x,0)*gain),minDuty,maxDuty)；若 x<1，再把下限抬到 min(maxDuty,30)。通用初始化 gain=100、min=20、max=100、enabled=1，模式配置可覆盖。禁用比例分支输出 100。该 duty 写回选集中充气袋 B+24，参与下一轮充气停止目标的 sqrt 缩放。
+单双泵另用未加 ci 的有符号 e：双泵状态下 e<1 转单泵并请求泵 1 停止；单泵下 e>1.5 转回双泵。1.0 和 1.5 边界保持原状态，是滞回区。没有 INFLATE 时，若泵已开启则申请全部停止。
+阀输出 callback：21FE4 从 duty=0 起启动 ramp；1EDC8 每个定时 tick 增配置步长直到 100，然后 1EEAC 等 hold 时间，转 maintain duty。21804 延迟关闭最终到 1EF58：先 closeStage1 duty，1EF08 等 stage1 时间再 stage2 duty，等 stage2 时间后置 0；某阶段 duty 为 0 时可跳过。1EC3C 才按占空比、极性和 timer ARR 计算 CCR 并调用 PWM start/stop。由此证实动作经过本地定时执行，不把申请打开/关闭等同机械已响应。
+泵输出 21204→210E0/21140 启动 ramp；21162 按 targetDuty*step/totalSteps 的整数结果逐步更新，终点进入 running；停止 211AC 按 startDuty*(totalSteps-step)/totalSteps 降到 0。20FBC 应用设备 min/max 与极性，再写 CCR。运行时速度/流量及响应延迟仍需实测。
+证据：callbacks/0801eb38.txt；08024530.c:1229–1485；08022034.c:579–619；08021304.c；08021ab0.c；阀泵 source 与 callbacks 相应地址。正常 grant 的时间和 sleep 参数可由模式写入，不把初始化值当全部运行配置。
+
+7. 输出、验证与准确剩余范围
+20A3C enhanced telemetry 已把每袋 departure tolerance、平滑放气速度、实际充气/放气停止目标、motion-gate 标记写出；还输出 motion state/score/当前阻挡时长/启动计数。它没有在这条包里写 B+CC 的 predictedP。主控 EnhancedTelemetryParser/TelemetryHandler 已由 local-managed-telemetry 独立闭合；仍不代表普通 App 暴露此数据。
+本轮保留 61 个既有函数的 C/汇编/引用（183 个来源文件），新增 10 个 callback 定点导出。ORIGINAL_INSTRUCTION_BYTES.json 将已选汇编地址绑定原件字节；RAW_BL_VERIFICATION.json 独立解码 955 个 BL 目标，全部相符。并不声称已经独立重解码每个指令助记符。新 callback 的每条导出字节也与原件核对。
+scripts/control_contracts.py 是 binary32 合成合同模型，30 项通过：窗口填充/清空/滚动重基准、阈值相等、quiet 临界、60 秒上限、补偿缩放与 EMA。滚动 std 与独立总体方差公式在本组有限输入下最大差约 1.61e-8 kPa。它不是 MCU 执行、不是穷举浮点异常，也不是实机准确率测试。
+已闭合范围：本样本正常袋压反馈、补偿消费者、稳态/振荡/排气计时、压力体动生产与 gate、调度选袋、泵参考与速度、正常阀泵状态到 PWM 写入、这些结果的增强遥测。
+范围外与下一步：各 SKU/左右件最终校准表与全部历史参数的选择、运行时配置覆盖、真实袋压与动作时序、原件是否为用户实机活动版本、对真实身体动作的判定效果。前者可以单列配置/校准专项，后者需要绑定同版本设备的被动数据。已有 Fault1–4 有界阴性结论仍由旧故障报告承载，本轮没有重做负搜索，也没有声称全固件/所有复合故障已穷尽。

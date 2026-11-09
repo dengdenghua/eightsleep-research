@@ -1,0 +1,168 @@
+{
+  "sample": {
+    "path": "analysis/finishable-20261107/accessories-c11/extracted/OTA_KS8S08C010000001_V10211_nRF52832_202602070917/nrf52832_xxaa.bin",
+    "bytes": 73656,
+    "sha256": "1856c1baec5f9bca7151e5b550fdf0a8d749e87f889d963a3a343293a4160966",
+    "mtk_zip_member_match": true
+  },
+  "execution": "static_only_no_hardware_or_target_execution",
+  "fields": {
+    "fault_a": {
+      "address": "0x20003f57",
+      "width": 8,
+      "scope": "serialization priority observed; producer not audited this round"
+    },
+    "fault_b": {
+      "address": "0x20003f56",
+      "width": 8
+    },
+    "counter_c": {
+      "address": "0x20002add",
+      "width": 8,
+      "overflow": "wraps at byte store"
+    },
+    "hold_h": {
+      "address": "0x20002af0",
+      "width": 32,
+      "units": "eligible clear-function calls; wall-clock duration unproven"
+    },
+    "residual": {
+      "base": "0x20003be4",
+      "stride": 40,
+      "count": 4,
+      "width": 16,
+      "signed": true,
+      "physical_units": null
+    },
+    "runstate": {
+      "base": "0x20003be1",
+      "stride": 40,
+      "count": 4,
+      "width": 8,
+      "software_stop_code": 2
+    },
+    "gate_bytes": {
+      "base": "0x20003f74",
+      "stride": 1,
+      "count": 4,
+      "width": 8,
+      "condition": "each < 30",
+      "label_source": "PWM-related state in previous analysis; not a calibrated physical measurement"
+    },
+    "command_zero_gate": [
+      "0x20003d90",
+      "0x20003d9c"
+    ]
+  },
+  "preprocessing": {
+    "input_channels": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "input_initialized_to_zero": true,
+    "read_return_checked": false,
+    "read_busy_return": "0x11",
+    "read_poll_max_iterations": 10000,
+    "read_poll_exhaustion_has_distinct_error": false,
+    "stage1": {
+      "arithmetic": "float32",
+      "Pprime": "P + float32(0.05)",
+      "K": "Pprime / (Pprime + float32(10.05))",
+      "Xnew": "X + K * (sample - X)",
+      "Pnew": "(1-K) * Pprime",
+      "initial_state": "not established this round"
+    },
+    "stage2": "Y = float32(0.7)*Xnew + float32(0.3)*Yprevious",
+    "residual": "signed16(truncate_int32(Y-baseline))",
+    "baseline_update_gate": "all 4 runstate == 2 AND unsigned((tick/100)-axis_timestamp) > 2",
+    "baseline_update_order": "residual computed before baseline update in this function",
+    "residual_zero_gate": "own runstate == 2 OR signed residual < 0 OR signed residual > 0x7f00",
+    "freshness_caveat": "zero may be initialization, state/range clearing, or genuine sample-derived value"
+  },
+  "producer": {
+    "function": "0x28358",
+    "guard": "all four gate bytes < 30",
+    "converted_value": "signed16(truncate_int32(float32(residual)*float32(3.515625)*float32(1.5)/float32(0.235)))",
+    "accepted_intervals_inclusive": [
+      [
+        -561,
+        561
+      ],
+      [
+        -471,
+        471
+      ],
+      [
+        -538,
+        538
+      ],
+      [
+        -471,
+        471
+      ]
+    ],
+    "guard_true_all_valid": "C=0; return",
+    "guard_true_any_invalid": "C=uint8(C+1); continue",
+    "guard_false": "C unchanged; continue to C>50 check",
+    "fault_gate": "C > 50",
+    "fault_effects": [
+      "B=1",
+      "call 0x2af68",
+      "call 0x27eec"
+    ],
+    "conditional_hold_gate": "after fault effects, all 4 processed residual == 0",
+    "conditional_hold_effects": [
+      "H=500",
+      "C=0",
+      "clear four global mode flags"
+    ],
+    "interpretation_limits": [
+      "not necessarily 51 consecutive periods",
+      "signed16 truncation prevents a simple monotonic physical threshold interpretation",
+      "hold 500 is conditional, not every fault"
+    ]
+  },
+  "clear": {
+    "function": "0x2b70c",
+    "entry_gate": "command words 0x20003d90 == 0 AND 0x20003d9c == 0 after command-lifetime processing",
+    "hold_positive": "H--; write two software state bytes per axis to 2; clear four global flags; return without clearing B",
+    "hold_zero_at_entry": "B=0",
+    "healthy_sample_required_by_this_function": false,
+    "500_example": "with gate continuously satisfied: 500 decrementing calls, then next eligible call clears B",
+    "physical_stop_proven": false
+  },
+  "stop_request": {
+    "function": "0x2af68",
+    "software_state_update_gate": "0x275a0 returns 0, equivalently 0x20003530 == 0",
+    "when_gate_false": "mode/target cleanup still occurs but selected per-axis runstate update loop is skipped",
+    "physical_motor_effect": "unverified"
+  },
+  "serialization": {
+    "function": "0x27eec",
+    "rule": "A ? 2 : B ? 1 : 0",
+    "copies": 4,
+    "independent_per_axis_fault": false
+  },
+  "order": {
+    "callback": "0x2c70c",
+    "selected_path": [
+      "tick increment",
+      "0x28cb0 -> 0x2b70c clear/hold",
+      "0x279cc -> 0x28ed4 preprocess -> 0x28358 guard when ready==1"
+    ],
+    "ready_reset_then_rearmed": true,
+    "complete_concurrency_model": false
+  },
+  "not_established": [
+    "physical sensor mapping and units",
+    "tick period",
+    "peripheral calibration",
+    "full fault A producer/clear",
+    "all state writers and interrupt interactions",
+    "actual motor movement or stop",
+    "SoftDevice and bootloader behavior",
+    "other firmware versions"
+  ]
+}

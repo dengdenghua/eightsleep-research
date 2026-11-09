@@ -1,0 +1,28 @@
+FUNCTION 0002c1a0 BODY [[0002c1a0, 0002c1c1]]
+REF_TO Entry Point EXTERNAL
+
+void vector_handler_32(void)
+
+{
+  if ((*(uint *)(DAT_0002c1c4 + 0x304) & 1) != 0) {
+    (**(code **)(DAT_0002c1c8 + 4))();
+    *DAT_0002c1cc = 0;
+  }
+  return;
+}
+
+
+INSN 0002c1a0 38b5 push {r3,r4,r5,lr}
+INSN 0002c1a2 0848 ldr r0,[0x0002c1c4] REF[READ:0002c1c4=40010000]
+INSN 0002c1a4 d0f80403 ldr.w r0,[r0,#0x304] REF[READ:40010304]
+INSN 0002c1a8 4ff00004 mov.w r4,#0x0
+INSN 0002c1ac 10f0010f tst r0,#0x1
+INSN 0002c1b0 06d0 beq 0x0002c1c0 REF[CONDITIONAL_JUMP:0002c1c0]
+INSN 0002c1b2 0548 ldr r0,[0x0002c1c8] REF[READ:0002c1c8=20003658]
+INSN 0002c1b4 4068 ldr r0,[r0,#0x4] REF[READ:2000365c]
+INSN 0002c1b6 8047 blx r0
+INSN 0002c1b8 0448 ldr r0,[0x0002c1cc] REF[READ:0002c1cc=40010100]
+INSN 0002c1ba 0460 str r4,[r0,#0x0] REF[WRITE:40010100]
+INSN 0002c1bc 0068 ldr r0,[r0,#0x0] REF[READ:40010100]
+INSN 0002c1be 0090 str r0,[sp,#0x0] REF[WRITE:Stack[-0x10]]
+INSN 0002c1c0 38bd pop {r3,r4,r5,pc}

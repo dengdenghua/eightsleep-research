@@ -1,0 +1,345 @@
+{
+  "target_sha256": "84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375",
+  "kind": "bounded_host_python_model_not_firmware_execution",
+  "clock_jump_cases": [
+    {
+      "wall_step_seconds_at_check": -40,
+      "reference_rebased": true,
+      "mapped_epoch_offset_seconds": -38,
+      "output_step_from_previous_ms": -39998,
+      "reference_error_seconds": 40
+    },
+    {
+      "wall_step_seconds_at_check": -31,
+      "reference_rebased": true,
+      "mapped_epoch_offset_seconds": -29,
+      "output_step_from_previous_ms": -30998,
+      "reference_error_seconds": 31
+    },
+    {
+      "wall_step_seconds_at_check": -30,
+      "reference_rebased": true,
+      "mapped_epoch_offset_seconds": -28,
+      "output_step_from_previous_ms": -29998,
+      "reference_error_seconds": 30
+    },
+    {
+      "wall_step_seconds_at_check": -3,
+      "reference_rebased": true,
+      "mapped_epoch_offset_seconds": -1,
+      "output_step_from_previous_ms": -2998,
+      "reference_error_seconds": 3
+    },
+    {
+      "wall_step_seconds_at_check": -2,
+      "reference_rebased": false,
+      "mapped_epoch_offset_seconds": 2,
+      "output_step_from_previous_ms": 2,
+      "reference_error_seconds": 2
+    },
+    {
+      "wall_step_seconds_at_check": 0,
+      "reference_rebased": false,
+      "mapped_epoch_offset_seconds": 2,
+      "output_step_from_previous_ms": 2,
+      "reference_error_seconds": 0
+    },
+    {
+      "wall_step_seconds_at_check": 2,
+      "reference_rebased": false,
+      "mapped_epoch_offset_seconds": 2,
+      "output_step_from_previous_ms": 2,
+      "reference_error_seconds": 2
+    },
+    {
+      "wall_step_seconds_at_check": 3,
+      "reference_rebased": true,
+      "mapped_epoch_offset_seconds": 5,
+      "output_step_from_previous_ms": 3002,
+      "reference_error_seconds": 3
+    },
+    {
+      "wall_step_seconds_at_check": 30,
+      "reference_rebased": true,
+      "mapped_epoch_offset_seconds": 32,
+      "output_step_from_previous_ms": 30002,
+      "reference_error_seconds": 30
+    }
+  ],
+  "periodic_check_delay": {
+    "step_injected_at_call_after_init": 1,
+    "step_seconds": 5,
+    "first_rebase_call_after_init": 1000,
+    "elapsed_input_tick_ms_after_step": 1998,
+    "assumptions": "Monotonic tick, check_count initially 0, no forced sync, 2ms supplied tick spacing; call cadence not measured."
+  },
+  "tick_reset_and_wrap_cases": [
+    {
+      "case": "nonzero_anchor_tick_then_reset",
+      "rebased": true,
+      "mapped_step_ms": -500,
+      "new_slot": 0
+    },
+    {
+      "case": "zero_anchor_tick_reset_within_tolerance",
+      "rebased": false,
+      "mapped_step_ms": -1000,
+      "new_slot": 0
+    },
+    {
+      "case": "genuine_u32_tick_wrap",
+      "rebased": false,
+      "mapped_step_ms": 2
+    }
+  ],
+  "watermark_guard_recovery_cases": [
+    {
+      "back_seconds": 1,
+      "sides": 1,
+      "first_guard_pass_attempt": 1001,
+      "first_guard_pass_supplied_elapsed_ms": 2000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 1000,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": null,
+      "cleared_preexisting_bucket_count": 0
+    },
+    {
+      "back_seconds": 2,
+      "sides": 1,
+      "first_guard_pass_attempt": 1501,
+      "first_guard_pass_supplied_elapsed_ms": 3000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 1500,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": null,
+      "cleared_preexisting_bucket_count": 0
+    },
+    {
+      "back_seconds": 10,
+      "sides": 1,
+      "first_guard_pass_attempt": 5501,
+      "first_guard_pass_supplied_elapsed_ms": 11000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 5500,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": null,
+      "cleared_preexisting_bucket_count": 0
+    },
+    {
+      "back_seconds": 30,
+      "sides": 1,
+      "first_guard_pass_attempt": 15501,
+      "first_guard_pass_supplied_elapsed_ms": 31000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 15500,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": null,
+      "cleared_preexisting_bucket_count": 0
+    },
+    {
+      "back_seconds": 31,
+      "sides": 1,
+      "first_guard_pass_attempt": 501,
+      "first_guard_pass_supplied_elapsed_ms": 1000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 499,
+        "skip_and_reset_both_containers": 1,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": {
+        "attempt": 500,
+        "supplied_elapsed_ms": 998
+      },
+      "cleared_preexisting_bucket_count": 4
+    },
+    {
+      "back_seconds": 40,
+      "sides": 1,
+      "first_guard_pass_attempt": 501,
+      "first_guard_pass_supplied_elapsed_ms": 1000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 499,
+        "skip_and_reset_both_containers": 1,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": {
+        "attempt": 500,
+        "supplied_elapsed_ms": 998
+      },
+      "cleared_preexisting_bucket_count": 4
+    },
+    {
+      "back_seconds": 120,
+      "sides": 1,
+      "first_guard_pass_attempt": 501,
+      "first_guard_pass_supplied_elapsed_ms": 1000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 499,
+        "skip_and_reset_both_containers": 1,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": {
+        "attempt": 500,
+        "supplied_elapsed_ms": 998
+      },
+      "cleared_preexisting_bucket_count": 4
+    },
+    {
+      "back_seconds": 1,
+      "sides": 2,
+      "first_guard_pass_attempt": 2001,
+      "first_guard_pass_supplied_elapsed_ms": 2000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 2000,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": null,
+      "cleared_preexisting_bucket_count": 0
+    },
+    {
+      "back_seconds": 2,
+      "sides": 2,
+      "first_guard_pass_attempt": 3001,
+      "first_guard_pass_supplied_elapsed_ms": 3000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 3000,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": null,
+      "cleared_preexisting_bucket_count": 0
+    },
+    {
+      "back_seconds": 10,
+      "sides": 2,
+      "first_guard_pass_attempt": 11001,
+      "first_guard_pass_supplied_elapsed_ms": 11000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 11000,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": null,
+      "cleared_preexisting_bucket_count": 0
+    },
+    {
+      "back_seconds": 30,
+      "sides": 2,
+      "first_guard_pass_attempt": 31001,
+      "first_guard_pass_supplied_elapsed_ms": 31000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 31000,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": null,
+      "cleared_preexisting_bucket_count": 0
+    },
+    {
+      "back_seconds": 31,
+      "sides": 2,
+      "first_guard_pass_attempt": 1001,
+      "first_guard_pass_supplied_elapsed_ms": 1000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 499,
+        "skip_and_reset_both_containers": 1,
+        "skip_current_reset_epoch": 500,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": {
+        "attempt": 500,
+        "supplied_elapsed_ms": 498
+      },
+      "cleared_preexisting_bucket_count": 4
+    },
+    {
+      "back_seconds": 40,
+      "sides": 2,
+      "first_guard_pass_attempt": 1001,
+      "first_guard_pass_supplied_elapsed_ms": 1000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 499,
+        "skip_and_reset_both_containers": 1,
+        "skip_current_reset_epoch": 500,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": {
+        "attempt": 500,
+        "supplied_elapsed_ms": 498
+      },
+      "cleared_preexisting_bucket_count": 4
+    },
+    {
+      "back_seconds": 120,
+      "sides": 2,
+      "first_guard_pass_attempt": 1001,
+      "first_guard_pass_supplied_elapsed_ms": 1000,
+      "dispositions_before_first_pass": {
+        "skip_at_or_below_watermark": 499,
+        "skip_and_reset_both_containers": 1,
+        "skip_current_reset_epoch": 500,
+        "pass_watermark_guard": 1
+      },
+      "reset_at": {
+        "attempt": 500,
+        "supplied_elapsed_ms": 498
+      },
+      "cleared_preexisting_bucket_count": 4
+    }
+  ],
+  "shared_counter_cases": {
+    "nonconsecutive_large_old_attempts": {
+      "large_attempts": 500,
+      "intervening_small_old_attempts": 100,
+      "reset_at_attempt": 600
+    },
+    "interleaved_new_input": {
+      "old_attempts": 2000,
+      "new_attempts": 2000,
+      "reset_count": 0,
+      "limits": "Synthetic guard sequence with fixed watermark; not proof that deployed shared-sync and loaders produce this trajectory."
+    }
+  },
+  "limits": [
+    "Fixed supplied 2ms tick increments are scenario inputs, not an actual sample-rate measurement.",
+    "Guard pass is not proof of insertion, loader output, upload or cloud acceptance.",
+    "No full async scheduling, shared synchronization-bit propagation, tree capacity, loader/watermark feedback or device clock model.",
+    "Current Pod deployment is not bound to this downloaded binary."
+  ],
+  "source_files": [
+    {
+      "path": "signal-host/timing/0021a370.c",
+      "sha256": "9fe7e24dae8240a3123d7b7cd474633bc0b0a61fcc9f38bfc35384345fd0cb9e"
+    },
+    {
+      "path": "signal-host/timing/0021a370.asm.txt",
+      "sha256": "1c4ef682c4f16fd732bc450819796b75438692d20d67ded30f65bb41a18207e7"
+    },
+    {
+      "path": "signal-host/timing/0021a5c0.c",
+      "sha256": "829628c6aa20e529e59b23229ebe439f457a69a93facd01044aa3158a655b04b"
+    },
+    {
+      "path": "signal-host/timing/0021a5c0.asm.txt",
+      "sha256": "c4a47153a6a2d616385adef4553b21b17ec03d44bb68f235fd4f790178d0d3e9"
+    },
+    {
+      "path": "signal-host/pass5/001fdec0.c",
+      "sha256": "31e973fcbf5974854d9550c5e2c7693b7bfe736ddb597410a81bfb94470e9087"
+    },
+    {
+      "path": "signal-host/timing/001fdec0.asm.txt",
+      "sha256": "22ee061e8405b0d4e654c91afc9a80595c1651008aaa40d9328c13403ef906b8"
+    },
+    {
+      "path": "signal-host/timing/caller/0027e7b0.asm.txt",
+      "sha256": "5af99e5a5d9ede5ed7870b6d1eff08c2dd526a70a5edab44bfd15ca90db995f2"
+    },
+    {
+      "path": "signal-host/pass5/001ea774.c",
+      "sha256": "4f391dc2b854a6fc377ee6904bd936afe60602eeed6361c5a077d873a019ed18"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+气囊容器与分配器续查：五组动态块调用的来源
+2026-11-08；A02 0.2.71.0官方样本，同前轮SHA256与映射。只读Ghidra/noanalysis，未修改旧证据/工程，未运行固件或访问设备。
+
+本轮没有找到Fault1–4 writer。推进的是此前明确留下的容器/分配器下一跳，不把这些辅助函数全部未知直接归为必须实机。
+
+1. 08016AD4：容量受检的CBOR bytes/string输出
+对象布局{base,capacity,used}。先检查used+length+header是否超过capacity，再写header、向base+used复制payload，递增used。
+三个直接caller：1FBFE、1FF2E在前轮已绑定栈上的序列化对象；新第三个1FF8C属于1FF78字符串wrapper，以strlen作为length，传同一个输出对象。
+1F0A0设置用于遥测的对象base=caller_payload+1，capacity=3FF，used=0；1FBC0/1FDA4的payload是caller栈区域。没有将读出的袋快照反写为袋对象。
+算术capacity检查的整数溢出与任意伪造容器不在正常上下文排除中，未按安全专项展开。
+
+2. 08016B80：CBOR float32编码
+写入0xFA和4个网络序float字节，先验证used+5<=capacity。它是序列化器，不是把被读取的float写回袋。
+13个调用引用归属于两个函数：20A3C遥测，21DFC校准参数序列化。
+20A3C用本地auStack_424对象和auStack_418 payload构造，读取B_i+A2等再写输出。21DFC接受caller提供的base/capacity，序列化静态校准参数集200014B0附近。
+21DFC两已识别caller为1A594和18564；本轮仅定位其存在，尚未绑定这两个caller的全部输出实参，不能把所有校准序列化输出都无条件归为栈或heap。该残余是具体callsite，不是新增Fault writer证据。
+
+3. 08016EC2：环队列取出，源和目的分开
+源对象{base,capacity,element_size,write_count,read_count}，可跨环末分两次复制，最后更新read_count。
+1F92A实际调用：源2000B368（已由LIS初始化设base2000B37C、capacity60h、element_size4），目的为97word本地栈区，最多取60h项；是LIS pk-pk统计输入，与袋对象不重叠。
+第二直接caller16F56属于wrapper16F1C，源由200015A0给出。启动1BDF4明确把200015A0写为200024DC；该捕获ring初值base200018BC、capacity800h、element_size1，read/write计数0。
+启动另把callback=08016F1D写入20002538，作为后续消费接口；wrapper的目的仍来自其entry r0，数量来自entry r1。现有工程16F1C没有直接调用引用，本轮绑定注册值和源对象，但没有穷尽驱动注册后所有间接调用实参；不能把动态目的自动等同袋或栈。
+这是可明确表示的剩余间接边：20002538回调调用时的r0/r1。没有发现它传入B_i+A2的证据。
+
+4. 080280C2/080286CA：普通heap分配返回值的复制
+28070唯一已识别直接caller在28190，属于运行库stream缓冲路径；2867C是reallocation辅助，唯一直接caller28108在28070内部。
+两个memcpy目标均来自106C4分配结果；106C4向下调用10680→107E4→1089C。
+1089C原指令：首次break为2000D310，返回旧break并将break增加输入；106C4在正常正长度分配/有效free-list的路径产生heap块。
+袋区为[2000BF88,2000C3E8)，所有Fault字节均低于2000D310。因此正常heap目标不可能是袋对象；这不是任意负增长、整数回绕或损坏free-list下的内存隔离证明。
+本轮停在分配来源，不展开28190以上格式输出或任何共享日志缓冲/重入专项。
+
+5. 已闭合与精确残余
+已补：CBOR对象容量/输出方向、遥测栈buffer、LIS环队列到本地栈、capture源ring初始化与回调注册、heap根起点和分配方向。
+仍可静态接续：21DFC两caller1A594/18564的实际base/capacity；20002538 callback消费时的entry r0/r1（驱动对象传递）。未穷尽通用ring/序列化器的所有伪造实参，但没有新的可指认Fault1–4生产端。
+这些具体残余不能被本轮的正常路径排除覆盖，也不需要先声称必须实机。实际Fault1..4日志及另版writer仍可帮助判断是否值得继续逐个运行库/驱动alias。
+
+验证
+scripts/verify_bytes.py可复跑；1373条导出指令记录、84条flash literal均对回原件（含重复owner）。pass1..4保留目标函数、refs、原指令及配置范围；SOURCE文件manifest绑定各项。
+无新增算法数值模型，本轮是对象归属/方向与区间分析；不把P-code推导当原厂源码。

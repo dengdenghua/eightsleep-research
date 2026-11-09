@@ -1,0 +1,578 @@
+// IL code: Microsoft.Extensions.Configuration
+.class public auto ansi beforefieldinit Microsoft.Extensions.Configuration.ConfigurationRoot
+	extends [System.Runtime]System.Object
+	implements [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationRoot,
+	           [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfiguration,
+	           [System.Runtime]System.IDisposable
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.custom instance void [System.Runtime]System.Reflection.DefaultMemberAttribute::.ctor(string) = (
+		01 00 04 49 74 65 6d 00 00
+	)
+	.custom instance void [System.Runtime]System.Diagnostics.DebuggerDisplayAttribute::.ctor(string) = (
+		01 00 17 7b 44 65 62 75 67 67 65 72 54 6f 53 74
+		72 69 6e 67 28 29 2c 6e 71 7d 00 00
+	)
+	.custom instance void [System.Runtime]System.Diagnostics.DebuggerTypeProxyAttribute::.ctor(class [System.Runtime]System.Type) = (
+		01 00 4f 4d 69 63 72 6f 73 6f 66 74 2e 45 78 74
+		65 6e 73 69 6f 6e 73 2e 43 6f 6e 66 69 67 75 72
+		61 74 69 6f 6e 2e 43 6f 6e 66 69 67 75 72 61 74
+		69 6f 6e 52 6f 6f 74 2b 43 6f 6e 66 69 67 75 72
+		61 74 69 6f 6e 52 6f 6f 74 44 65 62 75 67 56 69
+		65 77 00 00
+	)
+	.interfaceimpl type [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationRoot
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	.interfaceimpl type [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfiguration
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	.interfaceimpl type [System.Runtime]System.IDisposable
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit ConfigurationRootDebugView
+		extends [System.Runtime]System.Object
+	{
+		// Fields
+		.field private initonly class Microsoft.Extensions.Configuration.ConfigurationRoot _current
+
+		// Methods
+		.method public hidebysig specialname rtspecialname 
+			instance void .ctor (
+				class Microsoft.Extensions.Configuration.ConfigurationRoot current
+			) cil managed 
+		{
+			// Method begins at RVA 0x3c0b
+			// Header size: 1
+			// Code size: 14 (0xe)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+			IL_0006: ldarg.0
+			IL_0007: ldarg.1
+			IL_0008: stfld class Microsoft.Extensions.Configuration.ConfigurationRoot Microsoft.Extensions.Configuration.ConfigurationRoot/ConfigurationRootDebugView::_current
+			IL_000d: ret
+		} // end of method ConfigurationRootDebugView::.ctor
+
+		.method public hidebysig specialname 
+			instance class Microsoft.Extensions.Configuration.ConfigurationSectionDebugView[] get_Items () cil managed 
+		{
+			// Method begins at RVA 0x3c1a
+			// Header size: 1
+			// Code size: 23 (0x17)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class Microsoft.Extensions.Configuration.ConfigurationRoot Microsoft.Extensions.Configuration.ConfigurationRoot/ConfigurationRootDebugView::_current
+			IL_0006: ldarg.0
+			IL_0007: ldfld class Microsoft.Extensions.Configuration.ConfigurationRoot Microsoft.Extensions.Configuration.ConfigurationRoot/ConfigurationRootDebugView::_current
+			IL_000c: call class [System.Collections]System.Collections.Generic.List`1<class Microsoft.Extensions.Configuration.ConfigurationSectionDebugView> Microsoft.Extensions.Configuration.ConfigurationSectionDebugView::FromConfiguration(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfiguration, class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationRoot)
+			IL_0011: callvirt instance !0[] class [System.Collections]System.Collections.Generic.List`1<class Microsoft.Extensions.Configuration.ConfigurationSectionDebugView>::ToArray()
+			IL_0016: ret
+		} // end of method ConfigurationRootDebugView::get_Items
+
+		// Properties
+		.property instance class Microsoft.Extensions.Configuration.ConfigurationSectionDebugView[] Items()
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerBrowsableAttribute::.ctor(valuetype [System.Runtime]System.Diagnostics.DebuggerBrowsableState) = (
+				01 00 03 00 00 00 00 00
+			)
+			.get instance class Microsoft.Extensions.Configuration.ConfigurationSectionDebugView[] Microsoft.Extensions.Configuration.ConfigurationRoot/ConfigurationRootDebugView::get_Items()
+		}
+
+	} // end of class ConfigurationRootDebugView
+
+
+	// Fields
+	.field private initonly class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> _providers
+	.field private initonly class [System.Collections]System.Collections.Generic.List`1<class [System.Runtime]System.IDisposable> _changeTokenRegistrations
+	.field private class Microsoft.Extensions.Configuration.ConfigurationReloadToken _changeToken
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> providers
+		) cil managed 
+	{
+		// Method begins at RVA 0x2dbc
+		// Header size: 12
+		// Code size: 136 (0x88)
+		.maxstack 4
+		.locals init (
+			[0] class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>,
+			[1] class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: newobj instance void Microsoft.Extensions.Configuration.ConfigurationReloadToken::.ctor()
+		IL_0006: stfld class Microsoft.Extensions.Configuration.ConfigurationReloadToken Microsoft.Extensions.Configuration.ConfigurationRoot::_changeToken
+		IL_000b: ldarg.0
+		IL_000c: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0011: ldarg.1
+		IL_0012: ldstr "providers"
+		IL_0017: call void [System.Runtime]System.ArgumentNullException::ThrowIfNull(object, string)
+		IL_001c: ldarg.0
+		IL_001d: ldarg.1
+		IL_001e: stfld class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> Microsoft.Extensions.Configuration.ConfigurationRoot::_providers
+		IL_0023: ldarg.0
+		IL_0024: ldarg.1
+		IL_0025: callvirt instance int32 class [System.Runtime]System.Collections.Generic.ICollection`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::get_Count()
+		IL_002a: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class [System.Runtime]System.IDisposable>::.ctor(int32)
+		IL_002f: stfld class [System.Collections]System.Collections.Generic.List`1<class [System.Runtime]System.IDisposable> Microsoft.Extensions.Configuration.ConfigurationRoot::_changeTokenRegistrations
+		IL_0034: ldarg.1
+		IL_0035: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::GetEnumerator()
+		IL_003a: stloc.0
+		.try
+		{
+			IL_003b: br.s IL_0073
+			// loop start (head: IL_0073)
+				IL_003d: ldloc.0
+				IL_003e: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::get_Current()
+				IL_0043: stloc.1
+				IL_0044: ldloc.1
+				IL_0045: callvirt instance void [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider::Load()
+				IL_004a: ldarg.0
+				IL_004b: ldfld class [System.Collections]System.Collections.Generic.List`1<class [System.Runtime]System.IDisposable> Microsoft.Extensions.Configuration.ConfigurationRoot::_changeTokenRegistrations
+				IL_0050: ldloc.1
+				IL_0051: dup
+				IL_0052: ldvirtftn instance class [Microsoft.Extensions.Primitives]Microsoft.Extensions.Primitives.IChangeToken [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider::GetReloadToken()
+				IL_0058: newobj instance void class [System.Runtime]System.Func`1<class [Microsoft.Extensions.Primitives]Microsoft.Extensions.Primitives.IChangeToken>::.ctor(object, native int)
+				IL_005d: ldarg.0
+				IL_005e: ldftn instance void Microsoft.Extensions.Configuration.ConfigurationRoot::RaiseChanged()
+				IL_0064: newobj instance void [System.Runtime]System.Action::.ctor(object, native int)
+				IL_0069: call class [System.Runtime]System.IDisposable [Microsoft.Extensions.Primitives]Microsoft.Extensions.Primitives.ChangeToken::OnChange(class [System.Runtime]System.Func`1<class [Microsoft.Extensions.Primitives]Microsoft.Extensions.Primitives.IChangeToken>, class [System.Runtime]System.Action)
+				IL_006e: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class [System.Runtime]System.IDisposable>::Add(!0)
+
+				IL_0073: ldloc.0
+				IL_0074: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_0079: brtrue.s IL_003d
+			// end loop
+
+			IL_007b: leave.s IL_0087
+		} // end .try
+		finally
+		{
+			IL_007d: ldloc.0
+			IL_007e: brfalse.s IL_0086
+
+			IL_0080: ldloc.0
+			IL_0081: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_0086: endfinally
+		} // end handler
+
+		IL_0087: ret
+	} // end of method ConfigurationRoot::.ctor
+
+	.method public final hidebysig specialname newslot virtual 
+		instance class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> get_Providers () cil managed 
+	{
+		// Method begins at RVA 0x2e60
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> Microsoft.Extensions.Configuration.ConfigurationRoot::_providers
+		IL_0006: ret
+	} // end of method ConfigurationRoot::get_Providers
+
+	.method public final hidebysig specialname newslot virtual 
+		instance string get_Item (
+			string key
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2e68
+		// Header size: 1
+		// Code size: 13 (0xd)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> Microsoft.Extensions.Configuration.ConfigurationRoot::_providers
+		IL_0006: ldarg.1
+		IL_0007: call string Microsoft.Extensions.Configuration.ConfigurationRoot::GetConfiguration(class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>, string)
+		IL_000c: ret
+	} // end of method ConfigurationRoot::get_Item
+
+	.method public final hidebysig specialname newslot virtual 
+		instance void set_Item (
+			string key,
+			string 'value'
+		) cil managed 
+	{
+		.param [2]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2e76
+		// Header size: 1
+		// Code size: 14 (0xe)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> Microsoft.Extensions.Configuration.ConfigurationRoot::_providers
+		IL_0006: ldarg.1
+		IL_0007: ldarg.2
+		IL_0008: call void Microsoft.Extensions.Configuration.ConfigurationRoot::SetConfiguration(class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>, string, string)
+		IL_000d: ret
+	} // end of method ConfigurationRoot::set_Item
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationSection> GetChildren () cil managed 
+	{
+		// Method begins at RVA 0x2e85
+		// Header size: 1
+		// Code size: 8 (0x8)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldnull
+		IL_0002: call class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationSection> Microsoft.Extensions.Configuration.InternalConfigurationRootExtensions::GetChildrenImplementation(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationRoot, string)
+		IL_0007: ret
+	} // end of method ConfigurationRoot::GetChildren
+
+	.method public final hidebysig newslot virtual 
+		instance class [Microsoft.Extensions.Primitives]Microsoft.Extensions.Primitives.IChangeToken GetReloadToken () cil managed 
+	{
+		// Method begins at RVA 0x2e8e
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Microsoft.Extensions.Configuration.ConfigurationReloadToken Microsoft.Extensions.Configuration.ConfigurationRoot::_changeToken
+		IL_0006: ret
+	} // end of method ConfigurationRoot::GetReloadToken
+
+	.method public final hidebysig newslot virtual 
+		instance class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationSection GetSection (
+			string key
+		) cil managed 
+	{
+		// Method begins at RVA 0x2e96
+		// Header size: 1
+		// Code size: 8 (0x8)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: newobj instance void Microsoft.Extensions.Configuration.ConfigurationSection::.ctor(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationRoot, string)
+		IL_0007: ret
+	} // end of method ConfigurationRoot::GetSection
+
+	.method public final hidebysig newslot virtual 
+		instance void Reload () cil managed 
+	{
+		// Method begins at RVA 0x2ea0
+		// Header size: 12
+		// Code size: 52 (0x34)
+		.maxstack 1
+		.locals init (
+			[0] class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> Microsoft.Extensions.Configuration.ConfigurationRoot::_providers
+		IL_0006: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::GetEnumerator()
+		IL_000b: stloc.0
+		.try
+		{
+			IL_000c: br.s IL_0019
+			// loop start (head: IL_0019)
+				IL_000e: ldloc.0
+				IL_000f: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::get_Current()
+				IL_0014: callvirt instance void [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider::Load()
+
+				IL_0019: ldloc.0
+				IL_001a: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_001f: brtrue.s IL_000e
+			// end loop
+
+			IL_0021: leave.s IL_002d
+		} // end .try
+		finally
+		{
+			IL_0023: ldloc.0
+			IL_0024: brfalse.s IL_002c
+
+			IL_0026: ldloc.0
+			IL_0027: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_002c: endfinally
+		} // end handler
+
+		IL_002d: ldarg.0
+		IL_002e: call instance void Microsoft.Extensions.Configuration.ConfigurationRoot::RaiseChanged()
+		IL_0033: ret
+	} // end of method ConfigurationRoot::Reload
+
+	.method private hidebysig 
+		instance void RaiseChanged () cil managed 
+	{
+		// Method begins at RVA 0x2ef0
+		// Header size: 1
+		// Code size: 22 (0x16)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldflda class Microsoft.Extensions.Configuration.ConfigurationReloadToken Microsoft.Extensions.Configuration.ConfigurationRoot::_changeToken
+		IL_0006: newobj instance void Microsoft.Extensions.Configuration.ConfigurationReloadToken::.ctor()
+		IL_000b: call !!0 [System.Threading]System.Threading.Interlocked::Exchange<class Microsoft.Extensions.Configuration.ConfigurationReloadToken>(!!0&, !!0)
+		IL_0010: callvirt instance void Microsoft.Extensions.Configuration.ConfigurationReloadToken::OnReload()
+		IL_0015: ret
+	} // end of method ConfigurationRoot::RaiseChanged
+
+	.method public final hidebysig newslot virtual 
+		instance void Dispose () cil managed 
+	{
+		// Method begins at RVA 0x2f08
+		// Header size: 12
+		// Code size: 108 (0x6c)
+		.maxstack 2
+		.locals init (
+			[0] valuetype [System.Collections]System.Collections.Generic.List`1/Enumerator<class [System.Runtime]System.IDisposable>,
+			[1] class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections]System.Collections.Generic.List`1<class [System.Runtime]System.IDisposable> Microsoft.Extensions.Configuration.ConfigurationRoot::_changeTokenRegistrations
+		IL_0006: callvirt instance valuetype [System.Collections]System.Collections.Generic.List`1/Enumerator<!0> class [System.Collections]System.Collections.Generic.List`1<class [System.Runtime]System.IDisposable>::GetEnumerator()
+		IL_000b: stloc.0
+		.try
+		{
+			IL_000c: br.s IL_001a
+			// loop start (head: IL_001a)
+				IL_000e: ldloca.s 0
+				IL_0010: call instance !0 valuetype [System.Collections]System.Collections.Generic.List`1/Enumerator<class [System.Runtime]System.IDisposable>::get_Current()
+				IL_0015: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+				IL_001a: ldloca.s 0
+				IL_001c: call instance bool valuetype [System.Collections]System.Collections.Generic.List`1/Enumerator<class [System.Runtime]System.IDisposable>::MoveNext()
+				IL_0021: brtrue.s IL_000e
+			// end loop
+
+			IL_0023: leave.s IL_0033
+		} // end .try
+		finally
+		{
+			IL_0025: ldloca.s 0
+			IL_0027: constrained. valuetype [System.Collections]System.Collections.Generic.List`1/Enumerator<class [System.Runtime]System.IDisposable>
+			IL_002d: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+			IL_0032: endfinally
+		} // end handler
+
+		IL_0033: ldarg.0
+		IL_0034: ldfld class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> Microsoft.Extensions.Configuration.ConfigurationRoot::_providers
+		IL_0039: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::GetEnumerator()
+		IL_003e: stloc.1
+		.try
+		{
+			IL_003f: br.s IL_0057
+			// loop start (head: IL_0057)
+				IL_0041: ldloc.1
+				IL_0042: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::get_Current()
+				IL_0047: isinst [System.Runtime]System.IDisposable
+				IL_004c: dup
+				IL_004d: brtrue.s IL_0052
+
+				IL_004f: pop
+				IL_0050: br.s IL_0057
+
+				IL_0052: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+				IL_0057: ldloc.1
+				IL_0058: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_005d: brtrue.s IL_0041
+			// end loop
+
+			IL_005f: leave.s IL_006b
+		} // end .try
+		finally
+		{
+			IL_0061: ldloc.1
+			IL_0062: brfalse.s IL_006a
+
+			IL_0064: ldloc.1
+			IL_0065: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_006a: endfinally
+		} // end handler
+
+		IL_006b: ret
+	} // end of method ConfigurationRoot::Dispose
+
+	.method assembly hidebysig static 
+		string GetConfiguration (
+			class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> providers,
+			string key
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2f9c
+		// Header size: 12
+		// Code size: 40 (0x28)
+		.maxstack 3
+		.locals init (
+			[0] int32,
+			[1] string
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: callvirt instance int32 class [System.Runtime]System.Collections.Generic.ICollection`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::get_Count()
+		IL_0006: ldc.i4.1
+		IL_0007: sub
+		IL_0008: stloc.0
+		IL_0009: br.s IL_0022
+		// loop start (head: IL_0022)
+			IL_000b: ldarg.0
+			IL_000c: ldloc.0
+			IL_000d: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::get_Item(int32)
+			IL_0012: ldarg.1
+			IL_0013: ldloca.s 1
+			IL_0015: callvirt instance bool [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider::TryGet(string, string&)
+			IL_001a: brfalse.s IL_001e
+
+			IL_001c: ldloc.1
+			IL_001d: ret
+
+			IL_001e: ldloc.0
+			IL_001f: ldc.i4.1
+			IL_0020: sub
+			IL_0021: stloc.0
+
+			IL_0022: ldloc.0
+			IL_0023: ldc.i4.0
+			IL_0024: bge.s IL_000b
+		// end loop
+
+		IL_0026: ldnull
+		IL_0027: ret
+	} // end of method ConfigurationRoot::GetConfiguration
+
+	.method assembly hidebysig static 
+		void SetConfiguration (
+			class [System.Runtime]System.Collections.Generic.IList`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> providers,
+			string key,
+			string 'value'
+		) cil managed 
+	{
+		.param [3]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2fd0
+		// Header size: 12
+		// Code size: 62 (0x3e)
+		.maxstack 3
+		.locals init (
+			[0] class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: callvirt instance int32 class [System.Runtime]System.Collections.Generic.ICollection`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::get_Count()
+		IL_0006: brtrue.s IL_0013
+
+		IL_0008: call string System.SR::get_Error_NoSources()
+		IL_000d: newobj instance void [System.Runtime]System.InvalidOperationException::.ctor(string)
+		IL_0012: throw
+
+		IL_0013: ldarg.0
+		IL_0014: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::GetEnumerator()
+		IL_0019: stloc.0
+		.try
+		{
+			IL_001a: br.s IL_0029
+			// loop start (head: IL_0029)
+				IL_001c: ldloc.0
+				IL_001d: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider>::get_Current()
+				IL_0022: ldarg.1
+				IL_0023: ldarg.2
+				IL_0024: callvirt instance void [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider::Set(string, string)
+
+				IL_0029: ldloc.0
+				IL_002a: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_002f: brtrue.s IL_001c
+			// end loop
+
+			IL_0031: leave.s IL_003d
+		} // end .try
+		finally
+		{
+			IL_0033: ldloc.0
+			IL_0034: brfalse.s IL_003c
+
+			IL_0036: ldloc.0
+			IL_0037: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_003c: endfinally
+		} // end handler
+
+		IL_003d: ret
+	} // end of method ConfigurationRoot::SetConfiguration
+
+	.method private hidebysig 
+		instance string DebuggerToString () cil managed 
+	{
+		// Method begins at RVA 0x302c
+		// Header size: 12
+		// Code size: 49 (0x31)
+		.maxstack 3
+		.locals init (
+			[0] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: ldc.i4.s 11
+		IL_0004: ldc.i4.1
+		IL_0005: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_000a: ldloca.s 0
+		IL_000c: ldstr "Sections = "
+		IL_0011: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0016: ldloca.s 0
+		IL_0018: ldarg.0
+		IL_0019: ldarg.0
+		IL_001a: call class [System.Collections]System.Collections.Generic.List`1<class Microsoft.Extensions.Configuration.ConfigurationSectionDebugView> Microsoft.Extensions.Configuration.ConfigurationSectionDebugView::FromConfiguration(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfiguration, class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationRoot)
+		IL_001f: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<class Microsoft.Extensions.Configuration.ConfigurationSectionDebugView>::get_Count()
+		IL_0024: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_0029: ldloca.s 0
+		IL_002b: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_0030: ret
+	} // end of method ConfigurationRoot::DebuggerToString
+
+	// Properties
+	.property instance class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> Providers()
+	{
+		.get instance class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationProvider> Microsoft.Extensions.Configuration.ConfigurationRoot::get_Providers()
+	}
+	.property instance string Item(
+		string key
+	)
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		.get instance string Microsoft.Extensions.Configuration.ConfigurationRoot::get_Item(string)
+		.set instance void Microsoft.Extensions.Configuration.ConfigurationRoot::set_Item(string, string)
+	}
+
+} // end of class Microsoft.Extensions.Configuration.ConfigurationRoot

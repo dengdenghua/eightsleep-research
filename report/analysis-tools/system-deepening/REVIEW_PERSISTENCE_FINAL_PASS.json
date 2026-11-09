@@ -1,0 +1,173 @@
+{
+  "status": "PASS",
+  "review_date": "2026-11-08",
+  "reviewer": "report_language_finish",
+  "scope": "Independent read-only review of V10211 startup data decoder, initialized flash objects, primary initialization, completion dispatch and callback 0002faac; no whole-program persistence closure claim.",
+  "original": {
+    "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/finishable-20261107/accessories-c11/extracted/OTA_KS8S08C010000001_V10211_nRF52832_202602070917/nrf52832_xxaa.bin",
+    "bytes": 73656,
+    "mapping_base": "00026000",
+    "sha256": "1856c1baec5f9bca7151e5b550fdf0a8d749e87f889d963a3a343293a4160966"
+  },
+  "independent_checks": {
+    "startup_table_words": [
+      "00037d3c",
+      "20002aa8",
+      "00000cc8",
+      "00026580",
+      "00037fb8",
+      "20003770",
+      "00004898",
+      "0002c490"
+    ],
+    "decoder_method": "New bounded byte reconstruction from 26580 raw pre-decrement loops; did not import or execute the report decoder script.",
+    "compressed_bytes": 634,
+    "output_bytes": 3272,
+    "output_sha256": "8d51ebaf55bfc3a5f0a608d3c4ff7e6e1ae087d1056f0c963346056aa1e80b51",
+    "matches_saved_startup_data": true,
+    "tokens": 123,
+    "zero_runs": 39,
+    "backref_runs": 84,
+    "literal_bytes": 398,
+    "objects": {
+      "20003748": [
+        "00000000",
+        "00000000",
+        "0002faad",
+        "00074000",
+        "00077fff"
+      ],
+      "2000375c": [
+        "00000000",
+        "00000000",
+        "0002faa5",
+        "00000000",
+        "00000000"
+      ]
+    },
+    "bss_half_open": [
+      "20003770",
+      "20008008"
+    ],
+    "record_is_inside_bss": true,
+    "selected_instruction_addresses_verified": 200,
+    "selected_instruction_bytes_verified": 482,
+    "rom_literal_words_verified": 10,
+    "independently_decoded_branches": [
+      {
+        "from": "0002fac2",
+        "to": "00032c34"
+      },
+      {
+        "from": "0002fad8",
+        "to": "00032c4a"
+      },
+      {
+        "from": "00032c38",
+        "to": "00035f44"
+      },
+      {
+        "from": "00032c54",
+        "to": "00035f44"
+      },
+      {
+        "from": "0002faa6",
+        "to": "000350d0"
+      },
+      {
+        "from": "00029660",
+        "to": "0003221c"
+      }
+    ],
+    "primary_api_table": [
+      "00030099",
+      "000365f1",
+      "000353a9",
+      "000369f9",
+      "0002f67d",
+      "00035739",
+      "000369f3",
+      "00030685"
+    ],
+    "callback_instructions": 26,
+    "callback_body_has_no_stores_or_flash_submission": true,
+    "callback_diagnostic_format_strings": {
+      "00037130": "--> Event received: ERROR while executing an fstorage operation.",
+      "0002faf4": "--> Event received: erased %d page from address 0x%x.",
+      "0002fb2c": "--> Event received: wrote %d bytes at address 0x%x."
+    }
+  },
+  "conclusions_zh": [
+    "26580 对 literal_count 先减一再复制；bit3=0 填 run 个零，bit3=1 使用一字节回距并复制 run+2 字节，允许重叠。634B 原件输入独立还原 3272B，与已保留 startup-data.bin 逐字节相同。",
+    "20003748 主对象的初值 callback=0002faad、范围74000..77fff；2000375c FDS对象 callback=0002faa5。二者均来自启动 .data，不是实机 RAM 读数。",
+    "29658 的原 ROM literal 将主对象20003748与API表36f98交给3221c；3223c写对象首字，3223e/3224c跳API首函数30098。此链绑定正确。",
+    "2f99c从队列项首字取得对象，再从对象+8读取完成回调；事件+4=result，+0=kind，+8=地址，+10=字节/页数。与主回调消费一致。",
+    "2faac自身只读result/kind与地址/长度，错误尾跳32c34，成功写/擦除尾跳32c4a；两种包装只将诊断参数交给35f44。回调体没有构造下一条Flash操作、没有复制位置RAM或调用Flash写API。",
+    "2faa4的两条原指令为读取event+4并尾跳350d0，确为另一回调入口；不能将其FDS推进路径等同主对象32B记录追加。"
+  ],
+  "material_discrepancies": [],
+  "limits_zh": [
+    "本复核只确认已给定的正常启动和完成回调链，不证明整个应用没有32B保存生产者。",
+    "未追诊断输出内部的异常行为、日志重入或任意运行时回调替换；没有重新开启被停止的专项。",
+    "没有运行厂商代码、打开Ghidra工程、调用设备或服务；没有修改local-persistence-final-pass或P。",
+    "任意跨过程别名、其余动态回调及系统服务实现仍属于原报告明确列出的未闭合范围。"
+  ],
+  "reviewed_sources": [
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/FINDINGS_ZH.txt",
+      "sha256": "25c7b0e9c2453239a4c1b169eb3606333cc8867d0463cb2842b3c96f4cb7b956"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/INPUTS.json",
+      "sha256": "924511778cd75a6706520ce86b4bacae94eb7ef3767d4bf4fe42052377a09abf"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/STARTUP_DATA.json",
+      "sha256": "480321888653cfdadaaa4fceb7c164812a8f3e766b2d20d41100bfabce5fe946"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/startup-data.bin",
+      "sha256": "8d51ebaf55bfc3a5f0a608d3c4ff7e6e1ae087d1056f0c963346056aa1e80b51"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/STARTUP_CODE_POINTERS.json",
+      "sha256": "a28cddba22533304a0d0cde951ce79dbdf466559bfc22afe5f6cfad3b676c7c4"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/scripts/decode_startup_data.py",
+      "sha256": "1f525a75e756bb55b7854f1dd1df1f7d5bb43b04daf2c8c879c53de6c4751b3f"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/pass3/00026580.txt",
+      "sha256": "3e58bf6934f3bdccace7397d140a91a64515572662ff60122da439af35b6d1e5"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/pass3/0002c490.txt",
+      "sha256": "28e641d46b024079f319d27f0f3e87840e0fd9b0bf7388e7efefdf13af55b695"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/pass3/0002faac.txt",
+      "sha256": "210f812de6c148a7d0ed9b049c2e0a80941ce263e167054e22428d35f7dff85f"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/pass3/0002faa4.txt",
+      "sha256": "000f73e2c54240f526a71af1940cae3e4727184fe470c1991924275f28c9d5d9"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/pass3/0002f99c.txt",
+      "sha256": "9307cab776e40ee29f0a288123bb8328b9e002d60e3e8e9b616636bd25e59661"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/pass2/00029658.txt",
+      "sha256": "a3d7ff9df4d071bf478a5fd811970bfb990ed49cda188c8b6a958fd95c6b4796"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/pass2/0003221c.txt",
+      "sha256": "f024b3f043530eda3e3e1df1e44b2c4ac47d8c21ebf7b5de11514a39a9638276"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-persistence-final-pass/reference/decoded-instructions.tsv",
+      "sha256": "cce179a0a4f6fcbdf7acd1653caae42a70ab21ec369a0dac11a2c89bd78f0dd6"
+    }
+  ]
+}

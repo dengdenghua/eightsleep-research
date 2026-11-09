@@ -1,0 +1,84 @@
+Jetlag：国行 APK 的正常本地处理链
+版本：7.63.5-cn-tencent（APK SHA-256 8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04）
+范围：行程输入 → 创建行程与计划请求 → Room 保存/读取 → 三阶段分组、时间显示和任务状态 → 本地完成进度 → 完成操作回写。
+本轮仅离线读取已保存 APK 派生 Smali/JADX；未运行 APK、请求账号/API 或操作 Pod。不是全部 Jetlag 界面/全 App 穷尽，也未恢复服务端时差适应方案生成。
+
+一、最重要的边界
+当前 App 确有可恢复的本地计算，但服务端返回的 tasks 已包含 type、phase、scheduledAt、timezoneId、instructions、status 和 metadata。App 的这条链把它们保存并转换成界面、分组和完成状态；没有据此得到光照/睡眠/补充剂时间安排的生产生成算法。源代码中的 SLEEP 是任务类型，不能当作睡眠分期输出。
+本轮源码锚点列在 SOURCE_ANCHORS.json；SOURCE_LEDGER.json 将原始大小写路径、文件 SHA、行号和哈希命名副本绑定。JADX 有反编译警告，分组、状态、时间包装、任务回写等关键分支按 Smali 复核。
+
+二、创建：本地拼装行程，服务端产生计划
+1. JetLagTripViewModel.createTripAndJetLagPlan 的协程按 destinations 顺序生成 gc/p 航段；下一段起点变为上一段终点。每段包含起终点名称/机场码/ZoneOffset、出发和到达时间。
+   ng/a.b() 以 flight 字符串是否为空为判定：为空时，将手填时刻经 Ga/s.n(相应地点 offset) 处理；已有航班选择时保留其 Instant。这里只记录两个输入分支，不宣称航班查询的时间数据已经实机校准。
+2. JetLagTripRepository.createTrip → ec/h → dc/b.c，地址 v1/users/{USER_ID}/travel/trips。ec/h 把每段的地点 offset.getId() 和两个 Instant 写入 TripLegRequest，再包进 CreateTripRequest。返回 TripResponse 后 ec/i 生成持久实体，经 jc/g 保存。
+3. 创建行程结果中的 trip ID 被送入 CreateJetLagPlanUseCase → PlanRepository.createPlan → ec/a → dc/a.a，地址 v1/users/{USER_ID}/travel/trips/{TRIP_ID}/plans。
+   这条调用生成 CreateJetLagPlanRequest(supplementsEnabled = 用户选项, stayingLongerThanThreeDays = true)。第二参数是此分支的常量，不是本地计算出逗留天数。
+4. 表单还有明确本地检查：起终点名称相同；到达早于出发；后续出发早于上段到达；LAYOVER 分支 ChronoUnit.HOURS.between(...) > 20。这里不把 UI 条件当作服务端验证，也不扩展为所有航程合法性规则。validateSchedule 使用 Ga/s.n，具体 offset 取值仍以源函数为准。
+
+三、Room 保存、观察与展示的来源
+计划响应通过 ec/b / Ao/l 的对应分支转成 lc/a 计划实体和 lc/c 任务实体；hf/c → P2/r.N 先提交计划，再提交任务集合。kc/c 保存语句为 INSERT OR REPLACE INTO jet_lag_plan / jet_lag_plan_task。没有在此步骤生成新的任务时刻。
+PlanRepository.getPlan(tripId,userId,forceRefresh) 在非强制分支先查询缓存；命中直接返回。observePlan 观察 jc/d.d，订阅 jet_lag_plan 与 jet_lag_plan_task；Hb/h 中缓存为空才调用 getPlan(..., true)，非空则发出缓存结果。jc/d 构造含 24h 缓存时长字段，但本条 observePlan/getPlan 的已读分支没有把它用于命中后必刷判断，不能写“每 24 小时自动刷新”。
+任务关联 SQL 为 WHERE planId IN (...)，已读语句没有 ORDER BY。后续分组保留拿到的任务顺序，因此不能把服务端数组顺序、数据库读取顺序、界面内时间顺序视为已证明全程一致。
+lc/d.a → gc/j 保存 Instant 等原始字段；hc/N/M 结合 displaySettings 后 gc/j.a 生成 gc/c/gc/e，主要把 Instant 包装成 Ga/s 并带 ClockSystem。这里的 RawJetLagPlan 命名不表示传感器原始波形。
+
+四、本地三阶段分组与选中规则
+JetLagPlanViewModel.groupTasksByPhaseAndDate：
+- PRE_FLIGHT：对各任务计算 Ga/s.n(ZoneOffset.of(timezoneId)).k() 日期键，按 TreeMap 日期升序；同日期的任务保持输入顺序，没有再按 scheduledAt 排序。
+- IN_FLIGHT：按 metadata.legId 用 LinkedHashMap 分组，组顺序取决于 legId 首次出现；组内保持输入顺序。
+- POST_FLIGHT：顺序累积任务，遇到 SLEEP 时把包含该 SLEEP 的当前组提交，然后清空临时组。循环结束没有额外提交未遇 SLEEP 的尾组。这是本函数的有限规则；真实服务端是否总以 SLEEP 收尾未采集验证。
+结果按 PRE → IN → POST 插入。
+
+mapPlanToUiModel 在本次映射开始时取一次 Instant.now，顺序遍历所有组：
+  scheduledAt < now                     → PAST
+  scheduledAt >= now 且尚未选过 CURRENT → CURRENT
+  其余未过时任务                         → FUTURE
+CURRENT 标记跨组、跨阶段保留，至多一个；不是每组一个，也不是额外排序后寻找时间最近的任务。等于 now 进入未过时分支。COMPLETE/PENDING 独立决定完成标志，不由 PAST/FUTURE 推导。
+IN_FLIGHT 的三个时间标签按组内索引 % 3 选择 Take-off / In Air / Landing；其他任务用时间包装后的格式化结果。
+组的 allTasksEnabled 是“不含 FUTURE”，allTasksComplete 是“全部 COMPLETE”。POST 的 PostFlightUiModel 保存组总数和完成数；nightNumber 在此代码是 (本阶段组索引 % 当前组 POST 任务数) + 1，而不是由日历相减得出。
+
+五、时间函数：必须保留实际调用含义
+Ga/s.n(offset) 的实现是：
+  原 Instant → 设备 systemDefault 下的 LocalDate 与 LocalTime
+  合并为 LocalDateTime → toInstant(offset) → 新 Ga/s
+后续 k()、l() 或默认格式化再次按 systemDefault 取日期/时间。因此它是对墙钟字段重新指定 offset，不是保持同一 Instant 的 atZone(offset)。固定 offset 示例中，原 Instant 为 12:00Z、设备 UTC、参数 +08:00 时，结果 Instant 是 04:00Z；设备与参数同为 +08:00 时得到原 Instant。本轮模型只用固定 offset，不推断 DST/手机切时区/各真实服务端字段组合的最终正确性。
+calculateTimeAtDestination 调 Dl/A0.v(Instant.now) 再用最终航段终点 offset 调 n；pollTimeAtDestination 在协程仍活动时更新显示，然后 delay(15000)。这是 15 秒的界面时间刷新，不是每 15 秒重算整个任务计划，也不是访问服务器的周期。
+formatTimeUntilDeparture 使用 ChronoUnit.HOURS.between(LocalDateTime.now(), departure)。按已读顺序，对普通日期范围：整小时差 <= 0 显示 In Flight；1 显示 <1h；2..48 显示 nh；49 及以上显示整数 hours/24 + days。它不会显示精确分钟。
+另一个静态输出边界：mapPlanToUiModel 用 Ga/s.equals(LocalDate.now()) 写 isToday；Ga/s.equals 只接受 Ga/s 类型，所以本函数这个比较为 false。后续 getPlanAndTasks 对 isToday 查找当天组，未找到则其 phase 回退 PRE_FLIGHT。这里仅陈述该 APK 分支，不把它延伸为所有版本/所有入口的现场表现。
+
+六、完成率与修改：本地有计算，服务端仍参与落账
+ng/l → j0/y3 → P2/n.m → mg/h → mg/g.invoke，进度为 float(completedTaskCount) / float(totalTaskCount)。本轮只在非空组复算 2/3、3/3 等有限示例；并未把它与响应 JetLagPlanSummaryResponse.progress 混同，后者是另一份服务端摘要字段。
+用户切换完成状态时，PlanViewModel 的协程先构造 gc/f：id/type/目标 status，metadata.capsuleCount 在 SUPPLEMENT 时取输入数，其他类型为 null，metadata.legId 在此新对象为 null。
+hc/V/U → PlanRepository.updateTasks：
+  A. 先 jc/d.h 更新 Room；Jd/g 的 SQL 更新 id、type、status、metadata。
+  B. 再构造 JetLagBulkTaskUpdateRequest；每任务 status 为操作目标，supplementCount 仅 SUPPLEMENT 填值；提交 dc/a.b，路径 v1/users/{USER_ID}/travel/plans/{PLAN_ID}/tasks。
+  C. 请求成功结果保持已写状态；错误结果 Ao/l 分支 8 用“本次目标的相反 status”再次调用 jc/d.h，然后传递错误。
+C 不是读取此前数据库快照后完整还原；它保留本次 gc/f 的 metadata，反转 status。因此本轮将其称为“错误逆状态更新”，不写成完整数据回滚。未模拟并发点击/进程退出/网络重试；也不能据乐观 UI 变化认定服务端已经确认。
+
+七、补齐的航班、编辑、结束/删除、首页摘要与通知入口
+A. 航班与输入编辑
+findFlights → ec/k → dc/b.b 查询 v1/travel/flight-status；FlightResponse.toDomain 传递响应的出发/到达 Instant、offset 字符串和 duration 字符串。hc/q 把两个 offset 解析成 ZoneOffset，解析异常分别回退 UTC，并用 displaySettings 包装 Instant。它没有根据经纬度推算飞行时间或生理适应时差。
+JetLagTripViewModel.mapFlightToDestinationUiModel / selectFlightSearchResult / showFlightSearchResults 将选定航班的起点、终点、时刻填入本地状态；首段同时替换整个行程起点。
+onScheduleDateChanged$lambda$36 仅修改指定航段指定起飞/到达日期，保留该值的 LocalTime；onScheduleTimeChanged$lambda$39 仅改指定 LocalTime，Ga/s.r(...,null,6) 保留其日期。这两条随后调用 validateSchedule 更新本地错误状态，没有在编辑当下更新已保存服务端行程。onDeleteDestinationClicked$lambda$43 是删本地 destinations 元素。
+
+B. 已保存行程的结束/删除
+PlanViewModel.endTrip$1 → hc/a0.a 传 COMPLETED；该 use case 在已读正常入口把 name/legs 留 null，再经 hc/Z → TripRepository.updateTrip → ec/t → dc/b.a（v1/users/{userId}/travel/trips/{tripId}）。成功返回 TripResponse，经 ec/u 更新 jc/g 缓存；成功回调导航 HomeGraph。
+PlanViewModel.deleteTrip$1 → hc/n/m → TripRepository.deleteTrip → ec/j → dc/b.e（v1/users/{USER_ID}/travel/trips/{TRIP_ID}）；成功回调同样导航 HomeGraph。已读 deleteTrip 仓库正常分支直接返回网络调用，没有像 updateTrip 那样立即写 Room 的额外步骤。后续列表刷新与 Room 外键能力不等于该删除函数已在此处执行本地清除。
+EXTRA_ROUTE_SEARCH.json 保存四 DEX 直接 invoke 边：updateTrip 仓库只有 hc/Z 直接调用；hc/a0.a 除自身协程恢复外，已识别调用来自 endTrip$1。故不能把可空 name/legs 参数声明当作已识别“编辑现有行程”入口；这不是对反射/间接路由的全程序不存在证明。
+
+C. 首页摘要并不消费本文的单组完成率
+hc/w/v 从行程列表选择第一条 PLANNING 或 ACTIVE，未命中则返回 (null,null)；命中后 yc/d.u → hc/z 以 forceRefresh=false 取该 trip 的计划并结合显示设置。
+ControlsViewModel 与 DynamicHome 的已识别 Jetlag 卡片用 gc/c.a()：遍历计划任务，取其缓存日期 gc/e.k 与 LocalDate.now() 相等的第一条任务 phase，找不到为 null。gc/e.k 在构造时由 Ga/s.n(offset).k() 得到。这里使用 LocalDate 比较，和前述计划详情的 Ga/s.equals(LocalDate) 是不同调用。
+Controls 卡片还计算第一航段出发 Instant 与 Instant.now 的整小时差，并取最终航段目的地；IN_FLIGHT/POST_FLIGHT 控制相关显示布尔。DynamicHome AWAY 分支使用同类 trip ID/目的地/小时差/phase，受页面状态/开关门控。未在这两条卡片链中读取服务器 summary.progress，也没有把它重新算成睡眠分数。
+JetLagPlanSummaryResponse 确实含 progress/totalTasks 等字段和 toEntity，Room 也有相应表；但四 DEX 索引里 toEntity 与 getProgress 的直接调用结果为 0，计划 create/get 的已读持久化实际只写 plan+tasks。这里关闭的是“误把声明当活跃计算”的疑点，不断言整 App 从来不通过间接方式使用 summary。
+
+D. 国行通知的正常落地链
+JetLagTripViewModel.checkNotificationsPermissions 检查 OS 通知开关和 App 用户通知设置的两个布尔值，决定 EnableNotifications 或 ProtocolLoading；onNotificationsEnabled 用三个 true 的用户通知设置调用 UpdateAppUserUseCase，成功回调进 ProtocolLoading。
+进一步核了国行 EightJPushMessageReceiver：onMessage 将推送 extra JSON 变成 map；普通可显示消息取 title/body，建立本地 Notification，最终 NotificationManager.notify；path 优先于 uri 成为点击 VIEW intent。onNotifyMessageArrived 经 jh/f.a 将 notificationId 交给 jh/e 协程异步处理；onNotifyMessageOpened 同样取 path/uri，经 PendingIntent 打开，缺失则走应用启动 intent。此部分来自普通推送处理，不执行任何推送。
+已对 Jetlag 及其 ec/gc/hc/jc/kc 声明命名空间的 4181 条直接调用边筛查 AlarmManager/WorkManager/NotificationManager/PendingIntent，未命中。它与本轮许可门控、通用推送路径共同界定当前材料：已恢复“云消息到达后手机如何显示/点击”的本地流程；尚无实际 Jetlag 消息 payload 将某任务与这条通路绑定。不能仅凭零字符串/零直接边断言全程序无本地定时任务，间接路由仍不穷尽。
+
+八、验收与实际后续
+MODEL_RESULTS.json：28 个合成契约检查，均 PASS；仅是从上述分支转写的有限算例，绝非实际 APK、Room、服务器或用户计划运行结果。输入不含账号或真实旅行数据。
+VALIDATION.json：核对当前输入 APK 身份与全部选定 Smali/Java 副本；Smali 与持久索引哈希匹配。不是独立重跑整个 DEX 的反编译，也不把全文件保留数量当作逐方法审计覆盖。
+已完成的本地核心：正常请求拼装、响应持久化入口、缓存读取/观察、三阶段分组、时间/当前任务标记、单组完成率、完成操作的本地与服务端衔接。
+本轮已把最初列出的普通航班映射、输入编辑、结束/删除、首页卡片与通知显示入口继续追到具体处理函数；没有把这些可做入口直接留为“必须实机”。剩余覆盖边界为全 App 间接调用/反射/动态配置的穷尽，以及通用 UI/第三方框架全部实现，不能用本支有限入口代替全程序证明。
+需要补充材料/运行证据的部分：实际某账号得到的计划任务结构、启用/灰度状态、手机时区组合下的呈现、Jetlag 通知 payload 与真实交付；服务端生成计划的策略/模型不在此 APK 链中，不能靠界面函数推出。若拿到具体新调用/消息类型，应沿该锚点继续静态绑定，而不是重复已经恢复的分组算法。

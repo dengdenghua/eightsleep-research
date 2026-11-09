@@ -1,0 +1,29 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+APP-02 补充：xc.c.i 的汇总缓存不是原始信号清洗
+样本：国行APK7.63.5，SHA256 8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+已完整读 xc/c.smali:202–1137；13段相关Smali/哈希保存在SOURCE_EXCERPTS.json，REA_MERGE.json为实际工具保留证据。没有运行App或请求接口。
+
+入口：MetricsRepository.fetchAggregates → pc.B → oc.b.a，声明GET v1/users/{USER_ID}/metrics/aggregate?v2=true，参数to/tz/metrics/periods/refreshCache。
+pc.C取得响应periods列表，调用xc.c.i(userId,toDate,requestedPeriods,requestedMetrics,responsePeriods)。这里处理的是服务器给出的指标汇总，不从床垫波形计算心率或睡眠分期。
+
+非空响应：
+1. AggregatePeriodResponse.toDomain转成RawAggregatePeriod后按period name分组。
+2. 按user_id、name和返回的date集合查Room已有aggregate_period；不同用户/周期不混合。
+3. 同日期有旧记录时，doubleAvg/intAvg/durationAvg/timeAvg/trueFalseCountAvg/doubleSum分别作旧Map+新Map。Im.F.T实际先复制旧表再putAll新表，同键新值覆盖，响应未带的指标保留旧值。
+4. stdDev特殊：先给本次请求的metrics填0.0，再覆盖旧stdDev，最后覆盖新stdDev。0只是客户端在此路径的默认值，不是从采样算出的标准差。
+5. samples整列取新响应列表；不与旧samples拼接。新空列表可以替换旧列表。
+6. 同日期没有旧记录时直接用新RawAggregatePeriod；此路径不添加上述stdDev默认0。不能概括为“所有缺失标准差都补0”。
+7. 每个周期组先读取旧记录，再批量写入。若同组响应出现重复日期，每条以同一份旧快照合并，后一次INSERT OR REPLACE覆盖前一次；服务器是否会返回重复日期未证实。
+
+空响应：
+只有responsePeriods为空且toDate不晚于LocalDate.now()时，为每个请求period构造一条toDate占位：六个指标Map为空，stdDev为请求metrics→0.0，samples为空。
+这里没有先查询合并旧值；Jd.a的插入语句是INSERT OR REPLACE，所以相同(user,name,date)旧缓存可被占位替换。
+toDate在未来且响应为空时，分组列表为空，最终不写入。该比较使用手机系统LocalDate.now()，不是此函数接收一个远端时区再换算。
+这是成功返回的空period列表分支，不是HTTP失败/离线异常必定清缓存。非空响应未返回的其他日期也不会在本函数里删除。
+
+本轮边界模型：cache_model.py 7例通过，含部分指标保留、标准差覆盖/缺省、无旧记录、空响应替换、未来空响应、重复日期、未返回日期。输入已是toDomain后的结构；没有模拟整个请求/数据库并发或显示层。
+意义：导出/截图里的0和旧值可能来自客户端合并规则，不能直接当作云算法原始输出。模型证明指定代码路径的结构后果，不证明用户账号曾遇到这些输入。
+
+验收：CHART_BOUNDARIES中的xc.c.i数据缓存合并范围已完成。其余图表函数由同轮其他分支继续；最终显示是否隐藏0由图表消费者决定。

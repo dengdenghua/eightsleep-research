@@ -1,0 +1,72 @@
+FUNCTION 08026628 BODY [[08026628, 0802667f]]
+
+undefined8 FUN_08026628(int param_1,int param_2,undefined4 param_3,undefined4 param_4,int param_5)
+
+{
+  int iVar1;
+  int iVar2;
+  undefined4 uVar3;
+  
+  iVar2 = param_1;
+  if ((*(char *)(param_1 + 0xb4) != '\0') && (param_2 == 1)) goto LAB_0802667e;
+  uVar3 = param_3;
+  if (param_2 == 2) {
+    FUN_0801c8f8("[alarm] solo mode enabled");
+    *(undefined1 *)(param_1 + 1) = 1;
+    iVar2 = param_5;
+    FUN_08026628(param_1,0,param_3,param_4);
+    if (*(char *)(param_1 + 0xb4) != '\0') goto LAB_0802667e;
+LAB_08026662:
+    iVar1 = param_1 + 0x5c;
+  }
+  else {
+    iVar1 = param_1 + 4;
+    if (param_2 != 0) goto LAB_08026662;
+  }
+  FUN_08026584(iVar1,param_3,param_4,param_5 * 1000,iVar2,param_2,uVar3);
+LAB_0802667e:
+  return CONCAT44(param_2,iVar2);
+}
+
+
+INSN 08026628 f7b5 push {r0,r1,r2,r4,r5,r6,r7,lr}
+INSN 0802662a 0700 movs r7,r0
+INSN 0802662c b437 adds r7,#0xb4
+INSN 0802662e 1e00 movs r6,r3
+INSN 08026630 3b78 ldrb r3,[r7,#0x0]
+INSN 08026632 0400 movs r4,r0
+INSN 08026634 1500 movs r5,r2
+INSN 08026636 002b cmp r3,#0x0
+INSN 08026638 01d0 beq 0x0802663e REF[CONDITIONAL_JUMP:0802663e]
+INSN 0802663a 0129 cmp r1,#0x1
+INSN 0802663c 1fd0 beq 0x0802667e REF[CONDITIONAL_JUMP:0802667e]
+INSN 0802663e 0229 cmp r1,#0x2
+INSN 08026640 12d1 bne 0x08026668 REF[CONDITIONAL_JUMP:08026668]
+INSN 08026642 0f48 ldr r0,[0x08026680] REF[READ:08026680=8030f89] REF[PARAM:08030f89=616c615b]
+INSN 08026644 f6f758f9 bl 0x0801c8f8 REF[UNCONDITIONAL_CALL:0801c8f8]
+INSN 08026648 0123 movs r3,#0x1
+INSN 0802664a 6370 strb r3,[r4,#0x1]
+INSN 0802664c 089b ldr r3,[sp,#0x20] REF[READ:Stack[0x0]]
+INSN 0802664e 2a00 movs r2,r5
+INSN 08026650 0093 str r3,[sp,#0x0] REF[WRITE:Stack[-0x20]]
+INSN 08026652 0021 movs r1,#0x0
+INSN 08026654 3300 movs r3,r6
+INSN 08026656 2000 movs r0,r4
+INSN 08026658 fff7e6ff bl 0x08026628 REF[UNCONDITIONAL_CALL:08026628]
+INSN 0802665c 3b78 ldrb r3,[r7,#0x0]
+INSN 0802665e 002b cmp r3,#0x0
+INSN 08026660 0dd1 bne 0x0802667e REF[CONDITIONAL_JUMP:0802667e]
+INSN 08026662 2000 movs r0,r4
+INSN 08026664 5c30 adds r0,#0x5c
+INSN 08026666 02e0 b 0x0802666e REF[UNCONDITIONAL_JUMP:0802666e]
+INSN 08026668 201d adds r0,r4,#0x4
+INSN 0802666a 0029 cmp r1,#0x0
+INSN 0802666c f9d1 bne 0x08026662 REF[CONDITIONAL_JUMP:08026662]
+INSN 0802666e fa23 movs r3,#0xfa
+INSN 08026670 089a ldr r2,[sp,#0x20] REF[READ:Stack[0x0]]
+INSN 08026672 9b00 lsls r3,r3,#0x2
+INSN 08026674 5343 muls r3,r2
+INSN 08026676 2900 movs r1,r5
+INSN 08026678 3200 movs r2,r6
+INSN 0802667a fff783ff bl 0x08026584 REF[UNCONDITIONAL_CALL:08026584]
+INSN 0802667e f7bd pop {r0,r1,r2,r4,r5,r6,r7,pc}

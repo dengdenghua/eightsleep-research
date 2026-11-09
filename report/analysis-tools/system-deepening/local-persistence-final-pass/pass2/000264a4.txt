@@ -1,0 +1,41 @@
+TARGET 000264a4 function=0002648c
+FUNCTION_BODY [[0002648c, 000264af]]
+
+void FUN_0002648c(undefined4 *param_1,undefined4 *param_2,uint param_3)
+
+{
+  undefined4 uVar1;
+  bool bVar2;
+  
+  if ((((uint)param_1 | (uint)param_2) & 3) == 0) {
+    for (; 3 < param_3; param_3 = param_3 - 4) {
+      uVar1 = *param_2;
+      param_2 = param_2 + 1;
+      *param_1 = uVar1;
+      param_1 = param_1 + 1;
+    }
+  }
+  while (bVar2 = param_3 != 0, param_3 = param_3 - 1, bVar2) {
+    *(undefined1 *)param_1 = *(undefined1 *)param_2;
+    param_1 = (undefined4 *)((int)param_1 + 1);
+    param_2 = (undefined4 *)((int)param_2 + 1);
+  }
+  return;
+}
+
+
+INSN 0002648c 40ea0103 orr.w r3,r0,r1
+INSN 00026490 9b07 lsls r3,r3,#0x1e
+INSN 00026492 03d0 beq 0x0002649c REF[CONDITIONAL_JUMP:0002649c]
+INSN 00026494 09e0 b 0x000264aa REF[UNCONDITIONAL_JUMP:000264aa]
+INSN 00026496 08c9 ldmia r1!,{r3}
+INSN 00026498 121f subs r2,r2,#0x4
+INSN 0002649a 08c0 stmia r0!,{r3}
+INSN 0002649c 042a cmp r2,#0x4
+INSN 0002649e fad2 bcs 0x00026496 REF[CONDITIONAL_JUMP:00026496]
+INSN 000264a0 03e0 b 0x000264aa REF[UNCONDITIONAL_JUMP:000264aa]
+INSN 000264a2 11f8013b ldrb.w r3,[r1],#0x1
+INSN 000264a6 00f8013b strb.w r3,[r0],#0x1
+INSN 000264aa 521e subs r2,r2,#0x1
+INSN 000264ac f9d2 bcs 0x000264a2 REF[CONDITIONAL_JUMP:000264a2]
+INSN 000264ae 7047 bx lr

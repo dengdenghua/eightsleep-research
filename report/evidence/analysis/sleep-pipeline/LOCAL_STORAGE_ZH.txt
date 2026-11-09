@@ -1,0 +1,154 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+MTK 原厂镜像：原始传感数据缓存、上传确认与停止转存
+静态研究日期：2026-11-07
+
+范围与证据等级
+分析对象为 mediatek/rootfs-selected/opt/eight/bin/jetstream-uploader，SHA256
+a93fef74e2bb1d61e36979a9d1997afecf1b4655ebe6190e2887dac95262fe06。
+这是已下载样本的本地实现，不是对某台设备当前运行配置或服务器行为的测量。
+全程只读分析原样本；未执行固件、连接设备或访问 raw-api。下述 .c 是 Ghidra 伪代码，
+不是原厂源码；路径均相对于本目录。涉及 Rust 多寄存器返回/隐藏参数时以 .asm.txt 为准。
+未使用已知存在跳表越界的 storage-pass2/001ff97c.c 作为结论依据。
+
+1. 可以明确区分的两层缓存
+
+1.1 raw_mem：RAM 流，subject 为 rawmem.>，max_age 字段为 0，容量另算。
+构造函数 003e5cf8 直接组装 raw_mem 和 rawmem.>；max_bytes 放入 Config+0x258，
+最终饱和到 INT64_MAX；max_age(seconds,nanoseconds)=(0,0)。storage 字节位于
+Config+0x282，设为 1；allow_direct(+0x288)=1。
+证据：storage-pass10/003e5cf8.c:55、63、90、96、102、129、130。
+storage 名称由 001ccf2c 格式化：0 对应 File，非零对应 Memory；调用点取的是
+复制后的 Config+0x282。证据：storage-pass1/001b5bb8.c:114、117；
+storage-pass15/001ccf2c.c:10。File 的四字节字面量位于 Ghidra VA 0077ea4c。
+max_age=0 不可表述成无限可保留：内存容量、进程/主机寿命和上游数据速率仍限制保存。
+
+1.2 raw：File 流，基础 subject 为 raw.>；本包目标 max_bytes=6144*2^20=
+6,442,450,944 bytes（6 GiB），max_age=24*3600=86,400 seconds。
+代码取 TOML max_mb/max_age_hours，分别左移 20 和乘 3600。storage(+0x282)=0。
+证据：config/etc/jetstream-uploader.toml:8-12；storage-pass3/003b030c.c:70-73、
+96、101、106、112。Config 比较器核对 max_bytes、max_age、allow_direct、compression，
+差异则尝试更新；不能仅凭构造器声称已存在的真实流一定接受了所有更新。
+证据：storage-pass3/003b0660.c:10-27；storage-pass1/001c525c.c:295 起。
+完整更新失败时有仅启用 direct-get 的回退，故本节数值是固件目标值，而非设备实测值。
+
+1.3 服务器总额另算：nats.conf 是 max_mem:1G、max_file:12G、sync_interval:60s。
+这不是每个流的专属额度，也不能将 TOML 的 6144 MB 解释为 RAM 可缓存 6 GB。
+证据：config/etc/nats.conf:8-12。实际流创建/更新还受服务器整体限制和其他流占用影响。
+
+2. raw_mem 容量计算（已恢复算式，未取得实机 MemTotal）
+
+00318254 读取 /proc/meminfo；003e54b0 找 MemTotal: 数字 kB，并乘 1024 得字节数 M。
+证据：storage-pass11/00318254.c:42、83、92；storage-pass12/003e54b0.c:87-98；
+storage-asm/003e5730-003e57a4.txt:11-17（LSL #10、kB 与溢出检查）。
+003e57a4 的准确输入寄存器是 x0=读取成功标志，x1=M，x2=可选额度参数 R；
+其伪代码形参恢复不准确，不应照抄成四参数 API。
+证据：storage-asm/003183b0-003183e8.txt:7-10；
+storage-asm/003e57a4-003e5870.txt:1-29。
+
+已恢复策略，以字节计：
+  R != 0: B = saturating_u64(R * 2^20)
+  否则读到有效 M:
+    A = min(floor(M/32), 100 MiB)
+    C = min(max(M - 1536 MiB, 0), 512 MiB)
+    B = max(A,C)
+  MemTotal 读取/解析失败，或算出的 B 为零: B = 32 MiB
+  raw_mem Config.max_bytes = min(B, INT64_MAX)
+例如仅演算：M=1 GiB→32 MiB，M=2 GiB→512 MiB。不是实机 RAM 容量判断。
+R 的完整外部来源/默认值未在本次范围内绑定；不能把“自动计算分支”冒充所有启动参数下的值。
+正常 uploader 初始化和 --ensure-streams 路径都调用同一计算器和 raw_mem 构造器。
+证据：storage-asm/001d135c-001d13a0.txt:5-13；
+uploader-pass5/001d4c3c.c:404-414；storage-pass10/003e5cf8.refs.txt。
+
+3. 发布与读取路径：在线 direct / 旧磁盘数据 drain
+
+本地 NATS 的输入映射是 raw.> → rawmem.>，即 frank 发布 raw.x.sens.stealth 等数据
+先进入 raw_mem。证据：config/etc/nats.conf:14-16；生产端链见 ../signal-host 的报告。
+在 RAM 模式初始化时，raw 磁盘配置被扩展：添加 rawdisk.>，设置 subject transform
+rawdisk.> → raw.>，并启用 allow_direct。
+证据：storage-pass6/003e6038.c:23-49、52-79；storage-pass9/003e6254.c:9-10。
+关机转存函数 003e4cb4 只接受以 rawmem. 开头的 topic，将它改成 rawdisk. 前缀，
+处理 Raw-Mem-Time 等时间/头字段；非 rawmem. 的消息有 DUMP_SKIPPED 分支。
+证据：storage-pass5/003e4cb4.c:72-105；storage-pass4/003e13cc.c:45-74。
+
+uploader 状态机记录模式名 direct/drain：mode=2 时选择 RAM chunker，否则选磁盘
+chunker；需要重新打开流时会重置/切换模式。并非把两层内容无条件重复上传。
+证据：storage-pass1/001bfdfc.c:118-150、167-204；
+uploader-switchfix/001bd33c.c:353-370、762-775。
+本次没有恢复“内存达到容量后自动连续溢写到磁盘”的正向调用链；已证明的是停止时 --dump。
+因此不能据 raw 的 24h 目标推导“设备断网时实时原始数据必定完整缓存24小时”。
+也不据此断言其他未覆盖路径绝无转存行为。
+
+4. 正常上传：云端 batch ACK 后才推进已送达/清理
+
+001bd33c 校验应答 proto=raw、part=batch、id 与正在等待的批次相等。不匹配/错误走
+失败路径，只有成功才把当前批次的序号/时间记录交给 001c0b94。
+证据：uploader-switchfix/001bd33c.c:1207-1239、1348-1417。
+RAM direct 分支：追加本批成功记录；取本批最后序号；重新查询 stream info，并比较流
+创建时间是否与读取时相同；相同才请求 purge，边界为 through+1，即删除 ≤through。
+查询失败、创建时间不同均跳过，留下 MEM_PURGE_SKIPPED；purge失败另有告警。
+证据：storage-pass13/001c0b94.c:193-227、245-251、394-436、495-559；
+storage-pass11/003e5a44.c 为时间等价比较。
+此保护避免 NATS 重建流后序号复用造成错误删除；它不是永久保存承诺。
+
+磁盘/drain 分支：成功记录追加到 delivered 状态。写位置记录的函数会写入文件，按条件
+fdatasync；跨预留段时还同步后更新 mmap 位置。切换 direct 或重新打开后，RAW_PURGE
+必须依赖已同步的 delivered record；未同步/无记录/零记录/已清理等情况跳过。
+证据：storage-pass13/001c0b94.c:165-186；storage-pass6/002b68a0.c:15-27；
+storage-pass6/002b7b9c.c:16-38；storage-pass6/00745d24.c:11-17（真实 fdatasync）；
+storage-pass1/001bfdfc.c:219-238；storage-pass8/003314f0.c:204-234。
+这支持“ACK 后推进记录、满足同步条件后清理”，不应简写成每个 ACK 立即物理删除磁盘文件。
+
+5. 正常停止：PubAck → 有条件删除 raw_mem → syncfs
+
+systemd drop-in 在 NATS 启动后调用 --ensure-streams；停止顺序先用 timeout 执行
+jetstream-uploader --dump，再向 nats-server 发 SIGUSR2。
+证据：config/etc/systemd/system/nats-server.service.d/nats-server-raw-mem.conf:1-5。
+
+主状态机 001c7708 读取 raw_mem，再调用 001c66dc 分批向 rawdisk subject 发布。
+这里等待的是本机 NATS JetStream 的 PubAck，不是云端 raw-api ACK。
+存在截止时间内未获 PubAck 的错误，以及对失败消息子集重发的 DUMP_PUBLISH_RETRY。
+证据：storage-pass1/001c7708.c:1039-1059、1125-1163；
+storage-pass4/001c66dc.c:554-569、685-707（no PubAck within ... of the stop）。
+
+删除水位是“连续成功前缀”：结果向量逐个扫描，首次仍失败置标志并保留该索引，后面的
+成功消息虽计入转存统计，也不会使 purge 越过前面的失败消息。全成功则推进至该批末尾；
+有失败则最多推进到首失败 seq-1。
+证据：storage-pass1/001c7708.c:1260-1328、1389-1425、1437-1445、1747-1755。
+随后 0037a688/0037a718 再查流创建时间，相同才构造 through+1 的 purge。
+证据：storage-pass1/001c7708.c:1907-1916；storage-pass5/0037a718.c:369-411。
+
+remove timeout 会保留 raw_mem 中可能已在 raw 的副本；日志明确提示仅重启 uploader、
+不重启 NATS 时可能上传两遍。之后仍进入 DUMP_SYNCFS 分支。
+证据：storage-pass1/001c7708.c:1961-2045；字面量表 storage-literal-tables.json 中
+009be0c8（DUMP_REMOVE_TIMEOUT through=... raw_mem keeps what raw now holds too...）。
+
+syncfs 不是仅凭名字猜测，已恢复本地调用链：
+  001c7708 → 0037b3dc（future）→ 0037b46c → 003ad220（blocking task）
+  → 004115c8（vtable 009d7e48）→ 003d6dfc/thunk003dfc2c
+  → 00411ca0 → 003a8128 → imported syncfs
+证据：storage-pass6/0037b46c.c:76-81；storage-pass8/003ad220.c:31-35；
+storage-pass10/004115c8.c:69；storage-symbols.txt:1-9；
+storage-pass15/003d6dfc.c:37；storage-pass15/00411ca0.c:17；
+storage-pass14/003a8128.c:50-79。
+完成后按返回结果记录 DUMP_SYNCFS ok 或“the dump may not be on disk”。
+证据：storage-pass1/001c7708.c:2041-2084、2088-2168。
+
+6. 数据保留/丢失边界，不能省略的限定
+
+• PubAck 失败不推进越过该消息的 RAM 删除水位；删除超时可能留下重复副本。
+• syncfs 排在 RAM purge 之后。syncfs 失败没有已恢复的回滚 RAM 路径，不能概括成
+  “任何失败都会保留内存副本”；PubAck 也不能等同于已稳定写入物理介质。
+• --dump 是有超时的正常停止钩子。突然断电、强杀或未完成停止流程时，不保证 RAM 保存。
+• 目标 max_bytes/max_age 不能证明现有流更新成功；已有流配置/服务器状态未实测。
+• discard 的候选配置字节在构造器中为零，但本次尚未完整绑定字段序列化与服务端解释，
+  不将其写成“满时必定丢旧/拒新”的实证，也不凭 max_bytes 推断实际满载时淘汰顺序。
+• 当前恢复到的是原始数据缓存/上传机制；不能由缓存时长判断离线可做睡眠分期、
+  Autopilot 或日程温控。温控本地链另见 LOCAL_BACKUP_ZH.txt。
+• shell 磁盘低水位清理、重启策略另见 ../system/OFFLINE_SUPERVISOR_NOTE.txt，未在这里重复。
+
+本次有效恢复的重点：两层容量分离、按 MemTotal 动态配置 RAM、云端 batch ACK 后的
+清理门控、NATS PubAck 驱动的停止转存连续水位，以及 purge 先于 syncfs 的耐久性边界。
+未覆盖：外部 R 参数具体来源/默认、设备实际 MemTotal/stream info、discard 实际策略、
+NATS 崩溃恢复与磁盘介质持久性、完整运行时丢包/重复率。没有把未覆盖项当成已验证行为。

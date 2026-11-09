@@ -1,0 +1,770 @@
+// IL code: Eight.Capybara.Config
+.class public auto ansi beforefieldinit Eight.Capybara.Config.PodConifgurationManager`1<class T>
+	extends [System.Runtime]System.Object
+	implements class Eight.Capybara.Config.IPodConfigurationManager`1<!T>
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.interfaceimpl type class Eight.Capybara.Config.IPodConfigurationManager`1<!T>
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+
+	// Fields
+	.field private !T '<Configuration>k__BackingField'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+	.field private initonly class [System.Runtime]System.IO.FileInfo configurationPath
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger logger
+	.field private initonly class [System.Threading]System.Threading.SemaphoreSlim saveGate
+	.field private string savedJson
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [System.Runtime]System.IO.FileInfo configurationPath,
+			!T configuration,
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger logger
+		) cil managed 
+	{
+		.param [2]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2238
+		// Header size: 12
+		// Code size: 64 (0x40)
+		.maxstack 3
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.2
+		IL_0002: stfld !0 class Eight.Capybara.Config.PodConifgurationManager`1<!T>::'<Configuration>k__BackingField'
+		IL_0007: ldarg.0
+		IL_0008: ldarg.1
+		IL_0009: stfld class [System.Runtime]System.IO.FileInfo class Eight.Capybara.Config.PodConifgurationManager`1<!T>::configurationPath
+		IL_000e: ldarg.0
+		IL_000f: ldarg.3
+		IL_0010: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger class Eight.Capybara.Config.PodConifgurationManager`1<!T>::logger
+		IL_0015: ldarg.0
+		IL_0016: ldc.i4.1
+		IL_0017: ldc.i4.1
+		IL_0018: newobj instance void [System.Threading]System.Threading.SemaphoreSlim::.ctor(int32, int32)
+		IL_001d: stfld class [System.Threading]System.Threading.SemaphoreSlim class Eight.Capybara.Config.PodConifgurationManager`1<!T>::saveGate
+		IL_0022: ldarg.0
+		IL_0023: ldarg.2
+		IL_0024: box !T
+		IL_0029: brfalse.s IL_0033
+
+		IL_002b: ldarg.2
+		IL_002c: call string class Eight.Capybara.Config.PodConifgurationManager`1<!T>::Serialize(!0)
+		IL_0031: br.s IL_0034
+
+		IL_0033: ldnull
+
+		IL_0034: stfld string class Eight.Capybara.Config.PodConifgurationManager`1<!T>::savedJson
+		IL_0039: ldarg.0
+		IL_003a: call instance void [System.Runtime]System.Object::.ctor()
+		IL_003f: ret
+	} // end of method PodConifgurationManager`1::.ctor
+
+	.method public final hidebysig specialname newslot virtual 
+		instance !T get_Configuration () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x2284
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld !0 class Eight.Capybara.Config.PodConifgurationManager`1<!T>::'<Configuration>k__BackingField'
+		IL_0006: ret
+	} // end of method PodConifgurationManager`1::get_Configuration
+
+	.method private hidebysig specialname 
+		instance void set_Configuration (
+			!T 'value'
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x228c
+		// Header size: 1
+		// Code size: 8 (0x8)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld !0 class Eight.Capybara.Config.PodConifgurationManager`1<!T>::'<Configuration>k__BackingField'
+		IL_0007: ret
+	} // end of method PodConifgurationManager`1::set_Configuration
+
+	.method public final hidebysig newslot virtual 
+		instance !T UpdateConfiguration (
+			!T configuration
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		// Method begins at RVA 0x2295
+		// Header size: 1
+		// Code size: 20 (0x14)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: call instance void class Eight.Capybara.Config.PodConifgurationManager`1<!T>::set_Configuration(!0)
+		IL_0007: ldarg.0
+		IL_0008: call instance void class Eight.Capybara.Config.PodConifgurationManager`1<!T>::Save()
+		IL_000d: ldarg.0
+		IL_000e: call instance !0 class Eight.Capybara.Config.PodConifgurationManager`1<!T>::get_Configuration()
+		IL_0013: ret
+	} // end of method PodConifgurationManager`1::UpdateConfiguration
+
+	.method private hidebysig 
+		instance void Save () cil managed 
+	{
+		// Method begins at RVA 0x22ac
+		// Header size: 12
+		// Code size: 110 (0x6e)
+		.maxstack 6
+		.locals init (
+			[0] string
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Threading]System.Threading.SemaphoreSlim class Eight.Capybara.Config.PodConifgurationManager`1<!T>::saveGate
+		IL_0006: callvirt instance void [System.Threading]System.Threading.SemaphoreSlim::Wait()
+		.try
+		{
+			IL_000b: ldarg.0
+			IL_000c: call instance !0 class Eight.Capybara.Config.PodConifgurationManager`1<!T>::get_Configuration()
+			IL_0011: call string class Eight.Capybara.Config.PodConifgurationManager`1<!T>::Serialize(!0)
+			IL_0016: stloc.0
+			IL_0017: ldloc.0
+			IL_0018: ldarg.0
+			IL_0019: ldfld string class Eight.Capybara.Config.PodConifgurationManager`1<!T>::savedJson
+			IL_001e: call bool [System.Runtime]System.String::op_Equality(string, string)
+			IL_0023: brfalse.s IL_004b
+
+			IL_0025: ldarg.0
+			IL_0026: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger class Eight.Capybara.Config.PodConifgurationManager`1<!T>::logger
+			IL_002b: ldstr "Configuration {Path} unchanged; not rewritten"
+			IL_0030: ldc.i4.1
+			IL_0031: newarr [System.Runtime]System.Object
+			IL_0036: dup
+			IL_0037: ldc.i4.0
+			IL_0038: ldarg.0
+			IL_0039: ldfld class [System.Runtime]System.IO.FileInfo class Eight.Capybara.Config.PodConifgurationManager`1<!T>::configurationPath
+			IL_003e: callvirt instance string [System.Runtime]System.IO.FileSystemInfo::get_FullName()
+			IL_0043: stelem.ref
+			IL_0044: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogDebug(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+			IL_0049: leave.s IL_006d
+
+			IL_004b: ldarg.0
+			IL_004c: ldfld class [System.Runtime]System.IO.FileInfo class Eight.Capybara.Config.PodConifgurationManager`1<!T>::configurationPath
+			IL_0051: ldloc.0
+			IL_0052: call void class Eight.Capybara.Config.PodConifgurationManager`1<!T>::SaveConfiguration(class [System.Runtime]System.IO.FileInfo, string)
+			IL_0057: ldarg.0
+			IL_0058: ldloc.0
+			IL_0059: stfld string class Eight.Capybara.Config.PodConifgurationManager`1<!T>::savedJson
+			IL_005e: leave.s IL_006d
+		} // end .try
+		finally
+		{
+			IL_0060: ldarg.0
+			IL_0061: ldfld class [System.Threading]System.Threading.SemaphoreSlim class Eight.Capybara.Config.PodConifgurationManager`1<!T>::saveGate
+			IL_0066: callvirt instance int32 [System.Threading]System.Threading.SemaphoreSlim::Release()
+			IL_006b: pop
+			IL_006c: endfinally
+		} // end handler
+
+		IL_006d: ret
+	} // end of method PodConifgurationManager`1::Save
+
+	.method public hidebysig static 
+		class Eight.Capybara.Config.PodConifgurationManager`1<!!T2> Create<class T2> (
+			class [System.Runtime]System.IO.FileInfo configurationPath,
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger logger
+		) cil managed 
+	{
+		// Method begins at RVA 0x2338
+		// Header size: 1
+		// Code size: 32 (0x20)
+		.maxstack 8
+
+		IL_0000: ldarg.1
+		IL_0001: ldstr "logger"
+		IL_0006: call void [System.Runtime]System.ArgumentNullException::ThrowIfNull(object, string)
+		IL_000b: ldarg.0
+		IL_000c: callvirt instance void [System.Runtime]System.IO.FileSystemInfo::Refresh()
+		IL_0011: ldarg.0
+		IL_0012: ldarg.0
+		IL_0013: ldarg.1
+		IL_0014: call !0 class Eight.Capybara.Config.PodConifgurationManager`1<!!T2>::ReadConfiguration(class [System.Runtime]System.IO.FileInfo, class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger)
+		IL_0019: ldarg.1
+		IL_001a: newobj instance void class Eight.Capybara.Config.PodConifgurationManager`1<!!T2>::.ctor(class [System.Runtime]System.IO.FileInfo, !0, class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger)
+		IL_001f: ret
+	} // end of method PodConifgurationManager`1::Create
+
+	.method private hidebysig static 
+		!T ReadConfiguration (
+			class [System.Runtime]System.IO.FileInfo filePath,
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger logger
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x235c
+		// Header size: 12
+		// Code size: 320 (0x140)
+		.maxstack 7
+		.locals init (
+			[0] string,
+			[1] !T,
+			[2] class [System.Runtime]System.Exception,
+			[3] bool,
+			[4] !T,
+			[5] class [System.Text.Json]System.Text.Json.JsonException,
+			[6] class [System.Text.Json]System.Text.Json.JsonException
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: callvirt instance void [System.Runtime]System.IO.FileSystemInfo::Refresh()
+		IL_0006: ldarg.0
+		IL_0007: callvirt instance bool [System.Runtime]System.IO.FileSystemInfo::get_Exists()
+		IL_000c: brtrue.s IL_0018
+
+		IL_000e: ldloca.s 1
+		IL_0010: initobj !T
+		IL_0016: ldloc.1
+		IL_0017: ret
+
+		IL_0018: nop
+		.try
+		{
+			IL_0019: ldarg.0
+			IL_001a: call string class Eight.Capybara.Config.PodConifgurationManager`1<!T>::ReadText(class [System.Runtime]System.IO.FileInfo)
+			IL_001f: stloc.0
+			IL_0020: leave.s IL_0076
+		} // end .try
+		filter
+		{
+			IL_0022: isinst [System.Runtime]System.Exception
+			IL_0027: dup
+			IL_0028: brtrue.s IL_002e
+
+			IL_002a: pop
+			IL_002b: ldc.i4.0
+			IL_002c: br.s IL_0049
+
+			IL_002e: stloc.2
+			IL_002f: ldloc.2
+			IL_0030: isinst [System.Runtime]System.IO.IOException
+			IL_0035: brtrue.s IL_003f
+
+			IL_0037: ldloc.2
+			IL_0038: isinst [System.Runtime]System.UnauthorizedAccessException
+			IL_003d: brfalse.s IL_0043
+
+			IL_003f: ldc.i4.1
+			IL_0040: stloc.3
+			IL_0041: br.s IL_0045
+
+			IL_0043: ldc.i4.0
+			IL_0044: stloc.3
+
+			IL_0045: ldloc.3
+			IL_0046: ldc.i4.0
+			IL_0047: cgt.un
+
+			IL_0049: endfilter
+		} // end filter
+		{
+			IL_004b: pop
+			IL_004c: ldarg.1
+			IL_004d: ldloc.2
+			IL_004e: ldstr "Ignoring configuration {Path}: file could not be read; continuing with no saved configuration"
+			IL_0053: ldc.i4.1
+			IL_0054: newarr [System.Runtime]System.Object
+			IL_0059: dup
+			IL_005a: ldc.i4.0
+			IL_005b: ldarg.0
+			IL_005c: callvirt instance string [System.Runtime]System.IO.FileSystemInfo::get_FullName()
+			IL_0061: stelem.ref
+			IL_0062: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+			IL_0067: ldloca.s 1
+			IL_0069: initobj !T
+			IL_006f: ldloc.1
+			IL_0070: stloc.1
+			IL_0071: leave IL_013e
+		} // end handler
+
+		IL_0076: ldloc.0
+		IL_0077: call bool [System.Runtime]System.String::IsNullOrWhiteSpace(string)
+		IL_007c: brfalse.s IL_00a3
+
+		IL_007e: ldarg.1
+		IL_007f: ldstr "Ignoring configuration {Path}: file is empty; continuing with no saved configuration"
+		IL_0084: ldc.i4.1
+		IL_0085: newarr [System.Runtime]System.Object
+		IL_008a: dup
+		IL_008b: ldc.i4.0
+		IL_008c: ldarg.0
+		IL_008d: callvirt instance string [System.Runtime]System.IO.FileSystemInfo::get_FullName()
+		IL_0092: stelem.ref
+		IL_0093: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_0098: ldloca.s 4
+		IL_009a: initobj !T
+		IL_00a0: ldloc.s 4
+		IL_00a2: ret
+
+		IL_00a3: nop
+		.try
+		{
+			IL_00a4: ldloc.0
+			IL_00a5: call class [System.Text.Json]System.Text.Json.JsonSerializerOptions class Eight.Capybara.Config.PodConifgurationManager`1<!T>::get_SerializerOptions()
+			IL_00aa: call !!0 [System.Text.Json]System.Text.Json.JsonSerializer::Deserialize<!T>(string, class [System.Text.Json]System.Text.Json.JsonSerializerOptions)
+			IL_00af: stloc.1
+			IL_00b0: leave IL_013e
+		} // end .try
+		filter
+		{
+			IL_00b5: isinst [System.Text.Json]System.Text.Json.JsonException
+			IL_00ba: dup
+			IL_00bb: brtrue.s IL_00c1
+
+			IL_00bd: pop
+			IL_00be: ldc.i4.0
+			IL_00bf: br.s IL_00cc
+
+			IL_00c1: stloc.s 5
+			IL_00c3: ldloc.0
+			IL_00c4: call bool class Eight.Capybara.Config.PodConifgurationManager`1<!T>::IsWellFormedJson(string)
+			IL_00c9: ldc.i4.0
+			IL_00ca: cgt.un
+
+			IL_00cc: endfilter
+		} // end filter
+		{
+			IL_00ce: pop
+			IL_00cf: ldarg.1
+			IL_00d0: ldloc.s 5
+			IL_00d2: ldstr "Ignoring configuration {Path}: file is valid JSON this build cannot map ({MappingError}); leaving it in place and continuing with no saved configuration"
+			IL_00d7: ldc.i4.2
+			IL_00d8: newarr [System.Runtime]System.Object
+			IL_00dd: dup
+			IL_00de: ldc.i4.0
+			IL_00df: ldarg.0
+			IL_00e0: callvirt instance string [System.Runtime]System.IO.FileSystemInfo::get_FullName()
+			IL_00e5: stelem.ref
+			IL_00e6: dup
+			IL_00e7: ldc.i4.1
+			IL_00e8: ldloc.s 5
+			IL_00ea: callvirt instance string [System.Runtime]System.Exception::get_Message()
+			IL_00ef: stelem.ref
+			IL_00f0: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+			IL_00f5: ldloca.s 4
+			IL_00f7: initobj !T
+			IL_00fd: ldloc.s 4
+			IL_00ff: stloc.1
+			IL_0100: leave.s IL_013e
+		} // end handler
+		catch [System.Text.Json]System.Text.Json.JsonException
+		{
+			IL_0102: stloc.s 6
+			IL_0104: ldarg.1
+			IL_0105: ldloc.s 6
+			IL_0107: ldstr "Ignoring configuration {Path}: file is not valid JSON ({ParseError}); continuing with no saved configuration"
+			IL_010c: ldc.i4.2
+			IL_010d: newarr [System.Runtime]System.Object
+			IL_0112: dup
+			IL_0113: ldc.i4.0
+			IL_0114: ldarg.0
+			IL_0115: callvirt instance string [System.Runtime]System.IO.FileSystemInfo::get_FullName()
+			IL_011a: stelem.ref
+			IL_011b: dup
+			IL_011c: ldc.i4.1
+			IL_011d: ldloc.s 6
+			IL_011f: callvirt instance string [System.Runtime]System.Exception::get_Message()
+			IL_0124: stelem.ref
+			IL_0125: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+			IL_012a: ldarg.0
+			IL_012b: ldarg.1
+			IL_012c: call void class Eight.Capybara.Config.PodConifgurationManager`1<!T>::MoveAsideCorruptFile(class [System.Runtime]System.IO.FileInfo, class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger)
+			IL_0131: ldloca.s 4
+			IL_0133: initobj !T
+			IL_0139: ldloc.s 4
+			IL_013b: stloc.1
+			IL_013c: leave.s IL_013e
+		} // end handler
+
+		IL_013e: ldloc.1
+		IL_013f: ret
+	} // end of method PodConifgurationManager`1::ReadConfiguration
+
+	.method private hidebysig static 
+		string ReadText (
+			class [System.Runtime]System.IO.FileInfo filePath
+		) cil managed 
+	{
+		// Method begins at RVA 0x24d0
+		// Header size: 12
+		// Code size: 28 (0x1c)
+		.maxstack 1
+		.locals init (
+			[0] class [System.Runtime]System.IO.StreamReader,
+			[1] string
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: callvirt instance class [System.Runtime]System.IO.StreamReader [System.Runtime]System.IO.FileInfo::OpenText()
+		IL_0006: stloc.0
+		.try
+		{
+			IL_0007: ldloc.0
+			IL_0008: callvirt instance string [System.Runtime]System.IO.TextReader::ReadToEnd()
+			IL_000d: stloc.1
+			IL_000e: leave.s IL_001a
+		} // end .try
+		finally
+		{
+			IL_0010: ldloc.0
+			IL_0011: brfalse.s IL_0019
+
+			IL_0013: ldloc.0
+			IL_0014: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_0019: endfinally
+		} // end handler
+
+		IL_001a: ldloc.1
+		IL_001b: ret
+	} // end of method PodConifgurationManager`1::ReadText
+
+	.method private hidebysig static 
+		bool IsWellFormedJson (
+			string json
+		) cil managed 
+	{
+		// Method begins at RVA 0x2508
+		// Header size: 12
+		// Code size: 37 (0x25)
+		.maxstack 2
+		.locals init (
+			[0] class [System.Text.Json]System.Text.Json.JsonDocument,
+			[1] valuetype [System.Text.Json]System.Text.Json.JsonDocumentOptions,
+			[2] bool
+		)
+
+		.try
+		{
+			IL_0000: ldarg.0
+			IL_0001: ldloca.s 1
+			IL_0003: initobj [System.Text.Json]System.Text.Json.JsonDocumentOptions
+			IL_0009: ldloc.1
+			IL_000a: call class [System.Text.Json]System.Text.Json.JsonDocument [System.Text.Json]System.Text.Json.JsonDocument::Parse(string, valuetype [System.Text.Json]System.Text.Json.JsonDocumentOptions)
+			IL_000f: stloc.0
+			.try
+			{
+				IL_0010: ldc.i4.1
+				IL_0011: stloc.2
+				IL_0012: leave.s IL_0023
+			} // end .try
+			finally
+			{
+				IL_0014: ldloc.0
+				IL_0015: brfalse.s IL_001d
+
+				IL_0017: ldloc.0
+				IL_0018: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+				IL_001d: endfinally
+			} // end handler
+		} // end .try
+		catch [System.Text.Json]System.Text.Json.JsonException
+		{
+			IL_001e: pop
+			IL_001f: ldc.i4.0
+			IL_0020: stloc.2
+			IL_0021: leave.s IL_0023
+		} // end handler
+
+		IL_0023: ldloc.2
+		IL_0024: ret
+	} // end of method PodConifgurationManager`1::IsWellFormedJson
+
+	.method private hidebysig static 
+		void MoveAsideCorruptFile (
+			class [System.Runtime]System.IO.FileInfo filePath,
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger logger
+		) cil managed 
+	{
+		// Method begins at RVA 0x2558
+		// Header size: 12
+		// Code size: 166 (0xa6)
+		.maxstack 7
+		.locals init (
+			[0] string,
+			[1] string,
+			[2] class [System.Runtime]System.Exception,
+			[3] bool
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: callvirt instance string [System.Runtime]System.IO.FileSystemInfo::get_FullName()
+		IL_0006: stloc.0
+		IL_0007: ldloc.0
+		IL_0008: ldstr ".corrupt"
+		IL_000d: call string [System.Runtime]System.String::Concat(string, string)
+		IL_0012: stloc.1
+		IL_0013: ldloc.1
+		IL_0014: call bool [System.Runtime]System.IO.File::Exists(string)
+		IL_0019: brfalse.s IL_0035
+
+		IL_001b: ldarg.1
+		IL_001c: ldstr "Keeping the earlier sample {CorruptPath}; leaving unreadable configuration {Path} in place for the next save to replace"
+		IL_0021: ldc.i4.2
+		IL_0022: newarr [System.Runtime]System.Object
+		IL_0027: dup
+		IL_0028: ldc.i4.0
+		IL_0029: ldloc.1
+		IL_002a: stelem.ref
+		IL_002b: dup
+		IL_002c: ldc.i4.1
+		IL_002d: ldloc.0
+		IL_002e: stelem.ref
+		IL_002f: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_0034: ret
+
+		IL_0035: nop
+		.try
+		{
+			IL_0036: ldloc.0
+			IL_0037: ldloc.1
+			IL_0038: ldc.i4.0
+			IL_0039: call void [System.Runtime]System.IO.File::Move(string, string, bool)
+			IL_003e: ldarg.1
+			IL_003f: ldstr "Moved unreadable configuration {Path} to {CorruptPath}"
+			IL_0044: ldc.i4.2
+			IL_0045: newarr [System.Runtime]System.Object
+			IL_004a: dup
+			IL_004b: ldc.i4.0
+			IL_004c: ldloc.0
+			IL_004d: stelem.ref
+			IL_004e: dup
+			IL_004f: ldc.i4.1
+			IL_0050: ldloc.1
+			IL_0051: stelem.ref
+			IL_0052: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+			IL_0057: leave.s IL_009f
+		} // end .try
+		filter
+		{
+			IL_0059: isinst [System.Runtime]System.Exception
+			IL_005e: dup
+			IL_005f: brtrue.s IL_0065
+
+			IL_0061: pop
+			IL_0062: ldc.i4.0
+			IL_0063: br.s IL_0080
+
+			IL_0065: stloc.2
+			IL_0066: ldloc.2
+			IL_0067: isinst [System.Runtime]System.IO.IOException
+			IL_006c: brtrue.s IL_0076
+
+			IL_006e: ldloc.2
+			IL_006f: isinst [System.Runtime]System.UnauthorizedAccessException
+			IL_0074: brfalse.s IL_007a
+
+			IL_0076: ldc.i4.1
+			IL_0077: stloc.3
+			IL_0078: br.s IL_007c
+
+			IL_007a: ldc.i4.0
+			IL_007b: stloc.3
+
+			IL_007c: ldloc.3
+			IL_007d: ldc.i4.0
+			IL_007e: cgt.un
+
+			IL_0080: endfilter
+		} // end filter
+		{
+			IL_0082: pop
+			IL_0083: ldarg.1
+			IL_0084: ldloc.2
+			IL_0085: ldstr "Could not move unreadable configuration {Path} to {CorruptPath}"
+			IL_008a: ldc.i4.2
+			IL_008b: newarr [System.Runtime]System.Object
+			IL_0090: dup
+			IL_0091: ldc.i4.0
+			IL_0092: ldloc.0
+			IL_0093: stelem.ref
+			IL_0094: dup
+			IL_0095: ldc.i4.1
+			IL_0096: ldloc.1
+			IL_0097: stelem.ref
+			IL_0098: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+			IL_009d: leave.s IL_009f
+		} // end handler
+
+		IL_009f: ldarg.0
+		IL_00a0: callvirt instance void [System.Runtime]System.IO.FileSystemInfo::Refresh()
+		IL_00a5: ret
+	} // end of method PodConifgurationManager`1::MoveAsideCorruptFile
+
+	.method private hidebysig static 
+		string Serialize (
+			!T data
+		) cil managed 
+	{
+		.param [1]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x261c
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call class [System.Text.Json]System.Text.Json.JsonSerializerOptions class Eight.Capybara.Config.PodConifgurationManager`1<!T>::get_SerializerOptions()
+		IL_0006: call string [System.Text.Json]System.Text.Json.JsonSerializer::Serialize<!T>(!!0, class [System.Text.Json]System.Text.Json.JsonSerializerOptions)
+		IL_000b: ret
+	} // end of method PodConifgurationManager`1::Serialize
+
+	.method private hidebysig static 
+		void SaveConfiguration (
+			class [System.Runtime]System.IO.FileInfo filePath,
+			string json
+		) cil managed 
+	{
+		// Method begins at RVA 0x2629
+		// Header size: 1
+		// Code size: 53 (0x35)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: callvirt instance string [System.Runtime]System.IO.FileSystemInfo::get_FullName()
+		IL_0006: ldstr ".tmp"
+		IL_000b: call string [System.Runtime]System.String::Concat(string, string)
+		IL_0010: dup
+		IL_0011: ldc.i4.1
+		IL_0012: newobj instance void [System.Text.Encoding.Extensions]System.Text.UTF8Encoding::.ctor(bool)
+		IL_0017: ldarg.1
+		IL_0018: callvirt instance uint8[] [System.Runtime]System.Text.Encoding::GetBytes(string)
+		IL_001d: call void class Eight.Capybara.Config.PodConifgurationManager`1<!T>::WriteDurably(string, uint8[])
+		IL_0022: ldarg.0
+		IL_0023: callvirt instance string [System.Runtime]System.IO.FileSystemInfo::get_FullName()
+		IL_0028: ldc.i4.1
+		IL_0029: call void [System.Runtime]System.IO.File::Move(string, string, bool)
+		IL_002e: ldarg.0
+		IL_002f: callvirt instance void [System.Runtime]System.IO.FileSystemInfo::Refresh()
+		IL_0034: ret
+	} // end of method PodConifgurationManager`1::SaveConfiguration
+
+	.method private hidebysig static 
+		void WriteDurably (
+			string path,
+			uint8[] bytes
+		) cil managed 
+	{
+		// Method begins at RVA 0x2660
+		// Header size: 12
+		// Code size: 42 (0x2a)
+		.maxstack 4
+		.locals init (
+			[0] class [System.Runtime]System.IO.FileStream
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldc.i4.2
+		IL_0002: ldc.i4.2
+		IL_0003: ldc.i4.0
+		IL_0004: newobj instance void [System.Runtime]System.IO.FileStream::.ctor(string, valuetype [System.Runtime]System.IO.FileMode, valuetype [System.Runtime]System.IO.FileAccess, valuetype [System.Runtime]System.IO.FileShare)
+		IL_0009: stloc.0
+		.try
+		{
+			IL_000a: ldloc.0
+			IL_000b: ldarg.1
+			IL_000c: call valuetype [System.Runtime]System.ReadOnlySpan`1<!0> valuetype [System.Runtime]System.ReadOnlySpan`1<uint8>::op_Implicit(!0[])
+			IL_0011: callvirt instance void [System.Runtime]System.IO.Stream::Write(valuetype [System.Runtime]System.ReadOnlySpan`1<uint8>)
+			IL_0016: ldloc.0
+			IL_0017: ldc.i4.1
+			IL_0018: callvirt instance void [System.Runtime]System.IO.FileStream::Flush(bool)
+			IL_001d: leave.s IL_0029
+		} // end .try
+		finally
+		{
+			IL_001f: ldloc.0
+			IL_0020: brfalse.s IL_0028
+
+			IL_0022: ldloc.0
+			IL_0023: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_0028: endfinally
+		} // end handler
+
+		IL_0029: ret
+	} // end of method PodConifgurationManager`1::WriteDurably
+
+	.method private hidebysig specialname static 
+		class [System.Text.Json]System.Text.Json.JsonSerializerOptions get_SerializerOptions () cil managed 
+	{
+		// Method begins at RVA 0x26a8
+		// Header size: 1
+		// Code size: 38 (0x26)
+		.maxstack 8
+
+		IL_0000: newobj instance void [System.Text.Json]System.Text.Json.JsonSerializerOptions::.ctor()
+		IL_0005: dup
+		IL_0006: callvirt instance class [System.Runtime]System.Collections.Generic.IList`1<class [System.Text.Json]System.Text.Json.Serialization.JsonConverter> [System.Text.Json]System.Text.Json.JsonSerializerOptions::get_Converters()
+		IL_000b: call class [System.Text.Json]System.Text.Json.JsonNamingPolicy [System.Text.Json]System.Text.Json.JsonNamingPolicy::get_CamelCase()
+		IL_0010: ldc.i4.1
+		IL_0011: newobj instance void [System.Text.Json]System.Text.Json.Serialization.JsonStringEnumConverter::.ctor(class [System.Text.Json]System.Text.Json.JsonNamingPolicy, bool)
+		IL_0016: callvirt instance void class [System.Runtime]System.Collections.Generic.ICollection`1<class [System.Text.Json]System.Text.Json.Serialization.JsonConverter>::Add(!0)
+		IL_001b: call class [NodaTime]NodaTime.IDateTimeZoneProvider [NodaTime]NodaTime.DateTimeZoneProviders::get_Tzdb()
+		IL_0020: call class [System.Text.Json]System.Text.Json.JsonSerializerOptions [NodaTime.Serialization.SystemTextJson]NodaTime.Serialization.SystemTextJson.Extensions::ConfigureForNodaTime(class [System.Text.Json]System.Text.Json.JsonSerializerOptions, class [NodaTime]NodaTime.IDateTimeZoneProvider)
+		IL_0025: ret
+	} // end of method PodConifgurationManager`1::get_SerializerOptions
+
+	// Properties
+	.property instance !T Configuration()
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		.get instance !0 Eight.Capybara.Config.PodConifgurationManager`1::get_Configuration()
+		.set instance void Eight.Capybara.Config.PodConifgurationManager`1::set_Configuration(!0)
+	}
+	.property class [System.Text.Json]System.Text.Json.JsonSerializerOptions SerializerOptions()
+	{
+		.get class [System.Text.Json]System.Text.Json.JsonSerializerOptions Eight.Capybara.Config.PodConifgurationManager`1::get_SerializerOptions()
+	}
+
+} // end of class Eight.Capybara.Config.PodConifgurationManager`1

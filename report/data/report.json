@@ -1,0 +1,233 @@
+{
+  "date": "2026-11-09",
+  "title": "Eight Sleep Pod 技术分析报告",
+  "subtitle": "MTK 固件、传感数据链、控制算法、App 与云端接口的实现和证据边界",
+  "flows": [
+    {
+      "id": "signal",
+      "title": "从传感采集到睡眠结果",
+      "intro": "采样、主控整理和上传已按代码追踪；波形到生理结果的生产实现仍缺。",
+      "steps": [
+        {
+          "module": "sensor-mcu",
+          "label": "01 传感器与 MCU 采集",
+          "contract": "ADC / IMU → 采样缓存与数据包",
+          "detail": "采集侧包含前端滤波、增益、缓存和封包。旧值重用与配对规则可能影响上传内容；记录条数不等于新采样次数。"
+        },
+        {
+          "module": "host-signal",
+          "label": "02 主控时间对齐与补点",
+          "contract": "输入数据包 → 左右侧、按秒分组",
+          "detail": "Frank 处理时间映射、通道归并与缺值。时间变化和主侧选择会改变保留的样本，已用合成输入验证具体分支。"
+        },
+        {
+          "module": "raw-upload",
+          "label": "03 暂存与上传",
+          "contract": "Frank发送队列 → NATS流缓存 → uploader/TLS",
+          "detail": "Frank队列满时拒绝新消息，NATS目标配置超额时淘汰旧消息。编码、入队、本机发布与云端确认分开记录；超时重试不等于实际重复。"
+        },
+        {
+          "module": "physiology-algorithms",
+          "label": "04 生理指标与阶段推理",
+          "contract": "传感器记录 → 生理指标和睡眠阶段",
+          "detail": "官方接口交付结果，但心肺分离、质量剔除、融合与分期的生产代码/模型尚未取得。",
+          "unknown": true
+        },
+        {
+          "module": "android-app",
+          "label": "05 App 解析与展示",
+          "contract": "服务器结果 → 手机图表",
+          "detail": "App 解析服务端结果，处理图表补段、汇总缓存及展示规则；已审计路径不能替代生产生理算法。"
+        }
+      ]
+    },
+    {
+      "id": "thermal",
+      "title": "从设定温度到加热降温",
+      "intro": "目标生成与本地温度反馈分别追踪。",
+      "steps": [
+        {
+          "module": "autopilot",
+          "label": "01 决定目标温度",
+          "contract": "用户设置 / 接受建议 / 自动调温",
+          "detail": "手动设置和接受建议的流程已经看到；自动调温怎样给每个人选目标，还缺内部程序。",
+          "unknown": true
+        },
+        {
+          "module": "cloud-api",
+          "label": "02 把要求送到设备",
+          "contract": "手机或服务器 → 设备控制程序",
+          "detail": "不同操作走不同入口，这张图展示主要关系，不表示每次都经过同一串程序。"
+        },
+        {
+          "module": "thermal",
+          "label": "03 整理控制要求",
+          "contract": "模式、冷暖档位、目标、到期时间",
+          "detail": "主控选择模式和目标，将控制参数转给热控 MCU。用户档位与实际水温分别记录。"
+        },
+        {
+          "module": "thermal",
+          "label": "04 温差反馈与输出限制",
+          "contract": "水温反馈 → PID、限幅与保护",
+          "detail": "已恢复热控MCU的反馈、PID与保护规则；Autopilot的个性化目标生成仍缺实现。"
+        },
+        {
+          "module": "thermal",
+          "label": "05 硬件执行并再次测温",
+          "contract": "加热制冷部件、水泵、风扇 → 新水温",
+          "detail": "代码能说明如何发出控制，但不能代替测量床面实际温度。还需要实机记录验证效果。"
+        }
+      ]
+    },
+    {
+      "id": "offline",
+      "title": "断网时怎样用蓝牙控制",
+      "intro": "离线 BLE 控制取决于本地配对资料、密钥和对应指令路径。",
+      "steps": [
+        {
+          "module": "android-app",
+          "label": "01 本地配对与密钥",
+          "contract": "本地保存的配对资料和密钥",
+          "detail": "已有缓存和首次获取分别走不同路径；没有可用密钥时不能直接假定离线连接成立。"
+        },
+        {
+          "module": "offline-state",
+          "label": "02 BLE 指令",
+          "contract": "手机 → 设备蓝牙程序",
+          "detail": "已追到手动调温、关闭和部分闹钟操作的 BLE 调用链。"
+        },
+        {
+          "module": "runtime-ota",
+          "label": "03 设备内转交要求",
+          "contract": "Capybara → DAC → Frank",
+          "detail": "Capybara、DAC 与 Frank 在设备内转交控制要求；该链已定位到具体程序。"
+        },
+        {
+          "module": "offline-state",
+          "label": "04 读取状态和时间",
+          "contract": "之前保存的状态、期限和闹钟",
+          "detail": "保存不完整、时钟变化和日程功能会分别影响结果。某个日历函数没写完，不代表所有定时功能都失效。"
+        },
+        {
+          "module": "thermal",
+          "label": "05 让对应部件执行",
+          "contract": "热控芯片或振动部件接收要求",
+          "detail": "热控和振动由不同部件负责。重启、密钥变化和手机重新打开后的整体效果，仍需要实机验证。"
+        }
+      ]
+    },
+    {
+      "id": "diagnostics",
+      "title": "附件怎样报告故障",
+      "intro": "这里查看的是气囊等附件的机械状态，不是睡眠阶段的计算。",
+      "steps": [
+        {
+          "module": "accessories",
+          "label": "01 测量附件状态",
+          "contract": "压力、电流、温度、阀门状态",
+          "detail": "这些数据可能在不同时间更新，不能当作同一时刻测到的一张完整快照。"
+        },
+        {
+          "module": "accessories",
+          "label": "02 给故障编号",
+          "contract": "A02 气囊：保护原因 0…4，故障原因 0…6",
+          "detail": "已经查到编号与名称的对应；部分编号究竟在什么条件下写入，还没查全。"
+        },
+        {
+          "module": "accessories",
+          "label": "03 发出状态记录",
+          "contract": "每个气囊一条记录（11 字节）",
+          "detail": "记录带压力等数值、当前步骤和故障编号，打包后发给主机。消息编号是 0x5A。"
+        },
+        {
+          "module": "runtime-ota",
+          "label": "04 主机读出这些值",
+          "contract": "收到的字节 → 程序里的状态表",
+          "detail": "不同程序对同一状态的叫法可能不同，需要按实际编号核对。"
+        },
+        {
+          "module": "cloud-api",
+          "label": "05 谁能看到这些信息",
+          "contract": "诊断程序 / 普通手机 App",
+          "detail": "代码里有这个读数入口，不等于普通账号和你这台附件一定可以读到。",
+          "unknown": true
+        }
+      ]
+    },
+    {
+      "id": "mechanical",
+      "title": "本地气囊与床架控制",
+      "intro": "目标、校准、反馈控制和物理执行分层追踪；机械体动评分不等同睡眠在床检测。",
+      "steps": [
+        {
+          "module": "accessories",
+          "label": "01 接收机械目标",
+          "contract": "袋压目标 / 床架角度 → 本地控制",
+          "detail": "当前链输入已是压力或角度，不能据此补出上游姿态或鼾声识别。"
+        },
+        {
+          "module": "accessories",
+          "label": "02 主控机械校准",
+          "contract": "压力遥测 → 筛选、拟合、系数检查",
+          "detail": "pulse与landing有不同拟合规则；默认Node决定结果，C#用于比较，失败不自动替换。"
+        },
+        {
+          "module": "accessories",
+          "label": "03 MCU压力闭环",
+          "contract": "实测袋压 + 补偿目标 + 体动门控 → 动作集合",
+          "detail": "20点标准差触发部分自动调压门控；正常停阀比较实测压力，已计算的预测值未用于此停止分支。"
+        },
+        {
+          "module": "accessories",
+          "label": "04 阀泵与床架输出",
+          "contract": "定时ramp / PWM；位置反馈 / 左右同步",
+          "detail": "动作请求、寄存器写入和实体响应分别验收；实机版本与物理效果尚未验证。"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "local",
+      "title": "已恢复的本地处理",
+      "body": "前端滤波与增益、ADC/IMU缓存、数值换算、时间整理、补点、编码与发布队列；另已恢复温控、气囊压力闭环与校准、床架运动、音频和App本地汇总。",
+      "module": "sensor-mcu"
+    },
+    {
+      "kind": "remote",
+      "title": "服务端结果契约",
+      "body": "官方接口交付阶段、心率、呼吸、HRV、异常标志和调温建议。结果接口的位置不能单独证明全部计算的部署位置。",
+      "module": "cloud-api"
+    },
+    {
+      "kind": "unknown",
+      "title": "待取得的生产实现",
+      "body": "心搏/呼吸提取、双人分离与生理融合、HRV和分期生产实现，以及Autopilot目标生成；当前材料尚未取得对应程序或模型。",
+      "module": "physiology-algorithms"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "primary-hole",
+      "title": "缺读数的一侧负责定顺序",
+      "condition": "这是人为设定的例子：一秒安排 500 个位置，左侧负责确定时间顺序，编号 100…104 的位置为空（编号从 0 开始）。左侧实际到了 495 条，右侧到了 500 条。这里只数每侧一个代表性信号通道，不是所有通道的总数。",
+      "leftInput": 495,
+      "rightInput": 500,
+      "leftKept": 100,
+      "rightKept": 100,
+      "explanation": "在这个例子中，程序看到左侧中间的空位便提前结束，连后面已到达的有效记录也一起丢掉。这是代码模拟结果，不是实机故障率。"
+    },
+    {
+      "id": "secondary-hole",
+      "title": "换成完整的一侧负责定顺序",
+      "condition": "输入数量和缺口相同，只改为右侧负责确定时间顺序。这里只数每侧一个代表性信号通道，不是所有通道的总数。",
+      "leftInput": 495,
+      "rightInput": 500,
+      "leftKept": 495,
+      "rightKept": 500,
+      "explanation": "在这个例子中，左右两侧已经到达的有效记录都被保留。这说明选择哪一侧定顺序会影响结果，不代表程序挑出了信号更好的一侧。"
+    }
+  ],
+  "edition": "正式技术报告",
+  "evidence_cutoff": "2026-11-08"
+}

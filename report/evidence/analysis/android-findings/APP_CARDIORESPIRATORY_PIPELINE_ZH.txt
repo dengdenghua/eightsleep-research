@@ -1,0 +1,82 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Eight Sleep 中国 Android 7.63.5：HR / RR / HRV 结果与本地计算
+静态审计日期：2026-11-07。未启动 App、执行目标代码、调用业务 API 或读取用户数据。
+
+1. 可回答的核心问题
+本 APK 已能补上固件研究缺失的“生理指标结果如何进入 App”一段：睡眠趋势接口返回会话时间序列，客户端转换/缓存后，日图直接消费已算好的指标。已逐指令核实三个日图处理器：HRV 图取 rmssd；呼吸率图取 nemeanRespiratoryRate；静息心率图取 heartRate。HRV 的页面标题不意味着它读取同名 hrv 序列，更不意味着在手机上从心搏间隔重新计算 RMSSD。
+App 有本地处理：时间包装、数值类型转换、会话选择、图表 min/max、与基准比较、显示取整。服务器还返回当晚 current、范围、评分、异常状态和 aggregate.avg 等统计量。本报告只区分这些已追明的职责，不声称 App 整体不存在其他算法。
+本轮没有获得多通道原始波形到 HR/RR 的检测算法、压电/IMU 融合权重或睡眠模型权重。结果契约与消费者已恢复，并不等于服务端推理已恢复。
+
+2. 样本与引用规则
+APK：analysis/sleep-pipeline/distribution-followup/com.eightsleep.eight_7.63.5-cn-tencent.apk
+SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04；151778699 bytes。
+原始来源、签名与地域选择以同目录的官方分发审计及 APP_RUNTIME_AND_HARDWARE_ZH.txt 为准。
+W = analysis/android-volume/cn-7.63.5/
+J = W/java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/
+S = W/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/
+Q = analysis/android-findings/hr-metrics/queries/
+E## 表示 Q 中相应数字前缀的 request.json / response.json；完整 deep evidence_id、源文件 SHA256、行号和查询覆盖保留在 response 与 hr-metrics/SOURCE_LEDGER.json。
+index_id：462a22f663ae482ea93bab3130b96eaf
+index_sha256：4a6a63564ae05b2404ebdd218a5c579798c3486a83ddbf92bc913274641843a4
+4 DEX 的 Apktool/Smali 与索引完成；JADX exit 3，约 350 errors，保留 38338 个 Java 文件、49888 个诊断标记。不能把 Java 输出当原始源代码；关键缺失函数和日图字段选择已用 Smali 互证。native 搜索只有符号/字符串索引，不是函数体反编译。
+
+3. 两个远端结果入口及缓存/消费者链
+3.1 睡眠会话与时间序列
+Loc/c.d / J/p357oc/c.java 的 GET v1/users/{USER_ID}/trends 返回 MetricsTrendsResponse。实际请求 lambda p378pc/Z.java:65，S/pc/Z.smali:131-149，使用 include-main=false、include-all-sessions=true、model-version="v3"，并传 tz/from/to/consistent-read。
+MetricsTrendsRepository 的 API 来自 ce/l.Z3()：S/ce/k.smali:1998-2026。CHINA 环境下组合出的 host 是 client-api-proxy.8slp.net.cn；不是指标聚合或温控所用的 app-api host。此处仅恢复客户端配置，没有访问此 URL。
+响应 p378pc/a0.invokeSuspend:60-84 取 days，DailyTrendsResponse.toEntity 后进入 daily_trends 缓存。详见兄弟审计 sleep-results/ 的 methods/trends-cache/trends-di-smali 证据：deep_89121d561d033070f27304fd2e6565909eaed99b3e8e806a8bbc2f1bb7ee2d27、deep_b2dca3fce1cf594659c51a3b708434886808d50308ada8e6af4e7d7aa8fb1a89、deep_f350d3f06163b78383daf18247021cf0e0c04ec760a8bdbeb41797a3d5a1c374。
+消费者方向可再追：Base.updateContentView$1 观察 selectedDate/selectedPeriod；其 flatMapLatest 的 Smali 在 481/499、552/576 行调用 getGetTrendsByDatesUseCase→Gk/n.L；后者转 uc/Q.a→uc/E0.a→uc/D0.invokeSuspend:43→MetricsTrendsRepository.trendsByDate。该仓库在 J:267-271 调用缓存 h(userId,from,to) 并包入 pc/P。uc/C0.invokeSuspend:31-40 对每个 RawDailyTrends 调 a(displaySettings)，生成 DailyTrends 列表。（E75、E79、E80、E84、E85、E87、E88、E89）
+Base.updateContentView$1$2$7:19-25 将 trends、aggregateData、sessionId、displaySettings 组为 MetricContentData；$1$3:29-38 调 handleData。handleData 的 Java 没有恢复，现用 Smali 确认它调用 transformDayData（3609）、getMetricType/map.put（3651/3655）、packageMetricData（3733），随后 setContent helper（3834）。（E40、E43、E44、E78、E81）
+
+3.2 指标聚合/基准
+Loc/b.a / J/p357oc/b.java 定义 GET v1/users/{USER_ID}/metrics/aggregate?v2=true，查询 to/tz/metrics/periods/refreshCache，返回 MetricsAggregateResponse。另有 metrics/summary 和 v2 metrics/aggregate，但本段只追 a 路径。
+MetricsRepository.fetchAggregates→pc/B 将 metrics 和 periods 各逗号连接，然后调用 Loc/b.a；pc/C 取 response.periods 调 xc/c.i 入缓存。（E36、E37、E41、E42；S/pc/B.smali:100-197，E66）
+此 API 的 DI 确实不同：S/ce/l.smali:8410-8469 创建 MetricsRepository；androidx/fragment/app/d0.g 完整方法 165-179 调 ce/l.X3()。结合 root 已恢复的 X3 和 CHINA baseUrl，host 为 app-api-proxy.8slp.net.cn。（E82、E83；共享 deep_28d028d96f9bd03dfbe1c51d5d9a6020ef12673cf1962443ad86ccf825b8c4b1、deep_ef33aac046c5fae9fe34a7de644535c1165a96c61a5e5d41a7dc3e839adf7909）
+AggregatePeriodResponseJsonAdapter 字段为 name/date/avg/sum/stdDev/samples；toDomain:130-165 从 avg 的 DoubleStatistic/DoubleMax/DoubleSum 子型取 name→value map，273 送入 RawAggregatePeriod。RawAggregatePeriod:38-50 保存此 map，57-78 将它原样放入 AggregatePeriod 的 doubleAvg 槽，时间另作包装。（E46、E48、E52）
+不能把整个缓存写成无条件透传：xc/c.i Java 反编译失败；Smali:543-549 明确调用 response.toDomain，879-925 合并旧/新 map，967-1000 对 stdDev map 有缺省 0 和合并行为。本报告未穷尽所有刷新/错误策略。（E65、E67、E68）
+
+4. 会话时间序列实际输入格式
+TimeSeriesResponseJsonAdapter.java:13-26 定义六个列表，fromJson:45-117 要求前五项非 null，shortAwakes 为可空列表：
+  respiratoryRate        → RawTimeSeries.a → TimeSeries.a（Double）
+  nemeanRespiratoryRate  → RawTimeSeries.b → TimeSeries.b（Double）
+  heartRate              → RawTimeSeries.c → TimeSeries.c（toDomain 用 Number.intValue）
+  hrv                    → RawTimeSeries.d → TimeSeries.d（Double）
+  rmssd                  → RawTimeSeries.e → TimeSeries.e（Double）
+  shortAwakes            → RawTimeSeries.f → TimeSeries.f（Integer；null 转 empty list）
+类型说明是客户端 domain 转换，不额外宣称 wire 必须是 JSON 整数字面量。列表可为空；“必需非 null”不等于存在有效采样。hrv 与 rmssd 是两个独立字段，nemean 的算法含义不能仅据名字展开。（E11、E13、E17、E18）
+MetricPointResponse 没有走常见的生成对象 adapter：J/p332nc/a.java:6-21 匹配该类型并返回 nc/c；ce/l.m3 的 S:10081-10103 将该 Factory 加入注册集合。nc/c.fromJson（J:28-58；完整 S:100-226）先 beginArray，再按 token 遍历：STRING 走 Instant adapter，NUMBER 走 Number adapter，结束时要求两者都有值。未限定恰好两个成员，也未限定 string 必须先于 number；重复 token 会覆盖对应已有值。（E22、E25、E28、E39、E56）
+可读的期望点形状是 ["时间字符串",数值]，这是从 parser 归纳的说明，不是真实网络样本。parser 的 toJson（J:62-73）却写 {dateTime:...,value:...} 对象；不能把 writer 输出误认成网络输入契约，也不能不加验证地拿此 adapter 做双向重放。
+InstantAdapter.fromJson:7-20 先 Instant.parse，失败后 ISO_LOCAL_DATE_TIME 并按 UTC 转换；ce/l.m3 的 S:10251-10255 注册该 adapter。（E64、E69）
+TimeSeriesResponse.toDomain:132-267 只逐点取时间和值，做 doubleValue/intValue 转换，创建 RawMetricPoint；RawDailyTrends.a:212-252 将六序列逐点转 MetricPoint；RawMetricPoint.a:20-22 以 ClockSystem 包装 Instant，保留值。（E13、E23、E26）
+这里未见压电采样点、IMU 六轴、逐通道维度或 RR-interval 列表作为图表处理器输入。不能据此排除未覆盖的另一条接口，只能说当前正向恢复链从已计算的服务器指标开始。
+
+5. 日图到底取哪个序列
+三个 transformDayData 的完整 Smali 在 E27 中，均无方法正文截断；对应 J/com/eightsleep/presentation_metrics/viewmodel/chartprocessors/：
+  HeartRateVariabilityMetricDataProcessor.java:13-25 → Session.q.e，即 rmssd。
+  BreathRateMetricDataProcessor.java:13-25 → Session.q.b，即 nemeanRespiratoryRate。
+  RestingHeartRateMetricDataProcessor.java:13-25 → Session.q.c，即 heartRate，再把整数转成 Double chart point。
+TimeSeries 构造参数和字段在 J/com/eightsleep/data_metrics/domain/model/TimeSeries.java:26-32 与 TimeSeriesResponse.toDomain 中互相对齐；结论不是只读字段的 toString 或类名。（E15、E20、E21、E27）
+P2/AbstractC1562a.P:245-256 用 sessionId 匹配 DailyTrends 的 sessions，未匹配则返回 dailyTrends.c()。本段不把未匹配分支直接称作“最长会话”，也不假定固定使用第一场睡眠。（E73）
+这三个已恢复日图方法本身没有根据 hrvAlgorithmVersion 选择 hrv/rmssd 的分支；因此本 APK 的这一图表路径选 rmssd 是直接证据。但不能扩展成任何版本、设备或页面都不用 hrv。
+
+6. App 本地计算与最终显示
+HRVViewModel.packageMetricData:49-112 按日期找到 DailyTrends，从 SleepQualityScore.hrv 对应 MetricWithAbnormality.current 取 summary；从 AggregatePeriod.doubleAvg[HRV] 取基准，缺项时用 0。对该图非 null 点计算 Math.min/Math.max 成 Range，并算 current>=baseline。（E58；S:215-309、380-577，E70/E72）
+RestingHeartRateViewModel:49-112 同样从 SQS.heartRate.current 取 summary、doubleAvg[HEART_RATE] 取基准，计算 Range；比较方向是 current<=baseline。（E61）
+所以页面的当晚摘要并非在这些方法中对日图序列做算术平均。AbnormalMetricResponse.toDomain:209-220 传递 current/lowerRange/upperRange/lowerBound/upperBound/average/score/weighted/available/abnormality/inclusive7DayAverage；它们来源于响应。available 不能解释成“各压电通道质量合格”。（E45、E71）
+Base.handleData$lambda$28:231-253 按日期合并并排序 packaged data；具体 HRV.updateData:120-125 更新 wg/Z.metricData。helper b.I:390-395 调 setContent，L8/e.setContent:562-604 调 lambda 并更新 _viewState（包括保留对话框状态的分支）。（E50、E53、E57、E58）
+真实页面入口 P2/u.j:6232-6264 创建 HeartRateVariabilityViewModel，传入 heart_rate_variability screen；Cg/d case 1:351-409 将 wg/Z 模型交给 P2/u.i。P2/u.i:6007-6025 分别读取 model.w()、model.x()、model.g()，格式化 hrv_int_ms_format 并选择 above_average/below_average。wg/Z:169-200 将 w/x 绑定到 selectedDate 的 current/baseline，91-105 绑定比较结果。（E59、E60、E62、E63）
+这些是静态恢复的消费逻辑，并非真实截图/运行时验证。其临床有效性、基准窗长与 RMSSD 计算方式仍在服务端边界之外。
+
+7. 多传感器质量与算法边界
+已追模型是每时间点一个数值，未恢复每个压电/IMU 通道的 SNR、覆盖率、融合权重、剔除掩码或硬件采样率字段。
+保留的全 Java 定向搜索 signalQuality/sensorQuality/signal_quality/sensor_quality/sensorAccuracy/sampleQuality 没有命中（E05）；metrics 域字段搜索只显示算法版本/QUALITY=sqs 等已有线索（E35）。这些负结果仅限定搜索表达式和本次索引，不能证明未命名、混淆、JNI 或动态路径没有质量算法。
+native 索引针对 rmssd|heart_rate|respiratory|nemean|piezo|tensorflow|onnx|tflite 的定向搜索无命中（E55）。这不是全部 native 函数的审计，不据此宣称包内无推理。
+Session.processing/incomplete、sleep/presence/hrvAlgorithmVersion 由睡眠结果审计另行追踪；它们是结果状态/版本，不能冒充传感器质量或模型权重。China App 的结果字段也不能单独证明该 APK 对应的所有中国硬件均为某一 SoC 或 Pod6 传感器型号。
+附带候选（未作为本轮主要已回答链）：HeartbeatDisturbancesMetricDataProcessor 与 BreathingDisturbancesMetricDataProcessor 可见对返回的 health-score 时间项按小时分组求和、与常量比较（E31、E47）。其完整响应生产路径及所有边界未在这里闭合，不能把它们叫作本地心搏/呼吸原始信号检测器。
+
+8. 证据交付与待补边界
+REA 当前 index 写入 4 条 finding：app-hr-timeseries-wire、app-hr-day-chart-routing、app-hr-local-postprocessing 为 answered；app-hr-sensor-quality-boundary 为 unresolved。每条保留 scope/limitations/evidence_ids；总 report 由 root 统一导出。
+本报告与 SOURCE_LEDGER.json 可离线核查；audit_evidence.py 只读/hash 查询与源文件，既不执行 APK 也不请求网络。不存在“合成网络样本测试通过即原厂协议互通”的结论。
+仍需原厂服务器实现/可验证部署物或授权真实输出才能回答：HR/RR 检测与滤波窗、多通道融合、RMSSD 预处理/异常心搏处理、各阶段质量阈值、模型输入和权重、该 v3/算法版本对不同 Pod 型号的服务端分支。此 APK 的客户端代码只能证明结果协议和已覆盖消费者。

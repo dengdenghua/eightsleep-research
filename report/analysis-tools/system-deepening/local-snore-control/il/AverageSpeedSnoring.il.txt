@@ -1,0 +1,208 @@
+// IL code: Eight.Capybara
+.class private auto ansi beforefieldinit Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring
+	extends [System.Runtime]System.Object
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Fields
+	.field private valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Instant> firstTimestamp
+	.field private initonly class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance> positions
+	.field private static literal int32 sampleCount = int32(5)
+
+	// Methods
+	.method public hidebysig 
+		instance void AppendSample (
+			class Eight.Capybara.AdjustableBase.Joints.PositionInstance positionInstance
+		) cil managed 
+	{
+		// Method begins at RVA 0x1e7e8
+		// Header size: 12
+		// Code size: 137 (0x89)
+		.maxstack 2
+		.locals init (
+			[0] valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Instant>,
+			[1] valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>,
+			[2] valuetype [NodaTime]NodaTime.Duration,
+			[3] valuetype [NodaTime]NodaTime.Instant,
+			[4] valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Instant> Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::firstTimestamp
+		IL_0006: stloc.0
+		IL_0007: ldloca.s 0
+		IL_0009: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Instant>::get_HasValue()
+		IL_000e: brtrue.s IL_0022
+
+		IL_0010: ldarg.0
+		IL_0011: ldarg.1
+		IL_0012: callvirt instance valuetype [NodaTime]NodaTime.Instant Eight.Capybara.AdjustableBase.Joints.PositionInstance::get_Timestamp()
+		IL_0017: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Instant>::.ctor(!0)
+		IL_001c: stfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Instant> Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::firstTimestamp
+		IL_0021: ret
+
+		IL_0022: ldarg.1
+		IL_0023: callvirt instance valuetype [NodaTime]NodaTime.Instant Eight.Capybara.AdjustableBase.Joints.PositionInstance::get_Timestamp()
+		IL_0028: stloc.3
+		IL_0029: ldarg.0
+		IL_002a: ldfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Instant> Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::firstTimestamp
+		IL_002f: stloc.0
+		IL_0030: ldloca.s 0
+		IL_0032: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Instant>::get_HasValue()
+		IL_0037: brtrue.s IL_0045
+
+		IL_0039: ldloca.s 4
+		IL_003b: initobj valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>
+		IL_0041: ldloc.s 4
+		IL_0043: br.s IL_0057
+
+		IL_0045: ldloc.3
+		IL_0046: ldloca.s 0
+		IL_0048: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Instant>::GetValueOrDefault()
+		IL_004d: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Instant::op_Subtraction(valuetype [NodaTime]NodaTime.Instant, valuetype [NodaTime]NodaTime.Instant)
+		IL_0052: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::.ctor(!0)
+
+		IL_0057: stloc.1
+		IL_0058: ldc.i4.2
+		IL_0059: conv.i8
+		IL_005a: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::FromSeconds(int64)
+		IL_005f: stloc.2
+		IL_0060: ldloca.s 1
+		IL_0062: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::get_HasValue()
+		IL_0067: brtrue.s IL_006c
+
+		IL_0069: ldc.i4.0
+		IL_006a: br.s IL_0079
+
+		IL_006c: ldloca.s 1
+		IL_006e: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::GetValueOrDefault()
+		IL_0073: ldloc.2
+		IL_0074: call bool [NodaTime]NodaTime.Duration::op_LessThan(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+
+		IL_0079: brfalse.s IL_007c
+
+		IL_007b: ret
+
+		IL_007c: ldarg.0
+		IL_007d: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance> Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::positions
+		IL_0082: ldarg.1
+		IL_0083: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance>::Add(!0)
+		IL_0088: ret
+	} // end of method AverageSpeedSnoring::AppendSample
+
+	.method public hidebysig specialname 
+		instance valuetype [System.Runtime]System.Nullable`1<float64> get_Value () cil managed 
+	{
+		// Method begins at RVA 0x1e880
+		// Header size: 12
+		// Code size: 74 (0x4a)
+		.maxstack 5
+		.locals init (
+			[0] valuetype [System.Runtime]System.Nullable`1<float64>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance> Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::positions
+		IL_0006: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance>::get_Count()
+		IL_000b: ldc.i4.5
+		IL_000c: bge.s IL_0018
+
+		IL_000e: ldloca.s 0
+		IL_0010: initobj valuetype [System.Runtime]System.Nullable`1<float64>
+		IL_0016: ldloc.0
+		IL_0017: ret
+
+		IL_0018: ldarg.0
+		IL_0019: ldarg.0
+		IL_001a: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance> Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::positions
+		IL_001f: dup
+		IL_0020: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance>::get_Count()
+		IL_0025: ldc.i4.5
+		IL_0026: sub
+		IL_0027: callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance>::get_Item(int32)
+		IL_002c: ldarg.0
+		IL_002d: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance> Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::positions
+		IL_0032: dup
+		IL_0033: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance>::get_Count()
+		IL_0038: ldc.i4.1
+		IL_0039: sub
+		IL_003a: callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance>::get_Item(int32)
+		IL_003f: call instance float64 Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::CalulcateAverage(class Eight.Capybara.AdjustableBase.Joints.PositionInstance, class Eight.Capybara.AdjustableBase.Joints.PositionInstance)
+		IL_0044: newobj instance void valuetype [System.Runtime]System.Nullable`1<float64>::.ctor(!0)
+		IL_0049: ret
+	} // end of method AverageSpeedSnoring::get_Value
+
+	.method private hidebysig 
+		instance float64 CalulcateAverage (
+			class Eight.Capybara.AdjustableBase.Joints.PositionInstance initial,
+			class Eight.Capybara.AdjustableBase.Joints.PositionInstance latest
+		) cil managed 
+	{
+		// Method begins at RVA 0x1e8d8
+		// Header size: 12
+		// Code size: 46 (0x2e)
+		.maxstack 3
+		.locals init (
+			[0] valuetype [NodaTime]NodaTime.Duration
+		)
+
+		IL_0000: ldarg.2
+		IL_0001: callvirt instance int16 Eight.Capybara.AdjustableBase.Joints.PositionInstance::get_Position()
+		IL_0006: ldarg.1
+		IL_0007: callvirt instance int16 Eight.Capybara.AdjustableBase.Joints.PositionInstance::get_Position()
+		IL_000c: sub
+		IL_000d: conv.r8
+		IL_000e: ldarg.2
+		IL_000f: callvirt instance valuetype [NodaTime]NodaTime.Instant Eight.Capybara.AdjustableBase.Joints.PositionInstance::get_Timestamp()
+		IL_0014: ldarg.1
+		IL_0015: callvirt instance valuetype [NodaTime]NodaTime.Instant Eight.Capybara.AdjustableBase.Joints.PositionInstance::get_Timestamp()
+		IL_001a: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Instant::op_Subtraction(valuetype [NodaTime]NodaTime.Instant, valuetype [NodaTime]NodaTime.Instant)
+		IL_001f: stloc.0
+		IL_0020: ldloca.s 0
+		IL_0022: call instance float64 [NodaTime]NodaTime.Duration::get_TotalSeconds()
+		IL_0027: div
+		IL_0028: call float64 [System.Runtime]System.Math::Abs(float64)
+		IL_002d: ret
+	} // end of method AverageSpeedSnoring::CalulcateAverage
+
+	.method public hidebysig 
+		instance void Reset () cil managed 
+	{
+		// Method begins at RVA 0x1e912
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance> Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::positions
+		IL_0006: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance>::Clear()
+		IL_000b: ret
+	} // end of method AverageSpeedSnoring::Reset
+
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor () cil managed 
+	{
+		// Method begins at RVA 0x1e91f
+		// Header size: 1
+		// Code size: 18 (0x12)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance>::.ctor()
+		IL_0006: stfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Capybara.AdjustableBase.Joints.PositionInstance> Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::positions
+		IL_000b: ldarg.0
+		IL_000c: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0011: ret
+	} // end of method AverageSpeedSnoring::.ctor
+
+	// Properties
+	.property instance valuetype [System.Runtime]System.Nullable`1<float64> Value()
+	{
+		.get instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring::get_Value()
+	}
+
+} // end of class Eight.Capybara.AdjustableBase.Joints.AverageSpeedSnoring

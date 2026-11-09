@@ -1,0 +1,122 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方中国版 Eight Sleep App：温度历史、孕期周聚合与事件撤销
+分析日期：2026-11-07
+
+1. 结论与适用范围
+
+已恢复两条真实消费者链：
+A. GET temp-events/nightly → 孕期/产后 Insights → 按锚点周重分桶、三段温控档位平均与图表。
+B. GET temp-events → Repository 内存状态 → Home alert 候选；其中环境温度调整提示的负向 CTA 会把历史 previousLevel 送入已有温控写入流程。
+所以“历史只是展示”对 A 的已追路径成立，对 B 的全部消费者不成立。B 的回退是用户点击触发，不是 App 根据历史或睡眠分期自动学习新目标。
+
+nightly 的 stages=bedtime,initial,final 是三段温控偏好/状态阶段；没有证据把它们解释为 awake/light/deep/REM。当前已闭合的两个历史契约均未提供一条“物理实测床面/水温 actual 与目标 target 的连续传感器曲线”。不能据此断言 App 或服务器整体没有其他温度历史接口。
+
+样本：com.eightsleep.eight 7.63.5-cn-tencent，APK SHA256 8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+W=${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5
+index_id=462a22f663ae482ea93bab3130b96eaf；index SHA256=4a6a63564ae05b2404ebdd218a5c579798c3486a83ddbf92bc913274641843a4。
+沿现有索引只读查询；未执行 App/固件、未连接设备、未请求业务 API。JADX exit 3/350 errors 的已知覆盖限制仍在，关键参数与撤销写入以 Smali 交叉核对。本 App 是跨机型客户端，这些链不能单凭类名绑定为 Pod6 独有。
+J/=W/java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/；S1/S2/S3/S4 分别为 W/decoded/同包/smali、smali_classes2、smali_classes3、smali_classes4。
+[Qnn] 指 temperature-history/queries/nn-*.response.json，含原始 REA evidence_id、文件 SHA256、准确行号；SOURCE_LEDGER.json 记录完整映射与共享证据。
+
+2. nightly 的实际入口与请求实参
+
+fd.b.l 的 Retrofit 注解为 GET v1/users/{userId}/temp-events/nightly?align=from&fillEmpty=true，query 为 from、to、bucket、tz、stages，返回 TemperatureAggregateResponse。
+当前索引直接调用者是 gd.P.invokeSuspend；其六个参数原样传给 API。TemperatureRepository.fetchPregnancyTemperatureAggregate 构建请求 Flow，并经 gd.Q 对成功响应调用 TemperatureAggregateResponseKt.toDomain。
+证据：J/p135fd/b.java:39–40；J/p162gd/P.java:54–68；Repository.java:171–178；gd/Q.java:22–25。[Q01,Q05,Q06,Q11]
+
+实际业务入口是 PregnancyInsightsViewModel：构造末尾 observe()；App 用户成功结果取 userId，再观察 PregnancyModeState；成功且非空的 state 进入 fetchAndMap。
+fetchAndMap$2 首先要求 lastMenstrualDate 非空。anchor 在 stage==postpartum 且 deliveryDate 非空时取 deliveryDate，否则取 lastMenstrualDate；from=anchor.minusWeeks(12)，to=LocalDate.now()。
+fetchAndMap$2$3 硬编码 bucket="week"、stages="bedtime,initial,final"、tz=ZoneId.systemDefault()，然后收集请求结果；不是由睡眠阶段时间轴动态组成 stages 参数。
+证据：J/PregnancyInsightsViewModel.java:58–69、409–416；同目录 observe$1$1$1.java:32–50；fetchAndMap$2.java:34–55；J/p232jd/j.java:75–76,122–123；S2/PregnancyInsightsViewModel$fetchAndMap$2$3.smali:236–314。[Q14–16,Q38–39,Q54]
+
+API DI 属 app-api Retrofit。中国环境基址为 https://app-api-proxy.8slp.net.cn/，不是睡眠 trends 使用的 client-api 组。基址和环境分支引用 root 已保留的完整 Smali；本轮没有向该地址发出请求。
+证据：J/androidx/fragment/app/AbstractC2375d0.java:55–58 [Q65]；共享 thermal/smali-temp-di-create、smali-api-helper-x3；运行面 deep_28d028d96f9bd03dfbe1c51d5d9a6020ef12673cf1962443ad86ccf825b8c4b1、deep_ef33aac046c5fae9fe34a7de644535c1165a96c61a5e5d41a7dc3e839adf7909。
+
+3. nightly DTO、缺值和单位
+
+静态 DTO 契约：
+TemperatureAggregateResponse {from:LocalDate?, to:LocalDate?, bucket:String?, samples:List?}
+sample {date:LocalDate?, avg:List<TemperatureStageValueResponse>?}
+stage value {stage:String?, value:Double?}
+这些类的属性/构造注解支持字段及可空性；没有实际响应样本，不能把一个手写示例当作服务端已观测报文。
+
+toDomain 的生产转换是：samples null→空表；date null 的 sample 跳过；avg null→空表；stage/value 任一 null 的项跳过；每个 value / 10.0；只取 bedtime、initial、final 三个键，分别形成 jd.o(date,bedtime,night,dawn)；最后按 date 升序排序，放入 jd.m。from/to/bucket 元数据没有参与这个 mapper 的输出。
+值 /10 在源代码直接命名 DIAL_VALUE_SCALE，UI 继续按带 +/- 的档位数展示，不把这些值送入 Ga.b 的摄氏/华氏显示函数。故该路径的 -3、+2 等是温控档位，不能直接读成 -3°C、+2°C，更不能当成身体温度。
+证据：J/TemperatureAggregateResponse.java、TemperatureAggregateSampleResponse.java、TemperatureStageValueResponse.java [Q17–19]；J/TemperatureAggregateResponseKt.java:5–44 [Q02]；其 S2 toDomain 的首段与 125–224 [Q13,Q37]。
+
+与普通事件的单位不同之处是容器：事件 currentLevel/previousLevel 等整数先装 Ga.b(raw)，默认 LEVEL；observe 变换再按用户 TemperatureDisplaySetting 重建 Ga.b。
+Ga.b 的 LEVEL 为 raw/10；METRIC 先 clamp raw [-100,100]，在 -100/-90/0/100 显示 13/16.2/27/44°C，内部是分段线性映射。IMPERIAL 独立常数映射 55/61.2/80.6/110°F。两者不是接收水温测量再换单位，也不能直接替代固件 Frank 的真实目标温度映射。
+证据：J/Ga/a.java:13–26、Ga/b.java:21–75 [Q33–34]；S2/Ga/b.smali:19–264 共享 thermal/smali-unit-conversion-a,b。具体全公式已在 APP_THERMAL_CONTROL_ZH.txt §3，本报告不重复扩展逆向输入逻辑。
+
+4. 手机端确实计算周均值，但范围是展示统计
+
+PregnancyInsightsTemperatureMappingKt.toPhaseSeries 对每个已映射 date 算：
+  weekIndex = floor(DAYS.between(anchorDate,date) / 7.0)
+按整数 weekIndex 收集非空 phase value，转 float 累加，再除以该组非空记录数。它不是秒数/时长加权平均，也不重新检测睡眠阶段。
+weekIndex 使用 floor：锚点前 1 天为 -1 周，不是截断到 0。TreeSet 收集每个响应样本的周，即使该 phase 为 null；没有非空 value 的已出现周输出 null。没有遍历生成每一个缺失整数周；fillEmpty=true 只是请求服务端的参数，不能用来证明运行时响应完整无缺。
+虽然请求已经 bucket=week，客户端仍会按自己的 anchor 重分桶；若多个服务端样本落入同一个锚点周，客户端会对它们再取普通均值。当前无实包，不能推断服务器每个日期究竟代表周起点/终点，或该平均的底层物理统计定义。
+证据：J/PregnancyInsightsTemperatureMappingKt.java:203–243 [Q22]；S2 同类:1014–1242，明确 floor、sum、size 和 div-float [Q35–36]。
+
+buildTemperatureTrendUiModel 还有显示边界：
+- 三条序列若都有至少一个非空点，则取三条“最后非空周”的最小值，三条曲线均裁到该周；任何一条全空则不作这个共同截止裁剪。
+- x 左端=-12，右端=max(当前孕/产后周+2,4)，刻度以 0 锚定每 4 周；图表按左右端再筛点。
+- y 用裁剪后非空值：min−2/max+2，向外取到 2 的倍数；无值时默认 [-4,+4]。这是纵轴范围，不是目标温度限制。
+- 当前三段摘要从未裁剪序列中各找 week>=0 的最后非空值，再 Math.round 为整数；没有则实际调用的默认值 0。因此摘要可以比共同截止曲线更新，默认 0 也不能等同于已测得 0 档。
+证据：J/同类:30–131,153–200 [Q21–22]；Im/r.java:864–876 确认 w1 是 minimum [Q61]；Xm/a.java:771–775 确认 round [Q62]；共享 root live Im.r.q1 的完整 Smali 确认 maximum。
+
+另一个 TemperaturePregnancyDataProcessor 在同次 applyTemperatureAggregate 中生成 Hf.d 展示模型：
+它找最后一个三阶段都非空的日期，并将曲线裁到该日期；如果没有这样的行则保留原表。各阶段点略过 null。它的摘要先选最后一条 date>=anchor 的记录，再取对应 phase，可能仍是 null；不是逐阶段向前寻找最后非空值。这与上一段的周图策略不同，不混为一种“补齐算法”。
+证据：J/TemperaturePregnancyDataProcessor.java:32–46,79–123 [Q23]；PregnancyInsightsViewModel.java:288–301 [Q20]。
+
+applyTemperatureAggregate 只把上述模型复制进 _uiModel；成功 collector 用 CAS 更新。实际 Compose 路由取得 getUiModel().temperatureTrend，交给 hg.V，再由 hg.L 生成三条序列/刻度。tooltip 对 null 显示破折号，非空 Math.round 并加正号，不显示 °C/°F。所审 aggregate→mapper→collector→plot 链没有调用温控写入 use case。
+证据：fetchAndMap$2$3$1.java:35–54 [Q04]；J/Im/M.java:2842–2924 [Q40,Q59]；hg/V.java:235–244 [Q60]；hg/L.java:162–185,532–565 [Q41–42]。此结论限本条消费者链，不代表整个 Pregnancy 页面或 App 没有温控操作。
+
+5. temp-events：缓存、phase summary 和原因标记
+
+fd.b.h 为 GET v1/users/{userId}/temp-events；在该声明中没有 from/to/bucket 参数。gd.d0 发请求；TemperatureEventsResponse 的 events、phases 两个必需列表分别逐项转换，所审 mapper 不排序。
+Repository 构造 f40668m=StateFlow(Loading)。observeTemperatureEvents 在 onStart 看到 Loading 时请求刷新；refreshTemperatureEvents 经 D9.p case21 / D9.o case23，对成功响应调用 Bo.a case9，toDomain 后写回同一个 StateFlow。已追到的是内存状态写入，没有在这条成功处理函数中写 Room；这不是对其他温控日程/怀孕状态持久缓存的否定。
+证据：J/p135fd/b.java:27–28 [Q01]；gd/d0.java:33–49 [Q52]；Repository.java:63–65,226–238 [Q07,Q30,Q53]；gd/W.java:33–53 [Q08]；D9/o.java:1041–1072 [Q29]；S4/Bo/a.smali:249–289 [Q64]；TemperatureEventsResponse.java:65–78 [Q26]。
+
+普通 event：eventTime:Instant → 手机 systemDefault LocalDateTime；actionType、deviceId、currentPhase/previousPhase 透传；current/previous 的 level、bedTime、initialSleep、finalSleep 共 8 个 nullable Integer 各装 Ga.b。
+reason 产生三个显示布尔值：startsWith("autopilot-ambient-temp", ignoreCase=false)、contains("tap-input",false)、等于 "pregnancy-mode" 或 "postpartum"。这些标记来自服务器 reason 字符串；并非手机读取环境温度/敲击传感器后自行判断原因。
+证据：S2/TemperatureEventResponse.smali:1243–1568 [Q24–25]；J/lo/u.java:175–183、lo/n.java:224–240 确认 prefix/contains [Q49–50]；Ya/C2102d.java:68–80 [Q66]；jd/w.java:104–136 的字段命名 [Q32]。
+
+phase summary 则有 phaseName、phaseStart/phaseEnd:LocalDateTime、phaseDurationSeconds:long、avgTemp:Float?、tempDurations:Map<String,Long>。
+toDomain 对 avgTemp 先 float→int 截断，再装 Ga.b；Map 的每个 key 先 Integer.parseInt 后装 Ga.b，Long 时长保留。observe 层按用户显示单位重建 Ga.b，事件时间/阶段及 duration 不重新计算。
+这支持“每温控阶段的档位/时长摘要”的客户端表示，不能仅凭 avgTemp 字段名把它认定为温度探头平均值。当前已闭合 Home 消费者调用 jd.x.a() 取 events；phases 的进一步图表消费本轮未闭合，不声称不存在。
+证据：J/TemperaturePhaseEventResponse.java:6–27,130–144 [Q27]；S2 toDomain 见 [Q13]；J/k1/C.java:186–231 [Q10]；S2/Kb/V.smali:2735–2859 [Q43]。
+
+6. 历史事件怎样进入用户触发的回退控制
+
+Home 组合流经 pl.g.g→ld.X 观察温度事件并合并显示单位；Kb.V 从 jd.x 取 events，交给 Kb.C。Kb.C 遍历服务器顺序，取第一个 isAmbientTempResponse=true 的事件，不先按时间排序。仅当当前设置存在、currentLevel 和 previousLevel 均非空、event.currentLevel 等于当前 settings.targetTemperature，才建立候选。
+随后要求 event.currentPhase 等于当前 activeState，且 now < eventTime+2h；这里没有单独的 eventTime<=now 校验。失败会丢弃这个候选，不继续向后找另一条 ambient 事件。Ga.b.equals 同时比较 raw 和 displaySetting。
+满足后生成 Lb.y(previousLevel,currentLevel,phase,userId) 的 ambientResponse/ambientTemperatureResponse 提示；模型还带 AUTOPILOT capability。候选生成不保证最终 banner 一定显示，后续统一 banner 能力/优先级规则未在本轮穷尽。
+证据：S3/pl/g.smali:850–874 [Q63]；J/ld/X.java:37–68 [Q09]；S2/Kb/V.smali:2735–2859 [Q43]；J/Kb/C.java:162–186,249 [Q31]；对应 S2:395–504,723–753 [Q55–56]；J/Lb/C1422y.java:31–48 [Q47]；Ga.b.java:108–116 [Q33]。
+
+真正执行变化的入口是 AmbientResponseAlertViewModel.handleNegativeCtaClick→undoAmbientResponse，非历史流一到即写：
+1) 从 alert.phase 映射 SleepPhase；观察当前温控设置并取成功值的三段温度。
+2) 所选 BEDTIME/NIGHT/DAWN 参数替换成 alert.previousLevel，另外两项在此调用点取当前三段值。
+3) 调 v0.L→ld.c1.a→ld.b1；下游会清掉被选阶段的 override，并在别的阶段存在 override 时恢复基础 smart 值，不能概括为其他 wire 字段逐字节不变。
+4) ld.b1 组装 Ga.n 三段 smart、可选 override 更新 jd.B，同时从所选阶段构造 TemperatureBleCommand.Update；交 b.z→ld.H0.d。这是既有云/Backup BLE 路由入口，线上成功/设备达到目标未观测。
+证据：J/AmbientResponseAlertViewModel.java:28–42 [Q44]；S2/同目录 undoAmbientResponse$1.smali:240–397 [Q45]；S1/androidx/health/platform/client/proto/v0.smali:910–934 [Q46]；J/ld/c1.java:101–116 [Q67]；S2/ld/b1.smali:218–483 [Q69,Q68,Q57]，阶段枚举映射 [Q70]；S1/android/support/v4/media/session/b.smali:11878–11910 [Q58]。
+既有路由：H0→C0 在满足设备能力/离线状态门限时走 BLE，其他分支请求 PUT temperature/{deviceType}；详见 APP_THERMAL_CONTROL_ZH.txt §2/4，共享 temperature-api-or-ble、temperature-update-call 证据已纳入本 ledger。
+
+这个正向调用链证明手机存在“基于服务器历史事件、用户触发的撤销目标”逻辑。它没有恢复 ambient 原始调整的服务端算法，不能当作手机本地 Autopilot/分期推理，也不能把 previousLevel 当成实际水温或已验证安全目标。
+
+7. 本轮边界与未恢复项
+
+- 两个已追接口的协议和消费者足以区分事件档位、温控阶段及孕期周图；无法从它们推出水温/床温连续采样率、actual-target 曲线的配对定义、服务器桶聚合实现或到设备的进一步单位映射。
+- 本版 metrics TimeSeriesResponse 具体六条列表是 respiratoryRate、nemeanRespiratoryRate、heartRate、hrv、rmssd、shortAwakes；该 DTO 没有温度历史字段 [Q51]。这只是已知 DTO 的有限结构，不以关键词无命中证明全 App 没有其他历史 API。
+- nightly request 的 align=from/fillEmpty=true、bucket=week 是发布 APK 请求契约；服务端如何解释时区、缺样、同名阶段、时间窗闭开区间及数据质量，没有响应实包/服务器代码。
+- nightly 本次路径没有持久化表写入；temp-events 本次成功处理写内存 StateFlow。未把其他路由里的日程缓存、远端配置或 UI action 划入这个否定范围。
+- 本轮覆盖限定为两个温度历史接口及已闭合消费者；其他事件、怀孕配置推荐、持续温度传感器和全 App 反射消费者不在本报告覆盖范围。
+
+8. 可复查交付
+
+APP_TEMPERATURE_HISTORY_ZH.txt：本报告。
+temperature-history/queries/：持久 REA 请求/响应，不执行目标程序。
+temperature-history/rea_query.py、capture_batch.py：只读索引查询工具。
+temperature-history/SOURCE_LEDGER.json：当前 index、共享 evidence、查询文件与源文件哈希、findings 引用。
+temperature-history/audit_evidence.py --verify：仅核对本报告 ledger 的离线文件完整性，不调用 API、不重新 prepare、不导出全局报告。

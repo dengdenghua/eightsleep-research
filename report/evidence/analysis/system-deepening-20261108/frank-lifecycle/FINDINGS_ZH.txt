@@ -1,0 +1,160 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Frank 生命周期与 KV 调度：本轮限定代码审计
+2026-11-08；只读静态分析，未执行固件、设备命令、账号请求或网络操作。
+
+本轮新增结论
+
+1. 正常 main 退出确实先停止并等待子系统线程，再清 NATS worker 的运行标志并等待它退出。
+   等待的是线程结束，不是“发送队列全部发送完”。已闭合的这条路径没有队列为空检查或排空循环。
+2. NATS 线程的析构对象只有 16 字节包装状态，不是保存待发消息的 0x6c0 字节全局 worker。
+   不能把 std::thread 的清理当成数据队列已清理、转存或可靠交付。
+3. 原 ELF 异常表补出了旧 main 导出遗漏的尾部。43 个异常调用区间、32 个不同 landing pad
+   已完整保留；限定 CFG 检查显示这些异常清理入口均不经过正常的 worker stop 写入。
+   有线程仍 joinable 时会走 std::terminate；不是所有异常都会先走正常停止流程。
+4. KV 是温控部件状态的“最新值”同步，不是原始波形缓存。同一 key 的中间更新可在本地被后值合并。
+   每轮至多成功写一项；持续有差异时能延后 raw 发布，但 KV 错误的 5 秒门控会暂时跳过 KV，让 raw 继续。
+5. 周期 reconcile 的 Get 成功分支不比较远端 payload。它主要补回缺失 key，不是完整的内容一致性校验。
+
+这些结论仍限定于该固件样本及列明入口；不是实机丢包率、实际关机时延或全系统无其他保存机制的证明。
+
+一、输入与来源
+
+frankenfirmware：5060488 字节。
+SHA-256：84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+沿用 SignalHost 工程、Ghidra 基址 0x00100000。*.c 是反编译伪代码，不是原厂源码。
+baseline/ 保留上一轮 37 个函数；本轮另导出 20 个不同函数，总计 57 个函数及 4 个完整异常相关范围。
+有效指令按地址去重后为 14,429 条、57,716 字节，全部与原 ELF PT_LOAD 字节一致，最终范围无未解码指令。
+pass2/ 的部分异常尾部最初尚未解码；pass3/ 的完整范围是这些尾部的最终证据。
+
+scripts/inspect_unwind.py 独立读取原 ELF .eh_frame/.gcc_except_table，未借伪代码猜测异常入口。
+它解析索引后只解释请求的 10 个 FDE，保留 63 条 call-site 记录；不把整个 ELF 的索引数量算成语义覆盖。
+UNWIND_MAP.json 同时核对线程 vtable 的 7 个相关动态重定位条目，避免直接把重定位后的指针当成原文件字节。
+所有摘要与输入、输出身份见 SOURCE_MANIFEST.json。
+
+二、正常停止到底清理了什么
+
+main 00179600 在 00179ad8..00179b58 启动两个线程：
+- 第一个 vtable 0058e3c8，run 槽 0058e3d8 指向 00181400，转入 0025e0b4(&DAT_005e2fc0)。
+- 第二个 vtable 0058e3f0，run 槽 0058e400 指向 00189bb0，即 NATS worker 包装循环。
+对应 std::thread 句柄在 main 栈的 sp+0x98、sp+0xa0；后者就是正常关闭处的 x28。
+证据：pass3/range-00179600-0017a7b0.asm.txt:311-343；pass1/target-refs.txt:1-8；UNWIND_MAP.json 重定位记录。
+
+正常退出顺序 0017a180..0017a1d8：
+  002547f0(&DAT_005e2fc0)：清对象+0x310运行字节，并向其 fd 写入8字节唤醒值；
+  join 第一个线程；
+  向 DAT_005e3b98 指向的 W+0x80 写0；
+  join NATS worker；
+  处理本地额外 stop-state/thread 与 Asio context，再释放本地字符串。
+0025e0b4 的主循环使用同一对象+0x310字节，退循环前后清监视和子系统集合。
+这闭合了“先停数据来源相关线程，再停发送线程”的对象身份；没有证明所有生产者中断或退出时的最后一次刷新。
+
+worker 的 00189bb0 返回清理只涉及当前 KV store、JS context、NATS connection。
+001813a0/001813c0 是第二个线程包装对象的两种析构入口；它们调用 std::thread::_State 析构，
+后一种再 delete 0x10 字节包装对象，没有获取 W、遍历消息或调用本地转存。
+main 后面的 00196550 管理另一个24字节 stop-state及其线程；001946b0销毁的是独立构造的 Asio context。
+不能把这些对象的析构拼成 W 队列的析构。
+
+W 本体由12个受同一guard保护的初始化路径中的一个分配、清零、初始化后，保存到全局指针005e3b98。
+已识别33处直接引用、30个所属函数逐项审阅：12处全局写入均属于上述构造；其余是生产者、main与worker。
+这些路径中未发现 delete W、为W注册__cxa_atexit析构、或对待发消息进行落盘的调用。
+完整 ledger：GLOBAL_WORKER_REVIEW.json。它是有界引用/别名审阅，不是任意内存别名的全程序形式证明。
+
+因此，已闭合正常路径不保证排空队列；stop 标志也不等于立即释放剩余消息。
+正在执行的同步库调用可以先完成，worker下次检查标志才返回；main的join没有本地超时参数。
+如果更早的子系统join未返回，正常路径尚不会执行清W标志。不能将库等待默认值等同整机退出上限。
+进程终止会失去仍只在这个进程内存里的条目，但本报告不替其他进程、监督器或外部备份作全称判断。
+
+三、异常退出与旧导出的覆盖缺口
+
+ELF FDE给main的完整范围为00179600..0017a7b0（排他终点）。旧导出函数body未覆盖全部异常尾部。
+本轮使用原LSDA恢复43个call-site记录、32个不同landing pad，按其真实地址补全pass3汇编。
+例如，第二线程创建调用00179b50的异常落点为0017a790；清理临时线程包装后，检查第一个线程句柄。
+普通运行与正常停止段抛异常可进入0017a5c4，再清其他本地对象，检查sp+0xa0/sp+0x98。
+仍有非零线程句柄时分别到0017a408/0017a4a0调用std::terminate；否则进入已记录的catch/继续unwind分支。
+这不是“异常后一定先停worker再保存队列”。
+
+LIFECYCLE_FLOW_CHECK.json：把条件分支两边保留、普通调用视为正常返回，32个main异常入口均不能
+沿本函数控制流到达正常stop写入0017a19c，也不到正常子系统stop调用0017a184。
+此检查不递归解释每个Asio回调、C++运行库析构或异步信号处理；这些边界明确保留。
+001afe00和00189bb0各自FDE没有LSDA；未恢复其内的本地C++ catch或异常时queue drain。
+不能从正常返回后的连接清理，推定异常跨出worker时也必然执行同一段清理。
+
+KV的额外异常尾部也已保留：writePendingState在副本复制异常处释放临时树并按条件解锁，再unwind；
+setter在已加锁后的节点分配异常处清理临时字符串、解锁，再unwind。这些不是发送队列持久化。
+未将内存分配失败、析构再次抛异常或进程被强杀伪装成正常重试情景。
+
+四、KV状态的两个内存表
+
+W+0x630一带是desired map，W+0x660一带是last-success map；它们与raw/log/events/core环形队列独立。
+002463a0接收bucket、key和payload，以bucket/key组合索引插入或覆盖desired中的三个字符串，受W+0x600互斥锁保护。
+已定位实际生产者：00240584、00241980、00243e70提交device_state中的frank.frozen.priming、frank.frozen.cap等。
+这是部件状态JSON，不是ADC/IMU数组、睡眠stage或云端融合输入。
+
+001af7c0 writePendingState：
+1. 锁住desired，调用001af480/001af1d0复制到局部树，再解锁；网络调用发生在解锁之后。
+2. 按树顺序比较局部条目与last-success中的payload长度/字节。
+3. 没有差异返回0；发现差异则打开/创建对应KV bucket并Put。
+4. Put成功后更新last-success中的bucket/key/payload，返回1；一次调用至多成功写一项。
+5. bucket打开/创建或Put返回错误则返回2，未更新该项last-success；desired仍在，后续可重试。
+局部树的释放函数00191ce0只释放这份副本及节点字符串，不清全局desired或raw队列。
+
+含义：同一key在发送前连续更新A→B→C，可能只发送最后快照中的C。
+若网络调用期间desired又更新，当前成功只记录本次快照；下一轮仍能发现新差异。
+这是一种最新状态同步方式，不能当成所有中间状态都有历史记录的事件队列。
+
+0019faa0为实际Put包装JSON：{"v":1,"ts":<调用时墙钟毫秒>,"payload":<原payload文本>}。
+last-success保存并比较的是原payload文本，不把包装时间戳变化本身当成状态变化。
+这个ts不是传感器采样时间，也不是远端接收时间。
+
+五、周期reconcile做什么、不做什么
+
+0019feb0遍历last-success；确保对应bucket句柄，按key执行kvStore_Get。
+- Get成功：直接kvEntry_Destroy后继续，没有读取/比较远端payload的调用。
+- Get返回0x0d：重新包装本地last-success的payload并Put；成功后继续。
+- 其他错误或重Put失败：记录错误并返回false。
+0x0d的文字Not Found已由同包libnats实际状态表核验，见../nats-library/STATUS_TABLE.json；不是套用网上近似版本。
+因此它能补回缺失key，但远端已有另一份内容时，Get成功不触发纠正。
+没有据此宣称任何进程实际修改过远端key，或键一定永久存在。
+
+六、KV会不会挡住raw
+
+worker调度顺序是core → KV门控/协调 → 三个JS队列，不能只看三个JS的round-robin。
+W+0x690构造值60000，在worker中乘1000000与steady clock差值比较；是约60秒的reconcile门限。
+它是满足门控后才检查的门限，不是独立定时线程；持续core工作或库调用耗时可延后执行。
+
+分支                     已审代码后续
+当前时间早于W+0x698       跳过KV，进入JS扫描。
+writePending返回0         无差异，进入JS扫描。
+writePending返回1         回循环顶部；持续有变化时可持续延后JS。
+KV失败且无连接/状态非2    清KV/JS/连接句柄，指定等待1秒，再重连/调度。
+KV失败且连接状态为2       设置W+0x698=now+5000000000，回顶部；此后约5秒内跳过KV、允许JS扫描。
+
+这里的“连接状态2”来自natsConnection_Status；它不是natsStatus API错误枚举的2。
+5秒是KV冷却截止，不是nanosleep(5)，也不是整个worker停止5秒。
+写状态成功一次就回顶部，故有限且稳定的dirty状态通常逐项消化；不断变化的靠前key可以延后其他key与raw。
+以上是条件性调度推导，不是已经观察到实机饥饿。
+锁竞争、树复制、周期遍历多key和同步网络请求也能推迟raw与stop检查；没有静态保证的总时长上界。
+
+七、发布选项与父审计的接口
+
+按字节计，jsPubOptions位于W+0x10..0x4f。GLOBAL_WORKER_REVIEW.json列出全局W的全部已识别直接引用。
+构造清零以及001afe00的jsPubOptions_Init是该范围的已识别写入；producer访问队列或KV区域，
+main/wrapper访问运行标志、连接及KV句柄，未发现逐消息MsgId赋值或options setter路径。
+001afe00把W+0x10传入js_Publish。MsgId字段的精确偏移、自动头与库内部确认语义由同包libnats审计负责。
+此结论不包含越界写、内存破坏或任意外部别名的全称排除，也不推成云端没有去重。
+
+八、验收范围与剩余事项
+
+本轮完成：正常关闭对象绑定；线程包装析构与W归属区分；main全部LSDA记录和尾部汇编补全；
+限定异常CFG；直接W引用及发布选项写入审阅；KV producer→desired→副本→Put→last-success→reconcile与worker门控。
+没有重复上一轮的容量/满拒新模型，也没有把旧证据重复计为20个新函数之外的新增逆向量。
+
+保留未知：Asio所有间接回调及任意C++库析构的递归效果；全程序别名/异步信号/任意损坏；
+当前实机部署镜像、真实队列占用和关机时序、实际KV竞争/延迟及外部进程的补偿保存。
+这些不妨碍回答已限定的正常main/worker和KV路径，却限制“所有情况下都不保存/一定丢多少”的说法。
+生产心肺分离、融合、HRV、分期和云端温控算法仍不在本审计范围。
+
+复核入口：scripts/inspect_unwind.py、scripts/check_lifecycle_flow.py、scripts/verify_asm_bytes.py。
+EVIDENCE_MAP.json提供逐结论位置；COVERAGE.json逐项记录已完成和未闭合范围；REPRODUCE.txt列命令。

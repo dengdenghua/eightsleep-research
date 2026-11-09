@@ -1,0 +1,71 @@
+TARGET 0800a5b8 function=0800a578
+FUNCTION_BODY [[0800a578, 0800a5c1]]
+
+undefined4 FUN_0800a578(undefined4 *param_1,undefined4 *param_2,int param_3)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  undefined4 *puVar3;
+  undefined4 *puVar4;
+  
+  *(undefined1 *)((int)param_1 + 0x1d) = 2;
+  puVar4 = (undefined4 *)*param_1;
+  puVar4[2] = puVar4[2] | 1;
+  iVar1 = param_1[8];
+  if (iVar1 == 2) {
+    uVar2 = FUN_0800a4d8(param_1);
+  }
+  else if (iVar1 == 3) {
+    puVar3 = param_2 + param_3;
+    for (; param_2 != puVar3; param_2 = param_2 + 1) {
+      *puVar4 = *param_2;
+    }
+    uVar2 = *puVar4;
+  }
+  else if (iVar1 == 1) {
+    uVar2 = FUN_0800a480(param_1);
+  }
+  else {
+    uVar2 = 0;
+  }
+  *(undefined1 *)((int)param_1 + 0x1d) = 1;
+  return uVar2;
+}
+
+
+INSN 0800a578 0223 movs r3,#0x2
+INSN 0800a57a 70b5 push {r4,r5,r6,lr}
+INSN 0800a57c 4377 strb r3,[r0,#0x1d]
+INSN 0800a57e 0400 movs r4,r0
+INSN 0800a580 0368 ldr r3,[r0,#0x0]
+INSN 0800a582 0120 movs r0,#0x1
+INSN 0800a584 9d68 ldr r5,[r3,#0x8]
+INSN 0800a586 2843 orrs r0,r5
+INSN 0800a588 9860 str r0,[r3,#0x8]
+INSN 0800a58a 206a ldr r0,[r4,#0x20]
+INSN 0800a58c 0228 cmp r0,#0x2
+INSN 0800a58e 14d0 beq 0x0800a5ba REF[CONDITIONAL_JUMP:0800a5ba]
+INSN 0800a590 0328 cmp r0,#0x3
+INSN 0800a592 05d0 beq 0x0800a5a0 REF[CONDITIONAL_JUMP:0800a5a0]
+INSN 0800a594 0128 cmp r0,#0x1
+INSN 0800a596 0cd0 beq 0x0800a5b2 REF[CONDITIONAL_JUMP:0800a5b2]
+INSN 0800a598 0020 movs r0,#0x0
+INSN 0800a59a 0123 movs r3,#0x1
+INSN 0800a59c 6377 strb r3,[r4,#0x1d]
+INSN 0800a59e 70bd pop {r4,r5,r6,pc}
+INSN 0800a5a0 9200 lsls r2,r2,#0x2
+INSN 0800a5a2 8a18 adds r2,r1,r2
+INSN 0800a5a4 9142 cmp r1,r2
+INSN 0800a5a6 01d1 bne 0x0800a5ac REF[CONDITIONAL_JUMP:0800a5ac]
+INSN 0800a5a8 1868 ldr r0,[r3,#0x0]
+INSN 0800a5aa f6e7 b 0x0800a59a REF[UNCONDITIONAL_JUMP:0800a59a]
+INSN 0800a5ac 01c9 ldmia r1!,{r0}
+INSN 0800a5ae 1860 str r0,[r3,#0x0]
+INSN 0800a5b0 f8e7 b 0x0800a5a4 REF[UNCONDITIONAL_JUMP:0800a5a4]
+INSN 0800a5b2 2000 movs r0,r4
+INSN 0800a5b4 fff764ff bl 0x0800a480 REF[UNCONDITIONAL_CALL:0800a480]
+INSN 0800a5b8 efe7 b 0x0800a59a REF[UNCONDITIONAL_JUMP:0800a59a]
+INSN 0800a5ba 2000 movs r0,r4
+INSN 0800a5bc fff78cff bl 0x0800a4d8 REF[UNCONDITIONAL_CALL:0800a4d8]
+INSN 0800a5c0 ebe7 b 0x0800a59a REF[UNCONDITIONAL_JUMP:0800a59a]

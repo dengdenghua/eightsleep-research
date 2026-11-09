@@ -1,0 +1,64 @@
+FUNCTION 0002d764 BODY [[0002d764, 0002d771] [0002fa74, 0002faa3]]
+REF_TO 0002dc66 UNCONDITIONAL_CALL
+
+longlong FUN_0002d764(code *param_1,undefined4 param_2)
+
+{
+  int iVar1;
+  uint uVar2;
+  int iVar3;
+  uint local_20;
+  code *pcStack_1c;
+  undefined4 uStack_18;
+  
+  local_20 = *(uint *)(DAT_0002d774 + 8);
+  if (param_1 != (code *)0x0) {
+    iVar3 = 0;
+    if (local_20 != 0) {
+      uVar2 = 0;
+      pcStack_1c = param_1;
+      uStack_18 = param_2;
+      do {
+        iVar1 = FUN_00030cc6(&local_20,uVar2);
+        if (iVar1 != 0) {
+          (*param_1)(uVar2 & 0xffff,param_2);
+          iVar3 = iVar3 + 1;
+        }
+        uVar2 = uVar2 + 1;
+      } while (uVar2 < 0x14);
+    }
+    return CONCAT44(local_20,iVar3);
+  }
+  return (ulonglong)local_20 << 0x20;
+}
+
+
+INSN 0002d764 0346 mov r3,r0
+INSN 0002d766 0348 ldr r0,[0x0002d774] REF[READ:0002d774=20004c40]
+INSN 0002d768 8068 ldr r0,[r0,#0x8] REF[READ:20004c48]
+INSN 0002d76a 0a46 mov r2,r1
+INSN 0002d76c 1946 mov r1,r3
+INSN 0002d76e 02f081b9 b.w 0x0002fa74 REF[UNCONDITIONAL_JUMP:0002fa74]
+INSN 0002fa74 f7b5 push {r0,r1,r2,r4,r5,r6,r7,lr}
+INSN 0002fa76 1746 mov r7,r2
+INSN 0002fa78 0e00 movs r6,r1
+INSN 0002fa7a 11d0 beq 0x0002faa0 REF[CONDITIONAL_JUMP:0002faa0]
+INSN 0002fa7c 0098 ldr r0,[sp,#0x0] REF[READ:Stack[-0x20]]
+INSN 0002fa7e 0025 movs r5,#0x0
+INSN 0002fa80 60b1 cbz r0,0x0002fa9c REF[CONDITIONAL_JUMP:0002fa9c]
+INSN 0002fa82 0024 movs r4,#0x0
+INSN 0002fa84 2146 mov r1,r4
+INSN 0002fa86 6846 mov r0,sp
+INSN 0002fa88 01f01df9 bl 0x00030cc6 REF[UNCONDITIONAL_CALL:00030cc6]
+INSN 0002fa8c 18b1 cbz r0,0x0002fa96 REF[CONDITIONAL_JUMP:0002fa96]
+INSN 0002fa8e a0b2 uxth r0,r4
+INSN 0002fa90 3946 mov r1,r7
+INSN 0002fa92 b047 blx r6
+INSN 0002fa94 6d1c adds r5,r5,#0x1
+INSN 0002fa96 641c adds r4,r4,#0x1
+INSN 0002fa98 142c cmp r4,#0x14
+INSN 0002fa9a f3d3 bcc 0x0002fa84 REF[CONDITIONAL_JUMP:0002fa84]
+INSN 0002fa9c 2846 mov r0,r5
+INSN 0002fa9e febd pop {r1,r2,r3,r4,r5,r6,r7,pc}
+INSN 0002faa0 0020 movs r0,#0x0
+INSN 0002faa2 febd pop {r1,r2,r3,r4,r5,r6,r7,pc}

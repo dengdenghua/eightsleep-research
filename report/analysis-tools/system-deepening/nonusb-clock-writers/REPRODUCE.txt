@@ -1,0 +1,73 @@
+nonUSB 时钟 writer 分析 · 复跑说明
+2026-11-08
+
+一、不需要 Ghidra 的复核（推荐先跑）
+
+  cd report/analysis-tools/system-deepening/nonusb-clock-writers
+  python3 scripts/verify_clock_bytes.py
+  python3 model/clock_cases.py
+
+前提只有两样：本目录的 pass1/、pass2/ 导出文本，以及冻结归档里的两份 BBIN
+
+  materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/lib/subsystem_updates/
+    firmware-sensor-g0.bbin       132896B  SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+    firmware-sensor-g0-usb.bbin   140828B  SHA256 1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563
+
+verify_clock_bytes.py 逐行把导出的 INSN 机器码、flash literal、BL 与直接分支目标
+对回原始文件；输出 BYTE_VALIDATION.json（status PASS / failures 0）。
+clock_cases.py 只做 6 组整数算术，输出 MODEL_RESULTS.json。
+两个脚本都只把 BBIN 当数据读，不执行固件、不联网、不访问设备或账号。
+
+二、需要 Ghidra 才能重做的事：重新导出
+
+工具与工程（都在分析机上，不属于交付包）：
+
+  analyzeHeadless  /opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless
+  java             /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home/bin/java
+  工程目录          /Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra
+  工程文件          NonUsbSensor.gpr        程序名 firmware-sensor-g0.bbin
+  脚本目录          report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts
+  脚本              ExportSensorDiff.java
+
+设置变量（把 EIGHTSLEEP 换成本项目根目录的绝对路径）：
+
+  EIGHTSLEEP="/Volumes/My Passport/EightSleep"
+  GHIDRA_PROJECT_DIR="/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra"
+  SCRIPT_DIR="$EIGHTSLEEP/report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts"
+  HEADLESS="/opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless"
+  D="$EIGHTSLEEP/report/analysis-tools/system-deepening/nonusb-clock-writers"
+
+pass1：
+
+  "$HEADLESS" "$GHIDRA_PROJECT_DIR" NonUsbSensor \
+    -process firmware-sensor-g0.bbin -readOnly -noanalysis \
+    -scriptPath "$SCRIPT_DIR" -postScript ExportSensorDiff.java \
+    "$D/pass1" 0800c828 0800c8dc 0800cdb4 0800c88c 0800ca00 0800ce1a 0800a430 0800995c
+
+pass2：
+
+  "$HEADLESS" "$GHIDRA_PROJECT_DIR" NonUsbSensor \
+    -process firmware-sensor-g0.bbin -readOnly -noanalysis \
+    -scriptPath "$SCRIPT_DIR" -postScript ExportSensorDiff.java \
+    "$D/pass2" 080108c4 08010914 08010934 0801096a 080109bc 080109dc 08008c04 080170d8 080128bc
+
+说明：
+
+  - -readOnly -noanalysis：只读打开既有工程、不自动分析、不写回工程。
+  - ExportSensorDiff.java 内置 SHA256 守门，输入不是 51531576…c6a891 会直接报错退出。
+  - 传函数内部地址也可以，脚本会解析所在函数，输出 TARGET / REF_TO /
+    FUNCTION_BODY / 伪代码 / INSN 行。所以 080108c4 得到 FUN_080108ac、
+    0801096a 得到 FUN_08010960。
+  - 重跑会覆盖 pass1/、pass2/ 里的导出文本；如果要保留本次产物，先另存目录。
+  - 交付包不依赖这个 Ghidra 工程。工程丢失时，已发布结论仍可用第「一」步复核，
+    只是不能再生成新的导出目标。
+
+三、产物对照
+
+  CLOCK_CHAIN.json         双版本并排地址、职责、关键结论
+  BYTE_VALIDATION.json     逐 INSN / literal / 分支目标核验结果
+  MODEL_RESULTS.json       6 组整数算术与 7 条断言
+  FINDINGS_ZH.txt          完整中文结论与边界
+  SOURCE_MANIFEST.json     输入文件 SHA256 清单
+  COVERAGE_RESIDUAL.json   本轮闭合项与残余缺口
+  EXPORT_COMMANDS.json     机器可读的导出命令与参数

@@ -1,0 +1,62 @@
+TARGET 0801099c function=0801099c
+REF_TO 0801096a UNCONDITIONAL_CALL owner=080108d8
+FUNCTION_BODY [[0801099c, 080109db]]
+
+void FUN_0801099c(void)
+
+{
+  byte *pbVar1;
+  byte bVar2;
+  ushort uVar3;
+  
+  pbVar1 = DAT_08010a94;
+  bVar2 = DAT_08010a94[1];
+  uVar3 = *(ushort *)(DAT_08010a94 + 4);
+  if (9 < *DAT_08010a94) {
+    if ((bVar2 != 0) && (bVar2 = bVar2 + 1, 10 < bVar2)) {
+      bVar2 = 0;
+      *(undefined1 *)(DAT_08010a98 + 0xe) = 0;
+    }
+    *pbVar1 = 0;
+    if ((pbVar1[6] != 0xaa) && (uVar3 = uVar3 + 1, 900 < uVar3)) {
+      uVar3 = 0;
+      pbVar1[6] = 0xaa;
+    }
+  }
+  *(ushort *)(pbVar1 + 4) = uVar3;
+  pbVar1[1] = bVar2;
+  return;
+}
+
+
+INSN 0801099c 10b5 push {r4,lr}
+INSN 0801099e 3d48 ldr r0,[0x08010a94] REF[READ:08010a94=20007ef0] REF[DATA:20007ef0]
+INSN 080109a0 0378 ldrb r3,[r0,#0x0] REF[READ:20007ef0]
+INSN 080109a2 4178 ldrb r1,[r0,#0x1] REF[READ:20007ef1]
+INSN 080109a4 8288 ldrh r2,[r0,#0x4] REF[READ:20007ef4]
+INSN 080109a6 0a2b cmp r3,#0xa
+INSN 080109a8 15db blt 0x080109d6 REF[CONDITIONAL_JUMP:080109d6]
+INSN 080109aa 0b00 movs r3,r1
+INSN 080109ac 06d0 beq 0x080109bc REF[CONDITIONAL_JUMP:080109bc]
+INSN 080109ae 491c adds r1,r1,#0x1
+INSN 080109b0 c9b2 uxtb r1,r1
+INSN 080109b2 0b29 cmp r1,#0xb
+INSN 080109b4 02db blt 0x080109bc REF[CONDITIONAL_JUMP:080109bc]
+INSN 080109b6 384c ldr r4,[0x08010a98] REF[READ:08010a98=20007fd0]
+INSN 080109b8 0021 movs r1,#0x0
+INSN 080109ba a173 strb r1,[r4,#0xe] REF[WRITE:20007fde]
+INSN 080109bc 0023 movs r3,#0x0
+INSN 080109be 0370 strb r3,[r0,#0x0] REF[WRITE:20007ef0]
+INSN 080109c0 8379 ldrb r3,[r0,#0x6] REF[READ:20007ef6]
+INSN 080109c2 aa2b cmp r3,#0xaa
+INSN 080109c4 07d0 beq 0x080109d6 REF[CONDITIONAL_JUMP:080109d6]
+INSN 080109c6 521c adds r2,r2,#0x1
+INSN 080109c8 92b2 uxth r2,r2
+INSN 080109ca b2f5617f cmp.w r2,#0x384
+INSN 080109ce 02dd ble 0x080109d6 REF[CONDITIONAL_JUMP:080109d6]
+INSN 080109d0 aa23 movs r3,#0xaa
+INSN 080109d2 0022 movs r2,#0x0
+INSN 080109d4 8371 strb r3,[r0,#0x6] REF[WRITE:20007ef6]
+INSN 080109d6 8280 strh r2,[r0,#0x4] REF[WRITE:20007ef4]
+INSN 080109d8 4170 strb r1,[r0,#0x1] REF[WRITE:20007ef1]
+INSN 080109da 10bd pop {r4,pc}

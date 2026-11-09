@@ -1,0 +1,23 @@
+FUNCTION 08008b28 FUN_08008b28 BODY [[08008b28, 08008b37]]
+INCOMING 0800b2d2 UNCONDITIONAL_CALL
+INCOMING 0800d3d2 UNCONDITIONAL_CALL
+
+void FUN_08008b28(void)
+
+{
+  DataSynchronizationBarrier(0xf);
+  *(undefined4 *)(DAT_08008b38 + 0xc) = DAT_08008b3c;
+  DataSynchronizationBarrier(0xf);
+  do {
+                    /* WARNING: Do nothing block with infinite loop */
+  } while( true );
+}
+
+
+ASSEMBLY
+08008b28 dsb #0xf BYTES bff34f8f
+08008b2c ldr r3,[0x08008b38] BYTES 024b REF READ=08008b38 WORD=e000ed00
+08008b2e ldr r2,[0x08008b3c] BYTES 034a REF READ=08008b3c WORD=5fa0004
+08008b30 str r2,[r3,#0xc] BYTES da60 REF WRITE=e000ed0c
+08008b32 dsb #0xf BYTES bff34f8f
+08008b36 b 0x08008b36 BYTES fee7 REF UNCONDITIONAL_JUMP=08008b36

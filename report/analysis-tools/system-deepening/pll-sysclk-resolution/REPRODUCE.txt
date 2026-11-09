@@ -1,0 +1,82 @@
+nonUSB PLL → SYSCLK 静态解码 · 复跑说明
+2026-11-08
+
+一、不需要 Ghidra 的复核（推荐先跑）
+
+  cd report/analysis-tools/system-deepening/pll-sysclk-resolution
+  python3 scripts/verify_pll_chain.py       # 1418 项字节核验
+  python3 model/pll_cases.py               # 3 组输入 / 30 断言
+  python3 scripts/write_source_manifest.py # 输入 SHA256 清单
+
+前提只有本目录 pass1 的导出文本，以及冻结归档里的原件：
+
+  materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/lib/subsystem_updates/
+    firmware-sensor-g0.bbin   132896B   SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+
+verify_pll_chain.py 逐条把导出 INSN 机器码、flash literal、BL/直接分支目标对回原件；
+断言 0x080241cc 的 16 项预分频表、24 个 literal 常数、49 条关键指令（writer1 复位、
+writer2 的 CFGR2 OR 序列、0800cd24 的字段移位与两次除法、0800cdb4 的切换与查表、
+0800995c 的两次除法）；再用一个只覆盖所用指令的 Thumb 常量传播器，从 `movs` /
+`lsls` / `adds` / `str [sp,#imm]` 逐条复算两个配置入口的 14 槽位结构体（三个变体）。
+输出 BYTE_VALIDATION.json 与 PLL_CHAIN.json。
+
+model/pll_cases.py 只读 PLL_CHAIN.json，按 0800cd24 指令里的移位重解
+PREDIV / PLLMUL / PLLDIV / PLLSRC，重放两次整数除法，算出三版 SYSCLK；
+再套预分频表与 0800995c 的 SysTick 公式，含反事实用例（32MHz 若误用 PREDIV=2
+会得 128MHz）和「SW 未切到 PLL」的 HSE 分支值。输出 MODEL_RESULTS.json。
+
+三个脚本都只把 BBIN 当数据读，不执行固件、不联网、不访问设备或账号。
+
+二、需要 Ghidra 才能重做的事：重新导出
+
+工具与工程（都在分析机上，不属于交付包）：
+
+  analyzeHeadless  /opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless
+  JAVA_HOME        /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+  工程目录          /Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra
+  工程文件          NonUsbSensor.gpr        程序名 firmware-sensor-g0.bbin
+  脚本目录          report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts
+  脚本              ExportSensorDiff.java
+
+设置变量（把 EIGHTSLEEP 换成本项目根目录的绝对路径）：
+
+  EIGHTSLEEP="/Volumes/My Passport/EightSleep"
+  GHIDRA_PROJECT_DIR="/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra"
+  SCRIPT_DIR="$EIGHTSLEEP/report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts"
+  HEADLESS="/opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless"
+  export JAVA_HOME="/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home"
+  export PATH="$JAVA_HOME/bin:$PATH"
+  D="$EIGHTSLEEP/report/analysis-tools/system-deepening/pll-sysclk-resolution"
+
+  "$HEADLESS" "$GHIDRA_PROJECT_DIR" NonUsbSensor \
+    -process firmware-sensor-g0.bbin -readOnly -noanalysis \
+    -scriptPath "$SCRIPT_DIR" -postScript ExportSensorDiff.java \
+    "$D/pass1" 0800c828 0800c8dc 0800cd24 0800cdb4 080108ac 08010960 \
+      08008174 0800995c 0800e8b4 080099ec 0800c7d0 0800a44c 0800a3a4
+
+补充的范围导出（可选，核对 0800cc04 PLL 块边界）：
+
+  "$HEADLESS" "$GHIDRA_PROJECT_DIR" NonUsbSensor \
+    -process firmware-sensor-g0.bbin -readOnly -noanalysis \
+    -scriptPath "$SCRIPT_DIR" -postScript ExportSensorDiff.java \
+    "$D/pass1" "0800cbd1:0800cc10"
+
+说明：
+
+  - -readOnly -noanalysis：只读打开既有工程、不自动分析、不写回工程。
+  - ExportSensorDiff.java 内置 SHA256 守门，输入不是 51531576…c6a891 会直接报错退出。
+  - 0800c8dc 的 FUNCTION_BODY 有两个区间 [[0800c8dc,0800cbd1] [0800cc04,0800cd13]]，
+    脚本按 body 全量 dump，所以 CFGR2 写入段（0800cc2c..0800cc64）也在同一个导出里。
+  - 重跑会覆盖 pass1 里同名导出文本；要保留本次产物就先另存目录。
+  - 交付包不依赖这个 Ghidra 工程。工程丢失时，已发布结论仍可用第「一」步复核。
+
+三、产物对照
+
+  FINDINGS_ZH.txt            完整中文结论与边界
+  PLL_CHAIN.json             RCC 复位态、14 槽位结构体、CFGR2 表达式、公式与切换链
+  BYTE_VALIDATION.json       1418 项逐字节 / literal / 分支 / 关键指令核验
+  MODEL_RESULTS.json         3 组输入、30 条断言、反事实与 SysTick 装载值
+  SOURCE_MANIFEST.json       输入文件 SHA256 清单
+  COVERAGE_RESIDUAL.json     本轮闭合项与残余缺口
+  EXPORT_COMMANDS.json       机器可读的导出命令与参数
+  REPRODUCE.txt              本文件

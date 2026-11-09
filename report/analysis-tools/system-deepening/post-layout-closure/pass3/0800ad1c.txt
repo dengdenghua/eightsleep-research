@@ -1,0 +1,39 @@
+TARGET 0800ad1c function=0800ad1c
+REF_TO 0800bc3c UNCONDITIONAL_CALL
+REF_TO 0800ba1a UNCONDITIONAL_CALL
+REF_TO 0800ba98 UNCONDITIONAL_CALL
+REF_TO 0800bb50 UNCONDITIONAL_CALL
+REF_TO 0800bbce UNCONDITIONAL_CALL
+REF_TO 0800b2ae UNCONDITIONAL_CALL
+REF_TO 0800b394 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800ad1c, 0800ad41]]
+
+void FUN_0800ad1c(int *param_1,uint param_2,int param_3,uint param_4,uint param_5)
+
+{
+  *(uint *)(*param_1 + 4) =
+       (param_3 << 0x10 | param_4 | param_5) & 0x7fffffff | param_2 & 0x3ff |
+       *(uint *)(*param_1 + 4) & ~(param_5 >> 0x15 | 0x3ff63ff);
+  return;
+}
+
+
+INSN 0800ad1c 30b5 push {r4,r5,lr}
+INSN 0800ad1e 039c ldr r4,[sp,#0xc] REF[READ:Stack[0x0]]
+INSN 0800ad20 0068 ldr r0,[r0,#0x0]
+INSN 0800ad22 2343 orrs r3,r4
+INSN 0800ad24 1204 lsls r2,r2,#0x10
+INSN 0800ad26 8905 lsls r1,r1,#0x16
+INSN 0800ad28 1a43 orrs r2,r3
+INSN 0800ad2a 890d lsrs r1,r1,#0x16
+INSN 0800ad2c 054b ldr r3,[0x0800ad44] REF[READ:0800ad44=3ff63ff]
+INSN 0800ad2e 4568 ldr r5,[r0,#0x4]
+INSN 0800ad30 0a43 orrs r2,r1
+INSN 0800ad32 640d lsrs r4,r4,#0x15
+INSN 0800ad34 2343 orrs r3,r4
+INSN 0800ad36 5200 lsls r2,r2,#0x1
+INSN 0800ad38 9d43 bics r5,r3
+INSN 0800ad3a 5208 lsrs r2,r2,#0x1
+INSN 0800ad3c 2a43 orrs r2,r5
+INSN 0800ad3e 4260 str r2,[r0,#0x4]
+INSN 0800ad40 30bd pop {r4,r5,pc}

@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-08",
+  "passed": true,
+  "scope": "Independent read-only logic review plus isolated synthetic package fixtures. No actual 3GB packaging, official API, account access, target execution, or existing service restart. Only package_complete_project.py and this record changed.",
+  "source_sha256": "dceb35ea4c0ddde1cd00e19dc3c57f08b4b7536af9c182d40bc06a785dd97ce7",
+  "checks": [
+    {
+      "check": "legacy fixed .tmp symlink is never opened; pinned source bytes preserved",
+      "passed": true
+    },
+    {
+      "check": "receipt symlink replaced atomically; referenced source unchanged; receipt matches output",
+      "passed": true
+    },
+    {
+      "check": "normal small complete package: manifest membership, every member hash/CRC, exact stored archive bytes",
+      "passed": true
+    },
+    {
+      "check": "launcher executable metadata and zsh syntax; launcher not executed",
+      "passed": true
+    },
+    {
+      "check": "successful packaging cleans private temporary directory",
+      "passed": true
+    },
+    {
+      "check": "wrong frozen SHA creates neither final ZIP nor receipt; source preserved; staging cleaned",
+      "passed": true
+    },
+    {
+      "check": "failed verification leaves prior final ZIP and receipt unchanged",
+      "passed": true
+    }
+  ],
+  "reviewed_tools": [
+    "prepare_full_materials.py",
+    "package_complete_project.py",
+    "check_full_materials.py",
+    "evidence_server.py"
+  ],
+  "existing_validation_records_reviewed": [
+    "complete-materials-archive-check.json",
+    "portable-materials-http.json",
+    "complete-materials-tool-checks.json"
+  ],
+  "limits": [
+    "Pinned real archive SHA/member metadata verification was reviewed from its recorded result, not recomputed in this independent pass.",
+    "Nested research TAR content was not re-extracted or revalidated.",
+    "Portable HTTP fixture record reviewed with source; actual existing service untouched.",
+    "Small fixture report substitutes a temporary ROOT; actual report package manifest must be regenerated after this source/check record change."
+  ],
+  "fixture_correction": "Temporary paths resolved to account for macOS /var and /private/var aliases; no implementation change required."
+}

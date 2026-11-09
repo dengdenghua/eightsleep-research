@@ -1,0 +1,66 @@
+TARGET 0801f3e8 function=0801f3e8
+REF_TO 080160ee UNCONDITIONAL_CALL
+REF_TO 080160fc UNCONDITIONAL_CALL
+FUNCTION_BODY [[0801f3e8, 0801f42b]]
+
+void FUN_0801f3e8(char *param_1,int param_2)
+
+{
+  ushort uVar1;
+  char *pcVar2;
+  
+  param_1[1] = (char)param_2;
+  if (*param_1 == '\x01') {
+    pcVar2 = *(char **)(param_1 + 4);
+    if (*pcVar2 != '\0') {
+      if (param_2 == 0) {
+        uVar1 = (*(ushort **)(param_1 + 8))[4];
+      }
+      else {
+        uVar1 = **(ushort **)(param_1 + 8);
+      }
+      *(ushort *)(pcVar2 + 0x42) =
+           **(ushort **)(param_1 + 0xc) & ~*(ushort *)(pcVar2 + 0x40) & uVar1;
+      FUN_0801b3d0();
+    }
+  }
+  else if (*param_1 == '\x02') {
+    (**(code **)(param_1 + 0x14))(param_2);
+  }
+  return;
+}
+
+
+INSN 0801f3e8 0278 ldrb r2,[r0,#0x0]
+INSN 0801f3ea 10b5 push {r4,lr}
+INSN 0801f3ec 0300 movs r3,r0
+INSN 0801f3ee 4170 strb r1,[r0,#0x1]
+INSN 0801f3f0 012a cmp r2,#0x1
+INSN 0801f3f2 02d0 beq 0x0801f3fa REF[CONDITIONAL_JUMP:0801f3fa]
+INSN 0801f3f4 022a cmp r2,#0x2
+INSN 0801f3f6 15d0 beq 0x0801f424 REF[CONDITIONAL_JUMP:0801f424]
+INSN 0801f3f8 10bd pop {r4,pc}
+INSN 0801f3fa 4068 ldr r0,[r0,#0x4]
+INSN 0801f3fc 0278 ldrb r2,[r0,#0x0]
+INSN 0801f3fe 002a cmp r2,#0x0
+INSN 0801f400 fad0 beq 0x0801f3f8 REF[CONDITIONAL_JUMP:0801f3f8]
+INSN 0801f402 9a68 ldr r2,[r3,#0x8]
+INSN 0801f404 0029 cmp r1,#0x0
+INSN 0801f406 0bd0 beq 0x0801f420 REF[CONDITIONAL_JUMP:0801f420]
+INSN 0801f408 1288 ldrh r2,[r2,#0x0]
+INSN 0801f40a db68 ldr r3,[r3,#0xc]
+INSN 0801f40c 811c adds r1,r0,#0x2
+INSN 0801f40e c98f ldrh r1,[r1,#0x3e]
+INSN 0801f410 1b88 ldrh r3,[r3,#0x0]
+INSN 0801f412 8b43 bics r3,r1
+INSN 0801f414 1340 ands r3,r2
+INSN 0801f416 021d adds r2,r0,#0x4
+INSN 0801f418 d387 strh r3,[r2,#0x3e]
+INSN 0801f41a fbf7d9ff bl 0x0801b3d0 REF[UNCONDITIONAL_CALL:0801b3d0]
+INSN 0801f41e ebe7 b 0x0801f3f8 REF[UNCONDITIONAL_JUMP:0801f3f8]
+INSN 0801f420 1289 ldrh r2,[r2,#0x8]
+INSN 0801f422 f2e7 b 0x0801f40a REF[UNCONDITIONAL_JUMP:0801f40a]
+INSN 0801f424 4369 ldr r3,[r0,#0x14]
+INSN 0801f426 0800 movs r0,r1
+INSN 0801f428 9847 blx r3
+INSN 0801f42a e5e7 b 0x0801f3f8 REF[UNCONDITIONAL_JUMP:0801f3f8]

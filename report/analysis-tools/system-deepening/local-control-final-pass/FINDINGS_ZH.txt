@@ -1,0 +1,94 @@
+A02 余下本地控制入口：0x53、直接泵 0x50 与直接阀 0x51
+
+结论
+本轮逐项闭合这三个入口的分发、正常参数范围、写入位置、后续消费者和与 mode/校准/闭环的作用顺序。0x53 的 19 个编号并不代表 19 个可设置功能：13 个有效分支中有 3 个只读；sub2 未实现，sub7 废弃，15–18 不支持。
+有实际差异的发现：稳态时长日志写 60000 ms，但机器码只接受 1..6500 ms；短开阀配置会从 mode 表重新补齐关闭参数；mode 的 80% 是闭环策略上限与泵目标值，直接速度命令仍能覆盖泵目标，不是所有入口共同的硬限制。控制命令被接受、配置内存改变、定时回调消费与 PWM 输出改变是不同时间点。
+
+1. 原件、方法与准确范围
+原件 R/mediatek/rootfs-selected/opt/eight/firmware/balloon/A02/firmware-balloon-g0.bbin，143360 B，版本 0.2.71.0；SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a，完整 BBIN 映射 0x08010000。R=/Users/dangbei/Downloads/eightsleep-firmware-research-20261107。
+沿用独占外盘 BalloonParameters 工程；只修改分析元数据。原 0801972C 使用 BL 作长距离内部跳转，先前函数碎片导致伪循环和分支丢失；本轮根据19项原始半字跳转表、单个 push 与共同 pop，合并该函数，内部 BL 标为 branch，重新导出完整 switch。输入字节未改。scripts/RepairControl53.java、commands-pass1.log 保留每个处理点；原始字节及真实 BL 编码仍在导出中。
+只研究所列正常有限输入与已初始化对象；没有执行固件/原厂程序、连接设备或账号，没有展开此前停止的共享日志专项。下面地址是静态证据，不是实机执行记录。既有完整闭环、校准系数和元数据消费者复用逐哈希保留的来源。
+地址简写：D=0x2000AA30；调度 S=D+19B8=0x2000C3E8；袋 B=D+1558+i*E0=0x2000BF88+i*E0；泵 P=D+F30+j*44=0x2000B960+j*44；阀对 V=D+1164+i*A8，inflate=V+4、deflate=V+54；体动 M=D+1B08=0x2000C538。时间为毫秒，明确标为秒的 sleep 除外。
+
+2. 0x53 分发：每个编号实际做什么
+入口 0801972C。payload 长度包含 subcommand 字节，不含外层 0x53。除 sub11/12 只读诊断外，需要 D 存在且 D+2384、S+14C 已初始化。多字节设置值均按 LE 读取；本节 float 范围限定正常有限数，不把代码里的比较说成全 IEEE-754 有效性校验。
+
+编号/落点          正常格式及范围                         写入与实际消费者
+1  08019796       >=5B: u32 interval，1..60000 ms          S+12C 保存周期；08016FCE 重设 S+124 的轮询定时器；24530 的 IDLE/RUNNING 分支消费
+2  080197EA       >=6B: bag,u32位float multiplier           校验 bag<硬件袋数、0<multiplier<=10 后仍记录“not implemented”并返回失败1；不写容差
+3  08019892       >=10B: bin,arrival f32,departure f32       bin0..9，两容差0..13 kPa；21D58写表，再为活动袋调用23EB8重选当前档
+4  08019A88       >=9B: min f32,max f32，0<=min<max<=13      21C28写range与width=(max-min)/10，再为活动袋调用23EB8
+5  08019C1A       >=5B: u32 timeout，1..300000 ms           同时写 S+F4/+F8/+FC 三类 grant 配置；下次选择/加入动作集时使用
+6  08019C96       >=5B: u32 steady，1..6500 ms             写全局0x2000025C；1B880比较稳态已过时长与该值
+7  08019CC2       只需 sub                                  记录 DEPRECATED，返回不支持2；没有重新排序
+8  08019CCC       >=5B: u32 sleep，1..3600 s               写 S+140；睡眠状态读取其×1000与已过时间比较
+9  08019D0C       >=10B a/b，>=14B再有ci                   运行五系数覆盖已由 local-parameter-resolution 闭合；不重复校准分析
+10 08019F68       只需 sub                                  返回当前配置快照 v2；见第4节，非 staging
+11 0801A3D0       只需 sub                                  返回9B启动寄存器快照/当前tick；无控制参数写入
+12 0801A428       只需 sub                                  返回18B保留诊断记录；无控制参数写入
+13 0801A214       >=2B: profile byte0..2                    写 D+2360；选择 legacy控制遥测与 enhanced输出分支
+14 0801A280       >=5B: u32 settle，0..2000 ms             给硬件活动袋 B+D4 写放气回稳窗口；22034的速度更新与停止判断消费
+15–18            表项均指向0801A50E                        返回不支持2
+19 0801A2F6       >=10B: en,u16 threshold,u16 quiet,u32 max 写体动配置及启停状态；见第3节
+0、>19           0801A50E                                  返回不支持2
+
+sub2 的日志下限写0.01，但实际范围判断是 >0；无论该值是否落入这段比较范围，正常分支都不会生效，不能将它记成“已支持单袋倍率”。sub6 原字面0x08019E3C=6499，以 unsigned(value-1)<=6499 校验，明确为1..6500；日志字符串“1-60000”不能替代机器码。
+sub3/4 立即重新计算已初始化、SP>=0 且不是 -1 的袋的 B+08/+0C。关闭目标 -1 的袋保留旧缓存，之后设置新目标会再次23EB8查表。档位选择低端夹0、高端夹9，中间 floor((SP-min)/width)。正常闭环离开稳态/到达比较使用 departure；不能把同时写入的 arrival 当作唯一控制容差。
+sub1 的定时器初始化不是简单 last=now：08016FCE 保存 period，再令 last=now-period，所以下一次检查即可到期。16FE0 以无符号 tick 差判断，并按余数保留相位；不能把命令写入时刻当下次控制一定要再等完整 interval。
+sub5 改的是配置，当前 RUNNING 的 activeGrant=S+30 已在动作集选择时复制，因此命令不会直接改这个已取得的时限；之后选集或新袋加入可重新复制并重起计时。mode 会覆盖三类配置；sleep mode 的 other grant=480000，超过sub5统一setter的300000上限，两条入口不能共用一个上限结论。
+sub6 消费条件为 elapsed>=steadyRequired 且(elapsed>=8000 或stableCount>=3)。sub8 修改后，处于睡眠中的比较使用新 duration与原睡眠起点，没有在setter重新起计时。
+证据：commands-pass1/0801972c.txt 完整C/原指令；RAW_CONSTANTS.json；source/mcu/08024530.c:1229–1492、08023eb8.*、0801f10c.*；consumers-pass2/08016fce.txt、08016fe0.txt、0801b880.txt。
+
+3. sub19 体动门控参数确实进入本地算法
+格式为 [19,u8 enable,u16 thresholdMilliKpa,u16 quietMs,u32 ceilingMs]，共10B，LE。enable 只能0/1；threshold=10..1000，对应0.010..1.000 kPa；quiet=0..30000 ms；ceiling=1000..600000 ms。关闭 enable 时也要通过其余字段校验。
+0801A380/384/386/38A 写 M+00 enabled、M+08 ceiling、M+02 threshold、M+04 quiet。24530 的压力窗口仍按已闭合方法形成每袋20点总体标准差、跨袋最大值；阈值在08024F附近读出并除1000。状态1/2阻挡，连续quiet到新阈值解除；最大持续时长读取 M+08。配置变化没有重置20点窗口、已有 score、start tick 或quiet计时起点。
+关闭时立即把状态置4、quiet标记清0；从关闭状态重新启用置状态0。若之前 gate=true、写后 gate=false，会调用217A0；只有调度器当时处于SLEEP，才清idle计数并改IDLE。只改阈值/quiet/ceiling而仍处于状态1/2，不会在setter立即重新评估score；下一次压力计算才使用新参数。
+这仍是机械压力体动门控，不是睡眠在床/分期算法。正常 commanded 调压与已开始的充放气不因为这个setter统一中断。
+证据：commands-pass1/0801972c.txt:case19与0801A2F6–0801A3CE；consumers-pass2/080202d4.txt、080217a0.txt；ranges/08024d20-08025070.asm.txt；source/mcu/08024530.c:276–498、0801b95a.*。
+
+4. sub10/11/12/13：配置读回和输出选择
+sub10 读取运行对象，不是0x60校准Get的staging。响应数据长度130+25*n，n=min(activeBagCount,5)：本镜像v2。多字节数值输出为 BE，设置命令为LE，两者不要混用。
+  offset 0=version2；1=controlInterval；5/9/13=inflate/deflate/other grant；17=steadyRequired；21=sleepSec；25=idleCycles（以上u32）。
+  29/33/37=range min/max/width f32；41=固定float1，不能当作sub2已生效倍率。
+  45=mode；46=闭环maxDuty；47=telemetryProfile；48=binCount10；49..128=十对arrival/departure f32；129=bagCount。
+  每袋25B：b、a、ci、al、cl五个f32；enabled byte；当前B+08 arrival f32。没有在这25B里另附departure。
+主控 ControlLoopConfigParser 对版本2使用130B前缀、25B/袋、严格总长度，U/F均Read*BigEndian；确实取五系数、enabled与arrival。其返回模型未保留wire中的所有字段，例如三类grant、sleep/idle、offset46的maxDuty不能仅因wire有值就说已完整暴露给上层。v3/v4兼容分支来自主控解析器，不能据此把当前A02的v2输出升级成v4。
+sub11 返回version1、启动时从0x40021060复制到0x200020D4的32位快照、当前0x20000DD8 tick，合计9B。sub12返回version1、启动保留标记、三项从0x2000D300/304/308复制的值（无标记则0），末项依据保留magic读取0x2000D30C或0，合计18B。本轮将这两个入口闭合到读取与响应，不展开全部复位位解释/异常现场生产者。
+sub13：0=LegacyOnly、1=Both、2=EnhancedOnly，正常控制遥测0x5A的发送门为profile!=2；主循环的20A3C增强控制与21880阀状态分支门为profile!=0，各自仍受周期/变化条件约束。没有因此停止压力采样、阀泵控制或所有其他报文。主控Ready已有“拒绝重施会关闭控制遥测的保存profile”条件，沿用前轮证据；能设置该字段不代表普通手机App提供入口。
+证据：commands-pass1/0801972c.txt:case10–14；consumers-pass2/08015f58.txt、08015f7a.txt的REV；source/mcu/0801bcbc.c:90–102、08024530.c:1495起、08020a3c.*、08021880.*；source/managed/.../ControlLoopConfigParser.cs与il/ControlLoopConfigParser.il.txt。
+
+5. 0x50 直接泵命令：目标、当前输出与ramp分开
+路由0801DF6A→08018C34；泵对象步长0x44，pumpCount在D+1160。sub0/1要求id0..3，还要id<pumpCount、该泵P+1C已初始化。
+  sub0，>=3B [0,id,enable]：enable仅0/1。调用21204(P数组,id,enable,delay0)。开启不带延迟，但仍可ramp；关闭也可ramp-down。ACK成功表示请求已接受，不是转速或气流已经达到。
+  sub1，>=3B [1,id,speedPercent]：0..100。写P+10目标。仅P.state(+30)==3/running时立即20FBC写PWM；OFF只改目标，ramp-up下一次回调读取新目标，ramp-down读取的是开始关闭时捕获的输出。
+  sub2：恰好1B为读；恰好5B为设置[2,u16 upMs,u16 downMs]，两者0..2000。设置写全部已配置泵P+20/+24；有泵时返回第一泵的up/down各LE16，共4B。它不改P+28步进周期，也不重新计算当前ramp已保存的steps。其他长度返回6。
+P+0C/+0D 是硬件配置min/max，+0F当前实际duty，+10目标duty，+20/+24上/下行时长，+28步进周期，+2C callback，+30状态。不能把+10叫硬件max：mode写该目标并写闭环S+115策略max；真正的PWM限幅20FBC读取的是+0C/+0D。
+21204/210E0开启时，目标为0直接停；目标非0则准备N=floor(upMs/stepMs)与step=0。当前duty<目标且N>0才进入回调ramp；N=0直接应用目标。若当前输出已>=目标，转running但不在此降低PWM。21162每次到期用 floor(target*step/N)，不是 currentStart+(target-currentStart)*step/N；所以不能泛称任意重启状态下都单调平滑。目标在每次回调重新读，N在本轮启动时捕获。
+关闭捕获startDuty与N=floor(downMs/stepMs)，211AC按floor(startDuty*(N-step)/N)降至0；改target或后续ramp配置不改这两个捕获值。N=0直接输出0。定时器16FCE使首个tick可立即到期，真实回调间隔仍由主循环决定。
+20FBC：请求先限到100；0绕过minimum直接停，非0按硬件min/max夹紧，保存当前duty。CCR=integer(duty*ARR/100)，若配置反相再ARR-CCR；随后按0↔非0转换调用已配置start/stop callback。此层没有读取mode的80%策略字段。主控正常闭环21304仍可在下一次控制更新写同一目标/PWM槽，因此直接控制没有在MCU中获得永久独占权。
+有区分力的正常顺序：sleep mode将目标和策略max写80，但不会在mode setter直接写PWM；后发合法0x50/1 speed90，在running且硬件max允许时可输出90。硬件限幅、后续闭环和实际机械响应仍分别成立。不能把“sleep80%”当所有写入口不可超过的绝对限制。
+证据：commands-pass1/08018c34.txt；consumers-pass2/08021204.txt、080210e0.txt、08021162.txt、080211ac.txt、0801e9a4.txt、08020fbc.txt；source/mcu/08021ab0.c:24–31、08021304.c:181–239、08024530.c:1174起。
+
+6. 0x51 直接阀命令与配置覆盖
+路由0801DF6A→08018DFC。
+  sub0，>=4B [0,bag,direction,state]。bag<活动硬件袋数且bag<阀对数、阀对已初始化；direction0=deflate/out、1=inflate/in，state0=close、1=open。仅操作指定方向，不在这个handler自动关闭同袋另一方向，也不设置目标压力或暂停调度。
+  sub1，>=11B：rampInterval LE32 (1..1000ms)、rampStep byte (1..100%)、hold LE32 (0..10000ms)、maintain byte (1..100%)。11..15B只携带opening；16..20B再携带close1 byte+ms LE32；>=21B再携带close2 byte+ms LE32。未携带的closing参数从当前mode静态表补齐，不是从阀对象保留。
+  sub2，>=11B [2,close1byte,close1msLE32,close2byte,close2msLE32]，直接给所有已初始化阀对的两个方向写closing四字段。这个handler没有sub1使用的close<=100%、duration<=2000ms检查；wire类型本身为u8/u32。正常数值后续由同一closing callback消费，实际输出还过PWM层限幅。
+sub1先验证四个opening字段，再对所有已初始化阀对双方向调用21A14；该setter分别接受close duty<=100、close duration<=2000，字段越界就保留该字段旧值，不回滚已写的其他字段。外层不会因某个closing字段未写而另返回失败。不能把它说成整个配置一并接受或一并拒绝。有限模型仅用少量边界对照，不扩展为恶意输入研究。
+mode0/1两张表的closing都40%/250ms→30%/250ms。因此先0x51/2自定义closing，再发送主控常用的11B opening profile，就会把closing重新设成这组mode值。后发mode也会重新覆盖opening/closing四组字段；它不保留先前自定义阀曲线。
+动作消费：open→21FE4，重设callback/ramp状态，当前输出归0，之后1EDC8按rampStep升到100；1EEAC等待hold后输出maintain。close→21804(...,0)→1EF58；close1非0时先输出close1，1EF08等第一段时长后输出close2，再等第二段后归0。如果close1=0，直接关闭并跳过整个dwell序列；若close2=0，则第一段结束直接归0。
+配置中途变化的时机不同：ramp interval在open时复制进定时器，修改对象interval不重设在途定时器；ramp step每次回调读取；hold时长在hold阶段逐次比较；maintain只在进入maintain时写输出，因此已经maintain时改配置不会立即改PWM。关闭阶段的duration在回调比较时读取，下一段duty在转段时读取。内存已写不等于所有当前相位立即采用全部新值。
+1EC3C对实际duty做0/硬件min/max/100限制，duty=100的正常CCR=ARR+1（与泵的ARR不同），其他为integer(duty*ARR/100)，再按极性处理，按输出0/非0转换调用PWM start/stop。主循环1E858执行阀callback，压力闭环22034也调用同一open/close入口；直接命令未关闭闭环，后续自动动作仍可覆盖。
+证据：commands-pass1/08018dfc.txt；consumers-pass2/08021a14.txt、08021fe4.txt、08021804.txt、0801edc8.txt、0801eeac.txt、0801ef58.txt、0801ef08.txt、0801ec3c.txt；source/mcu/0801e858.*、08024530.c:1221起、08022034.c:579起。
+
+7. 主控调用如何与这些入口对上
+保留的 CalibrationProtocolEncoder 确认 pump speed/enable为3B、solenoid state为4B、opening profile固定11B，均由CalibrationRunner.SendAction发送外层0x50/0x51。不是从字符串猜测协议。
+CalibrationRunStateMachine.Setup 的动作顺序为 DisableControlLoop→泵0目标→泵1目标→可选opening profile；Runner按列表逐个await发送。DisableControlLoop编码为活动袋数个float -1的0x52目标，随后才进入校准执行器操作；它不是0x50/0x51隐含功能。中止的BestEffort顺序是关两泵、逐袋关inflate/deflate，仍是请求序列，不能凭await声称机械已完全停止。
+ControlLoopEncoder 对sub3/4/13/14提供相应LE布局；ControlLoopConfigParser提供BE读回消费者。Ready的容差设置先发送range再按bin顺序发送，并保存或重施已存配置。调用链中的串行await与MCU后台控制tick是两种顺序，不能据此构造不存在的全系统独占事务。
+IL交叉核验：新导出ControlLoopConfigParser、CalibrationRunStateMachine；复用原DLL绑定的CalibrationProtocolEncoder、ControlLoopEncoder、CalibrationRunner、FirmnessReadyState IL。原DLL哈希在SOURCE_LEDGER.json，IL不是执行结果。
+
+8. 覆盖结果与精确未闭合边界
+COVERAGE.json逐项列sub1..19与0x50/0x51各sub的接收条件、写入、consumer和证据；也记录未实现/不支持分支。此处没有把不存在的setter，例如本表内独立比例gain/minDuty或idleCycles写命令，凭结构字段名虚构出来。mode可写idleCycles和maxDuty，readback能读部分字段，不代表0x53有相应写入口。
+MODEL_RESULTS.json为61项有限合成合同：6500/6501、interval首轮立即到期、grant捕获与后续mode覆盖、motion启停、sleep策略与直接速度、ramp捕获/实时字段区别、短opening覆盖closing、closing两段边界、泵/阀100% CCR差异、4/5袋BE配置包。不是固件仿真、不是电气/气压实测，也不声称覆盖每个异常浮点或并发交错。
+本限定入口的正常语义已逐项回答。仍未闭合的是它们之外的具体层：所有硬件修订的timer/channel/GPIO实际映射及物理阀袋绑定；0x53/11/12所读诊断状态的全部异常生产者；任意故障/中断/直接命令与闭环交错下的最终机械状态；上层所有配置源与远程指令的优先级。当前设备实际活动版本、持久配置、袋压响应和执行时序仍需同一实机的只读记录。没有将这些剩余范围写成“固件所有代码已经100%恢复”。
+工程已在本轮headless流程结束后关闭，PROJECTS.json保留位置、程序原件哈希和结束证据。VERIFICATION.json核新导出原字节、独立BL目标、原始常量切片、来源哈希、IL导出与模型结果；SOURCE_MANIFEST.json覆盖本新目录，旧冻结证据未改。

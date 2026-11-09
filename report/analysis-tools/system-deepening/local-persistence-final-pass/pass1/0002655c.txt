@@ -1,0 +1,79 @@
+FUNCTION 0002655c BODY [[0002655c, 0002657f]]
+REF_TO 00026204 UNCONDITIONAL_CALL
+
+undefined4 FUN_0002655c(void)
+
+{
+  undefined4 *puVar1;
+  byte *pbVar2;
+  byte *pbVar3;
+  byte *extraout_r1;
+  byte *pbVar4;
+  int extraout_r2;
+  uint uVar5;
+  int iVar6;
+  uint uVar7;
+  undefined4 *puVar8;
+  uint uVar9;
+  
+  puVar1 = puRam0002657c;
+  for (puVar8 = puRam00026578; puVar8 < puVar1; puVar8 = puVar8 + 4) {
+    (*(code *)puVar8[3])(*puVar8,puVar8[1],puVar8[2]);
+  }
+  thunk_FUN_0003098c();
+  pbVar2 = (byte *)(uint)extraout_r1[0xe];
+  pbVar4 = extraout_r1;
+  do {
+    uVar9 = (uint)*pbVar2;
+    uVar7 = uVar9 & 7;
+    pbVar3 = pbVar2 + 1;
+    if ((*pbVar2 & 7) == 0) {
+      pbVar3 = pbVar2 + 2;
+      uVar7 = (uint)pbVar2[1];
+    }
+    uVar5 = (int)uVar9 >> 4;
+    if (uVar5 == 0) {
+      uVar5 = (uint)*pbVar3;
+      pbVar3 = pbVar3 + 1;
+    }
+    while (uVar7 = uVar7 - 1, uVar7 != 0) {
+      *pbVar4 = *pbVar3;
+      pbVar3 = pbVar3 + 1;
+      pbVar4 = pbVar4 + 1;
+    }
+    if ((int)(uVar9 << 0x1c) < 0) {
+      pbVar2 = pbVar3 + 1;
+      iVar6 = uVar5 + 2;
+      pbVar3 = pbVar4 + -(uint)*pbVar3;
+      while (iVar6 = iVar6 + -1, -1 < iVar6) {
+        *pbVar4 = *pbVar3;
+        pbVar4 = pbVar4 + 1;
+        pbVar3 = pbVar3 + 1;
+      }
+    }
+    else {
+      while (uVar5 = uVar5 - 1, pbVar2 = pbVar3, -1 < (int)uVar5) {
+        *pbVar4 = 0;
+        pbVar4 = pbVar4 + 1;
+      }
+    }
+  } while (pbVar4 < extraout_r1 + extraout_r2);
+  return 0;
+}
+
+
+INSN 0002655c 064c ldr r4,[0x00026578] REF[READ:00026578=37b68]
+INSN 0002655e 074d ldr r5,[0x0002657c] REF[READ:0002657c=37b88]
+INSN 00026560 06e0 b 0x00026570 REF[UNCONDITIONAL_JUMP:00026570]
+INSN 00026562 e068 ldr r0,[r4,#0xc] REF[READ:00037b74=26580]
+INSN 00026564 40f00103 orr r3,r0,#0x1 REF[PARAM:00026581=10188cb5]
+INSN 00026568 94e80700 ldm.w r4,{r0,r1,r2} REF[READ:00037b68=37d3c] REF[READ:00037b6c=20002aa8] REF[READ:00037b70=cc8] REF[PARAM:00037d3c=f4138801] REF[PARAM:20002aa8]
+INSN 0002656c 9847 blx r3 REF[COMPUTED_CALL:00026580]
+INSN 0002656e 1034 adds r4,#0x10
+INSN 00026570 ac42 cmp r4,r5
+INSN 00026572 f6d3 bcc 0x00026562 REF[CONDITIONAL_JUMP:00026562]
+INSN 00026574 fff748fe bl 0x00026208 REF[UNCONDITIONAL_CALL:00026208]
+INSN 00026578 687b ldrb r0,[r5,#0xd] REF[READ:00037b95=8c200036]
+INSN 0002657a 0300 movs r3,r0
+INSN 0002657c 887b ldrb r0,[r1,#0xe]
+INSN 0002657e 0300 movs r3,r0

@@ -1,0 +1,23 @@
+静态证据复现（不执行目标）
+
+1. 指令字节核验
+python3 scripts/verify_asm_bytes.py /path/to/frankenfirmware --output ASM_BYTE_VERIFICATION.json
+脚本要求本次已记录的完整 SHA-256，输入不同版本时直接拒绝。
+
+2. 原导出方式
+工具：Ghidra 12.1.4、OpenJDK 21。
+原项目：analysis/signal-host/ghidra/SignalHost.gpr，程序名 frankenfirmware，基址 0x00100000。
+这是已有只读分析数据库上的定点导出，复现伪代码需要同一分析数据库；不会隐含承诺任意新导入获得完全相同类型命名。
+原 analyzeHeadless 参数（路径替换为对应本地位置）：
+<project-directory> SignalHost -process frankenfirmware -noanalysis -readOnly
+-scriptPath <code-audit/scripts>
+-postScript ExportPrepublish.java <output-directory>
+0019a970 001f49b0 001afe00 001970e0 00189bb0 001998f0 0019feb0 001af7c0 xref:005e3b98
+
+ExportPrepublish.java 检查 Ghidra 记录的输入 SHA-256，再导出指定函数及该全局指针直接引用所在函数。
+每个函数保留伪代码、带指令原始字节的反汇编和引用表。
+后续独立字节脚本直接读取原 ELF 的 PT_LOAD，避免仅相信分析数据库保存的哈希。
+
+3. 限制
+以上不执行 frankenfirmware，不对运行中设备/服务施加任何变更。
+字节相同不等于证明全部伪代码推断；生命周期与库内协议覆盖缺口见 FINDINGS_ZH.txt。

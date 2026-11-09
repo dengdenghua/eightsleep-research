@@ -1,0 +1,466 @@
+{
+  "schema": "eightsleep.nonusb.hwrev-dispatch-table-map.v1",
+  "date": "2026-11-08",
+  "table_address": "0x8025da4",
+  "strings_address": "0x8024234",
+  "row_layout": "[u16 threshold][u16 pad][u32 callee_thumb_pointer]",
+  "loop_count_instruction": {
+    "address": "0x801d8cc",
+    "raw_hex": "0e2d",
+    "meaning": "cmp r5,#0xe -> exactly 14 rows"
+  },
+  "application": "Every row with threshold <= hwrev is applied in table order; later setters overwrite slots written by earlier ones.",
+  "rows": [
+    {
+      "row": 0,
+      "threshold": "0x0",
+      "threshold_label": "I00",
+      "callee_thumb_pointer": "0x800f58d",
+      "callee_entry": "0x800f58c",
+      "version_string_index": 0,
+      "version_string_address": "0x8024234",
+      "version_string": "I00",
+      "string_literal_address": "0x800f694",
+      "note": "full default config object; slot0x14=16000000, slot0x1a=8000000",
+      "string_literal_hits": [
+        "0x800f694"
+      ],
+      "slot0_store_address": "0x800f590",
+      "slot0_store_instruction": "str r3,[r0,#0x0] REF[DATA:08024234=303049]",
+      "slot1_init_pointer": "0x8010bf5",
+      "slot1_effect": "overwritten",
+      "slot1_store_address": "0x800f596",
+      "slot1_literal_address": "0x800f698"
+    },
+    {
+      "row": 1,
+      "threshold": "0x805",
+      "threshold_label": "I05",
+      "callee_thumb_pointer": "0x800f719",
+      "callee_entry": "0x800f718",
+      "version_string_index": 1,
+      "version_string_address": "0x8024238",
+      "version_string": "I05",
+      "string_literal_address": "0x800f734",
+      "note": "name only + slots 0x40/0x58/0x11c/0x120/0x124; keeps previous init",
+      "string_literal_hits": [
+        "0x800f734"
+      ],
+      "slot0_store_address": "0x800f71a",
+      "slot0_store_instruction": "str r3,[r0,#0x0] REF[DATA:08024238=353049]",
+      "slot1_init_pointer": null,
+      "slot1_effect": "inherited from earlier cumulative setters"
+    },
+    {
+      "row": 2,
+      "threshold": "0x900",
+      "threshold_label": "J00",
+      "callee_thumb_pointer": "0x800f761",
+      "callee_entry": "0x800f760",
+      "version_string_index": 2,
+      "version_string_address": "0x802423c",
+      "version_string": "J00",
+      "string_literal_address": "0x800f784",
+      "note": "new init 08010c6c + RAM pointers 2000a62c/2000a4c0/2000a798",
+      "string_literal_hits": [
+        "0x800f784"
+      ],
+      "slot0_store_address": "0x800f764",
+      "slot0_store_instruction": "str r3,[r0,#0x0] REF[DATA:0802423c=30304a]",
+      "slot1_init_pointer": "0x8010c6d",
+      "slot1_effect": "overwritten",
+      "slot1_store_address": "0x800f768",
+      "slot1_literal_address": "0x800f78c"
+    },
+    {
+      "row": 3,
+      "threshold": "0xa00",
+      "threshold_label": "K00",
+      "callee_thumb_pointer": "0x800f969",
+      "callee_entry": "0x800f968",
+      "version_string_index": 3,
+      "version_string_address": "0x8024240",
+      "version_string": "K00",
+      "string_literal_address": "0x800fa5c",
+      "note": "large rewrite; 4000000/2000000 constants, slot0x62=2",
+      "string_literal_hits": [
+        "0x800fa5c"
+      ],
+      "slot0_store_address": "0x800f96e",
+      "slot0_store_instruction": "str r3,[r0,#0x0] REF[DATA:08024240=30304b]",
+      "slot1_init_pointer": "0x80114bd",
+      "slot1_effect": "overwritten",
+      "slot1_store_address": "0x800f974",
+      "slot1_literal_address": "0x800fa60"
+    },
+    {
+      "row": 4,
+      "threshold": "0xa05",
+      "threshold_label": "K05",
+      "callee_thumb_pointer": "0x800fafd",
+      "callee_entry": "0x800fafc",
+      "version_string_index": 5,
+      "version_string_address": "0x8024248",
+      "version_string": "K05",
+      "string_literal_address": "0x800fb70",
+      "note": "K05 -> string-table index 5 (NOT index 4); new init 08011d90",
+      "string_literal_hits": [
+        "0x800fb70"
+      ],
+      "slot0_store_address": "0x800fb02",
+      "slot0_store_instruction": "str r3,[r0,#0x0] REF[DATA:08024248=35304b]",
+      "slot1_init_pointer": "0x8011d91",
+      "slot1_effect": "overwritten",
+      "slot1_store_address": "0x800fb08",
+      "slot1_literal_address": "0x800fb74"
+    },
+    {
+      "row": 5,
+      "threshold": "0xa10",
+      "threshold_label": "K10",
+      "callee_thumb_pointer": "0x800fae1",
+      "callee_entry": "0x800fae0",
+      "version_string_index": 4,
+      "version_string_address": "0x8024244",
+      "version_string": "K10",
+      "string_literal_address": "0x800faf4",
+      "note": "K10 replays the whole K00 setter (BL 0800f968 with r0 preserved), then only overwrites the name",
+      "string_literal_hits": [
+        "0x800faf4"
+      ],
+      "slot0_store_address": "0x800faea",
+      "slot0_store_instruction": "str r3,[r4,#0x0] REF[DATA:08024244=30314b]",
+      "slot1_init_pointer": null,
+      "slot1_effect": "inherited from earlier cumulative setters",
+      "inline_call": {
+        "at": "0x800fae4",
+        "target": "0x800f968"
+      }
+    },
+    {
+      "row": 6,
+      "threshold": "0xa30",
+      "threshold_label": "K30",
+      "callee_thumb_pointer": "0x800fc05",
+      "callee_entry": "0x800fc04",
+      "version_string_index": 6,
+      "version_string_address": "0x802424c",
+      "version_string": "K30",
+      "string_literal_address": "0x800fc40",
+      "note": "new init 08011914; slot0x194=08012ad9, slot0x118=30000",
+      "string_literal_hits": [
+        "0x800fc40"
+      ],
+      "slot0_store_address": "0x800fc0a",
+      "slot0_store_instruction": "str r3,[r0,#0x0] REF[DATA:0802424c=30334b]",
+      "slot1_init_pointer": "0x8011915",
+      "slot1_effect": "overwritten",
+      "slot1_store_address": "0x800fc10",
+      "slot1_literal_address": "0x800fc44"
+    },
+    {
+      "row": 7,
+      "threshold": "0xa33",
+      "threshold_label": "K33",
+      "callee_thumb_pointer": "0x800fc65",
+      "callee_entry": "0x800fc64",
+      "version_string_index": 7,
+      "version_string_address": "0x8024250",
+      "version_string": "K33",
+      "string_literal_address": "0x800fc84",
+      "note": "K33 replays K05, then overwrites name and init with 08012008",
+      "string_literal_hits": [
+        "0x800fc84"
+      ],
+      "slot0_store_address": "0x800fc6e",
+      "slot0_store_instruction": "str r3,[r4,#0x0] REF[DATA:08024250=33334b]",
+      "slot1_init_pointer": "0x8012009",
+      "slot1_effect": "overwritten",
+      "slot1_store_address": "0x800fc72",
+      "slot1_literal_address": "0x800fc88",
+      "inline_call": {
+        "at": "0x800fc68",
+        "target": "0x800fafc"
+      }
+    },
+    {
+      "row": 8,
+      "threshold": "0xa34",
+      "threshold_label": "K34",
+      "callee_thumb_pointer": "0x800fc99",
+      "callee_entry": "0x800fc98",
+      "version_string_index": 8,
+      "version_string_address": "0x8024254",
+      "version_string": "K34",
+      "string_literal_address": "0x800fcb0",
+      "note": "K34 sku gate: sku==4 -> 08025f08 else 08025f00 written to slot0x1a4",
+      "string_literal_hits": [
+        "0x800fcb0"
+      ],
+      "slot0_store_address": "0x800fc9a",
+      "slot0_store_instruction": "str r3,[r0,#0x0] REF[DATA:08024254=34334b]",
+      "slot1_init_pointer": null,
+      "slot1_effect": "inherited from earlier cumulative setters"
+    },
+    {
+      "row": 9,
+      "threshold": "0xa35",
+      "threshold_label": "K35",
+      "callee_thumb_pointer": "0x800fcc1",
+      "callee_entry": "0x800fcc0",
+      "version_string_index": 9,
+      "version_string_address": "0x8024258",
+      "version_string": "K35",
+      "string_literal_address": "0x800fcd4",
+      "note": "K35 backs up slot0x194 into 2000135c and replaces it with 08011101",
+      "string_literal_hits": [
+        "0x800fcd4"
+      ],
+      "slot0_store_address": "0x800fcc8",
+      "slot0_store_instruction": "str r3,[r0,#0x0] REF[DATA:08024258=35334b]",
+      "slot1_init_pointer": null,
+      "slot1_effect": "inherited from earlier cumulative setters"
+    },
+    {
+      "row": 10,
+      "threshold": "0xa36",
+      "threshold_label": "K36",
+      "callee_thumb_pointer": "0x800fce1",
+      "callee_entry": "0x800fce0",
+      "version_string_index": 10,
+      "version_string_address": "0x802425c",
+      "version_string": "K36",
+      "string_literal_address": "0x800fcf8",
+      "note": "K36 installs a 7th init candidate 08012274 (BL 08012008 + extra setup)",
+      "string_literal_hits": [
+        "0x800fcf8"
+      ],
+      "slot0_store_address": "0x800fce2",
+      "slot0_store_instruction": "str r3,[r0,#0x0] REF[DATA:0802425c=36334b]",
+      "slot1_init_pointer": "0x8012275",
+      "slot1_effect": "overwritten",
+      "slot1_store_address": "0x800fce6",
+      "slot1_literal_address": "0x800fcfc"
+    },
+    {
+      "row": 11,
+      "threshold": "0xa37",
+      "threshold_label": "K37",
+      "callee_thumb_pointer": "0x800fd0d",
+      "callee_entry": "0x800fd0c",
+      "version_string_index": 11,
+      "version_string_address": "0x8024260",
+      "version_string": "K37",
+      "string_literal_address": "0x800fd1c",
+      "note": "K37 writes 08025ee8 into slot0x1a4",
+      "string_literal_hits": [
+        "0x800fd1c"
+      ],
+      "slot0_store_address": "0x800fd12",
+      "slot0_store_instruction": "str r3,[r0,#0x0] REF[DATA:08024260=37334b]",
+      "slot1_init_pointer": null,
+      "slot1_effect": "inherited from earlier cumulative setters"
+    },
+    {
+      "row": 12,
+      "threshold": "0xa87",
+      "threshold_label": "K87",
+      "callee_thumb_pointer": "0x800fd25",
+      "callee_entry": "0x800fd24",
+      "version_string_index": 12,
+      "version_string_address": "0x8024264",
+      "version_string": "K87",
+      "string_literal_address": "0x800fd2c",
+      "note": "K87 setter: project has NO function body; decoded from raw Thumb halfwords",
+      "string_literal_hits": [
+        "0x800fd2c"
+      ],
+      "thumb_decoding": [
+        {
+          "address": "0x800fd24",
+          "halfword": "4b01",
+          "semantics": [
+            "ldr_literal",
+            3,
+            134282540,
+            134365796
+          ]
+        },
+        {
+          "address": "0x800fd26",
+          "halfword": "6003",
+          "semantics": [
+            "str_immediate",
+            3,
+            0,
+            0
+          ]
+        },
+        {
+          "address": "0x800fd28",
+          "halfword": "4770",
+          "semantics": [
+            "bx_lr"
+          ]
+        },
+        {
+          "address": "0x800fd2a",
+          "halfword": "46c0",
+          "semantics": [
+            "padding_nop"
+          ]
+        }
+      ],
+      "slot1_init_pointer": null,
+      "slot1_effect": "inherited from earlier cumulative setters"
+    },
+    {
+      "row": 13,
+      "threshold": "0xa90",
+      "threshold_label": "K90",
+      "callee_thumb_pointer": "0x800fd31",
+      "callee_entry": "0x800fd30",
+      "version_string_index": 13,
+      "version_string_address": "0x8024268",
+      "version_string": "K90",
+      "string_literal_address": "0x800fd40",
+      "note": "K90 setter: name + strb zero at byte offset 0x18c; decoded from raw Thumb halfwords",
+      "string_literal_hits": [
+        "0x800fd40"
+      ],
+      "thumb_decoding": [
+        {
+          "address": "0x800fd30",
+          "halfword": "4b03",
+          "semantics": [
+            "ldr_literal",
+            3,
+            134282560,
+            134365800
+          ]
+        },
+        {
+          "address": "0x800fd32",
+          "halfword": "2200",
+          "semantics": [
+            "movs_immediate",
+            2,
+            0
+          ]
+        },
+        {
+          "address": "0x800fd34",
+          "halfword": "6003",
+          "semantics": [
+            "str_immediate",
+            3,
+            0,
+            0
+          ]
+        },
+        {
+          "address": "0x800fd36",
+          "halfword": "23c6",
+          "semantics": [
+            "movs_immediate",
+            3,
+            198
+          ]
+        },
+        {
+          "address": "0x800fd38",
+          "halfword": "005b",
+          "semantics": [
+            "lsls_immediate",
+            3,
+            3,
+            1
+          ]
+        },
+        {
+          "address": "0x800fd3a",
+          "halfword": "54c2",
+          "semantics": [
+            "strb_register",
+            2,
+            0,
+            3
+          ]
+        },
+        {
+          "address": "0x800fd3c",
+          "halfword": "4770",
+          "semantics": [
+            "bx_lr"
+          ]
+        },
+        {
+          "address": "0x800fd3e",
+          "halfword": "46c0",
+          "semantics": [
+            "padding_nop"
+          ]
+        }
+      ],
+      "slot1_init_pointer": null,
+      "slot1_effect": "inherited from earlier cumulative setters"
+    }
+  ],
+  "string_table_order_vs_threshold_order": {
+    "strings_table": [
+      "I00",
+      "I05",
+      "J00",
+      "K00",
+      "K10",
+      "K05",
+      "K30",
+      "K33",
+      "K34",
+      "K35",
+      "K36",
+      "K37",
+      "K87",
+      "K90"
+    ],
+    "threshold_table": [
+      "I00",
+      "I05",
+      "J00",
+      "K00",
+      "K05",
+      "K10",
+      "K30",
+      "K33",
+      "K34",
+      "K35",
+      "K36",
+      "K37",
+      "K87",
+      "K90"
+    ],
+    "note": "indices 4/5 are swapped: the string table lists K10 before K05, while the threshold rows apply K05 (0x0A05) before K10 (0x0A10)."
+  },
+  "clock_config_entrances": {
+    "080108ac": {
+      "writes": "DAT_20000474 = 16000000 when 0xA87 <= hwrev <= 0xAFF, else 32000000",
+      "callers": [
+        "0x8010bfa",
+        "0x8010c72",
+        "0x80119ce",
+        "0x80120bc"
+      ]
+    },
+    "08010960": {
+      "writes": "DAT_20000474 = 8000000",
+      "callers": [
+        "0x8011570",
+        "0x8011e50"
+      ]
+    }
+  },
+  "limits": [
+    "Static bytes only: the HSE field is a software input, not a measured oscillator.",
+    "Runtime RCC register values, PLL lock and real tick rates are not proven here."
+  ]
+}

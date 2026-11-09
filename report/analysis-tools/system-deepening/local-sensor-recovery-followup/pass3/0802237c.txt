@@ -1,0 +1,50 @@
+TARGET 0802237c function=0802237c
+REF_TO 08026994 UNCONDITIONAL_CALL owner=0802694c
+REF_TO 080269c8 UNCONDITIONAL_CALL owner=0802694c
+REF_TO 080269e6 UNCONDITIONAL_CALL owner=0802694c
+REF_TO 08026a14 UNCONDITIONAL_CALL owner=0802694c
+REF_TO 08026b34 UNCONDITIONAL_CALL owner=0802694c
+REF_TO 08026b68 UNCONDITIONAL_CALL owner=0802694c
+REF_TO 08026936 UNCONDITIONAL_CALL owner=0802692c
+REF_TO 08027648 UNCONDITIONAL_CALL owner=08027008
+FUNCTION_BODY [[0802237c, 0802239f]]
+
+bool FUN_0802237c(int param_1,uint param_2,uint param_3,int param_4)
+
+{
+  uint uVar1;
+  uint uVar2;
+  bool bVar3;
+  
+  bVar3 = false;
+  if (param_2 < 2) {
+    uVar2 = (uint)*(byte *)(param_1 + param_2);
+    uVar1 = uVar2 & ~param_3;
+    if (param_4 != 0) {
+      uVar1 = param_3 | uVar2;
+    }
+    *(char *)(param_1 + param_2) = (char)uVar1;
+    bVar3 = uVar2 != uVar1;
+  }
+  return bVar3;
+}
+
+
+INSN 0802237c 30b5 push {r4,r5,lr}
+INSN 0802237e 0500 movs r5,r0
+INSN 08022380 0020 movs r0,#0x0
+INSN 08022382 0129 cmp r1,#0x1
+INSN 08022384 0bd8 bhi 0x0802239e REF[CONDITIONAL_JUMP:0802239e]
+INSN 08022386 6c5c ldrb r4,[r5,r1]
+INSN 08022388 2000 movs r0,r4
+INSN 0802238a 9043 bics r0,r2
+INSN 0802238c 002b cmp r3,#0x0
+INSN 0802238e 01d0 beq 0x08022394 REF[CONDITIONAL_JUMP:08022394]
+INSN 08022390 2243 orrs r2,r4
+INSN 08022392 1000 movs r0,r2
+INSN 08022394 6854 strb r0,[r5,r1]
+INSN 08022396 201a subs r0,r4,r0
+INSN 08022398 431e subs r3,r0,#0x1
+INSN 0802239a 9841 sbcs r0,r3
+INSN 0802239c c0b2 uxtb r0,r0
+INSN 0802239e 30bd pop {r4,r5,pc}

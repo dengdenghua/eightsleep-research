@@ -1,0 +1,59 @@
+TARGET 08013944 function=08013944
+REF_TO 08010d58 UNCONDITIONAL_CALL owner=08010d34
+REF_TO 08019e62 UNCONDITIONAL_CALL owner=08019e3c
+REF_TO 08019e68 UNCONDITIONAL_CALL owner=08019e3c
+REF_TO 08019e6e UNCONDITIONAL_CALL owner=08019e3c
+FUNCTION_BODY [[08013944, 08013983]]
+
+void FUN_08013944(undefined4 *param_1)
+
+{
+  if (param_1 != (undefined4 *)0x0) {
+    *(undefined1 *)((int)param_1 + 0x41) = 0x24;
+    *(uint *)*param_1 = *(uint *)*param_1 & 0xfffffffe;
+    if (param_1[0x20] == 0) {
+      param_1[0x20] = 0x80110e9;
+    }
+    (*(code *)param_1[0x20])(param_1);
+    param_1[0x11] = 0;
+    *(undefined1 *)((int)param_1 + 0x41) = 0;
+    param_1[0xc] = 0;
+    *(undefined1 *)((int)param_1 + 0x42) = 0;
+    *(undefined1 *)(param_1 + 0x10) = 0;
+  }
+  return;
+}
+
+
+INSN 08013944 70b5 push {r4,r5,r6,lr}
+INSN 08013946 0400 movs r4,r0
+INSN 08013948 0120 movs r0,#0x1
+INSN 0801394a 002c cmp r4,#0x0
+INSN 0801394c 19d0 beq 0x08013982 REF[CONDITIONAL_JUMP:08013982]
+INSN 0801394e 2500 movs r5,r4
+INSN 08013950 2423 movs r3,#0x24
+INSN 08013952 4135 adds r5,#0x41
+INSN 08013954 2b70 strb r3,[r5,#0x0]
+INSN 08013956 2300 movs r3,r4
+INSN 08013958 02cb ldmia r3!,{r1}
+INSN 0801395a 0a68 ldr r2,[r1,#0x0]
+INSN 0801395c 8243 bics r2,r0
+INSN 0801395e 0a60 str r2,[r1,#0x0]
+INSN 08013960 da6f ldr r2,[r3,#0x7c]
+INSN 08013962 002a cmp r2,#0x0
+INSN 08013964 01d1 bne 0x0801396a REF[CONDITIONAL_JUMP:0801396a]
+INSN 08013966 074a ldr r2,[0x08013984] REF[READ:08013984=80110e9] REF[PARAM:080110e9=104a2768]
+INSN 08013968 da67 str r2,[r3,#0x7c] REF[DATA:080110e9=104a2768]
+INSN 0801396a 2000 movs r0,r4
+INSN 0801396c db6f ldr r3,[r3,#0x7c] REF[PARAM:080110e9=104a2768]
+INSN 0801396e 9847 blx r3 REF[COMPUTED_CALL:080110e8]
+INSN 08013970 0020 movs r0,#0x0
+INSN 08013972 2300 movs r3,r4
+INSN 08013974 6064 str r0,[r4,#0x44]
+INSN 08013976 4233 adds r3,#0x42
+INSN 08013978 2870 strb r0,[r5,#0x0]
+INSN 0801397a 2063 str r0,[r4,#0x30]
+INSN 0801397c 4034 adds r4,#0x40
+INSN 0801397e 1870 strb r0,[r3,#0x0]
+INSN 08013980 2070 strb r0,[r4,#0x0]
+INSN 08013982 70bd pop {r4,r5,r6,pc}

@@ -1,0 +1,277 @@
+ENTRY 0801e408 FUN_0801e408 body=[[0801e408, 0801e591]]
+CALLER/REF 08012ce8 UNCONDITIONAL_CALL
+
+void FUN_0801e408(undefined4 *param_1)
+
+{
+  int iVar1;
+  float fVar2;
+  float error;
+  uint now;
+  float x;
+  float measured;
+  char *pcVar3;
+  void *pvVar4;
+  undefined4 uVar5;
+  char *pcVar6;
+  double dVar7;
+  double dVar8;
+  double dVar9;
+  undefined4 local_48;
+  undefined4 local_44;
+  undefined4 local_38;
+  undefined4 local_34;
+  undefined4 local_30;
+  undefined4 local_2c;
+  
+  if ((*(char *)(param_1 + 0x10) != '\0') && (iVar1 = FUN_08021dac(param_1 + 1), iVar1 != 0)) {
+    FUN_0801e2f0(param_1);
+    pvVar4 = (void *)param_1[0xe];
+    iVar1 = temp_valid(pvVar4);
+    if (iVar1 != 0) {
+      measured = *(float *)((int)pvVar4 + 0xc);
+      uVar5 = param_1[5];
+      fVar2 = pid_step(param_1 + 3,measured);
+      error = fp_sub((float)param_1[4],measured);
+      now = millis();
+      x = cooling_limit_step(param_1 + 0x18,fVar2,error,now);
+      FUN_0801baa8(&local_38,param_1 + 0x18);
+      if ((char)local_38 != '\0') {
+        param_1[5] = uVar5;
+      }
+      if (local_34._2_1_ != '\0') {
+        fw_log("[thermostat-%s] limit ceiling %d%%->%d%%",*param_1,local_2c,local_30);
+      }
+      if ((local_34 & 0xff) != 0) {
+        fw_log("[thermostat-%s] limit stall: clamped and not closing, ceiling climbing",*param_1);
+      }
+      if (local_34._1_1_ != '\0') {
+        fw_log("[thermostat-%s] limit stall suppressed: not closing but never clamped, ceil=%d%%",
+               *param_1,local_30);
+      }
+      if (local_38._2_1_ != '\0') {
+        uVar5 = *param_1;
+        if (local_38._1_1_ == '\0') {
+          pcVar6 = "released";
+        }
+        else {
+          pcVar6 = "ENGAGED";
+        }
+        dVar7 = fp_to_double(measured);
+        dVar8 = fp_to_double(error);
+        dVar9 = fp_to_double(fVar2);
+        if ((uint)local_38 >> 0x18 == 0) {
+          pcVar3 = "";
+        }
+        else {
+          pcVar3 = " stalled";
+        }
+        local_48 = SUB84(dVar8,0);
+        local_44 = (undefined4)((ulonglong)dVar8 >> 0x20);
+        fw_log("[thermostat-%s] limit %s water=%.2f err=%.2f demand=%.2f ceil=%d%%%s",uVar5,pcVar6,
+               local_44,dVar7,local_48,local_44,dVar9,local_30,pcVar3);
+      }
+      pvVar4 = (void *)param_1[0x16];
+      iVar1 = temp_valid(pvVar4);
+      if ((iVar1 == 0) || (*(char *)(param_1 + 0x17) == '\0')) {
+        local_34 = 0x3f800000;
+        local_38 = -1.0;
+      }
+      else {
+        fVar2 = fp_sub(*(float *)((int)pvVar4 + 0xc),(float)param_1[0x15]);
+        iVar1 = fp_le(ABS(fVar2),4.0);
+        if (iVar1 == 0) {
+          local_38 = -1.0;
+        }
+        else {
+          local_38 = -0.8;
+        }
+        local_34 = 0x3f4ccccd;
+      }
+      param_1[0x11] = x;
+      fVar2 = clamp_bounds((float *)&local_38,x);
+      param_1[0x12] = fVar2;
+      tec_set_signed((void *)param_1[0xf],fVar2);
+    }
+  }
+  return;
+}
+
+
+0801e408  push {r4,r5,r6,r7,lr}
+0801e40a  mov r5,r8
+0801e40c  mov lr,r11
+0801e40e  mov r7,r10
+0801e410  mov r6,r9
+0801e412  movs r3,#0x40
+0801e414  push {r5,r6,r7,lr}
+0801e416  ldrb r3,[r0,r3]
+0801e418  sub sp,#0x4c
+0801e41a  movs r5,r0
+0801e41c  cmp r3,#0x0
+0801e41e  bne 0x0801e42e
+0801e420  add sp,#0x4c
+0801e422  pop {r2,r3,r4,r5}
+0801e424  mov r8,r2
+0801e426  mov r9,r3
+0801e428  mov r10,r4
+0801e42a  mov r11,r5
+0801e42c  pop {r4,r5,r6,r7,pc}
+0801e42e  adds r0,#0x4
+0801e430  bl 0x08021dac
+0801e434  cmp r0,#0x0
+0801e436  beq 0x0801e420
+0801e438  movs r0,r5
+0801e43a  bl 0x0801e2f0
+0801e43e  ldr r4,[r5,#0x38]
+0801e440  movs r0,r4
+0801e442  bl 0x0801df24
+0801e446  cmp r0,#0x0
+0801e448  beq 0x0801e420
+0801e44a  movs r0,r5
+0801e44c  ldr r3,[r4,#0xc]
+0801e44e  adds r0,#0xc
+0801e450  adds r1,r3,#0x0
+0801e452  mov r9,r3
+0801e454  ldr r7,[r5,#0x14]
+0801e456  bl 0x080157b4
+0801e45a  mov r1,r9
+0801e45c  adds r6,r0,#0x0
+0801e45e  str r0,[sp,#0x30]
+0801e460  ldr r0,[r5,#0x10]
+0801e462  bl 0x0800aed8
+0801e466  adds r4,r0,#0x0
+0801e468  str r0,[sp,#0x28]
+0801e46a  bl 0x0801ffc8
+0801e46e  adds r1,r6,#0x0
+0801e470  movs r6,r5
+0801e472  adds r6,#0x60
+0801e474  movs r3,r0
+0801e476  adds r2,r4,#0x0
+0801e478  movs r0,r6
+0801e47a  bl 0x0801bb28
+0801e47e  add r4,sp,#0x38
+0801e480  mov r8,r0
+0801e482  movs r1,r6
+0801e484  movs r0,r4
+0801e486  bl 0x0801baa8
+0801e48a  ldrb r3,[r4,#0x0]
+0801e48c  cmp r3,#0x0
+0801e48e  beq 0x0801e492
+0801e490  str r7,[r5,#0x14]
+0801e492  ldrb r3,[r4,#0x1]
+0801e494  ldrb r6,[r4,#0x2]
+0801e496  mov r11,r3
+0801e498  ldrb r3,[r4,#0x3]
+0801e49a  ldrb r7,[r4,#0x5]
+0801e49c  str r3,[sp,#0x34]
+0801e49e  ldrb r3,[r4,#0x4]
+0801e4a0  mov r10,r3
+0801e4a2  ldr r3,[sp,#0x40]
+0801e4a4  str r3,[sp,#0x24]
+0801e4a6  ldrb r3,[r4,#0x6]
+0801e4a8  cmp r3,#0x0
+0801e4aa  bne 0x0801e576
+0801e4ac  mov r3,r10
+0801e4ae  cmp r3,#0x0
+0801e4b0  bne 0x0801e56c
+0801e4b2  cmp r7,#0x0
+0801e4b4  bne 0x0801e560
+0801e4b6  cmp r6,#0x0
+0801e4b8  beq 0x0801e50a
+0801e4ba  ldr r3,[r5,#0x0]
+0801e4bc  mov r10,r3
+0801e4be  mov r3,r11
+0801e4c0  cmp r3,#0x0
+0801e4c2  bne 0x0801e588
+0801e4c4  ldr r3,[0x0801e594] [0801e594=802ba08] [0802ba08=656c6572]
+0801e4c6  mov r11,r3
+0801e4c8  mov r0,r9
+0801e4ca  bl 0x0800ce54
+0801e4ce  movs r6,r0
+0801e4d0  ldr r0,[sp,#0x28]
+0801e4d2  movs r7,r1
+0801e4d4  bl 0x0800ce54
+0801e4d8  str r0,[sp,#0x28]
+0801e4da  str r1,[sp,#0x2c]
+0801e4dc  ldr r0,[sp,#0x30]
+0801e4de  bl 0x0800ce54
+0801e4e2  ldr r3,[sp,#0x34]
+0801e4e4  cmp r3,#0x0
+0801e4e6  bne 0x0801e584
+0801e4e8  ldr r3,[0x0801e598] [0801e598=802bae4]
+0801e4ea  str r3,[sp,#0x1c] [0802bae4=0] [0802ba14=61747320]
+0801e4ec  ldr r3,[sp,#0x24]
+0801e4ee  str r0,[sp,#0x10]
+0801e4f0  str r1,[sp,#0x14]
+0801e4f2  str r3,[sp,#0x18]
+0801e4f4  str r6,[sp,#0x0]
+0801e4f6  str r7,[sp,#0x4]
+0801e4f8  ldr r2,[sp,#0x28]
+0801e4fa  ldr r3,[sp,#0x2c]
+0801e4fc  mov r1,r10
+0801e4fe  str r2,[sp,#0x8]
+0801e500  str r3,[sp,#0xc]
+0801e502  ldr r0,[0x0801e59c] [0801e59c=802bae8] [0802bae8=6568745b]
+0801e504  mov r2,r11 [0802ba08=656c6572]
+0801e506  bl 0x08021be0
+0801e50a  ldr r6,[r5,#0x58]
+0801e50c  movs r0,r6
+0801e50e  bl 0x0801df24
+0801e512  cmp r0,#0x0
+0801e514  beq 0x0801e556
+0801e516  movs r3,#0x5c
+0801e518  ldrb r3,[r5,r3]
+0801e51a  cmp r3,#0x0
+0801e51c  beq 0x0801e556
+0801e51e  ldr r1,[r5,#0x54]
+0801e520  ldr r0,[r6,#0xc]
+0801e522  bl 0x0800aed8
+0801e526  movs r1,#0x81
+0801e528  lsls r0,r0,#0x1
+0801e52a  lsrs r0,r0,#0x1
+0801e52c  lsls r1,r1,#0x17
+0801e52e  bl 0x0800a4e8
+0801e532  cmp r0,#0x0
+0801e534  bne 0x0801e58e
+0801e536  ldr r3,[0x0801e5a0] [0801e5a0=bf800000]
+0801e538  str r3,[sp,#0x38]
+0801e53a  ldr r3,[0x0801e5a4] [0801e5a4=3f4ccccd]
+0801e53c  str r3,[sp,#0x3c]
+0801e53e  mov r3,r8
+0801e540  mov r1,r8
+0801e542  str r3,[r5,#0x44]
+0801e544  movs r0,r4
+0801e546  bl 0x08021dd4
+0801e54a  adds r1,r0,#0x0
+0801e54c  str r0,[r5,#0x48]
+0801e54e  ldr r0,[r5,#0x3c]
+0801e550  bl 0x0801d220
+0801e554  b 0x0801e420
+0801e556  movs r2,r4
+0801e558  ldr r3,[0x0801e5a8] [0801e5a8=802b9f0]
+0801e55a  ldmia r3!,{r0,r1} [0802b9f0=bf800000] [0802b9f4=3f800000]
+0801e55c  stmia r2!,{r0,r1}
+0801e55e  b 0x0801e53e
+0801e560  ldr r2,[sp,#0x24]
+0801e562  ldr r1,[r5,#0x0]
+0801e564  ldr r0,[0x0801e5ac] [0801e5ac=802ba94] [0802ba94=6568745b]
+0801e566  bl 0x08021be0
+0801e56a  b 0x0801e4b6
+0801e56c  ldr r1,[r5,#0x0]
+0801e56e  ldr r0,[0x0801e5b0] [0801e5b0=802ba4c] [0802ba4c=6568745b]
+0801e570  bl 0x08021be0
+0801e574  b 0x0801e4b2
+0801e576  ldr r3,[sp,#0x24]
+0801e578  ldr r2,[sp,#0x44]
+0801e57a  ldr r1,[r5,#0x0]
+0801e57c  ldr r0,[0x0801e5b4] [0801e5b4=802ba20] [0802ba20=6568745b]
+0801e57e  bl 0x08021be0
+0801e582  b 0x0801e4ac
+0801e584  ldr r3,[0x0801e5b8] [0801e5b8=802ba14]
+0801e586  b 0x0801e4ea
+0801e588  ldr r3,[0x0801e5bc] [0801e5bc=802ba00] [0802ba00=41474e45]
+0801e58a  mov r11,r3
+0801e58c  b 0x0801e4c8
+0801e58e  ldr r3,[0x0801e5c0] [0801e5c0=bf4ccccd]
+0801e590  b 0x0801e538

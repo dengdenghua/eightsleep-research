@@ -1,0 +1,76 @@
+TARGET 0800d928 function=0800d8e4
+FUNCTION_BODY [[0800d8e4, 0800d939]]
+
+undefined4 FUN_0800d8e4(undefined4 *param_1)
+
+{
+  uint uVar1;
+  uint *puVar2;
+  
+  if (*(char *)((int)param_1 + 0x3d) != '\x01') {
+    return 1;
+  }
+  *(char *)((int)param_1 + 0x3d) = '\x02';
+  puVar2 = (uint *)*param_1;
+  puVar2[3] = puVar2[3] | 1;
+  if ((((puVar2 == (uint *)0x40012c00) || (puVar2 == (uint *)0x40000400)) ||
+      (puVar2 == (uint *)0x40000800)) || (puVar2 == (uint *)0x40014000)) {
+    if ((puVar2[2] & 0x10007) == 6) {
+      return 0;
+    }
+    if ((puVar2[2] & 0x10007) == 0x10000) {
+      return 0;
+    }
+    uVar1 = *puVar2;
+  }
+  else {
+    uVar1 = *puVar2;
+  }
+  *puVar2 = uVar1 | 1;
+  return 0;
+}
+
+
+INSN 0800d8e4 0100 movs r1,r0
+INSN 0800d8e6 0300 movs r3,r0
+INSN 0800d8e8 0120 movs r0,#0x1
+INSN 0800d8ea 10b5 push {r4,lr}
+INSN 0800d8ec 3d31 adds r1,#0x3d
+INSN 0800d8ee 0c78 ldrb r4,[r1,#0x0]
+INSN 0800d8f0 e2b2 uxtb r2,r4
+INSN 0800d8f2 8442 cmp r4,r0
+INSN 0800d8f4 1ed1 bne 0x0800d934 REF[CONDITIONAL_JUMP:0800d934]
+INSN 0800d8f6 0018 adds r0,r0,r0
+INSN 0800d8f8 0870 strb r0,[r1,#0x0]
+INSN 0800d8fa 1b68 ldr r3,[r3,#0x0]
+INSN 0800d8fc d968 ldr r1,[r3,#0xc]
+INSN 0800d8fe 1143 orrs r1,r2
+INSN 0800d900 d960 str r1,[r3,#0xc]
+INSN 0800d902 0e49 ldr r1,[0x0800d93c] REF[READ:0800d93c=40012c00]
+INSN 0800d904 8b42 cmp r3,r1
+INSN 0800d906 08d0 beq 0x0800d91a REF[CONDITIONAL_JUMP:0800d91a]
+INSN 0800d908 0d49 ldr r1,[0x0800d940] REF[READ:0800d940=40000400]
+INSN 0800d90a 8b42 cmp r3,r1
+INSN 0800d90c 05d0 beq 0x0800d91a REF[CONDITIONAL_JUMP:0800d91a]
+INSN 0800d90e 0d49 ldr r1,[0x0800d944] REF[READ:0800d944=40000800]
+INSN 0800d910 8b42 cmp r3,r1
+INSN 0800d912 02d0 beq 0x0800d91a REF[CONDITIONAL_JUMP:0800d91a]
+INSN 0800d914 0c49 ldr r1,[0x0800d948] REF[READ:0800d948=40014000]
+INSN 0800d916 8b42 cmp r3,r1
+INSN 0800d918 0dd1 bne 0x0800d936 REF[CONDITIONAL_JUMP:0800d936]
+INSN 0800d91a 9a68 ldr r2,[r3,#0x8]
+INSN 0800d91c 0b49 ldr r1,[0x0800d94c] REF[READ:0800d94c=10007]
+INSN 0800d91e 0a40 ands r2,r1
+INSN 0800d920 062a cmp r2,#0x6
+INSN 0800d922 06d0 beq 0x0800d932 REF[CONDITIONAL_JUMP:0800d932]
+INSN 0800d924 0739 subs r1,#0x7
+INSN 0800d926 8a42 cmp r2,r1
+INSN 0800d928 03d0 beq 0x0800d932 REF[CONDITIONAL_JUMP:0800d932]
+INSN 0800d92a 0122 movs r2,#0x1
+INSN 0800d92c 1968 ldr r1,[r3,#0x0]
+INSN 0800d92e 0a43 orrs r2,r1
+INSN 0800d930 1a60 str r2,[r3,#0x0]
+INSN 0800d932 0020 movs r0,#0x0
+INSN 0800d934 10bd pop {r4,pc}
+INSN 0800d936 1968 ldr r1,[r3,#0x0]
+INSN 0800d938 f9e7 b 0x0800d92e REF[UNCONDITIONAL_JUMP:0800d92e]

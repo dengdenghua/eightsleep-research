@@ -1,0 +1,78 @@
+TARGET 0800adfc function=0800adfc
+REF_TO 0800b4e0 UNCONDITIONAL_CALL
+REF_TO 0800b754 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800adfc, 0800ae5d]]
+
+void FUN_0800adfc(int *param_1,uint param_2)
+
+{
+  param_1[0xb] = -0x10000;
+  param_1[0xc] = 0;
+  *(undefined1 *)((int)param_1 + 0x41) = 0x20;
+  *(undefined1 *)((int)param_1 + 0x42) = 0;
+  param_1[0xd] = 0;
+  if ((param_2 & 4) != 0) {
+    *(char *)param_1[9] = (char)*(undefined4 *)(*param_1 + 0x24);
+    param_1[9] = param_1[9] + 1;
+    if ((short)param_1[10] != 0) {
+      *(short *)(param_1 + 10) = (short)param_1[10] + -1;
+      *(short *)((int)param_1 + 0x2a) = *(short *)((int)param_1 + 0x2a) + -1;
+      param_1[0x11] = param_1[0x11] | 4;
+    }
+  }
+  FUN_0800adb4(param_1,0x8003);
+  *(undefined4 *)(*param_1 + 0x1c) = 0x10;
+  *(undefined1 *)(param_1 + 0x10) = 0;
+  (*(code *)param_1[0x19])(param_1);
+  return;
+}
+
+
+INSN 0800adfc 184b ldr r3,[0x0800ae60] REF[READ:0800ae60=ffff0000]
+INSN 0800adfe 10b5 push {r4,lr}
+INSN 0800ae00 c362 str r3,[r0,#0x2c]
+INSN 0800ae02 0023 movs r3,#0x0
+INSN 0800ae04 0200 movs r2,r0
+INSN 0800ae06 0363 str r3,[r0,#0x30]
+INSN 0800ae08 0400 movs r4,r0
+INSN 0800ae0a 2020 movs r0,#0x20
+INSN 0800ae0c 4132 adds r2,#0x41
+INSN 0800ae0e 1070 strb r0,[r2,#0x0]
+INSN 0800ae10 5370 strb r3,[r2,#0x1]
+INSN 0800ae12 0422 movs r2,#0x4
+INSN 0800ae14 6363 str r3,[r4,#0x34]
+INSN 0800ae16 1142 tst r1,r2
+INSN 0800ae18 12d0 beq 0x0800ae40 REF[CONDITIONAL_JUMP:0800ae40]
+INSN 0800ae1a 2368 ldr r3,[r4,#0x0]
+INSN 0800ae1c 596a ldr r1,[r3,#0x24]
+INSN 0800ae1e 636a ldr r3,[r4,#0x24]
+INSN 0800ae20 1970 strb r1,[r3,#0x0]
+INSN 0800ae22 636a ldr r3,[r4,#0x24]
+INSN 0800ae24 0133 adds r3,#0x1
+INSN 0800ae26 6362 str r3,[r4,#0x24]
+INSN 0800ae28 238d ldrh r3,[r4,#0x28]
+INSN 0800ae2a 002b cmp r3,#0x0
+INSN 0800ae2c 08d0 beq 0x0800ae40 REF[CONDITIONAL_JUMP:0800ae40]
+INSN 0800ae2e 013b subs r3,#0x1
+INSN 0800ae30 2385 strh r3,[r4,#0x28]
+INSN 0800ae32 638d ldrh r3,[r4,#0x2a]
+INSN 0800ae34 013b subs r3,#0x1
+INSN 0800ae36 9bb2 uxth r3,r3
+INSN 0800ae38 6385 strh r3,[r4,#0x2a]
+INSN 0800ae3a 636c ldr r3,[r4,#0x44]
+INSN 0800ae3c 1a43 orrs r2,r3
+INSN 0800ae3e 6264 str r2,[r4,#0x44]
+INSN 0800ae40 2000 movs r0,r4
+INSN 0800ae42 0849 ldr r1,[0x0800ae64] REF[READ:0800ae64=8003]
+INSN 0800ae44 fff7b6ff bl 0x0800adb4 REF[UNCONDITIONAL_CALL:0800adb4]
+INSN 0800ae48 1022 movs r2,#0x10
+INSN 0800ae4a 2368 ldr r3,[r4,#0x0]
+INSN 0800ae4c 2000 movs r0,r4
+INSN 0800ae4e da61 str r2,[r3,#0x1c]
+INSN 0800ae50 2300 movs r3,r4
+INSN 0800ae52 0022 movs r2,#0x0
+INSN 0800ae54 4033 adds r3,#0x40
+INSN 0800ae56 1a70 strb r2,[r3,#0x0]
+INSN 0800ae58 636e ldr r3,[r4,#0x64]
+INSN 0800ae5a 9847 blx r3
+INSN 0800ae5c 10bd pop {r4,pc}

@@ -1,0 +1,115 @@
+FUNCTION 08008472 FUN_08008472 BODY [[08008472, 080084eb]]
+INCOMING 0800c0cc UNCONDITIONAL_CALL
+INCOMING 0800c0e2 UNCONDITIONAL_CALL
+INCOMING 0800c0f8 UNCONDITIONAL_CALL
+INCOMING 0800c118 UNCONDITIONAL_CALL
+INCOMING 0800c1fa UNCONDITIONAL_CALL
+INCOMING 0800c632 UNCONDITIONAL_CALL
+INCOMING 0800c65a UNCONDITIONAL_CALL
+INCOMING 0800c682 UNCONDITIONAL_CALL
+INCOMING 0800c6a6 UNCONDITIONAL_CALL
+INCOMING 0800853a UNCONDITIONAL_CALL
+INCOMING 08008c30 UNCONDITIONAL_CALL
+INCOMING 08008aa8 UNCONDITIONAL_CALL
+INCOMING 08008bea UNCONDITIONAL_CALL
+INCOMING 0800ce34 UNCONDITIONAL_CALL
+
+undefined8 __stdcall_softfp FUN_08008472(uint *param_1,uint *param_2)
+
+{
+  uint uVar1;
+  uint uVar2;
+  uint uVar3;
+  uint uVar4;
+  uint uVar5;
+  uint *local_20;
+  
+  uVar1 = *param_2;
+  uVar2 = 0;
+  local_20 = param_1;
+  do {
+    uVar5 = 1 << (uVar2 & 0xff);
+    if (uVar5 == (uVar1 & uVar5)) {
+      uVar4 = uVar2 << 1;
+      local_20 = (uint *)(uint)(byte)param_2[1];
+      uVar3 = ~(3 << (uVar4 & 0xff));
+      if ((int)local_20 - 1U < 2) {
+        param_1[2] = param_1[2] & uVar3;
+        param_1[2] = (uint)*(byte *)((int)param_2 + 5) << (uVar4 & 0xff) | param_1[2];
+        *(ushort *)(param_1 + 1) = (ushort)param_1[1] & ~(ushort)uVar5;
+        *(ushort *)(param_1 + 1) =
+             (ushort)param_1[1] | (ushort)*(byte *)((int)param_2 + 6) << (uVar2 & 0xff);
+      }
+      *param_1 = uVar3 & *param_1;
+      *param_1 = (int)local_20 << (uVar4 & 0xff) | *param_1;
+      param_1[3] = param_1[3] & ~(3 << (uVar4 & 0xff));
+      param_1[3] = (uint)*(byte *)((int)param_2 + 7) << (uVar4 & 0xff) | param_1[3];
+    }
+    uVar2 = uVar2 + 1;
+  } while (uVar2 != 0x10);
+  return CONCAT44(uVar1,local_20);
+}
+
+
+ASSEMBLY
+08008472 push {r0,r1,r2,r4,r5,r6,r7,lr} BYTES f7b5
+08008474 movs r2,#0x3 BYTES 0322
+08008476 ldr r3,[r1,#0x0] BYTES 0b68
+08008478 mov r12,r2 BYTES 9446
+0800847a str r3,[sp,#0x4] BYTES 0193 REF WRITE=Stack[-0x1c]
+0800847c movs r3,#0x0 BYTES 0023
+0800847e movs r7,#0x1 BYTES 0127
+08008480 lsls r7,r3 BYTES 9f40
+08008482 ldr r2,[sp,#0x4] BYTES 019a REF READ=Stack[-0x1c]
+08008484 ands r2,r7 BYTES 3a40
+08008486 cmp r7,r2 BYTES 9742
+08008488 bne 0x080084e4 BYTES 2cd1 REF CONDITIONAL_JUMP=080084e4
+0800848a mov r4,r12 BYTES 6446
+0800848c lsls r5,r3,#0x1 BYTES 5d00
+0800848e lsls r4,r5 BYTES ac40
+08008490 ldrb r2,[r1,#0x4] BYTES 0a79
+08008492 mvns r4,r4 BYTES e443
+08008494 subs r6,r2,#0x1 BYTES 561e
+08008496 str r2,[sp,#0x0] BYTES 0092 REF WRITE=Stack[-0x20]
+08008498 cmp r6,#0x1 BYTES 012e
+0800849a bhi 0x080084c0 BYTES 11d8 REF CONDITIONAL_JUMP=080084c0
+0800849c ldr r6,[r0,#0x8] BYTES 8668
+0800849e ands r6,r4 BYTES 2640
+080084a0 str r6,[r0,#0x8] BYTES 8660
+080084a2 ldr r6,[r0,#0x8] BYTES 8668
+080084a4 movs r2,r6 BYTES 3200
+080084a6 ldrb r6,[r1,#0x5] BYTES 4e79
+080084a8 lsls r6,r5 BYTES ae40
+080084aa orrs r6,r2 BYTES 1643
+080084ac str r6,[r0,#0x8] BYTES 8660
+080084ae ldrh r6,[r0,#0x4] BYTES 8688
+080084b0 bics r6,r7 BYTES be43
+080084b2 strh r6,[r0,#0x4] BYTES 8680
+080084b4 ldrb r7,[r1,#0x6] BYTES 8f79
+080084b6 ldrh r6,[r0,#0x4] BYTES 8688
+080084b8 lsls r7,r3 BYTES 9f40
+080084ba orrs r6,r7 BYTES 3e43
+080084bc uxth r6,r6 BYTES b6b2
+080084be strh r6,[r0,#0x4] BYTES 8680
+080084c0 ldr r2,[sp,#0x0] BYTES 009a REF READ=Stack[-0x20]
+080084c2 ldr r6,[r0,#0x0] BYTES 0668
+080084c4 lsls r2,r5 BYTES aa40
+080084c6 ands r4,r6 BYTES 3440
+080084c8 str r4,[r0,#0x0] BYTES 0460
+080084ca ldr r4,[r0,#0x0] BYTES 0468
+080084cc orrs r2,r4 BYTES 2243
+080084ce mov r4,r12 BYTES 6446
+080084d0 lsls r4,r5 BYTES ac40
+080084d2 str r2,[r0,#0x0] BYTES 0260
+080084d4 ldr r2,[r0,#0xc] BYTES c268
+080084d6 bics r2,r4 BYTES a243
+080084d8 str r2,[r0,#0xc] BYTES c260
+080084da ldrb r2,[r1,#0x7] BYTES ca79
+080084dc ldr r4,[r0,#0xc] BYTES c468
+080084de lsls r2,r5 BYTES aa40
+080084e0 orrs r2,r4 BYTES 2243
+080084e2 str r2,[r0,#0xc] BYTES c260
+080084e4 adds r3,#0x1 BYTES 0133
+080084e6 cmp r3,#0x10 BYTES 102b
+080084e8 bne 0x0800847e BYTES c9d1 REF CONDITIONAL_JUMP=0800847e
+080084ea pop {r0,r1,r2,r4,r5,r6,r7,pc} BYTES f7bd

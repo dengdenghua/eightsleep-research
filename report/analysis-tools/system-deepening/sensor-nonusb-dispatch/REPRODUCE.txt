@@ -1,0 +1,9 @@
+复现前先验证原BBIN SHA256。所有工具仅静态分析，不运行固件。
+1. 需已有Ghidra12.1.4、Java21、原NonUsbSensor只读工程；路径见EXPORT_COMMANDS.json。
+2. 对其中每条exports使用其script与args，通过 analyzeHeadless <项目目录> NonUsbSensor -process firmware-sensor-g0.bbin -readOnly -noanalysis -scriptPath <本目录/scripts> -postScript <script> <args>。
+   将args[0]改为一个新的输出目录；勿覆盖已保留证据。导出执行顺序和预期失败见JOBS.json。
+   pass2原始线性范围会遇表数据而报错，属于保留失败；最终有效代码分段以pass3/4为准。
+3. 在本目录运行 python3 scripts/recover_tables.py --research-root /path/to/full-research 与 python3 scripts/verify_bytes.py --research-root /path/to/full-research。
+   前者直接读取原BBIN表项与reset初值，后者比对保留导出的字节、literal和分支目标。
+4. scripts/finalize_evidence.py 重建引用/清单时使用当前完整研究目录的旧baseline源和ARM参考；原始位置见SOURCE_MANIFEST.json。
+无网络、设备或目标执行步骤；表路由枚举不等于实机协议测试。

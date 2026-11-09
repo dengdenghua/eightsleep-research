@@ -1,0 +1,38 @@
+TARGET 0800acfe function=0800acfe
+REF_TO 0800b464 UNCONDITIONAL_CALL
+REF_TO 0800b774 UNCONDITIONAL_CALL
+REF_TO 0800b224 UNCONDITIONAL_CALL
+REF_TO 0800b070 UNCONDITIONAL_CALL
+REF_TO 0800b354 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800acfe, 0800ad19]]
+
+void FUN_0800acfe(int *param_1)
+
+{
+  int iVar1;
+  
+  iVar1 = *param_1;
+  if (*(int *)(iVar1 + 0x18) << 0x1e < 0) {
+    *(undefined4 *)(iVar1 + 0x28) = 0;
+  }
+  if ((*(uint *)(iVar1 + 0x18) & 1) == 0) {
+    *(uint *)(iVar1 + 0x18) = *(uint *)(iVar1 + 0x18) | 1;
+  }
+  return;
+}
+
+
+INSN 0800acfe 0368 ldr r3,[r0,#0x0]
+INSN 0800ad00 9a69 ldr r2,[r3,#0x18]
+INSN 0800ad02 9207 lsls r2,r2,#0x1e
+INSN 0800ad04 01d5 bpl 0x0800ad0a REF[CONDITIONAL_JUMP:0800ad0a]
+INSN 0800ad06 0022 movs r2,#0x0
+INSN 0800ad08 9a62 str r2,[r3,#0x28]
+INSN 0800ad0a 0122 movs r2,#0x1
+INSN 0800ad0c 9969 ldr r1,[r3,#0x18]
+INSN 0800ad0e 1142 tst r1,r2
+INSN 0800ad10 02d1 bne 0x0800ad18 REF[CONDITIONAL_JUMP:0800ad18]
+INSN 0800ad12 9969 ldr r1,[r3,#0x18]
+INSN 0800ad14 0a43 orrs r2,r1
+INSN 0800ad16 9a61 str r2,[r3,#0x18]
+INSN 0800ad18 7047 bx lr

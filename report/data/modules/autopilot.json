@@ -1,0 +1,49 @@
+{
+  "id": "autopilot",
+  "title": "Autopilot目标生成边界",
+  "layer": "cloud",
+  "status": "partial",
+  "order": 120,
+  "summary": "推荐消费、首夜采用、用户接受和回顾绘图链已恢复；生产Autopilot如何生成个性化目标仍缺服务端实现。",
+  "inputs": [
+    "用户档位、三段偏好、日程与启用设置",
+    "服务端推荐、温控事件、Autopilot 回顾",
+    "睡眠结果、环境与个体历史在策略中的使用方式未获实现"
+  ],
+  "outputs": [
+    "温控设置请求或有限 Backup BLE 动作",
+    "建议卡片、回顾分类、历史档位图",
+    "设备本地热控执行所需目标（端到端换算未完整绑定）"
+  ],
+  "findings": [
+    "level-suggestions 数值来自响应，App 执行类型/顺序选择与用户接受后的写入。",
+    "recap 按枚举生成 Sleep response 等类别，标签不是本地分期或调温决策的证据。",
+    "温控 bedtime/initial/final 与 awake/light/deep/rem 是不同语义。",
+    "raw dial 的 /10 与摄氏显示标尺不等于探头实测温度或 MCU PID 目标。",
+    "孕期模式提交启用和日期，推荐值来自云端；历史周均值是展示统计。",
+    "AUTO-03限定静态验收完成：blanket选择首条insight并在用户接受后写三阶段温度；首页FirstNight点击只打开编辑界面。",
+    "POD_6_FINALIZE在严格引导与睡眠天数条件下自动采用首夜推荐，随后更新所有已有bedtime schedules的起始温度；10秒超时且无跨步骤原子回滚。",
+    "DynamicHome接受AI建议先提交accepted反馈，再仅替换选中的一个温控阶段。",
+    "回顾OFF曲线会合成绘图点；阶段高亮为阶段名匹配，或非SLEEP_RESPONSE事件落入选中阶段范围，未高亮点仍保留。"
+  ],
+  "unknowns": [
+    "Autopilot输入特征、目标函数、个体学习、模型/参数和策略部署未知。",
+    "App档位经云端到Frank/Frozen目标的完整当前版本映射缺证。",
+    "真实设置、回顾、传感温度和执行器时序尚未成对观测。",
+    "当前账号是否返回相应建议、hasBlanket/引导条件和动态功能开关是否命中仍未绑定实机。"
+  ],
+  "evidence": [
+    "analysis/android-findings/APP_THERMAL_CONTROL_ZH.txt",
+    "analysis/android-findings/APP_TEMPERATURE_SUGGESTIONS_ZH.txt",
+    "analysis/android-findings/APP_AUTOPILOT_RESULTS_ZH.txt",
+    "analysis/android-findings/APP_TEMPERATURE_HISTORY_ZH.txt",
+    "analysis/android-findings/APP_PREGNANCY_THERMAL_STRATEGY_ZH.txt",
+    "analysis/finishable-20261107/app/auto03/FINDINGS_ZH.txt",
+    "analysis/finishable-20261107/app/charts/FINDINGS_ZH.txt"
+  ],
+  "next": [
+    "AUTO-01",
+    "AUTO-02"
+  ],
+  "plain_intro": "自动调温的执行链与推荐消费链已有本地证据，核心缺口仍是生产目标生成策略。"
+}

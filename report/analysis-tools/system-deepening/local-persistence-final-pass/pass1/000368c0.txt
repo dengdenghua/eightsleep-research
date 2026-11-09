@@ -1,0 +1,45 @@
+FUNCTION 000368c0 BODY [[000368c0, 000368e3]]
+REF_TO 00030ffc UNCONDITIONAL_CALL
+REF_TO 0003106c UNCONDITIONAL_CALL
+
+void FUN_000368c0(int param_1)
+
+{
+  undefined1 uVar1;
+  
+  if (*(char *)(param_1 + 8) != '\0') {
+    software_interrupt(0x66);
+    uVar1 = 0;
+    if (*(short *)(param_1 + 2) != 0) {
+      if (*(short *)(param_1 + 2) != 0x11) {
+                    /* WARNING: Could not recover jumptable at 0x000368da. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+        (**(code **)(param_1 + 4))();
+        return;
+      }
+      uVar1 = 1;
+    }
+    *(undefined1 *)(param_1 + 8) = uVar1;
+  }
+  return;
+}
+
+
+INSN 000368c0 30b4 push {r4,r5}
+INSN 000368c2 0446 mov r4,r0
+INSN 000368c4 007a ldrb r0,[r0,#0x8]
+INSN 000368c6 0028 cmp r0,#0x0
+INSN 000368c8 0ad0 beq 0x000368e0 REF[CONDITIONAL_JUMP:000368e0]
+INSN 000368ca 6088 ldrh r0,[r4,#0x2]
+INSN 000368cc 0021 movs r1,#0x0
+INSN 000368ce 66df svc 0x66
+INSN 000368d0 28b1 cbz r0,0x000368de REF[CONDITIONAL_JUMP:000368de]
+INSN 000368d2 1128 cmp r0,#0x11
+INSN 000368d4 02d0 beq 0x000368dc REF[CONDITIONAL_JUMP:000368dc]
+INSN 000368d6 6168 ldr r1,[r4,#0x4]
+INSN 000368d8 30bc pop {r4,r5}
+INSN 000368da 0847 bx r1
+INSN 000368dc 0120 movs r0,#0x1
+INSN 000368de 2072 strb r0,[r4,#0x8]
+INSN 000368e0 30bc pop {r4,r5}
+INSN 000368e2 7047 bx lr

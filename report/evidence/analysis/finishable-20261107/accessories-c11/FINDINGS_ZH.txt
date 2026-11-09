@@ -1,0 +1,72 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+C11 — 床架与 B12/B13 音箱：官方样本、主机协议、升级和故障边界
+2026-11-07；仅处理已取得官方包的本地文件。未运行固件、未操作账号/设备、未发送控制或刷机命令。
+
+当前结论与状态
+已完成：24个附件样本逐项登记、选用配置核对、TriMix/Keeson/B12/B13四条主机通信/升级路径初审，主要命令和错误值已反查到实际使用代码。包中存在某文件不代表当前实机已安装该版本。
+仍未完成：床架 MCU 内部接收/执行函数反查（可继续，已提供可分析payload和地址候选），B12 MVA/B13 FOT内部载荷格式和CPU执行面。不能将高熵直接叫作“已证明加密”。本报告明确区分主机使用方已恢复与附件内部实现未恢复。
+
+证据
+SAMPLE_INVENTORY.json / .tsv：24样本全路径、字节数、SHA256、版本文件名、当前default配置映射、头128字节、熵、MTK同名副本对照、ZIP成员/提取hash和地址依据。
+所有24个样本与 mediatek/rootfs-selected/opt/eight/firmware/ 同名文件SHA256相同；并未独立证明实机当前硬件归属。
+SOURCE_LEDGER.tsv / SOURCE_EXCERPTS.json：49个反编译 C# / JSON 源的逐字副本、源hash、行号。下面Cxx为自定义标签，非REA ID。
+REA_Eight.Speaker.json / REA_Eight.BedFrame.json 与 REA_MEMBERS_*.json：实际REA管理程序集身份、成员、CIL调用/字段访问锚点。根二进制为现有capybara-bundle的Eight.Speaker.dll / Eight.BedFrame.dll。它们的PE机器字段不能当作附件MCU架构。
+REA_EVIDENCE_INDEX.json记录真实evidence_id。最初一次CLI参数格式误用保留在*.arg-format-error.txt；后续按CLI位置参数成功，错误结果未充当证据。
+
+1. 样本和默认选用关系
+TriMix共7个bin：V18/V20/V21/V22-2/V23-1/V24/V25。default.adjustableBase.trimix将hardwareVersion=2/3/4/5/6/7均映射H6_SW-V25，expectedVersion=25；hardware=-1为修复/引导使用V18。其它5版只是包内历史样本，没有该default配置直接选用记录。[C01:89–126；C30]
+Keeson共5个ZIP：10201/10205/10206/10208/10211；default只选10211。每包manifest明确列出nrf52832_xxaa.bin与.dat，包含原始应用和初始化包，不包含完整Flash/SoftDevice/bootloader镜像。[C01:127–132；样本成员表]
+B12共10个MVA：09/12/15/16/20/21/23/26/27/28；default.speaker选择hardwareVersion=2 → v28.MVA，expected28。[C01:134–140]
+B13共2个FOT：37/38；default.speakerFota列hardwareVersion=2 → V38.fot，expected38。[C01:141–147]
+关键：实际SpeakerUpdater首先按alias严格等于"B13"分支，然后取fotaConfigurations.FirstOrDefault，不按B13 hardwareVersion筛选；非B13走普通配置，以真实hardwareVersion查找。因此不能把两个表都写成“由硬件2自动区分B12/B13”。[C48:22–60]
+
+2. 镜像地址和执行分析入口
+2.1 TriMix：7个bin均有128字节前缀，offset0x80开始存在Cortex-M型向量。已逐样本提取为extracted/<文件stem>/payload.bin，原样hash及偏移保留。
+V25：SP=0x200044b8，resetThumb=0x0801923d；其余向量多为0x08018cxx/0x080192xx，payload包含0x08008xxx代码/数据地址。候选payload加载基址0x08008000，原文件offset0x80对应该地址。此基址是待反汇编交叉验证的推断，不是实机Flash读回结论。
+2.2 Keeson：5个ZIP分别解包到extracted/<ZIPstem>/。10211应用73656字节，SP=0x20008008、resetThumb=0x000263e1；其他版reset相同。候选application基址0x00026000。nRF52832来自包名/成员命名，与向量形态相符；芯片身份不是实机测量。
+2.3 B12：magic前字节4d56b158（含ASCII MV），v28为684452字节，整体熵约7.9697；尾部少量BP10_BT_Ble/sys_parameter字符串。B13：FOT\0魔数，V37/V38均910336字节，V38整体熵约7.9993；不能凭此确定压缩、加密、ISA或加载基址。
+本轮没有发现主机执行解密/解包这些speaker文件：SpeakerUpdater.File.ReadAllBytes → MinamiSpeaker.WriteFirmware / BluetrumFotaUpdater，将原文件字节分包发送；文件内格式解释在对端或尚未取得实现中。继续的确切缺口是MVA/FOT容器结构与设备端loader，不是再搜索一次文件名。[C39,C33,C48]
+
+3. TriMix主机协议与状态
+发现与选择：扫描属性前缀MAC="3C:A5"，连接后服务UUID [ID_REDACTED]；读写characteristic为ffe1。[C11:206–223,279–286；C29]
+普通帧：FF FF FF FF 01 00 + specificValues +零填充至18字节，再追加sum16小端；sum覆盖前18字节。普通总长20。通知筛选将>20字节响应取最后20字节观察[6]，但返回原value；后续解析使用原value索引。不能把筛选截尾等同于统一解帧器。[C28:560–565；C31:41–48；C26:24–32]
+主要specificValues（十六进制）：
+  20 14 A0：系统/版本查询，响应类20。
+  19 14 A0：故障/标记查询，响应类19；19 14 B0重置标记。
+  21 14 <feed> <motor> <ticksLE16>：目标tick。motor 1右腿、2右躯干、3左腿、4左躯干、5双腿、6双躯干。
+  22 14 A0：当前角度/tick和移动状态，响应类22。
+  23 14 0F <motor>：分组停止；全停止另有固定短payload。
+  24 14 0A：重启，主机随后等待60秒。
+  25 14 <hwBE16>：写硬件版本，等待3秒。[C28:112–327,367–435,523–565]
+主机限制：torso angle 0..60、leg 0..45；转int角度后查表。躯干1..20度为floor(25.59*a+21.39)，之后(20,533)到(60,2253)整数插值。腿分段点(0,0),(5,190),(10,350),(15,540),(20,740),(45,1806)。读回ticks映射最近表项；等距用后遇到的项。tick写入范围torso0..2253、leg0..1806；feed判断实际1..100，部分异常文案写20或30只是文本不一致。[C28:23–28,132–364]
+GetBase解析：响应[8]为hall状态，响应[17]为移动状态；各电机取2位且>0判移动；四组tick为[9..11],[11..13],[13..15],[15..17]小端。SystemFlags用响应[8]==1、四个motor字段[11],[12],[9],[10]。[C28:125–129,378–396]
+MotorStatus枚举：0 Working、10 Overload、11 NotWorking、12 SpikeCurrentOverload、13 LowPowerSpikeOverload；是主机对响应码的解释，还未说明MCU每个错误的触发阈值。[C09]
+重试：查询状态/flags每次checksum失败再试1次；带timeout外层3轮。普通通知默认3秒慢响应记录、6秒取消；可传0.5秒故障/状态查询窗口。仅恢复通信，不能推出机械动作已完成。[C28:51–78；C31:51–84]
+升级：30开始+镜像长度LE；31写128字节页（页号从1，长度LE），每100页查询35期待36及相符页号；32结束期待响应[6]==33，再断开等20秒。循环i<=len/128，因此整除时会再发零数据页。回到Updater再连接读版本核验。[C28:452–521；C30]
+Updater在软件<20或>100时先用hardware=-1的V18修复并写硬件号；无效硬件号回退4。查不到正式配置记录Critical但返回true，不能将这个true等同于“已刷到最新版”。[C30:25–77]
+
+4. Keeson主机协议与状态
+扫描名字前缀KS8；普通服务6e400001-b5a3-f393-e0a9-38534c454550，write尾0002，notify尾0003；DFU服务FE59和8ec90001/2/3分别control/data/buttonless。[C11,C16]
+普通帧22字节：0x56 + specificValues +零填充至20字节，追加sum16大端；sum从payload第3字节起。通知类匹配用末22字节[1]，但同样把原value交给解析。普通读响应慢5秒、取消10秒；checksum失败再试一次。[C15:536–540；C22；C20]
+主要specificValues：05 11 F1版本、04 11 F0位置/状态、07 11 F3电机故障、06 11 F2系统标记；03 11 28写目标tick大端及各轴速度，02 11 18为回零/下降分支；02 11 00...7F FF停止，02 11 08...7F FF回平。[C15]
+参数：躯干0..60度（20度533tick，60度1650）；腿0..40度，分段终点(5,150),(10,280),(15,430),(20,580),(40,1270)。feed编码max(byte(feed*255/100),29)。这些是主机机械映射，不是睡眠/体位推理算法。[C15:22–27,95–238]
+GetBase四轴tick为[3..5],[5..7],[7..9],[9..11]大端；[11]每2bit !=2被标为moving，hallMoving用同一表达式，不是独立hall信号。QuerySystemFlags把每电机原始值2映射Overload，其余全部映射Working；未知值也被归为Working。ResetSystemFlags只是Task.CompletedTask，Reboot只等待60秒，无重启报文。[C15:241–279,521–524]
+DFU：WriteFirmware仅发buttonless进入命令并检查20 01 01响应，不传应用本体；Updater随后扫描原MAC+1的DFU地址，使用ZIP bin/dat，PRN=10、每包20字节，select/create/checksum/execute对象流程。应用校验CRC32多项式0xEDB88320，分块失败会重新select对端offset并从对象边界重试；最后重连读软件版。初始化数据不是固件算法模型。[C15:301–304；C21；C18]
+SecureResults：0 InvalidCode、1 Success、3 OpcodeNotSupported、4 InsuffResources、5 InvalidObject、7 UnsupportedType、8 OperationNotPermitted、10 OperationFailed。[C25]
+
+5. B12/B13主机更新协议、错误和工作边界
+两型号均由MinamiSpeakerFactory按alias B12/B13识别；普通设备信息经经典蓝牙RFCOMM，串口115200、读超时20秒。硬件查询5C 06 01，软件查询5C 0C 01，4字节响应的[2..4]按大端Int16解释。GetHardwareInfo缓存可回退到alias，不能拿一次alias结果当已读到硬件版本。[C39:111–138；C40:193–200；C41,C46]
+B12 MVA：80 01开始；每片<=128字节，80 11 +数据长度BE24+data+CRC16-CCITT BE（初值0，多项式0x1021）；期待响应[1]为90或92，否则抛错。若末响应非92，发送空payload；最终80 12结束，清hardwareInfo缓存。方法返回true是主机发送过程结束，方法内没有再读版本确认。[C39:148–200；C35,C38]
+B13 FOT：发送固定connection ID CC AA 55 EE 12 19 E4；91 seq 02 +FFFF(LE16强制版本)+整文件CRC32LE。配置的38只参与日志/外层已升级判断，wire版本字段固定FFFF，不是38。[C33:11–63]
+对端91/02响应返回startAddress、blockLength、maxPacket、allowed。仅allowed=1且blockLength>0、maxPacket>10继续。每块A0 seq addressLE32 lengthLE32 +首段数据，余段20 seq+data。读取90 seq status：0继续、FF完成、FD暂停则本轮终止；最终0或FF视成功并Reset RFCOMM，以供设备应用/重启。[C33:64–180]
+FOT错误解释：1固件相同，2key mismatch，3文件非FOT，11 CRC错，64序号错，65长度错，253 pause，254 resume，255 complete。虽然定义了resume名字，该RunUpdate的254进入default失败；不能写成支持自动pause/resume。startAddress来自设备，用作当前文件offset，不是证明物理Flash地址。[C33:183–221]
+两条成功更新后SpeakerUpdater断开、删除配对缓存并等120秒，返回Flashed；没有在这个方法中再次读取软件版本。缺失配置返回UpToDate是实现中的跳过结果，不能误译为已验证最新。[C48]
+音轨/音量/实际播放属于Eight.Audio/PulseAudio路径，此前LOCAL_BACKUP报告已覆盖。B12/B13 MCU的DSP、功放/按键模式和内部固件接收状态机本轮没有恢复；不能把主机只查版本/刷包等同于“MCU没有其它功能”。SpeakerProto.cs是另一个原型入口，生产链以SpeakerUpdater→MinamiSpeaker为依据，未将原型固定v23路径当当前策略。[C47,C48]
+
+6. 明确下一步与可交接入口
+- TriMix：从本目录extracted/8Sleep_H6_SW-V25-2025-07-24/payload.bin、候选base0x08008000启动Cortex-M静态分析；核对vector/Reset，追接收20字节协议及0x19/0x21/0x22分派。目标是主机命令→MCU分支→位置/故障/电机状态赋值，不必重新做包名清单。
+- Keeson：extracted/OTA_KS8S08C010000001_V10211_nRF52832_202602070917/nrf52832_xxaa.bin，候选base0x26000；追56头帧/指令2、3、4、6、7的接收和数据字段；.dat/manifest保留以核对固件身份。
+- B12/B13：主机端读包→分包边界已闭合。下一项是可复核容器结构（头字段/尾配置/相邻版本差分）及loader实现，不能直接按ARM盲反汇编高熵载荷，也不据熵下加密结论。当前无设备端SDK/loader源或明确解包入口。
+- 全部运行验证仍需对应实际附件及安全场景，本轮没有用自动脚本刷包或移动床架验证推断。

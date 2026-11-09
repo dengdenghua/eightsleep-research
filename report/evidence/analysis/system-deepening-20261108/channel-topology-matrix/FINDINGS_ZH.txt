@@ -1,0 +1,44 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+K60条件通道核对表：逻辑映射不能代替PCB拓扑
+2026-11-08；整理既有已核代码并重读原样本，不是新增实机读取。
+
+目标：回答“每片压电是否各有独立采集卡”能从当前代码确定到哪一步。
+可确认一个逻辑侧的传感MCU读取多个通道并统一封包；K60条件下ADC1经SPI2、CS PD0、ready PE2提供8槽。
+这不证明每片压电独占采集卡，也不证明整侧只有一张物理PCB。MCU对象、ADC槽、USB来源与实体板卡数量必须分别核对。
+
+原件与重算
+USB BBIN SHA256 1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563。
+Frank SHA256 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+直接读取BBIN地址0802FD0C（基址08010000，文件偏移1FD0C）8字节：03 02 01 00 04 05 06 07。
+含义为源→目的；核对表对它求逆，得到wire8..15的ADC1源3、2、1、0、4、5、6、7。
+旧42份来源引用的完整文件与逐行摘录SHA256全部重新核对通过；它们支持K33禁用ADC0、K37改map、后置hook条件等既有链。
+因此这是既有证据的可复算汇总，不是新发现另一块ADC或新增硬件拆机证据。
+
+逐路对应（两侧分别适用同一条件）
+wire0..7：ADC0描述符在累计K33回调中禁用；协议槽仍保留，所审Stealth loader不把它们路由到该CBOR。
+wire8 ← ADC1源3 → piezo-buzzer data[0]
+wire9 ← ADC1源2 → piezo-buzzer data[1]
+wire10 ← ADC1源1 → piezo-buzzer data[2]
+wire11 ← ADC1源0 → piezo-buzzer data[3]
+wire12 ← ADC1源4 → piezo-buzzer data[4]
+wire13 ← ADC1源5；旧all-types/compat相关路径另有用途，本K60 Stealth条件不输出。
+wire14..15 ← ADC1源6..7；旧all-types路径可供multi，此K60条件关闭。
+软件乘4来自MCU读值处理，不是物理PGA或counts到压力的标定；主控gain元数据另有来源。
+
+侧别不是ADC0与ADC1
+I35代入当前machine.json选择I21，左root=1-1.4，右root=1-1.3。
+这是配置规则投影，未观察实际USB路径；transport还影响选择USB/nonUSB镜像。
+同包nonUSB的K60启动map已在旧独立分析核对，但本工具原字节输入明确是USB镜像。
+4组IMU协议字段没有提供足够证据确定4个实体IC的安装位置；本表不填造它们的坐标。
+
+生成条件与未知项
+假定下载样本用于该初始化、API修订符合实际制造字段、初始化成功、未被opcode47重映射、对应ADC1使能位成立。
+MATRIX.json/CSV逐侧保存32个协议槽，physical_board_id、physical_adc_package、physical_piezo_id、bed_position均留空；observed_on_device全部为false。
+补齐这些列需要实机制造页、板卡照片/走线或原理图，以及通道与位置的对照记录。未知列不由营销传感器数量或表格行数自动填充。
+
+复算
+python3 build_matrix.py --research-root /absolute/research-root
+可另加--output保存到新目录，不覆盖本次记录。没有执行原厂固件、访问账号、联网设备或改变设备状态。
+INPUTS.json保存原件与来源哈希；VERIFIED_PRIOR_REFERENCES.json保留42项引用的定位；MAP_BYTES.bin为原样本的8字节切片。

@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-08",
+  "result": "PASS_WITH_SCOPE",
+  "blocking_issues": [],
+  "checks": {
+    "official_bundle_hash": "PASS",
+    "official_managed_members": [
+      {
+        "name": "Eight.Firmness.dll",
+        "bytes": 558592,
+        "sha256": "725a04090d978deeaaa6b1a58d35eded34adfb8985b21d59f165e08c554eca16",
+        "bundle_offset": 87379968
+      },
+      {
+        "name": "Eight.Lsp.Subsystems.dll",
+        "bytes": 70656,
+        "sha256": "02668ecc2df6cfa416b84e3ea69401f45d041e8d4e5d7cb926ee33ebce769836",
+        "bundle_offset": 88055808
+      },
+      {
+        "name": "Eight.Capybara.Config.dll",
+        "bytes": 11776,
+        "sha256": "e2299387073209f13d608e0e2b076ed96de5c0c663059fb522702e64b7c2dc0d",
+        "bundle_offset": 86806528
+      },
+      {
+        "name": "Eight.Capybara.dll",
+        "bytes": 691200,
+        "sha256": "962b06243c6fa12f618d07f6a3401dbd0a0520b7867601abd3892a94a62a4eba",
+        "bundle_offset": 11218944
+      }
+    ],
+    "copied_relevant_cs_hashes": "PASS",
+    "copied_il_matches_prior_retained_exports": "PASS",
+    "independent_schedule_enumerator": {
+      "schedules": 20,
+      "lost_update_schedules": 12,
+      "both_updates_preserved_schedules": 8
+    },
+    "existing_results_match": "PASS"
+  },
+  "il_anchors": {
+    "SaveTargetFirmness": "get IL_0006; Clone IL_004b/005a; setter IL_0052/0061; Update IL_006e",
+    "UpdateConfiguration": "set IL_0002 precedes Save IL_0008",
+    "Save": "saveGate.Wait IL_0006; reads current Configuration IL_000c; Serialize IL_0011; Release in finally IL_0066"
+  },
+  "supporting_record_declaration": {
+    "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.Models/FirmnessConfiguration.cs",
+    "sha256": "59786b42e80fbb465080bdd98fc9115ab5994cd5044214b1083d081b04db4437",
+    "observation": "Positional record has independent LeftTargetFirmness and RightTargetFirmness fields; declaration corroborates record-copy interpretation. Generated clone method body not independently regenerated here."
+  },
+  "provenance_limits": [
+    "IL export equality checked against previously retained export, not a fresh decompilation of DLL in this review.",
+    "Singleton manager/per-side scheduling rely on prior retained audit; no runtime concurrency observed."
+  ],
+  "interpretation": "A legal selected read/clone-replace/save interleaving can lose one side update even with successful serialized file saves. 12/20 is a chosen abstraction count, never a 60% empirical risk.",
+  "limits": [
+    "Save modeled as atomic successful step; excludes assignments during serialization, file errors, memory-model exhaustive proof and all caller scheduling.",
+    "No claim of actual serial writes, valve/pump action, pressure or hardware safety effect."
+  ],
+  "nonblocking_recommendations": [
+    "Add the small FirmnessConfiguration record declaration and its provenance to the new evidence bundle so the whole-record-copy premise is visible without opening old research.",
+    "Describe the result as a possible order under overlapping calls, not as observed actual concurrency."
+  ]
+}

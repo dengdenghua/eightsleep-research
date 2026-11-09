@@ -1,0 +1,57 @@
+气囊机械校准：本地主控的数值处理、采样轴和最终采用链
+2026-11-08；只读静态分析与独立有限公式模型。没有运行厂家JS/DLL、发送设备命令或调用账户接口。
+
+范围与来源
+本报告解释同一MTK官方包的balloon-analyzer与Eight.Firmness机械校准，不是压电心搏、呼吸、在床或睡眠分期算法。代码存在也不代表用户设备配有相应气囊附件。
+source/shipped/下为完整MTK rootfs原字节；source/managed/下为现有ILSpy重建C#。
+Eight.Firmness.dll已回读Eight.Capybara bundle offset87379968、558592字节逐字节比较；SHA256=725a04090d978deeaaa6b1a58d35eded34adfb8985b21d59f165e08c554eca16。
+55份来源账本见SOURCE_LEDGER.json；复制覆盖不等于55文件每个方法均已语义审阅。主要分析对象如下逐项列出；5个类型另保存原DLL的完整IL导出及命令、输出哈希，未执行目标程序集。
+
+1. 从哪里启动，哪种算法被采用
+CalibrationController.Start校验method为pulse/landing/landingOnly、bagId为0..4，要求FirmnessReadyState后提出校准请求。返回success仅表示接受请求，尚未得到校准结果。服务注册可达性沿用DOWNLOAD_AND_RUNTIME_ARTIFACTS及diagnostics的真实注册链。
+CalibrationRunner.Start取请求method，否则取配置DeflateMethod；随包default.json为pulse、AnalyzerAuthority=node，目录/ephemeral/calibration。
+CalibrationRunner.AnalyzeAndWriteAsync:826–855总是先运行指定authority，再运行另一实现并作GhostComparer比较。指定结果未成功运行或无结果时直接return null；不会把ghost提升为authority。
+修正旧DOWNLOAD_AND_RUNTIME_ARTIFACTS_ZH.txt中“并可尝试另一实现”的潜在歧义：另一实现确实运行，但它是比较对象，不是自动失败接管。比较是否Matched没有控制最终写入的分支。此结论有原DLL IL的async MoveNext互证。
+LandingOnly另用已存b，不经过Node/C#脉冲CSV拟合；landing模式用脉冲阶段的b加landing阶段的a/ci。
+
+2. CSV中的时间和缺口处理
+CalibrationRunner.Tick只在latestTelemetry对象引用不同于lastSeenTelemetry时记一次；它不是按波形内容去重，也不能证明所有传入包都已落盘。
+CalibrationCsvWriter.WriteSamples:41–77逐点写气囊压力与同索引Ambient；同一个包的所有行使用相同的Unix秒转换ISO时间，Sample_Rate_Hz逐行写入。
+DetectGap:79–101用DeviceTimestampMs与前包起点+点数×周期比较；漂移>1.5周期时累计round(drift/period)为DroppedSampleCount。没有插入缺点行、没有在CSV补NaN、也没有重建连续设备时间列。
+分析器虽然要求Timestamp_UTC列存在，但loadCsv把各列统一尝试转Number，后续数值分析不使用Timestamp_UTC。窗口由第一行Sample_Rate_Hz推算；后续若存在时间缺口，分析仍沿CSV连续行推进。不能把该CSV说成逐点精确时间轴，或称gap统计已修复数据。
+这一点仅属于机械校准CSV，与Frank原始压电上传的timestamp/slot行为是两套实现。
+
+3. pulse校准：压力预处理与事件提取
+以下JS行号均指source/shipped/opt/eight/lib/balloon-analyzer/build/calibration_analyzer.js；配套calibration_math.js给出全部数值原语。
+260–334：按Pressure_S编号排序，保留max>0的列，最后一列作大气参考；参考均值须在(50,150)kPa。每点计算bag[i]-ambient[i]，而不是用大气均值替代逐点参考。
+首行频率f决定中值窗max(3,round(.25f)|1)、回稳窗max(5,round(.4f))、充气/过冲平台窗max(5,round(f))；20Hz时分别5、8、20、20点。中值窗位于当前点两侧，边缘可用不完整窗。
+在中值后曲线的第一个全局最大值处分段：前段找充气过冲，后段找放气回稳。没有把整条波形同时交给两个检测器。
+119–189：回稳检测先要求正差分>2/f，再向前找低谷；跳过差分>0.05的上升段，检查随后平台。平台用1.0×IQR去离群值，至少3个保留点，按原索引拟合斜率且绝对值<0.1/f；取第一个保留点作pAfter，须pAfter>pBefore+0.05。最终只保留pAfter>=0.15kPa。
+198–252：过冲检测使用差分的10点、5点居中均值，端部NaN补0；10点均值由>0.001跨至<0，且此前上升比例至少30%；跳过5点均值<-0.002的下降，再取原始压力平台中值。峰值取中值滤波曲线上局部[-5,+5)搜索区间，峰与平台差须>0.05kPa。
+并非所有门限都随f缩放：10/5点均值、±5搜索、0.05、0.001和-0.002等仍为固定点数/每点值。不要把“部分窗口按频率换算”写成任意频率下完全等价。
+
+4. 拟合、剔除和实际输出系数
+342–373：至少5个回稳点，最小二乘拟合pAfter=a*pBefore+ci。最多2轮剔除：先求每点绝对残差，再求这些绝对残差的总体标准差s，仅保留残差<3.5s。它不是把有符号残差按均值±3.5σ筛选；最终再拟合，剩余点<5失败。
+408–442：b取充气过冲的中值（IQR过滤后），b_std使用总体标准差。b_cv由已舍入到3位的b_std/b计算；>0.3只产生warning，未在该处改success。
+378–395：拟合级门限R²>=0.70、a∈[0.8,3]、b∈[-2,2]、|ci|<=2。输出al=a、cl=ci，并没有另拟合一个低压段；相同系数使两段表示同一直线。
+没有overshoot时，拟合失败分支的b仍可为null；但若放气拟合成功，则最终返回b=0。不可只凭代码旁“no b”注释就概括所有返回分支。
+CalibrationMath与JS均实现有限值中值/均值、线性分位数和总体标准差；LandingTelemetry窗口另用n-1样本标准差。精度与舍入不能在这两条路径间互换。
+
+5. landing / landingOnly：另一种正常校准路径
+LandingTelemetry以DeviceTimestampMs/LegacyFirstTimestampMs精确配对legacy压力和增强时间轴。逐点须有timestamp，气囊和大气读数均有限且>=50kPa；相减后按BoardMs插入有序队列。Window取闭区间均值与样本标准差，队列按最新板时刻保留120秒；缺时间或未配对的数据不能被当成已参与拟合。
+LandingRunStateMachine先按旧a×1.1（最高3）设置临时补偿，依次使用四组起点/降幅：7.25/.45、3.95/.35、2.35/.30、1.05/.15kPa。正常默认每组2轮。
+稳态检查用500ms均值与夹紧到[.05,.15]的departure tolerance，需连续8秒；180秒未稳定会记录warning并继续保留试验，不等于已稳定。
+动作前取1秒基线，目标=round(baseline-delta,3)。按阀状态找放气打开与关闭边缘，关闭时刻减500ms定位stop，再取stop前50ms附近的最后压力；不符合边缘/样本条件可使stop缺失。冻结6.5秒后以末1秒均值为RestKpa。
+放气<400ms可提高seed×1.05、最多两次重试；完成后若残差过大或有效点不足，可多一轮。取消、压力上限、遥测过旧和超时路径回到本地恢复流程；这些是代码动作，不是实机保障已验证。
+LandingFit.Fit只纳入Deflate、有限Stop/Rest且DeflateMs>=400ms的试验；至少4点、3个不同FromKpa，拟合Rest=a*Stop+ci。门限R²>=.98、a∈[1.1,3]、|ci|<=2；a/ci先舍入3位，再做相应边界判定。
+GateOnWindow要求板原配置的settle窗口==240ms，否则即使本次临时设置成功也把拟合标失败。LandingCoefficientMerge以landing的a/ci加脉冲或已存b；输出al=a、cl=ci。它不要求脉冲放气拟合Success，只要求有b和合格landing fit。
+
+6. 最后一道校验与落设备边界
+WriteCoefficientsAsync先对全部passing做CalibrationCoefficientValidator：五系数须有限，配置默认a/al∈[1.1,3]、b∈[-2,2]、|ci/cl|<=2。故拟合阶段a=1.0可过，但设备写入阶段会拒绝。
+随后逐袋SendCustomCommand(0x60,sub1)，payload为bagId及五个little-endian float32，再发sub2保存Unix秒。每袋请求与保存是多次await；不能把它写成不可分割的整组事务，也没有在此处看到保存后重新读回五系数核对。
+已有MCU故障/控制研究不等于本报告完整恢复了所有版本的系数实际控制消费；实机安装版本、物理标定曲线和保存断电恢复仍须对应组件/实机证据。
+
+7. 覆盖与验证
+静态覆盖：注册/请求→pulse正常状态机→CSV→Node与C#提取/拟合→authority与ghost→landing配对/窗口/试验→系数合并/校验→序列化与保存调用。没有把源码注释的厂内验证声明当成本次测试结果。
+model_normal_calibration.py只复现10个独立正常公式例子，包括20/32Hz窗、参考列、中值滤波、拟合、两层边界、CSV缺点计数及无ghost自动接管；不执行原厂程序、不证明全数据数值等价或物理效果。
+后续缺口：实际气囊硬件和部署、增强遥测/真实CSV、当前系数与保存回读、各MCU版本系数消费者。不能借此宣称恢复睡眠生产分期或全部本地算法。

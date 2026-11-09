@@ -1,0 +1,198 @@
+// IL code: Eight.Lsp.Protocol
+.class public auto ansi beforefieldinit Eight.Lsp.Protocol.PacketEncoder
+	extends [System.Runtime]System.Object
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Fields
+	.field private initonly class Eight.Lsp.Protocol.FrameEncoder frameEncoder
+	.field private initonly int32 lengthBytes
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			[opt] int32 lengthBytes
+		) cil managed 
+	{
+		.param [1] = int32(1)
+		// Method begins at RVA 0x3690
+		// Header size: 12
+		// Code size: 56 (0x38)
+		.maxstack 3
+		.locals init (
+			[0] bool
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: newobj instance void Eight.Lsp.Protocol.FrameEncoder::.ctor()
+		IL_0006: stfld class Eight.Lsp.Protocol.FrameEncoder Eight.Lsp.Protocol.PacketEncoder::frameEncoder
+		IL_000b: ldarg.1
+		IL_000c: ldc.i4.1
+		IL_000d: sub
+		IL_000e: ldc.i4.1
+		IL_000f: bgt.un.s IL_0015
+
+		IL_0011: ldc.i4.1
+		IL_0012: stloc.0
+		IL_0013: br.s IL_0017
+
+		IL_0015: ldc.i4.0
+		IL_0016: stloc.0
+
+		IL_0017: ldarg.0
+		IL_0018: ldloc.0
+		IL_0019: brtrue.s IL_002b
+
+		IL_001b: ldstr "lengthBytes must be 1 or 2"
+		IL_0020: ldstr "lengthBytes"
+		IL_0025: newobj instance void [System.Runtime]System.ArgumentException::.ctor(string, string)
+		IL_002a: throw
+
+		IL_002b: ldarg.1
+		IL_002c: stfld int32 Eight.Lsp.Protocol.PacketEncoder::lengthBytes
+		IL_0031: ldarg.0
+		IL_0032: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0037: ret
+	} // end of method PacketEncoder::.ctor
+
+	.method public hidebysig 
+		instance void SendPacket (
+			class Eight.Lsp.Protocol.IPhysicalLayer physical,
+			uint8[] payload
+		) cil managed 
+	{
+		// Method begins at RVA 0x36d4
+		// Header size: 12
+		// Code size: 240 (0xf0)
+		.maxstack 4
+		.locals init (
+			[0] int32,
+			[1] class [System.Runtime]System.IO.MemoryStream,
+			[2] uint16,
+			[3] valuetype [System.Runtime]System.Span`1<uint8>,
+			[4] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[5] valuetype [System.Runtime]System.Span`1<uint8>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld int32 Eight.Lsp.Protocol.PacketEncoder::lengthBytes
+		IL_0006: ldc.i4.1
+		IL_0007: beq.s IL_0010
+
+		IL_0009: ldc.i4 65535
+		IL_000e: br.s IL_0015
+
+		IL_0010: ldc.i4 255
+
+		IL_0015: stloc.0
+		IL_0016: ldarg.2
+		IL_0017: ldlen
+		IL_0018: conv.i4
+		IL_0019: ldloc.0
+		IL_001a: ble.s IL_0058
+
+		IL_001c: ldloca.s 4
+		IL_001e: ldc.i4.s 34
+		IL_0020: ldc.i4.1
+		IL_0021: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_0026: ldloca.s 4
+		IL_0028: ldstr "Payload too large for "
+		IL_002d: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0032: ldloca.s 4
+		IL_0034: ldarg.0
+		IL_0035: ldfld int32 Eight.Lsp.Protocol.PacketEncoder::lengthBytes
+		IL_003a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_003f: ldloca.s 4
+		IL_0041: ldstr "-byte length"
+		IL_0046: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_004b: ldloca.s 4
+		IL_004d: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_0052: newobj instance void [System.Runtime]System.ArgumentException::.ctor(string)
+		IL_0057: throw
+
+		IL_0058: newobj instance void [System.Runtime]System.IO.MemoryStream::.ctor()
+		IL_005d: stloc.1
+		.try
+		{
+			IL_005e: ldarg.0
+			IL_005f: ldfld int32 Eight.Lsp.Protocol.PacketEncoder::lengthBytes
+			IL_0064: ldc.i4.1
+			IL_0065: bne.un.s IL_0073
+
+			IL_0067: ldloc.1
+			IL_0068: ldarg.2
+			IL_0069: ldlen
+			IL_006a: conv.i4
+			IL_006b: conv.u1
+			IL_006c: callvirt instance void [System.Runtime]System.IO.Stream::WriteByte(uint8)
+			IL_0071: br.s IL_0097
+
+			IL_0073: ldc.i4.2
+			IL_0074: conv.u
+			IL_0075: localloc
+			IL_0077: ldc.i4.2
+			IL_0078: newobj instance void valuetype [System.Runtime]System.Span`1<uint8>::.ctor(void*, int32)
+			IL_007d: stloc.s 5
+			IL_007f: ldloc.s 5
+			IL_0081: ldarg.2
+			IL_0082: ldlen
+			IL_0083: conv.i4
+			IL_0084: conv.u2
+			IL_0085: call void [System.Memory]System.Buffers.Binary.BinaryPrimitives::WriteUInt16BigEndian(valuetype [System.Runtime]System.Span`1<uint8>, uint16)
+			IL_008a: ldloc.1
+			IL_008b: ldloc.s 5
+			IL_008d: call valuetype [System.Runtime]System.ReadOnlySpan`1<!0> valuetype [System.Runtime]System.Span`1<uint8>::op_Implicit(valuetype [System.Runtime]System.Span`1<!0>)
+			IL_0092: callvirt instance void [System.Runtime]System.IO.Stream::Write(valuetype [System.Runtime]System.ReadOnlySpan`1<uint8>)
+
+			IL_0097: ldloc.1
+			IL_0098: ldarg.2
+			IL_0099: ldc.i4.0
+			IL_009a: ldarg.2
+			IL_009b: ldlen
+			IL_009c: conv.i4
+			IL_009d: callvirt instance void [System.Runtime]System.IO.Stream::Write(uint8[], int32, int32)
+			IL_00a2: ldarg.2
+			IL_00a3: ldc.i4 7439
+			IL_00a8: ldc.i4 4129
+			IL_00ad: call uint16 Eight.Lsp.Protocol.Crc::CalculateCrc16(uint8[], uint16, uint16)
+			IL_00b2: stloc.2
+			IL_00b3: ldc.i4.2
+			IL_00b4: conv.u
+			IL_00b5: localloc
+			IL_00b7: ldc.i4.2
+			IL_00b8: newobj instance void valuetype [System.Runtime]System.Span`1<uint8>::.ctor(void*, int32)
+			IL_00bd: stloc.3
+			IL_00be: ldloc.3
+			IL_00bf: ldloc.2
+			IL_00c0: call void [System.Memory]System.Buffers.Binary.BinaryPrimitives::WriteUInt16BigEndian(valuetype [System.Runtime]System.Span`1<uint8>, uint16)
+			IL_00c5: ldloc.1
+			IL_00c6: ldloc.3
+			IL_00c7: call valuetype [System.Runtime]System.ReadOnlySpan`1<!0> valuetype [System.Runtime]System.Span`1<uint8>::op_Implicit(valuetype [System.Runtime]System.Span`1<!0>)
+			IL_00cc: callvirt instance void [System.Runtime]System.IO.Stream::Write(valuetype [System.Runtime]System.ReadOnlySpan`1<uint8>)
+			IL_00d1: ldarg.0
+			IL_00d2: ldfld class Eight.Lsp.Protocol.FrameEncoder Eight.Lsp.Protocol.PacketEncoder::frameEncoder
+			IL_00d7: ldarg.1
+			IL_00d8: ldloc.1
+			IL_00d9: callvirt instance uint8[] [System.Runtime]System.IO.MemoryStream::ToArray()
+			IL_00de: callvirt instance void Eight.Lsp.Protocol.FrameEncoder::SendFrame(class Eight.Lsp.Protocol.IPhysicalLayer, uint8[])
+			IL_00e3: leave.s IL_00ef
+		} // end .try
+		finally
+		{
+			IL_00e5: ldloc.1
+			IL_00e6: brfalse.s IL_00ee
+
+			IL_00e8: ldloc.1
+			IL_00e9: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_00ee: endfinally
+		} // end handler
+
+		IL_00ef: ret
+	} // end of method PacketEncoder::SendPacket
+
+} // end of class Eight.Lsp.Protocol.PacketEncoder

@@ -1,0 +1,40 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+undefined4 FUN_0801b800(int param_1)
+
+{
+  undefined4 uVar1;
+  undefined4 *puVar2;
+  undefined4 uVar3;
+  
+  puVar2 = *(undefined4 **)(param_1 + 0x20);
+  if ((puVar2 == (undefined4 *)0x0) || (*(char *)(puVar2 + 5) == '\0')) {
+    uVar1 = 0;
+  }
+  else {
+    uVar3 = *(undefined4 *)(param_1 + 4);
+    uVar1 = FUN_0802aeb8(uVar3,*puVar2);
+    uVar1 = FUN_0802b814(uVar1,uVar3);
+  }
+  return uVar1;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+0801b800 036a ldr r3,[r0,#0x20]
+0801b802 10b5 push {r4,lr}
+0801b804 002b cmp r3,#0x0
+0801b806 0bd0 beq 0x0801b820
+0801b808 1a7d ldrb r2,[r3,#0x14]
+0801b80a 002a cmp r2,#0x0
+0801b80c 08d0 beq 0x0801b820
+0801b80e 4468 ldr r4,[r0,#0x4]
+0801b810 1968 ldr r1,[r3,#0x0]
+0801b812 201c adds r0,r4,#0x0
+0801b814 0ff050fb bl 0x0802aeb8
+0801b818 211c adds r1,r4,#0x0
+0801b81a 0ff0fbff bl 0x0802b814
+0801b81e 10bd pop {r4,pc}
+0801b820 0020 movs r0,#0x0
+0801b822 fce7 b 0x0801b81e

@@ -1,0 +1,38 @@
+00029d9c	f0b5	push {r4,r5,r6,r7,lr}
+00029d9e	0021	movs r1,#0x0
+00029da0	1548	ldr r0,[0x00029df8]
+00029da2	0225	movs r5,#0x2
+00029da4	154f	ldr r7,[0x00029dfc]
+00029da6	6426	movs r6,#0x64
+00029da8	01eb8104	add.w r4,r1,r1, lsl #0x2
+00029dac	00ebc402	add.w r2,r0,r4, lsl #0x3
+00029db0	537e	ldrb r3,[r2,#0x19]
+00029db2	13b1	cbz r3,0x00029dba
+00029db4	012b	cmp r3,#0x1
+00029db6	0ed0	beq 0x00029dd6
+00029db8	18e0	b 0x00029dec
+00029dba	937e	ldrb r3,[r2,#0x1a]
+00029dbc	012b	cmp r3,#0x1
+00029dbe	15d0	beq 0x00029dec
+00029dc0	9368	ldr r3,[r2,#0x8]
+00029dc2	9c46	mov r12,r3
+00029dc4	5b1c	adds r3,r3,#0x1
+00029dc6	0dd0	beq 0x00029de4
+00029dc8	0cf1010c	add.w r12,r12,#0x1
+00029dcc	c2f808c0	str.w r12,[r2,#0x8]
+00029dd0	40f834c0	str.w r12,[r0,r4,lsl #0x3]
+00029dd4	06e0	b 0x00029de4
+00029dd6	9368	ldr r3,[r2,#0x8]
+00029dd8	002b	cmp r3,#0x0
+00029dda	03dd	ble 0x00029de4
+00029ddc	5b1e	subs r3,r3,#0x1
+00029dde	9360	str r3,[r2,#0x8]
+00029de0	40f83430	str.w r3,[r0,r4,lsl #0x3]
+00029de4	9576	strb r5,[r2,#0x1a]
+00029de6	07eb4102	add.w r2,r7,r1, lsl #0x1
+00029dea	d682	strh r6,[r2,#0x16]
+00029dec	491c	adds r1,r1,#0x1
+00029dee	c9b2	uxtb r1,r1
+00029df0	0429	cmp r1,#0x4
+00029df2	d9d3	bcc 0x00029da8
+00029df4	f0bd	pop {r4,r5,r6,r7,pc}

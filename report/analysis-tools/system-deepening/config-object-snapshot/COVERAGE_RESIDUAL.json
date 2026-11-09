@@ -1,0 +1,88 @@
+{
+ "schema": "eightsleep.nonusb.config-snapshot-coverage-residual.v1",
+ "date": "2026-11-08",
+ "round": 6,
+ "scope": "A-class priorities 1 -> 4 -> 5 from the previous round, as agreed when the user said 继续",
+ "closed": [
+  {
+   "id": "SNAP-01",
+   "title": "每个 hwrev 的完整配置对象快照",
+   "status": "CLOSED",
+   "evidence": ["CONFIG_SNAPSHOT.json", "MODEL_RESULTS.json", "pass2/*"],
+   "result": "14 setter constant-propagated writes with concrete values; 16 hwrev boundaries; 87 slots at the top boundary; two inline BL replays expanded to 16 setter calls; sku-conditional +0x1a4; K35 RAM backup; K90 byte clear",
+   "checks": "62 assertions, 0 failures"
+  },
+  {
+   "id": "SNAP-02",
+   "title": "6 组未导出消费者",
+   "status": "CLOSED",
+   "evidence": ["CONSUMER_MODELS.json", "pass1/*", "pass3/*"],
+   "result": "0800cf10 APB clock condition side; complete 4-source x 3-mask USART clock matrix with OVER8 flag; 12 exported consumers inventoried; 5 mis-classified literal-pool slots corrected; 0x0802420c last 4 entries narrowed to whole-word divisors with no split instruction",
+   "checks": "75 assertions, 0 failures"
+  },
+  {
+   "id": "SNAP-03",
+   "title": "08008174 除法 helper 形式化穷举",
+   "status": "CLOSED",
+   "evidence": ["UDIV_RESULTS.json", "pass1/08008174.txt"],
+   "result": "Exact Thumb interpreter over all 132 exported INSN rows; 26757 inputs all equal integer division; 132/132 instruction addresses covered; divide-by-zero path resolved",
+   "checks": "10 assertions, 26757 cases, 0 failures"
+  }
+ ],
+ "corrections": [
+  "The previous round's candidate list treated 0800fbcc / 0800fdc0 / 080125a4 / 08012cf0 / 0800fc00 as unexported consumer functions. All five are literal-pool slots (function=none, REF_TO ... READ); the real consumers are the nearby reader instructions.",
+  "The 'packed' interpretation of the last four USART divisors (0x408/0x402/0x108/0x101) is NOT confirmed: 0800e974 ldrh + 0800e976 bl pass the whole 16-bit word to the division helper with no split instruction.",
+  "The USART clock source matrix has exactly FOUR 0x8000 constructions (0800e916 / 0800e95a / 0800e966 / 0800e9b4), one per source branch, not three.",
+  "Source value 3 of the matrix is 32768 (0x8000) in BOTH path A and path B; the earlier decompiler-based guess allowed 16000000 as an alternative."
+ ],
+ "cross_validation": [
+  "The independent constant propagator reproduces the previous round's slot ledger counts exactly: I00 = 62 writes, K00 = 48 writes.",
+  "The BRR values 0x22c / 0x453 / 0x8b from round 5 are reproduced by this round's parameterised model.",
+  "All 132 division-helper instructions are reachable; no dead row was assumed."
+ ],
+ "hard_numbers": {
+  "byte_checks": 4886,
+  "byte_failures": 0,
+  "instruction_rows_verified": 3811,
+  "flash_literals_verified": 827,
+  "instruction_anchors": 44,
+  "model_assertions": 147,
+  "model_failures": 0,
+  "udiv_cases": 26757,
+  "udiv_instructions_covered": 132,
+  "udiv_instructions_total": 132,
+  "hwrev_boundaries": 16,
+  "top_slot_count": 87,
+  "setter_rows": 14,
+  "consumers_inventoried": 12,
+  "literal_pool_corrections": 5,
+  "brr_legality_scan_cases": 8
+ },
+ "residual_static": [
+  "Setter-installed callback implementations (A-class #2)",
+  "hwrev/sku -> full enumerated report fields (A-class #3)",
+  "hwrev -> internal 3-character identifier (A-class #7)",
+  "Functional meaning of the last four USART divisors (byte form is known, purpose is not)"
+ ],
+ "residual_requires_new_material": [
+  "Datasheet / schematic to name the 0x4000xxxx peripheral registers",
+  "USB-variant firmware for differential comparison",
+  "BOM / board revision to bind hwrev + sku to a marketing model and crystal"
+ ],
+ "residual_requires_device": [
+  "Runtime RCC clock-source selection and the actual divisor index / baud",
+  "Measured SYSCLK (the 64MHz value remains a conditional computed value)",
+  "Channel index -> physical sensor channel mapping",
+  "PLL lock and clock-switch transition / cumulative tick loss",
+  "ADC CLKIN / DRDY and true sample rate",
+  "All real-time timing behaviour"
+ ],
+ "boundaries": [
+  "HSE 16/32/8MHz are software fields written to 0x20000474, not measured crystals",
+  "All clocks, baud rates and divisor indices in this round are explicit parameters",
+  "Common baud-rate constants still have zero occurrences in the 132896-byte image",
+  "The config snapshot records what setters WRITE, not the final runtime object",
+  "No firmware was executed as a program; no device, account or network was contacted"
+ ],
+ "executes_firmware": false
+}

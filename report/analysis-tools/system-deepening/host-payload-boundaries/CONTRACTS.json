@@ -1,0 +1,101 @@
+{
+  "source_sha256": "84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375",
+  "all_lengths_exclude_opcode": true,
+  "header": {
+    "decoder": "00219b34",
+    "opcode": "body[0]&0x7f",
+    "flag": "body[0]>>7",
+    "payload_pointer": "body+1",
+    "payload_length": "body_length-1",
+    "usb_event_gate": "flag0 and object state2 in audited 00236174 path"
+  },
+  "0x3c": {
+    "entry": "0027e7b0",
+    "minimum_payload": 120,
+    "header_bytes": 8,
+    "adc_block_bytes": 64,
+    "imu_bytes": 48,
+    "count_formula": "floor((payload_length-56)/64)",
+    "imu_offset_formula": "8+64*count",
+    "ignored_trailer_range": [
+      0,
+      63
+    ],
+    "frequency_zero": "exit before per-row mapper/counter work",
+    "step": "integer 1000/frequency; no upper ceiling in audited branch",
+    "disabled_adc": 2147483647,
+    "disabled_imu": 32767,
+    "mapper": "0021a5c0 flag1 each row; native mapper outcomes not simulated",
+    "counter": "owner+0x3c80 increments each decoded row",
+    "extra_callback": "mapper true may cause extra request in addition to ordinary request",
+    "checked_current_payload_lengths": [
+      120,
+      2047
+    ]
+  },
+  "0x33": {
+    "decoder": "0021abe0",
+    "decode_length_condition": "unsigned length<28 (cmp #1b; b.hi skips)",
+    "timestamp_read": [
+      0,
+      4
+    ],
+    "uint16_reads": [
+      [
+        4,
+        2
+      ],
+      [
+        6,
+        2
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        12,
+        2
+      ],
+      [
+        15,
+        2
+      ],
+      [
+        18,
+        2
+      ],
+      [
+        21,
+        2
+      ],
+      [
+        24,
+        2
+      ]
+    ],
+    "minimum_length_for_fixed_reads": 26,
+    "length26": "all reads in current payload",
+    "length27": "all reads in current payload, byte26 unused",
+    "length28_plus": "decoder skips; caller-zero output still passed onward",
+    "short_length_0_25": "reads beyond current payload, within retained LSP body storage for this binding",
+    "caller_clear": {
+      "offset": "coroutine+0x5c",
+      "bytes": 20,
+      "input_buffer_cleared": false
+    },
+    "caller_checks_success": false,
+    "mapper": "flag0 reads existing anchor; does not advance shared timing context",
+    "consumer": "001e0ec0 -> 001e61d0 -> 001ed1d4 enqueueCapSenseSide",
+    "consumer_gate": "raw logger+0x14e0 present and queue branch conditions; callback request is not guaranteed enqueue",
+    "enable_path": "UsbSensor revision>=0xa00 -> 001e2bb0 -> 001f6920; allocation+14e0 not conditioned on all-types boolean",
+    "current_k60_producer": "Not established this turn; only conditional receiver path proven"
+  },
+  "runtime_limits": [
+    "No device observations",
+    "No heap/crash/exploit claim",
+    "No cloud receipt claim",
+    "No native execution",
+    "Explicit previous-frame source for synthetic retained bytes, not assumed initial zero RAM"
+  ]
+}

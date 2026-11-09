@@ -1,0 +1,24 @@
+TARGET 080105ac function=080105ac
+REF_TO 08016300 UNCONDITIONAL_CALL owner=08014298
+FUNCTION_BODY [[080105ac, 080105bd]]
+
+undefined4 FUN_080105ac(undefined1 *param_1,undefined4 param_2)
+
+{
+  *param_1 = (char)((uint)param_2 >> 0x18);
+  param_1[1] = (char)((uint)param_2 >> 0x10);
+  param_1[2] = (char)((uint)param_2 >> 8);
+  param_1[3] = (char)param_2;
+  return 4;
+}
+
+
+INSN 080105ac 0b0e lsrs r3,r1,#0x18
+INSN 080105ae 0370 strb r3,[r0,#0x0]
+INSN 080105b0 0b0c lsrs r3,r1,#0x10
+INSN 080105b2 4370 strb r3,[r0,#0x1]
+INSN 080105b4 0b0a lsrs r3,r1,#0x8
+INSN 080105b6 8370 strb r3,[r0,#0x2]
+INSN 080105b8 c170 strb r1,[r0,#0x3]
+INSN 080105ba 0420 movs r0,#0x4
+INSN 080105bc 7047 bx lr

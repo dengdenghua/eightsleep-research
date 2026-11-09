@@ -1,0 +1,157 @@
+{
+  "reviewer": "report_language_finish",
+  "date": "2026-11-08",
+  "result": "No substantive conflict found in selected normal-chain claims.",
+  "scope": [
+    "WAV integer-second duration and current position; sample-aligned byte calculation; pending seek absolute file offset; RepeatFor remainder/seek index semantics; allowed PCM versus Pulse format/channel restrictions; channel swap; volume mapping and slow-ramp state; cache MD5, conversion and refresh backoff.",
+    "SecondBuffer integer 1000/f timestep, timestamp bucket-only flushing, no local resampling/deduplication, SensorTiming drift anchor, pressure accumulation shape, parser rounding, NatsPublisher queue/drop/retry boundaries."
+  ],
+  "not_claimed": [
+    "No actual audio output or cloud ACK observed.",
+    "Not a full audit of all PulseAudio/FFmpeg or NATS library internals.",
+    "Did not independently re-execute parent model examples or audit every source in the two bundles."
+  ],
+  "checks": [
+    {
+      "claim": "WavTrack duration/current position integer division before FromSeconds(int64)",
+      "status": "verified",
+      "anchors": "WavTrack.cs:31,53; IL ctor 007a-007e and current position 001d-001e"
+    },
+    {
+      "claim": "pending Seek omits DataStartingPosition",
+      "status": "verified",
+      "anchors": "WavTrack.cs:80-84; IL_015e..016c"
+    },
+    {
+      "claim": "RepeatFor final EndPosition is remainder itself, and Seek loops over iterations[0]",
+      "status": "verified",
+      "anchors": "RepeatForTrack.cs:94-95,108; IL_0023..0029"
+    },
+    {
+      "claim": "integer unsigned timestep 1000/f",
+      "status": "verified",
+      "anchors": "SecondBuffer.cs:31; IL_0027..002e"
+    },
+    {
+      "claim": "flush when next distinct timestamp; no fill/dedup in reviewed loop",
+      "status": "verified",
+      "anchors": "SecondBuffer.cs:38-56; SecondBufferManager.cs"
+    },
+    {
+      "claim": "DropOldest with no publisher-level requeue after publish failure",
+      "status": "verified",
+      "anchors": "NatsPublisher.cs constructor and ProcessQueue; IL constructor FullMode=2"
+    }
+  ],
+  "sources": [
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.Audio/Eight.Audio.Tracks/WavTrack.cs",
+      "sha256": "64c08f63280b2ef93456c56f8c267157321bc7190b474ff66abebd603a071bfa",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.Audio/Eight.Audio.Tracks/RepeatForTrack.cs",
+      "sha256": "7e7d07b4c459e20849b4f18a9a7c74f1a5f2c18b6409ed1bb7815cbbeb2979a5",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.Audio/Eight.Audio.Tracks/RepeatingTrack.cs",
+      "sha256": "801534f0d490cd11ecf2a202b67c454c17f44958c39e457094501252dee5370a",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.Audio/Eight.Audio.Player/TrackConsumer.cs",
+      "sha256": "edf0acc6b3b284d25db2607c673e4b8b7cebc6a5972b0b032d7585e12d1a0cc1",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.PulseAudio/Eight.PulseAudio/PulseAudioFactory.cs",
+      "sha256": "95a1b64d4e54c9ae160dbaa5e9c501aec5a539038d79057346883508fd10499f",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.PulseAudio/Eight.PulseAudio/SampleSpec.cs",
+      "sha256": "faf083471a0fd1ca1a0bac5a6cf2534bf951ca83340a19803b1b865a4d81dedf",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.PulseAudio/Eight.PulseAudio/ChannelMap.cs",
+      "sha256": "f88cea5bf80b8e0454e7e4c47ec083e2c8743993a29f3082029f1699a6940f73",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.Audio/Eight.Audio.StateMachine.Tasks/PlayTask.cs",
+      "sha256": "559a6165a0c8c8aa241fc2cc9e6cf289bb674ee978204c690423016cdd2cf942",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.Audio/Eight.Audio.DataSources/TrackDataManager.cs",
+      "sha256": "0050e8e5eb72caa5468de8a344d6313307db33a21976d7f0908c1ab276e2214c",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.Audio/Eight.Capybara/TrackDownloader.cs",
+      "sha256": "30f112ac5333f5c7652ba550e9d02b81afc8520bc32427b60cb96100bd305913",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/source/Eight.PulseAudio/Eight.PulseAudio/AudioStreamWriter.cs",
+      "sha256": "83086e88d97ce3dbc62b71739a4b29c39e96c1f608cc0360ae6dc83db6e05134",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-managed-telemetry/source/Eight.Nats/Eight.Nats/SecondBuffer.cs",
+      "sha256": "6435ed542970615cb2e375f8e36293dd55ac759f5c4f5a71a4b4cbb21bfeefad",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-managed-telemetry/source/Eight.Nats/Eight.Nats/SecondBufferManager.cs",
+      "sha256": "4e0655925ee232020b7979dd5d2a6c7b4dc3de75d20acff6afd4ea7e7ffbe836",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-managed-telemetry/source/Eight.Nats/Eight.Nats/SensorTiming.cs",
+      "sha256": "799ae46ba6e3d3e94332725b45e86db1cf235879aca0fcb49e5a9419f7412670",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-managed-telemetry/source/Eight.Nats/Eight.Nats/NatsPublisher.cs",
+      "sha256": "41bd753ebf739e4172f350652dd5cf48158eba8b92766ca36b694b1734485a86",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-managed-telemetry/source/Eight.Firmness/Eight.Firmness.Services.Telemetry/PressureSideAccumulator.cs",
+      "sha256": "d5962ab7e5d3db284e7c51a894c9e7648cda40619fa8bc6d3c9363b0db178547",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-managed-telemetry/source/Eight.Firmness/Eight.Firmness.Protocol/TelemetryParser.cs",
+      "sha256": "aa4dbb5da95bd1d7455b1fe9e8aeffb508346552eed2de5f83d7a238274abaf3",
+      "review": "full source"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/il/WavTrack.il.txt",
+      "sha256": "8314b613206a95691bc0aa03a18f242267913d4d74f196b1dce79b65b742ece2",
+      "review": "targeted IL anchors only"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-audio-closure/il/RepeatForTrack.il.txt",
+      "sha256": "871833388209fcfcff8cb398c581139dc819e97445023284be402a78cbf1c866",
+      "review": "targeted IL anchors only"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-managed-telemetry/il/SecondBuffer.il.txt",
+      "sha256": "7b22218bb10a0e670b19f9aa57103c2a739e5b560672dec78c0b86678c5f12a7",
+      "review": "targeted IL anchors only"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-managed-telemetry/il/NatsPublisher.il.txt",
+      "sha256": "bef70aec05f1987a198e6c2eb8629b87d9eb4c309c4db978d2a03f3198ae8e9f",
+      "review": "targeted IL anchors only"
+    }
+  ],
+  "report_hashes": {
+    "local-audio-closure": "1bf518fbec34109c822672733ddf67ddb310d6108a8a9122a7529075e14ee6ac",
+    "local-managed-telemetry": "a6e82ee901b0d455c4624ac4f31003f8c6a3eab8824e5265d8e9757ec5247336"
+  }
+}

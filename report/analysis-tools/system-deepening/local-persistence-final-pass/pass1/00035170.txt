@@ -1,0 +1,81 @@
+FUNCTION 00035170 BODY [[00035170, 000351d5]]
+REF_TO 00033100 UNCONDITIONAL_CALL
+
+void FUN_00035170(int *param_1,int param_2,uint param_3)
+
+{
+  uint uVar1;
+  int iVar2;
+  int iVar3;
+  uint uVar4;
+  
+  uVar4 = *(uint *)*param_1;
+  uVar1 = ((uint *)*param_1)[1];
+  if (uVar1 < uVar4) {
+    uVar1 = (param_1[2] - uVar4) + 1;
+  }
+  else {
+    uVar1 = uVar1 - uVar4;
+  }
+  iVar3 = param_1[3];
+  iVar2 = uVar4 * iVar3 + param_1[1];
+  if (uVar1 < param_3) {
+    FUN_0002648c(param_2,iVar2,iVar3 * uVar1);
+    FUN_0002648c(param_2 + iVar3 * uVar1,param_1[1],(param_3 - uVar1) * param_1[3]);
+    *(uint *)*param_1 = param_3 - uVar1;
+  }
+  else {
+    FUN_0002648c(param_2,iVar2,param_3 * iVar3);
+    uVar4 = uVar4 + param_3;
+    if ((uint)param_1[2] < uVar4) {
+      uVar4 = 0;
+    }
+    *(uint *)*param_1 = uVar4;
+  }
+  return;
+}
+
+
+INSN 00035170 2de9f041 push {r4,r5,r6,r7,r8,lr}
+INSN 00035174 0446 mov r4,r0
+INSN 00035176 0068 ldr r0,[r0,#0x0]
+INSN 00035178 1746 mov r7,r2
+INSN 0003517a 8846 mov r8,r1
+INSN 0003517c 0568 ldr r5,[r0,#0x0]
+INSN 0003517e 4068 ldr r0,[r0,#0x4]
+INSN 00035180 8542 cmp r5,r0
+INSN 00035182 01d8 bhi 0x00035188 REF[CONDITIONAL_JUMP:00035188]
+INSN 00035184 461b subs r6,r0,r5
+INSN 00035186 02e0 b 0x0003518e REF[UNCONDITIONAL_JUMP:0003518e]
+INSN 00035188 a068 ldr r0,[r4,#0x8]
+INSN 0003518a 461b subs r6,r0,r5
+INSN 0003518c 761c adds r6,r6,#0x1
+INSN 0003518e e268 ldr r2,[r4,#0xc]
+INSN 00035190 6068 ldr r0,[r4,#0x4]
+INSN 00035192 b742 cmp r7,r6
+INSN 00035194 05fb0201 mla r1,r5,r2,r0
+INSN 00035198 0cd8 bhi 0x000351b4 REF[CONDITIONAL_JUMP:000351b4]
+INSN 0003519a 7a43 muls r2,r7
+INSN 0003519c 4046 mov r0,r8
+INSN 0003519e f1f775f9 bl 0x0002648c REF[UNCONDITIONAL_CALL:0002648c]
+INSN 000351a2 a168 ldr r1,[r4,#0x8]
+INSN 000351a4 e819 adds r0,r5,r7
+INSN 000351a6 8842 cmp r0,r1
+INSN 000351a8 00d9 bls 0x000351ac REF[CONDITIONAL_JUMP:000351ac]
+INSN 000351aa 0020 movs r0,#0x0
+INSN 000351ac 2168 ldr r1,[r4,#0x0]
+INSN 000351ae 0860 str r0,[r1,#0x0]
+INSN 000351b0 bde8f081 pop.w {r4,r5,r6,r7,r8,pc}
+INSN 000351b4 02fb06f5 mul r5,r2,r6
+INSN 000351b8 2a46 mov r2,r5
+INSN 000351ba 4046 mov r0,r8
+INSN 000351bc f1f766f9 bl 0x0002648c REF[UNCONDITIONAL_CALL:0002648c]
+INSN 000351c0 e268 ldr r2,[r4,#0xc]
+INSN 000351c2 be1b subs r6,r7,r6
+INSN 000351c4 7243 muls r2,r6
+INSN 000351c6 08eb0500 add.w r0,r8,r5
+INSN 000351ca 6168 ldr r1,[r4,#0x4]
+INSN 000351cc f1f75ef9 bl 0x0002648c REF[UNCONDITIONAL_CALL:0002648c]
+INSN 000351d0 2068 ldr r0,[r4,#0x0]
+INSN 000351d2 0660 str r6,[r0,#0x0]
+INSN 000351d4 ece7 b 0x000351b0 REF[UNCONDITIONAL_JUMP:000351b0]

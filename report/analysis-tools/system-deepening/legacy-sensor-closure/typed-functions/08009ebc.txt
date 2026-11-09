@@ -1,0 +1,63 @@
+FUNCTION 08009ebc FUN_08009ebc BODY [[08009ebc, 08009ef9]]
+INCOMING 0800d706 UNCONDITIONAL_CALL
+INCOMING 0800dd46 UNCONDITIONAL_CALL
+INCOMING 0800a6b2 UNCONDITIONAL_CALL
+
+undefined8 FUN_08009ebc(int param_1,byte *param_2,undefined4 param_3)
+
+{
+  byte bVar1;
+  int iVar2;
+  undefined2 uStack_14;
+  ushort local_12;
+  undefined4 uStack_10;
+  
+  uStack_14 = SUB42(param_2,0);
+  local_12 = (ushort)((uint)param_2 >> 0x10);
+  if (*(char *)(param_1 + 8) != '\0') {
+    uStack_10 = param_3;
+    iVar2 = FUN_08009e98(param_1,0xc,&local_12);
+    if (iVar2 != 0) {
+      param_2[4] = (byte)local_12 & 0xf;
+      param_2[3] = (byte)(local_12 >> 4) & 0xf;
+      bVar1 = (byte)(local_12 >> 8);
+      param_2[2] = bVar1 & 1;
+      param_2[1] = (byte)((local_12 & 0xfff) >> 10);
+      *param_2 = bVar1 >> 7;
+    }
+  }
+  return CONCAT26(local_12,CONCAT24(uStack_14,param_1));
+}
+
+
+ASSEMBLY
+08009ebc push {r0,r1,r2,r4,r5,lr} BYTES 37b5
+08009ebe ldrb r3,[r0,#0x8] BYTES 037a
+08009ec0 movs r4,r1 BYTES 0c00
+08009ec2 cmp r3,#0x0 BYTES 002b
+08009ec4 beq 0x08009ef8 BYTES 18d0 REF CONDITIONAL_JUMP=08009ef8
+08009ec6 mov r3,sp BYTES 6b46
+08009ec8 adds r5,r3,#0x6 BYTES 9d1d
+08009eca movs r2,r5 BYTES 2a00
+08009ecc movs r1,#0xc BYTES 0c21
+08009ece bl 0x08009e98 BYTES fff7e3ff REF UNCONDITIONAL_CALL=08009e98
+08009ed2 cmp r0,#0x0 BYTES 0028
+08009ed4 beq 0x08009ef8 BYTES 10d0 REF CONDITIONAL_JUMP=08009ef8
+08009ed6 ldrh r3,[r5,#0x0] BYTES 2b88 REF READ=Stack[-0x12]
+08009ed8 movs r1,#0xf BYTES 0f21
+08009eda movs r2,r3 BYTES 1a00
+08009edc ands r2,r1 BYTES 0a40
+08009ede strb r2,[r4,#0x4] BYTES 2271
+08009ee0 lsrs r2,r3,#0x4 BYTES 1a09
+08009ee2 ands r2,r1 BYTES 0a40
+08009ee4 strb r2,[r4,#0x3] BYTES e270
+08009ee6 subs r1,#0xe BYTES 0e39
+08009ee8 lsrs r2,r3,#0x8 BYTES 1a0a
+08009eea ands r2,r1 BYTES 0a40
+08009eec strb r2,[r4,#0x2] BYTES a270
+08009eee lsls r2,r3,#0x14 BYTES 1a05
+08009ef0 lsrs r2,r2,#0x1e BYTES 920f
+08009ef2 lsrs r3,r3,#0xf BYTES db0b
+08009ef4 strb r2,[r4,#0x1] BYTES 6270
+08009ef6 strb r3,[r4,#0x0] BYTES 2370
+08009ef8 pop {r0,r1,r2,r4,r5,pc} BYTES 37bd

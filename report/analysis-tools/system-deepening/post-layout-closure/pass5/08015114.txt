@@ -1,0 +1,47 @@
+TARGET 08015114 function=08015114
+REF_TO 08015192 UNCONDITIONAL_CALL
+REF_TO 08017c4c UNCONDITIONAL_CALL
+REF_TO 08017c5a UNCONDITIONAL_CALL
+REF_TO 0801515c UNCONDITIONAL_CALL
+REF_TO 08017afa UNCONDITIONAL_CALL
+REF_TO 08017b4c UNCONDITIONAL_CALL
+REF_TO 0801ae96 UNCONDITIONAL_CALL
+REF_TO 0801f178 UNCONDITIONAL_CALL
+REF_TO 0801f182 UNCONDITIONAL_CALL
+FUNCTION_BODY [[08015114, 08015135]]
+
+void FUN_08015114(undefined4 param_1,undefined4 param_2,undefined1 *param_3)
+
+{
+  int iVar1;
+  undefined2 local_14;
+  undefined2 uStack_12;
+  undefined1 *puStack_10;
+  
+  uStack_12 = (undefined2)((uint)param_2 >> 0x10);
+  local_14 = (ushort)(byte)((byte)param_2 | 0x80);
+  puStack_10 = param_3;
+  iVar1 = FUN_0801eefc(param_1,&local_14,param_3,0,param_1);
+  if (iVar1 != 0) {
+    *param_3 = local_14._1_1_;
+  }
+  return;
+}
+
+
+INSN 08015114 8023 movs r3,#0x80
+INSN 08015116 37b5 push {r0,r1,r2,r4,r5,lr}
+INSN 08015118 5b42 rsbs r3,r3
+INSN 0801511a 01ac add r4,sp,#0x4
+INSN 0801511c 0b43 orrs r3,r1
+INSN 0801511e 2370 strb r3,[r4,#0x0] REF[WRITE:Stack[-0x14]]
+INSN 08015120 0023 movs r3,#0x0
+INSN 08015122 2100 movs r1,r4
+INSN 08015124 1500 movs r5,r2
+INSN 08015126 6370 strb r3,[r4,#0x1] REF[WRITE:Stack[-0x13]]
+INSN 08015128 09f0e8fe bl 0x0801eefc REF[UNCONDITIONAL_CALL:0801eefc]
+INSN 0801512c 0028 cmp r0,#0x0
+INSN 0801512e 01d0 beq 0x08015134 REF[CONDITIONAL_JUMP:08015134]
+INSN 08015130 6378 ldrb r3,[r4,#0x1] REF[READ:Stack[-0x13]]
+INSN 08015132 2b70 strb r3,[r5,#0x0]
+INSN 08015134 3ebd pop {r1,r2,r3,r4,r5,pc}

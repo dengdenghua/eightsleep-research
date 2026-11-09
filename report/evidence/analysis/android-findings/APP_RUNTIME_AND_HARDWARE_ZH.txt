@@ -1,0 +1,50 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+中国官方 Android App：运行环境、代际显示与原生资源边界
+日期：2026-11-07；只读静态分析，没有安装/启动App、登录、请求设备或用户API。
+
+样本与准备覆盖
+
+应用宝官方下载：com.eightsleep.eight，7.63.5-cn-tencent，versionCode1007063005。
+151778699字节，SHA256 8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+出处、商店MD5、v2签名及发布者交叉来源详见../sleep-pipeline/OFFICIAL_DISTRIBUTION_FOLLOWUP_ZH.txt。签名完整性和发布者身份依据分开记录，没有仅凭证书DN认定官方来源。
+
+完整保留1个APK、3492个ZIP条目和4个DEX。APK没有完全同名重复条目，但有405组大小写折叠冲突，例如res/-B.xml与res/-b.xml；第一次在默认卷提取失败。失败工作区保留，源APK未改；改用独立区分大小写APFS工作卷，并沿同一输入/选项retry_failed恢复成功。
+工作区：../android-volume/cn-7.63.5；底层镜像../android-case-sensitive.sparseimage，位置/迁移记录../android-workspace-location.json。
+REA index_id=462a22f663ae482ea93bab3130b96eaf。
+Apktool及签名阶段成功；JADX exit3，报告350个错误，保留partial Java，不能当作无缺口原始源码。Smali38484文件、198663方法、959866静态invoke边，Java38338文件。总索引84181文件包含重复表示，不是84181独立软件组件。
+native_files=40是工具产生的符号/字符串表示；原APK是20个.so，属于6个文件名系列。7个原始assets在raw与decoded的重复表示也不能称14个独立资产。
+关键环境、代际分支和原生库加载已用Smali互证；动态反射、JNI间接分派、未提供的其他渠道/版本及运行期数据仍无覆盖。
+
+一、这份中国App实际怎样选择API [AR1]
+
+不是仅从域名字串推测：Hilt生成容器Lce/l把provider id5写入w；helper d0.f创建Lce/k；其id5分支明确返回AppEnvironment.CHINA。该分支读取featureFlags/appEnvironmentStore的依赖，但没有据其内容改变最终CHINA值。
+AppEnvironment中PRODUCTION=8slp.net、STAGING=staging.8slp.net、CHINA=8slp.net.cn。getBaseUrl在CHINA时给传入subDomain追加“-proxy”，再拼protocol+subDomain+domain；默认协议https://。
+三个实际Retrofit工厂均消费同一w：
+  X3 → https://app-api-proxy.8slp.net.cn/
+  Y3 → https://auth-api-proxy.8slp.net.cn/
+  Z3 → https://client-api-proxy.8slp.net.cn/
+这是编译包内构建行为，不是实测DNS、连通性、部署地区或服务器内部路由。未向上述地址请求API，也不能据此推定此前MTK SWU所有国行设备的运行期endpoint。
+App的用户事件WebSocket和device/live另使用同一个环境构造器，但这里只识别其入口，不以名字推断它们包含睡眠阶段结果。分期/温控实际服务由对应专题报告追踪。
+
+二、App怎样给设备显示Pod5/Pod6 [AR2]
+
+SensorInfoResponse保留label、partNumber、sku、hwRevision、serialNumber、lastConnected、skuName、connected、sensorType、position、coverType、blanket、model及generation；generation的JSON注解实际是“version”。该对象通过toEntity保留这些值，再由设备映射器传入Sensor领域对象。
+此处“sensor”指枕头/单人Cover/双人Cover等附件对象（SensorType=PILLOW/SOLO_COVER/COVER/UNKNOWN），不是ADC槽或单个压电片。skuName进入SensorSku枚举后是queen/king等床尺寸，也不是MTK芯片型号。
+DeviceInfoViewModel接收household更新后，Qb.l.d取得所选Sensor的generation。选择器优先取coverType非空的第一个Sensor，否则取第一个非PILLOW的Sensor；未在该选择器中检查connected标志或空间通道。
+非空generation进入fromProductGeneration：5→POD_5，6→POD_6；其他已知旧代有独立映射。未知整数或直接向该helper传null会回退latest，本包latest为POD_6；但DeviceInfoViewModel在generation缺失时并不调用这个helper，而按feature回退：BUTTON_CONTROLS显示Pod5，TAP_CONTROLS显示Pod4，否则用硬件修订/序列信息构造的显示文字。
+因此这个页面的显示代数是元数据与feature条件的结果；不能反向把每个显示“Pod6”的分支当作主板/SoC鉴定。用户已确认Pod5/Pod6同为MT8365，此App路径与“按主控区分两代”的假设无关。
+已获得进一步核对实机所需的具体字段名，尚未取得用户设备的字段实值；没有据schema编造K30与某个销售SKU的绑定，也未恢复物理传感位置/通道标定。
+
+三、较大的原生库与JSON是什么 [AR3]
+
+原APK的20个.so：libandroidx.graphics.path.so×4、libdatastore_shared_counter.so×4、libjutils.so×1、libruntime.so×3、libsentry-android.so×4、libsentry.so×4。ABI重复不能当成20个独立算法模块。
+包内design.spline.runtime.RustBridge静态初始化确实loadLibrary("runtime")；其接口以Surface、Buffer、触摸、hover、按键和surfaceFrameEvent为输入，调用者是design.spline.runtime的Surface渲染生命周期。由这个实际加载/接口关系可将这里的libruntime归为Spline图形引擎入口；本轮没有反编译其每个原生函数，更不能凭库名排除任何未见代码。
+pod-card-layers.json和pod-layers-front.json可直接解成动画结构：v/fr/ip/op/w/h/nm/assets/layers，图层引用内嵌PNG，名称Layers_PodCard/ Layers_Front_FullPod；各含24fps、0..48帧元数据。P2.r.j/k在Compose绘图路径选择这两个文件并传入图像层配置。这是产品图层动画资产，不是已识别的生理特征矩阵或模型权重；不把动画坐标当实体压电阵列坐标。
+其余assets为baseline profile、Datadog build id和Sentry元数据。该清单只说明所列资产的观察结果；仍不排除DEX/native内嵌常量、运行期下载或服务器模型。
+
+四、边界
+
+此次拿到的是官方分发客户端。网络DTO、反序列化、图表处理和命令构造可以恢复；服务器算法权重、实际模型版本值、真实分期准确率及用户设备配置不由这个APK自动提供。
+root-evidence-ids.json与RUNTIME_HARDWARE_EVIDENCE.json保留本轮REA证据ID、原文件SHA256及有限读取范围。存在has_more的文件读取是有界片段，不把文件后续内容当作已审；关键方法的完整Smali或具体分支另有记录。

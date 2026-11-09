@@ -1,0 +1,67 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+undefined4 FUN_0801b7b8(int param_1)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  int iVar3;
+  undefined4 uVar4;
+  undefined4 uVar5;
+  
+  iVar3 = *(int *)(param_1 + 0x20);
+  uVar2 = *(undefined4 *)(param_1 + 4);
+  if ((iVar3 != 0) && (*(char *)(iVar3 + 0x14) != '\0')) {
+    iVar1 = FUN_0801053c(uVar2,0x3f800000);
+    if (iVar1 == 0) {
+      uVar5 = *(undefined4 *)(iVar3 + 4);
+      uVar4 = *(undefined4 *)(iVar3 + 8);
+    }
+    else {
+      uVar5 = *(undefined4 *)(iVar3 + 0xc);
+      uVar4 = *(undefined4 *)(iVar3 + 0x10);
+    }
+    iVar3 = FUN_08010550(uVar5,0);
+    if (iVar3 == 0) {
+      uVar2 = FUN_0802b814(uVar2,uVar4);
+      uVar2 = FUN_0802b1cc(uVar2,uVar5);
+    }
+  }
+  return uVar2;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+0801b7b8 70b5 push {r4,r5,r6,lr}
+0801b7ba 056a ldr r5,[r0,#0x20]
+0801b7bc 4468 ldr r4,[r0,#0x4]
+0801b7be 002d cmp r5,#0x0
+0801b7c0 19d0 beq 0x0801b7f6
+0801b7c2 2b7d ldrb r3,[r5,#0x14]
+0801b7c4 002b cmp r3,#0x0
+0801b7c6 16d0 beq 0x0801b7f6
+0801b7c8 fe21 movs r1,#0xfe
+0801b7ca 201c adds r0,r4,#0x0
+0801b7cc 8905 lsls r1,r1,#0x16
+0801b7ce f4f7b5fe bl 0x0801053c
+0801b7d2 0028 cmp r0,#0x0
+0801b7d4 11d0 beq 0x0801b7fa
+0801b7d6 ee68 ldr r6,[r5,#0xc]
+0801b7d8 2d69 ldr r5,[r5,#0x10]
+0801b7da 0021 movs r1,#0x0
+0801b7dc 301c adds r0,r6,#0x0
+0801b7de f4f7b7fe bl 0x08010550
+0801b7e2 0028 cmp r0,#0x0
+0801b7e4 07d1 bne 0x0801b7f6
+0801b7e6 291c adds r1,r5,#0x0
+0801b7e8 201c adds r0,r4,#0x0
+0801b7ea 10f013f8 bl 0x0802b814
+0801b7ee 311c adds r1,r6,#0x0
+0801b7f0 0ff0ecfc bl 0x0802b1cc
+0801b7f4 041c adds r4,r0,#0x0
+0801b7f6 201c adds r0,r4,#0x0
+0801b7f8 70bd pop {r4,r5,r6,pc}
+0801b7fa 6e68 ldr r6,[r5,#0x4]
+0801b7fc ad68 ldr r5,[r5,#0x8]
+0801b7fe ece7 b 0x0801b7da

@@ -1,0 +1,184 @@
+{
+  "review": "content-review-control",
+  "date": "2026-11-07",
+  "reviewer": "wiki_device_control",
+  "scope": "以原本地控制证据独立核对 root 的四条 flow 与 architecture；对自己编写的四页做自查，并对12模块和全待办作覆盖交叉审阅。不是全固件重新逆向，也不是实机验证。",
+  "verdict": "无阻断性事实错误；有3项低严重度的待办映射/读者指引改进。",
+  "counts": {
+    "modules": 12,
+    "unknown_items": 42,
+    "tasks": 43,
+    "flows": 4
+  },
+  "coverage": [
+    {
+      "area": "thermal",
+      "result": "充分",
+      "details": "主机刻度/目标、water反馈、ambient限幅、PID、TEC、泵风扇、保护、注水都有说明；Frozen 1.7.7、硬件分支和实机未绑定明确。"
+    },
+    {
+      "area": "offline/persistence/alarm",
+      "result": "充分但需补显式待办映射",
+      "details": "BLE缓存到期/缺失分支、Unix expiry、calendar stub、短I/O、BLE Dismiss与ALARM_CLEAR差异均明确；缺口不能由本地链推导为永久离线。"
+    },
+    {
+      "area": "audio",
+      "result": "分组覆盖充分",
+      "details": "明确曲目→下载→缓存/hash→FFmpeg/WAV→播放与5分钟恢复；音箱MCU内部逻辑留C11。"
+    },
+    {
+      "area": "posture",
+      "result": "分组覆盖充分",
+      "details": "消费者、默认未注册生产链、mtime不变跳过和生产者未知均保留；C10需更加显式包含停更全局行为。"
+    },
+    {
+      "area": "base",
+      "result": "边界覆盖充分",
+      "details": "说明硬件版本映像/消费者存在但执行逻辑未深查，C11专门计划补齐；没有把包内存在当实际安装。"
+    },
+    {
+      "area": "balloon",
+      "result": "充分",
+      "details": "A02版本、0起枚举、0x5A每袋11B、1至4赋值未知、5/6请求关阀、物理效果和A00边界明确；新结果正确覆盖旧原因未知。"
+    },
+    {
+      "area": "OTA/runtime",
+      "result": "充分",
+      "details": "采用MTK rootfs_a/b与boot槽，签名迁移整包/包头差异明确；没有套用NXP变量，未把盘点视作语义穷尽。"
+    },
+    {
+      "area": "12模块整体",
+      "result": "主要系统面齐全",
+      "details": "硬件/传感/主控/上传/温控/离线/附件/运行时/App/API/生产算法/策略均有页；auth以App/API边界归组而非假造服务实现。"
+    }
+  ],
+  "flow_review": [
+    {
+      "id": "signal",
+      "result": "pass",
+      "details": "未知计算段明确；primary不冒充质量筛选；消费水位与ACK分开；不由API返回断言全部云计算。"
+    },
+    {
+      "id": "thermal",
+      "result": "pass",
+      "details": "明确不是每请求串行走全部进程，目标生成与本地反馈分开；当前版mapping缺口保留。"
+    },
+    {
+      "id": "offline",
+      "result": "pass_with_wording_note",
+      "details": "条件和缓存边界正确；最后一格若写明Frozen负责热控、Sensor/Pillow/USB端点负责振动，避免单一thermal链接被理解为Frozen执行全部闹钟。"
+    },
+    {
+      "id": "diagnostics",
+      "result": "pass",
+      "details": "A02枚举与frame内容正确；普通账号/当前附件可达性未证与不同缓存时间正确。"
+    }
+  ],
+  "architecture_review": {
+    "result": "pass",
+    "details": "温控通路示意具备非完整调用栈说明；离线nonce/云端取钥、日历stub与Unix区分恰当；执行表中的静态范围和缺连接说明准确。"
+  },
+  "reference_integrity": {
+    "dangling_next_ids": [],
+    "all_flow_modules_exist": true
+  },
+  "issues": [
+    {
+      "id": "CONTROL-QA-01",
+      "severity": "low",
+      "file": "data/modules/thermal.json",
+      "finding": "unknowns包含生产Autopilot目标生成，但next仅C01-C03，没有指向实际覆盖这一缺口的AUTO-01。全项目已有任务，模块级映射不够显式。",
+      "suggested_fix": "把AUTO-01加入thermal.next，并在thermal页下一步中引用Autopilot模块/任务。"
+    },
+    {
+      "id": "CONTROL-QA-02",
+      "severity": "low",
+      "file": "data/modules/offline-state.json",
+      "finding": "unknowns中的完整每周预热与云端闹钟策略，C04-C07主要覆盖缓存、状态和闹钟窗口；尚无明确的当前版本完整离线日程入口/配置写入/执行链验收。",
+      "suggested_fix": "增加一个有条件的日程闭合待办，或扩展现有任务验收，要求对应运行版本的配置入口、保存、真实日历执行与到期观察；云端策略同时链接AUTO-01。不要把sample stub推为当前产品失效。"
+    },
+    {
+      "id": "CONTROL-QA-03",
+      "severity": "low",
+      "file": "data/roadmap/control.json",
+      "finding": "accessories未知项同时包含姿态标签生产者和停止更新后的全局行为；C10主要验收生产链，停更后是否被其他控制源覆盖还没有显式验收。",
+      "suggested_fix": "扩展C10动作/验收为同版本fresh/stale/mtime不变/文件缺失场景与其他控制源的覆盖关系，或另列待办。"
+    }
+  ],
+  "optional_wording": {
+    "file": "data/report.json",
+    "flow": "offline",
+    "step": 5,
+    "suggestion": "detail可增加：Frozen执行热控；原生振动回调另发往Sensor/Pillow/USB端点。"
+  },
+  "input_hashes": [
+    {
+      "path": "data/report.json",
+      "sha256": "e065ea9f92e26c2c06274a2a10dd87193d38d0689c131f9254a92a6d3cf50fff"
+    },
+    {
+      "path": "wiki/architecture.md",
+      "sha256": "d235b10feddef85dbf1f9d9af53bb7a733528c00889eae62caf0f2641a95c749"
+    },
+    {
+      "path": "data/modules/accessories.json",
+      "sha256": "b78e9f993a7e67596e7a1d417e06e031e6e804f1d84a415c9317b26c85e4e4f6"
+    },
+    {
+      "path": "data/modules/android-app.json",
+      "sha256": "1d6bc38245b14cbef8c6297bea602a12880d96c72fe01a946a5f67e5494db901"
+    },
+    {
+      "path": "data/modules/autopilot.json",
+      "sha256": "89cc0737ab7d7a9effb4f85f50f4a59c621b601c9ec7d5217d8891434b5ff084"
+    },
+    {
+      "path": "data/modules/cloud-api.json",
+      "sha256": "6a0e9c753c3bb44f5da95d8f179f8bca785ccf6402527b66252d60bc41b9e1d3"
+    },
+    {
+      "path": "data/modules/hardware.json",
+      "sha256": "901186f6e3f4746fab7078fdefbacbd362f67e6f678c7c075042c5ed89182807"
+    },
+    {
+      "path": "data/modules/host-signal.json",
+      "sha256": "898f11ec327db41a0e9276a7ff2b7a91bfdc2fbd5922a564dc167fa4e3970842"
+    },
+    {
+      "path": "data/modules/offline-state.json",
+      "sha256": "1e0c6a1ea8163323eaa4156fb58cac315d808f93cd284786c4f53239cf870f46"
+    },
+    {
+      "path": "data/modules/physiology-algorithms.json",
+      "sha256": "b20d6bf639be0f2523d98662300520541aedd094dfa40b7623f1515ff5291efb"
+    },
+    {
+      "path": "data/modules/raw-upload.json",
+      "sha256": "f49781b0fecf62ff538890961080115ce67c0dc98f69ed782b6aee57ebbd0340"
+    },
+    {
+      "path": "data/modules/runtime-ota.json",
+      "sha256": "06543f4bce485dc2de0a08c3effb61d2e9a33de2bad286c26647e3fac773d16c"
+    },
+    {
+      "path": "data/modules/sensor-mcu.json",
+      "sha256": "cc537fdc155223a529267c6ed402096bb0670f6e8f8aca5890613b668ea786e8"
+    },
+    {
+      "path": "data/modules/thermal.json",
+      "sha256": "c29bdcceeb1e9cf3a873ea5d3cbca37a7266ff747d9e170eda3a0c5b4bf3babf"
+    },
+    {
+      "path": "data/roadmap/cloud.json",
+      "sha256": "004dbde9d0b26cf6399ddac39481abdcac099947f713d42dfce66e1864b16bb8"
+    },
+    {
+      "path": "data/roadmap/control.json",
+      "sha256": "805bfa6507d0644fb8c84e222522c316babd9643b63055b4df742bafb630054d"
+    },
+    {
+      "path": "data/roadmap/sensor.json",
+      "sha256": "2d4ca4bfba3117d7233da81d631d09edac068723fc303835d2cebceb643f5b02"
+    }
+  ]
+}

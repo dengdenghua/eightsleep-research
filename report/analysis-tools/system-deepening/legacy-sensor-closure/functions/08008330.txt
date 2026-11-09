@@ -1,0 +1,78 @@
+FUNCTION 08008330 FUN_08008330 BODY [[08008330, 0800837d]]
+INCOMING 0800d814 UNCONDITIONAL_CALL
+INCOMING 08008c48 UNCONDITIONAL_CALL
+INCOMING 0800999a UNCONDITIONAL_CALL
+INCOMING 08009b08 UNCONDITIONAL_CALL
+INCOMING 08009c24 UNCONDITIONAL_CALL
+INCOMING 0800910e UNCONDITIONAL_CALL
+
+undefined8 FUN_08008330(undefined4 param_1,undefined4 param_2,undefined4 param_3)
+
+{
+  undefined1 uVar1;
+  undefined2 uVar2;
+  int iVar3;
+  int iVar4;
+  undefined4 uStack_18;
+  undefined1 local_14;
+  undefined1 local_13;
+  undefined2 uStack_12;
+  undefined4 uStack_10;
+  
+  local_14 = (undefined1)param_2;
+  uVar1 = local_14;
+  local_13 = (undefined1)((uint)param_2 >> 8);
+  uStack_12 = (undefined2)((uint)param_2 >> 0x10);
+  uStack_18 = param_1;
+  uStack_10 = param_3;
+  FUN_0800810c();
+  iVar3 = *(int *)(DAT_08008380 + 0x98);
+  iVar4 = DAT_08008380 + 0x58;
+  *(int *)(DAT_08008380 + 0x98) = iVar3 + 1;
+  *(undefined1 *)(iVar4 + iVar3) = 0x7e;
+  uStack_18 = CONCAT13(uVar1,(undefined3)uStack_18);
+  FUN_08008124((int)&uStack_18 + 3,1);
+  FUN_08008124(param_1,param_2);
+  uVar2 = FUN_080082f0(param_1,param_2);
+  local_13 = (undefined1)uVar2;
+  local_14 = (undefined1)((ushort)uVar2 >> 8);
+  FUN_08008124(&local_14,2);
+  FUN_080080e8();
+  return CONCAT26(uStack_12,CONCAT15(local_13,CONCAT14(local_14,uStack_18)));
+}
+
+
+ASSEMBLY
+08008330 push {r0,r1,r2,r4,r5,lr} BYTES 37b5
+08008332 movs r5,r0 BYTES 0500
+08008334 movs r4,r1 BYTES 0c00
+08008336 bl 0x0800810c BYTES fff7e9fe REF UNCONDITIONAL_CALL=0800810c
+0800833a ldr r3,[0x08008380] BYTES 114b REF READ=08008380 WORD=200006ac
+0800833c movs r1,r3 BYTES 1900
+0800833e adds r1,#0x98 BYTES 9831
+08008340 ldr r2,[r1,#0x0] BYTES 0a68 REF READ=20000744
+08008342 adds r3,#0x58 BYTES 5833
+08008344 adds r0,r2,#0x1 BYTES 501c
+08008346 str r0,[r1,#0x0] BYTES 0860 REF WRITE=20000744
+08008348 movs r1,#0x7e BYTES 7e21
+0800834a strb r1,[r3,r2] BYTES 9954 REF DATA=20000704
+0800834c mov r3,sp BYTES 6b46
+0800834e subs r1,#0x7d BYTES 7d39
+08008350 adds r0,r3,#0x3 BYTES d81c
+08008352 strb r4,[r0,#0x0] BYTES 0470 REF WRITE=Stack[-0x15]
+08008354 bl 0x08008124 BYTES fff7e6fe REF UNCONDITIONAL_CALL=08008124
+08008358 movs r0,r5 BYTES 2800
+0800835a movs r1,r4 BYTES 2100
+0800835c bl 0x08008124 BYTES fff7e2fe REF UNCONDITIONAL_CALL=08008124
+08008360 movs r1,r4 BYTES 2100
+08008362 movs r0,r5 BYTES 2800
+08008364 bl 0x080082f0 BYTES fff7c4ff REF UNCONDITIONAL_CALL=080082f0
+08008368 add r3,sp,#0x4 BYTES 01ab
+0800836a lsrs r2,r0,#0x8 BYTES 020a
+0800836c strb r0,[r3,#0x1] BYTES 5870 REF WRITE=Stack[-0x13]
+0800836e movs r1,#0x2 BYTES 0221
+08008370 movs r0,r3 BYTES 1800
+08008372 strb r2,[r3,#0x0] BYTES 1a70 REF WRITE=Stack[-0x14]
+08008374 bl 0x08008124 BYTES fff7d6fe REF UNCONDITIONAL_CALL=08008124
+08008378 bl 0x080080e8 BYTES fff7b6fe REF UNCONDITIONAL_CALL=080080e8
+0800837c pop {r0,r1,r2,r4,r5,pc} BYTES 37bd

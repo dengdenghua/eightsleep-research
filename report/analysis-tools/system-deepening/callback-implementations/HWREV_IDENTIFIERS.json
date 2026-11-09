@@ -1,0 +1,331 @@
+{
+  "boundaries": [
+    {
+      "flash_string": "I00",
+      "hwrev": "0x0000",
+      "identifier": "A00",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "I05",
+      "hwrev": "0x0805",
+      "identifier": "I05",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "J00",
+      "hwrev": "0x0900",
+      "identifier": "J00",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K00",
+      "hwrev": "0x0a00",
+      "identifier": "K00",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K05",
+      "hwrev": "0x0a05",
+      "identifier": "K05",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K10",
+      "hwrev": "0x0a10",
+      "identifier": "K10",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K30",
+      "hwrev": "0x0a30",
+      "identifier": "K30",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K33",
+      "hwrev": "0x0a33",
+      "identifier": "K33",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K34",
+      "hwrev": "0x0a34",
+      "identifier": "K34",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K35",
+      "hwrev": "0x0a35",
+      "identifier": "K35",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K36",
+      "hwrev": "0x0a36",
+      "identifier": "K36",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K37",
+      "hwrev": "0x0a37",
+      "identifier": "K37",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K87",
+      "hwrev": "0x0a87",
+      "identifier": "K87",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": "K90",
+      "hwrev": "0x0a90",
+      "identifier": "K90",
+      "in_flash_table": true,
+      "is_dispatch_threshold": true
+    },
+    {
+      "flash_string": null,
+      "hwrev": "0x0aff",
+      "identifier": "K??",
+      "in_flash_table": false,
+      "is_dispatch_threshold": false
+    },
+    {
+      "flash_string": null,
+      "hwrev": "0x0b00",
+      "identifier": "L00",
+      "in_flash_table": false,
+      "is_dispatch_threshold": false
+    }
+  ],
+  "clock_chain": {
+    "branch_false": {
+      "cfgr2_prediv_field": 48,
+      "hse_hz": 32000000,
+      "predeclared_prediv": 4
+    },
+    "branch_true": {
+      "cfgr2_prediv_field": 16,
+      "hse_hz": 16000000,
+      "predeclared_prediv": 2
+    },
+    "condition": "hwrev - 0xA87 < 0x79 (unsigned)",
+    "site": "0x080108ac",
+    "sysclk_all": 64000000,
+    "writer_8mhz": {
+      "hse_hz": 8000000,
+      "predeclared_prediv": 1,
+      "site": "0x08010960"
+    }
+  },
+  "date": "2026-11-08",
+  "formula": {
+    "expression": "RAM[0x200014d8] = ((hwrev>>8)&0xF) + 0x41; RAM[0x200014d9] = ((hwrev>>4)&0xF) + 0x30; RAM[0x200014da] = (hwrev&0xF) + 0x30",
+    "first_char": "letter A..P from bits 8..11",
+    "generation_condition": "config block magic (DAT_0807f804 & 0xe0)==0xa0 and FUN_0801273c / FUN_0801ae3a parsing succeeded; on failure DAT_20001cec=0 and the 3 bytes are not written",
+    "generation_site": "0x0801dd62..0x0801dd80 inside 0x0801d888",
+    "hwrev_source": "u16 DAT_20001cfc (parsed from the \"hwrev\" config key)",
+    "second_third": "0x30 + nibble; only printable digits for nibble <= 9"
+  },
+  "independent_mechanism": {
+    "consumer": "config object +0x0 -> report object +0x3d9c -> FUN_08012754(\"[sensor] %s mode\")",
+    "cross_index": "setter rows 4/5 reference string indices 5/4 respectively",
+    "flash_table": "0x08024234, 14 x 4-byte NUL-terminated ASCII strings",
+    "result": "both mechanisms agree for all 14 dispatch thresholds"
+  },
+  "limits": [
+    "The identifier is computed from the runtime hwrev value, not from the flash string table; they agree only for the 14 known thresholds.",
+    "For nibble > 9 the +0x30 produces punctuation (: ; < = > ?), e.g. hwrev 0x0AFF -> \"K??\"; no such string exists in the flash table.",
+    "asrs (arithmetic shift) is used on a zero-extended 16-bit load; for hwrev >= 0x8000 it would differ from a logical shift.",
+    "DAT_200014d8 is RAM; its value on a board that failed config parsing is whatever was left there, which static bytes cannot determine."
+  ],
+  "readers": {
+    "literal_slots": [
+      "0x08012a58",
+      "0x08012d08",
+      "0x08012ecc",
+      "0x0801cf14",
+      "0x0801ded0"
+    ],
+    "note": "5 literal-pool occurrences of the 0x200014d8 pointer across the whole 132896B image; 0x200014d9 / 0x200014da have zero independent pointer references (accessed as base+1 / base+2).",
+    "read_instructions": [
+      "0x080129e4",
+      "0x08012bb0",
+      "0x08012e4c",
+      "0x0801ced2",
+      "0x0801dd66"
+    ]
+  },
+  "rows": [
+    {
+      "flash_string": "I00",
+      "flash_string_pointer": "0x08024234",
+      "formula_identifier": "A00",
+      "hwrev": "0x00000000",
+      "matches": false,
+      "row": 0,
+      "setter_version": "I00",
+      "string_index": 0,
+      "threshold": "0x00000000"
+    },
+    {
+      "flash_string": "I05",
+      "flash_string_pointer": "0x08024238",
+      "formula_identifier": "I05",
+      "hwrev": "0x00000805",
+      "matches": true,
+      "row": 1,
+      "setter_version": "I05",
+      "string_index": 1,
+      "threshold": "0x00000805"
+    },
+    {
+      "flash_string": "J00",
+      "flash_string_pointer": "0x0802423c",
+      "formula_identifier": "J00",
+      "hwrev": "0x00000900",
+      "matches": true,
+      "row": 2,
+      "setter_version": "J00",
+      "string_index": 2,
+      "threshold": "0x00000900"
+    },
+    {
+      "flash_string": "K00",
+      "flash_string_pointer": "0x08024240",
+      "formula_identifier": "K00",
+      "hwrev": "0x00000a00",
+      "matches": true,
+      "row": 3,
+      "setter_version": "K00",
+      "string_index": 3,
+      "threshold": "0x00000a00"
+    },
+    {
+      "flash_string": "K05",
+      "flash_string_pointer": "0x08024248",
+      "formula_identifier": "K05",
+      "hwrev": "0x00000a05",
+      "matches": true,
+      "row": 4,
+      "setter_version": "K05",
+      "string_index": 5,
+      "threshold": "0x00000a05"
+    },
+    {
+      "flash_string": "K10",
+      "flash_string_pointer": "0x08024244",
+      "formula_identifier": "K10",
+      "hwrev": "0x00000a10",
+      "matches": true,
+      "row": 5,
+      "setter_version": "K10",
+      "string_index": 4,
+      "threshold": "0x00000a10"
+    },
+    {
+      "flash_string": "K30",
+      "flash_string_pointer": "0x0802424c",
+      "formula_identifier": "K30",
+      "hwrev": "0x00000a30",
+      "matches": true,
+      "row": 6,
+      "setter_version": "K30",
+      "string_index": 6,
+      "threshold": "0x00000a30"
+    },
+    {
+      "flash_string": "K33",
+      "flash_string_pointer": "0x08024250",
+      "formula_identifier": "K33",
+      "hwrev": "0x00000a33",
+      "matches": true,
+      "row": 7,
+      "setter_version": "K33",
+      "string_index": 7,
+      "threshold": "0x00000a33"
+    },
+    {
+      "flash_string": "K34",
+      "flash_string_pointer": "0x08024254",
+      "formula_identifier": "K34",
+      "hwrev": "0x00000a34",
+      "matches": true,
+      "row": 8,
+      "setter_version": "K34",
+      "string_index": 8,
+      "threshold": "0x00000a34"
+    },
+    {
+      "flash_string": "K35",
+      "flash_string_pointer": "0x08024258",
+      "formula_identifier": "K35",
+      "hwrev": "0x00000a35",
+      "matches": true,
+      "row": 9,
+      "setter_version": "K35",
+      "string_index": 9,
+      "threshold": "0x00000a35"
+    },
+    {
+      "flash_string": "K36",
+      "flash_string_pointer": "0x0802425c",
+      "formula_identifier": "K36",
+      "hwrev": "0x00000a36",
+      "matches": true,
+      "row": 10,
+      "setter_version": "K36",
+      "string_index": 10,
+      "threshold": "0x00000a36"
+    },
+    {
+      "flash_string": "K37",
+      "flash_string_pointer": "0x08024260",
+      "formula_identifier": "K37",
+      "hwrev": "0x00000a37",
+      "matches": true,
+      "row": 11,
+      "setter_version": "K37",
+      "string_index": 11,
+      "threshold": "0x00000a37"
+    },
+    {
+      "flash_string": "K87",
+      "flash_string_pointer": "0x08024264",
+      "formula_identifier": "K87",
+      "hwrev": "0x00000a87",
+      "matches": true,
+      "row": 12,
+      "setter_version": "K87",
+      "string_index": 12,
+      "threshold": "0x00000a87"
+    },
+    {
+      "flash_string": "K90",
+      "flash_string_pointer": "0x08024268",
+      "formula_identifier": "K90",
+      "hwrev": "0x00000a90",
+      "matches": true,
+      "row": 13,
+      "setter_version": "K90",
+      "string_index": 13,
+      "threshold": "0x00000a90"
+    }
+  ],
+  "schema": "eightsleep.nonusb.callback-implementations.hwrev-identifiers.v1"
+}

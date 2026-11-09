@@ -1,0 +1,44 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+undefined4 analysis_08021f30(undefined4 *param_1,undefined4 param_2)
+
+{
+  *param_1 = param_2;
+  *(undefined2 *)((int)param_1 + 10) = 0xa8c;
+  param_1[1] = 0;
+  *(undefined1 *)((int)param_1 + 9) = 0;
+  *(undefined2 *)(param_1 + 3) = 0;
+  FUN_08017484(param_1 + 4);
+  FUN_0801ba90(param_1,0xa8c);
+  FUN_0801bae4(param_1,0);
+  *(undefined1 *)(param_1 + 2) = 1;
+  FUN_08017634("[buzzer] initialized on TIM17_CH1");
+  return 1;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08021f30 70b5 push {r4,r5,r6,lr}
+08021f32 0025 movs r5,#0x0
+08021f34 0400 movs r4,r0
+08021f36 0c4e ldr r6,[0x08021f68]
+08021f38 0160 str r1,[r0,#0x0]
+08021f3a 4681 strh r6,[r0,#0xa]
+08021f3c 4560 str r5,[r0,#0x4]
+08021f3e 4572 strb r5,[r0,#0x9]
+08021f40 8581 strh r5,[r0,#0xc]
+08021f42 1030 adds r0,#0x10
+08021f44 f5f79efa bl 0x08017484
+08021f48 3100 movs r1,r6
+08021f4a 2000 movs r0,r4
+08021f4c f9f7a0fd bl 0x0801ba90
+08021f50 2900 movs r1,r5
+08021f52 2000 movs r0,r4
+08021f54 0135 adds r5,#0x1
+08021f56 f9f7c5fd bl 0x0801bae4
+08021f5a 2572 strb r5,[r4,#0x8]
+08021f5c 0348 ldr r0,[0x08021f6c]
+08021f5e f5f769fb bl 0x08017634
+08021f62 2800 movs r0,r5
+08021f64 70bd pop {r4,r5,r6,pc}

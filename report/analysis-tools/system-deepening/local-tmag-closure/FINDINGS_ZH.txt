@@ -1,0 +1,51 @@
+G0 USB 辅助磁传感/温度 → 正常 0x39 → Frank 输出闭合
+日期：2026-11-08（Asia/Shanghai）
+
+结论
+本轮补完 local-signal-closure 原列出的 USB 辅助 0x39 正常数值链：TMAG5273 名称对应的识别、两段 I2C 缓存与换算，旁路 TMP1075 温度，main 的包字段，Frank 的连接/方向判定、按对象 side 缓冲、blanketReadings 编码及 raw.sens.blanket 主题。它属于本地附件状态与数值处理，不是睡眠分期、心率或信号源分离算法。
+新增的重要细节：00212280 虽解析两组，返回的两份 map 都复制第一组；但实际 USB 正向输出 001fe910 只把第一份 map 按 USB 对象 side 入队。最终 left/right 来自两个 side 队列，不能据前一个复制行为宣称实际左右输出恒同。
+
+一、输入、映射、工具与证据
+INPUTS.json 列出两份原件完整 SHA、大小和工程。USB 原件 firmware-sensor-g0-usb.bbin=140828B，SHA1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563；基址08010000，含128B头。Frank=5060488B，SHA84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375；GhidraVA=ELFVA+100000，再经PT_LOAD映射文件。
+REA MCP本会话不可用，采用已有工程的只读、noanalysis 导出。各pass保留C伪代码、完整指令字节和xref，日志、脚本、命令索引保留。未运行原厂程序、访问设备/账号、改变原件或旧目录。函数地址均为GhidraVA，数值地址默认十六进制。
+
+二、启用与初始化
+source/usb-init.txt 的08027834：state+3b44按 hwRev>0x94f 且模式字段DAT20002138!=4设置。08026910 还要求 state+3e00 的bit0。main 0801fc6e 使用同一门控；此处是代码字段条件，不等同于某台现有Pod部署确认。
+08023958 初始化0x250B分组对象：TMAG对象+0/+c0，TMP对象+180/+1e0；single标志+24d、另一总线可用标志+24e。第一组尝试初始化；第二组只在!single且另一总线可用时初始化。TMP地址hwRev在0x980..0x9ff选0x4f，否则0x5f。发送计时器0801c4d6(period2000, initial1000)；0801c4ec按tick差到期并保留周期余数，不能将此直接写为实测更新频率。
+080236c8 要求总线存在，先试I2C地址0x35，再按表0x22/0x78/0x44等回退。读0x0d..0x0f，设备身份匹配字节00/49/54（首项为不比较项），用版本低2bit选择范围表[0,40,133,0]，要求范围为正。按地址组与版本产生0x10..0x17等sensor_id。写/读回配置reg2=70、reg7=01、reg0=b4、reg1=1a，成功后置enabled+84、启动reg10读取。RAW_TABLES.json保留原范围、ID、地址及身份字节；固件识别名和范围常量不单独证明板级实际器件或物理单位。
+
+三、TMAG 正常读取与数值来源
+08022908 用寄存器|80的一字节写请求和7B读请求，callback=080231f0。正常两段从reg10开始，完成后继续reg16。每段前6B以CRC8(initff/poly07)核对第7B，通过才复制到object+a2+reg。第二段到达后置ready+60；两段是异步缓存更新，不在本轮声称对应同一硬件转换时刻。
+08029574 要求enabled和两个I/O状态非零；距离读取标记超过2000tick时重新发起reg10。ready时按BE读取并换算：
+  内部温度 = (u16(raw10)-17508)/60.1 + 25；
+  X/Y/Z = i16(raw12/raw14/raw16) × 2^-15 × range，range为40或133。
+清ready后把温度存+74、XYZ存+78/+7c/+80。温差>5、轴差>1以及状态变化的比较控制日志记录；数值缓存写入并不以这些差值阈值为必要条件。因此不能把阈值误写成输出滤波/死区。
+完整代码同时保留CRC不通过时不覆盖该段旧缓存的分支；本轮模型只使用两段均CRC有效的正常输入，不研究异常构造或并发利用。
+
+四、0x39 的温度来自 TMP，不是 TMAG 内部温度
+08022e90 的TMP初始化清对象，温度初值为float -100（c2c80000），读取dieid/config并回读一致后置enabled+40。080294b0 按时间条件调度reg0读取；08022d14 将BE有符号12位值乘0.0625存+5c。
+main 0801fcb6计时到期后构造body：39、versionflags=02|(single<<7)，然后每组17B：TMP温度floatBE、TMAG XYZ各floatBE、sensor_id u8。single时19B，双组时36B；没有MCU timestamp。
+温度取对应TMP对象+5c；TMP未enabled时写-1.0。TMAG未enabled时XYZ写最低有限float32(ff7fffff)。已enabled仍可能是上次缓存；包未附这四个值的各自年龄。双组发送数量按single决定，不等同于第二组初始化成功。
+
+五、Frank 字段与本地判定
+UsbSensor事件0027e7b0 case39取Host时间00252b10，调用00212280。规范version2下每组17B，flag高位决定一组或两组。
+每组map字段有temp/x/y/z、sensor、sensor_id、is_connected、correct_orientation、flow_direction、error_string。sensor_id 0x10..0x17映射TMAG5273A1/A2/B1/B2/C1/C2/D1/D2；0为none，0x1f为TMAG5273。
+XYZ均大于最低有限float32才视为有有效磁传感值；有效且X²+Y²>3.05才is_connected=true。连接时第一组correct_orientation=(Y<0)、flow_direction=2-(X<0)；第二组则(Y>0)、2-(X>0)。未连接时方向两个字段无有效值。有效且0.25<X²+Y²<=3.05会产生weak field描述，数值以sqrt(X²+Y²)格式化；无有效XYZ则产生no mag sensor found或tmag disconnected描述。以上是固件约定判定，没有测量实物朝向、流向或连接可靠性。
+复制细节由原汇编确认：0021233c绑定第一map sp+278，002128b4取其指针到x19；002128bc和002128d4都x1=x19后调用00211870，且两处map元数据也同源。00211870沿source链复制新节点，不消耗/改写source。故两份返回map都是第一组，即使规范双组输入不同。
+
+六、真正输出如何使用这份结构
+0027e7b0→001e2420→001e67b0→001e9e44传入USB对象+3bfc的side。001fe910使用rawlogger+15c0，按side选择一个deque，每记录64B：Host timestamp和decoder第一map；decoder第二map及wire versionbyte不在此入队复制。
+若目标side当前少于2条且至少一侧队列为空，入队并返回成功。否则001f74c0从各非空队列各取首条；001fe910更新对应的持久输出map，某侧未取到时保留其此前map。两侧都有新条目时timestamp取两者较小值，未作时间邻近匹配。构造待发后返回false，001e9e44经发布串行门控以mask100000调用001e9390，然后对当前输入再调用一次入队。故已形成一对也并非在第二条刚入队的同次调用中立即flush。
+001fe260生成left/right摘要字符串；正式CBOR在00200960(mask100000)→001f5320：type=blanketReadings、version、ts、left、right，其中两侧均按map已有字段编码。001e9390的主题是raw.sens.blanket，继续进入既有发送队列/NATS链；这里没有直连手机HTTP接口。
+encoder版本字段来自持久聚合对象，不在这次入队复制中由wire flags更新；本轮未追其构造初值，故不宣称输出version必为02或82。既有共同发布队列的拥塞/重试行为复用prepublish-queue报告，不重跑。
+最终两侧来自USB对象side而非单个39包第二组：两个对象分别提供不同第一组时，可以得到不同left/right。只证明所审版本正向调用链，不宣称设备当前模式、对象数量或云端后续策略。
+
+七、有限离线复核
+model/normal_contracts.py及MODEL_RESULTS.json：16个规范场景，4个产物。覆盖两段有效CRC、40/133范围缩放、19/36B包、两组不同输入但decoder两map同第一组、TMP温度来源、弱场连接判定，以及两个对象side各供不同首map后仍得不同输出；还验证下一次输入触发flush、配对timestamp取小值、单侧flush保留另一侧缓存。
+这是按已证指令契约编写的有限模型，不是原厂二进制执行；error_string只保留分类而不复刻格式化文本，未复刻容器分配、协程实时调度、CBOR序列化或实际网络。所有正常包fixture明确为合成，不是实机采集。
+
+八、覆盖与剩余
+本轮正常main→驱动缓存→换算→39→Frank→本地主题链已闭合。旧LOCAL_PHYSIOLOGY_AUDIT将TMAG归附件状态处理的方向保持成立，但其仅作协议/状态层概括不代替这里的真实数值换算与缓存说明。
+仍未取得：实际板级引脚/单位/磁场标定、当前部署与USB对象side配置、实际回调新鲜度和时序、云端处理；这些不能以静态导出或合成模型替代。可静态继续但本轮未扩大的是聚合对象version构造初值、全错误恢复/升级协议组合；它们不改变已闭合的规范数值与主题字段来源。nonUSB同包FDC/温度由local-nonusb-fdc-temperature独立覆盖；Pillow和旧sensor各有独立目录，本轮不混用其地址或器件单位。
+
+原字节统计、分支/literal核验见BYTE_VALIDATION.json；证据索引含行号见EVIDENCE_MAP.json；完整本轮文件SHA见SOURCE_MANIFEST.json。未将未交付的云端生产算法或实际硬件验证标为完成。

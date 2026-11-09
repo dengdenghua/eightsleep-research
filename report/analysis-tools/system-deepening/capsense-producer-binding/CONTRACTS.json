@@ -1,0 +1,225 @@
+{
+  "scope": "Identified direct callers of both send wrappers and framers, plus shared raw tail; bounded not whole-program absence proof",
+  "rows": [
+    {
+      "name": "raw",
+      "header": "0x3c",
+      "usb_callsite": "0801f9aa -> 0801f374",
+      "nonusb_callsite": "08015bb2 -> 0801557c",
+      "usb_body_bytes": 377,
+      "nonusb_body_bytes": 377,
+      "gate_scope": "main gate!=0; ADC queued>4; IMU queue not empty",
+      "length_basis": "9 + 5*64 + 48",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    },
+    {
+      "name": "batch34",
+      "header": "0x34",
+      "usb_callsite": "0801f374 fallthrough",
+      "nonusb_callsite": "0801557c fallthrough",
+      "usb_body_bytes": 216,
+      "nonusb_body_bytes": 216,
+      "gate_scope": "main gate==0; ADC queued>24",
+      "length_basis": "6 + 4 + 4 + 2 + 25*8",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    },
+    {
+      "name": "batch35",
+      "header": "0x35",
+      "usb_callsite": "080253b8",
+      "nonusb_callsite": "0801b4c0",
+      "usb_body_bytes": 176,
+      "nonusb_body_bytes": 176,
+      "gate_scope": "local queue write-read>9",
+      "length_basis": "12 + 4 + 10*16",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    },
+    {
+      "name": "status39",
+      "header": "0x39",
+      "usb_callsite": "0801fd8c",
+      "nonusb_callsite": "08015f94",
+      "usb_body_bytes": [
+        19,
+        36
+      ],
+      "nonusb_body_bytes": [
+        19,
+        36
+      ],
+      "gate_scope": "reviewed main status timer/config branch",
+      "length_basis": "2 + (1 or 2)*17",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    },
+    {
+      "name": "status09_2",
+      "header": "0x09",
+      "usb_callsite": "0801fe92",
+      "nonusb_callsite": "0801609a",
+      "usb_body_bytes": [
+        20,
+        25
+      ],
+      "nonusb_body_bytes": [
+        20,
+        25
+      ],
+      "gate_scope": "reviewed main status branch; byte2=2",
+      "length_basis": "4 + (16 or 21)",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    },
+    {
+      "name": "button",
+      "header": "0x37",
+      "usb_callsite": "08023a26",
+      "nonusb_callsite": "08019c7a",
+      "usb_body_bytes": 4,
+      "nonusb_body_bytes": 4,
+      "gate_scope": "helper invoked by button logic",
+      "length_basis": "4",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    },
+    {
+      "name": "gesture",
+      "header": "0x36",
+      "usb_callsite": "0801ec9c",
+      "nonusb_callsite": "08014ea4",
+      "usb_body_bytes": 3,
+      "nonusb_body_bytes": 3,
+      "gate_scope": "reviewed gesture condition",
+      "length_basis": "3",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    },
+    {
+      "name": "status09_0",
+      "header": "0x09",
+      "usb_callsite": "08026dd4",
+      "nonusb_callsite": "0801ce28",
+      "usb_body_bytes": 5,
+      "nonusb_body_bytes": 5,
+      "gate_scope": "reviewed event branch; byte2=0",
+      "length_basis": "5",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    },
+    {
+      "name": "status09_1",
+      "header": "0x09",
+      "usb_callsite": "08027636",
+      "nonusb_callsite": "0801d68a",
+      "usb_body_bytes": [
+        19,
+        21
+      ],
+      "nonusb_body_bytes": "4+return(0801cf1c), exact helper body not re-audited this round",
+      "gate_scope": "helper status path; byte2=1; helper result nonzero",
+      "length_basis": "USB:4+(15 or17); nonUSB header and call confirmed only",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    },
+    {
+      "name": "log",
+      "header": "0x07",
+      "usb_callsite": "0801c948",
+      "nonusb_callsite": "080127a4",
+      "usb_body_bytes": [
+        2,
+        514
+      ],
+      "nonusb_body_bytes": "2+return(08020fa6); limit argument512",
+      "gate_scope": "logger invoked",
+      "length_basis": "USB2+strnlen(...,512); no maximal-content reachability claim",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    },
+    {
+      "name": "reply",
+      "header": "command|0x80",
+      "usb_callsite": "0801d5b0",
+      "nonusb_callsite": "0800fefa",
+      "usb_body_bytes": [
+        2,
+        130
+      ],
+      "nonusb_body_bytes": "normal dispatcher builds high-bit header; body bound not re-audited here",
+      "gate_scope": "pending count!=0 after dispatcher reset/header append",
+      "length_basis": "reply highbit != event highbit0",
+      "opcode33_producer": false,
+      "conditions": "ordinary reviewed execution; no arbitrary memory mutation/reentrancy inferred"
+    }
+  ],
+  "dispatch": {
+    "usb": {
+      "framer": "0801c764",
+      "framer_direct_callers": [
+        "0801c8da",
+        "0801d5b0"
+      ],
+      "wrapper": "0801c8c8",
+      "wrapper_direct_calls": 9
+    },
+    "nonusb": {
+      "framer": "0801f2d4",
+      "framer_direct_callers": [
+        "080122e8",
+        "0800fefa"
+      ],
+      "wrapper": "080122d0",
+      "wrapper_direct_calls": 9
+    }
+  },
+  "host33": {
+    "header_flag": 0,
+    "opcode_low7": 51,
+    "object_state": 2,
+    "decoder": "0021abe0",
+    "payload_offset": "body+1",
+    "payload_length": "body_length-1",
+    "fixed_read_extent_bytes": 26,
+    "decoder_parses_when": "unsigned length<=27",
+    "full_read_covered_lengths": [
+      26,
+      27
+    ],
+    "production_binding": "not established in these reviewed G0 send paths",
+    "queue_enable": "enableA30Mode allocation is receiver-side condition, not MCU send proof"
+  },
+  "mode": {
+    "state_field": "state+0x194a",
+    "init_source": "state+0x3d9a",
+    "revision_branch": "hwrev>=0xA00 sets source=1; sampling setup exists when cfg callback is nonnull",
+    "K60": "0xA60 satisfies threshold in the shipped image; ordinary path selects0x3c, deployment not observed",
+    "usb_init_anchors": [
+      "08027b74",
+      "08027b7e",
+      "08027d6e",
+      "08028166",
+      "080281c6"
+    ],
+    "nonusb_init_anchors": [
+      "0801dbc8",
+      "0801dbd2",
+      "0801ddc2",
+      "0801e1ba",
+      "0801e21a"
+    ]
+  },
+  "comparison_only": {
+    "0x34_prefix_hex": "3442000001f4",
+    "0x35_prefix_hex": "3502000000000000000000c8",
+    "fields_not_assigned": [
+      "physical capacitance channels",
+      "sensor locations",
+      "units",
+      "sampling frequency from header constants alone"
+    ],
+    "not_equated_to33": true
+  }
+}

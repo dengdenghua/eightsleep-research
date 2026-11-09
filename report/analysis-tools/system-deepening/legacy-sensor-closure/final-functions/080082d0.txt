@@ -1,0 +1,34 @@
+FUNCTION 080082d0 FUN_080082d0 BODY [[080082d0, 080082ed]]
+INCOMING 0800aae2 UNCONDITIONAL_CALL
+INCOMING 0800a8ec UNCONDITIONAL_CALL
+INCOMING 0800a974 UNCONDITIONAL_CALL
+
+bool __stdcall_softfp FUN_080082d0(int *param_1,uint param_2)
+
+{
+  bool bVar1;
+  
+  bVar1 = true;
+  if ((param_1 != (int *)0x0) && (bVar1 = true, param_2 < param_1[2] - 1U)) {
+    bVar1 = *(char *)(*param_1 + param_2) == -1;
+  }
+  return bVar1;
+}
+
+
+ASSEMBLY
+080082d0 movs r3,#0x1 BYTES 0123
+080082d2 cmp r0,#0x0 BYTES 0028
+080082d4 beq 0x080082ea BYTES 09d0 REF CONDITIONAL_JUMP=080082ea
+080082d6 ldr r3,[r0,#0x8] BYTES 8368
+080082d8 subs r2,r3,#0x1 BYTES 5a1e
+080082da movs r3,#0x1 BYTES 0123
+080082dc cmp r1,r2 BYTES 9142
+080082de bcs 0x080082ea BYTES 04d2 REF CONDITIONAL_JUMP=080082ea
+080082e0 ldr r3,[r0,#0x0] BYTES 0368
+080082e2 ldrb r3,[r3,r1] BYTES 5b5c
+080082e4 subs r3,#0xff BYTES ff3b
+080082e6 rsbs r0,r3 BYTES 5842
+080082e8 adcs r3,r0 BYTES 4341
+080082ea movs r0,r3 BYTES 1800
+080082ec bx lr BYTES 7047

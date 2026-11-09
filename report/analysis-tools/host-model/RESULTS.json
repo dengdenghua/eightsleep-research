@@ -1,0 +1,174 @@
+{
+  "kind": "synthetic_host_reconstruction_not_firmware_execution",
+  "case_count": 10,
+  "cases": {
+    "cross_second_copy": {
+      "observed": {
+        "tokens": 4,
+        "source_records": 3,
+        "copied_tokens": 1,
+        "dispositions": {
+          "buzzer_staged": 2,
+          "loader_unvisited_bucket_deleted": 2
+        },
+        "output_batches": 2,
+        "staged_tokens": 2,
+        "pending_tokens": 0,
+        "watermark": 1700000001
+      },
+      "checked_behavior": "Copy goes to next-second slot499; sparse prefix reaches hole, copy later deleted with bucket."
+    },
+    "dual_contiguous_auto_flush": {
+      "observed": {
+        "tokens": 3002,
+        "source_records": 3002,
+        "copied_tokens": 0,
+        "dispositions": {
+          "buzzer_staged": 1000,
+          "pending": 2002
+        },
+        "output_batches": 1,
+        "staged_tokens": 1000,
+        "pending_tokens": 2002,
+        "watermark": 1700000000
+      },
+      "checked_behavior": "Equal bucket counts select side0; first paired second stages 500 tokens per side."
+    },
+    "paired_primary_hole": {
+      "observed": {
+        "tokens": 7,
+        "source_records": 7,
+        "copied_tokens": 0,
+        "dispositions": {
+          "buzzer_staged": 2,
+          "loader_unvisited_bucket_deleted": 5
+        },
+        "output_batches": 1,
+        "staged_tokens": 2,
+        "pending_tokens": 0,
+        "watermark": 1700000000
+      },
+      "checked_behavior": "Buzzer traversal stops at primary hole1 although secondary1 exists; both buckets removed."
+    },
+    "overwrite_and_late_arrival": {
+      "observed": {
+        "tokens": 3,
+        "source_records": 3,
+        "copied_tokens": 0,
+        "dispositions": {
+          "input_slot_overwritten": 1,
+          "buzzer_staged": 1,
+          "watermark_skip": 1
+        },
+        "output_batches": 1,
+        "staged_tokens": 1,
+        "pending_tokens": 0,
+        "watermark": 1700000000
+      },
+      "checked_behavior": "Odd/even adjacent milliseconds address same slot; once loader updates watermark, same-second late data skipped."
+    },
+    "shared_request_check_boundary": {
+      "observed": {
+        "tokens": 1003,
+        "source_records": 1003,
+        "copied_tokens": 0,
+        "dispositions": {
+          "input_slot_overwritten": 1,
+          "pending": 1002
+        },
+        "output_batches": 0,
+        "staged_tokens": 0,
+        "pending_tokens": 1002,
+        "watermark": null
+      },
+      "checked_behavior": "With supplied reciprocal masks, side1 consumes request at call1000, not first subsequent sample. A left tick reset requests a right re-anchor; the right side still waits for its own check."
+    },
+    "clock_rollback_to_loader_recovery": {
+      "observed": {
+        "tokens": 502,
+        "source_records": 502,
+        "copied_tokens": 0,
+        "dispositions": {
+          "buzzer_staged": 1,
+          "watermark_skip": 499,
+          "old_500_reset": 1,
+          "pending": 1
+        },
+        "output_batches": 1,
+        "staged_tokens": 1,
+        "pending_tokens": 1,
+        "watermark": null
+      },
+      "checked_behavior": "Mapper rebase alone leaves old watermark; 500 severely-old enqueue attempts reset it, next epoch can insert."
+    },
+    "capacity_retry": {
+      "observed": {
+        "tokens": 11,
+        "source_records": 11,
+        "copied_tokens": 0,
+        "dispositions": {
+          "buzzer_staged": 1,
+          "pending": 10
+        },
+        "output_batches": 1,
+        "staged_tokens": 1,
+        "pending_tokens": 10,
+        "watermark": 1700000000
+      },
+      "checked_behavior": "11th novel bucket forces one loader/encode opportunity before retry; missing peer uses single-side fallback."
+    },
+    "unsigned_tick_wrap": {
+      "observed": {
+        "tokens": 3,
+        "source_records": 3,
+        "copied_tokens": 0,
+        "dispositions": {
+          "pending": 3
+        },
+        "output_batches": 0,
+        "staged_tokens": 0,
+        "pending_tokens": 3,
+        "watermark": null
+      },
+      "checked_behavior": "Tick decrease causes check, but uint32 subtraction keeps mapped relative256; no >2s error, no rebase."
+    },
+    "secondary_uses_primary_output_slot": {
+      "observed": {
+        "tokens": 2,
+        "source_records": 2,
+        "copied_tokens": 0,
+        "dispositions": {
+          "buzzer_staged": 2
+        },
+        "output_batches": 1,
+        "staged_tokens": 2,
+        "pending_tokens": 0,
+        "watermark": 1700000000
+      },
+      "checked_behavior": "Output destination derives from primary relative; secondary shares array slot selection, no waveform correlation."
+    },
+    "older_than_earliest_pending": {
+      "observed": {
+        "tokens": 2,
+        "source_records": 2,
+        "copied_tokens": 0,
+        "dispositions": {
+          "pending": 1,
+          "older_than_pending_min": 1
+        },
+        "output_batches": 0,
+        "staged_tokens": 0,
+        "pending_tokens": 1,
+        "watermark": null
+      },
+      "checked_behavior": "Below earliest pending key skips even before any loader watermark exists."
+    }
+  },
+  "limits": [
+    "Only buzzer staging; no claim of full encoder/network/cloud output.",
+    "No actual ADC/IMU values, physical clocks or hardware gain.",
+    "Reciprocal shared masks and event scheduling are explicit scenario inputs; deployed wiring not established.",
+    "No asynchronous interleavings, output-error propagation, or IMU/extADC/multi-channel early-break coupling.",
+    "Current device version unbound."
+  ]
+}

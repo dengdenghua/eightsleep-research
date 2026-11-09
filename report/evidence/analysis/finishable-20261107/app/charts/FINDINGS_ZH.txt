@@ -1,0 +1,82 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+APP-02 图表四个剩余入口：数据如何变成图
+日期：2026-11-07；对象：国行 Android 7.63.5-cn-tencent / versionCode 1007063005。
+APK SHA-256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04
+完整四 DEX Smali 索引复用 android-volume/cn-7.63.5；JADX 有局部错误，关键分支以 Smali 互证。本轮没有运行 App、查询账号或操作设备。
+
+本轮状态
+原 CHART_BOUNDARIES 中 A/B/C/D 四个入口已追到图表模型、坐标或 Canvas 消费边界；第五个 xc.c.i 由 metrics-aggregate/FINDINGS_ZH.txt 单独闭合。此前“只有函数清单、尚未解释正文”的缺口可关闭。本报告的“闭合”仅指这五个限定的静态问题，不代表恢复整个 App/云端算法，也不代表所有异常输入均已运行验证。
+可审阅证据见 SOURCE_EXCERPTS.json（40段）和 SOURCE_LEDGER.tsv（完整路径、原文件 SHA-256、行号）。A/B/C/D 编号是本报告本地证据编号；REA_*.json 和 REA_EVIDENCE_INDEX.json 另存工具实际不可变证据，二者不要混称。
+
+一、BaseMetricChartViewModel.handleData：日期排布和缓存，非波形处理
+[A01] 完整 Smali 703–3839；[A02] lambda 3841–4041。
+输入拆成选中日期、周期、sessionId、DailyTrends 列表、AggregateData 列表和显示设置。对每份 AggregateData，每个 MetricDataProcessor 单独生成图点，再按 metric type 放入 map，交给具体页面 packageMetricData；同 key 的后项覆盖前项。这里没有把上传的传感波形重新滤波或重新判睡眠阶段。
+
+周期实际规则 [A01,A03–A10,A13,A14]：
+• DAY：从 trends 取与该 AggregateData 日期相等的第一条，未找到传 null。调用 transformDayData(date,sessionId,trends,true)，返回 null 时转空列表。实际 session 选择/指标缺值语义在具体 processor，不在公共函数里统一处理。
+• WEEK：起点=结束日期−6天，两端都算，共7个日期。Sample 先按 localDate 建 map，同日后项覆盖前项；每一天都调用 transformPeriodData，缺的日期传 sample=null，showLabel=true。
+• MONTH：起点=结束日期−30天，两端都算，共31个日期，不是“当月自然天数”。同样逐日建图点，缺日传 null；showLabel 仅在距起点的天数为7的倍数时为 true。
+• SIX_MONTHS：结束日期−6个自然月，再向前对齐到周日。Sample 按 ChronoUnit.WEEKS.between(起点,sample日期) 建桶，同桶后项覆盖。生成周编号0..totalWeeks；每周范围是 start.plusWeeks(i) 到 start.plusWeeks(i+1)−1天；传给 processor 的图点日期是该周末日。如果这个周范围包含周末所在月的1日，showLabel=true。末周没有按选中结束日截短，所以末周图点日期可能超过结束日。
+• YEAR 默认：起点=结束日期−11个月的1日。按 Sample 的 Month 枚举建 map，生成12个月图点，缺月传 null，showLabel=true。键不是 YearMonth，依赖输入本身属于这个年度窗口；不会对同名月份再平均。
+• YEAR_IN_WEEKS：使用同样周桶/周末/跨月标签规则。实际 OutlierDetailsViewModel 对 YEAR 覆盖 getAggregateMetricPeriod 返回 YEAR_IN_WEEKS，其他页面默认 YEAR。
+周桶用异步子任务后统一 await，源码有序建立任务列表；不是完成先后顺序直接拼图。并发不代表指标在手机重新计算。
+
+缺日期不等于补成0。公共函数补的是“日期位置”，传给 processor 的值仍可能为空。已闭合的具体语义应合并阅读：
+• android-findings/APP_CARDIORESPIRATORY_PIPELINE_ZH.txt：HRV、心率、呼吸率取已返回的统计值。
+• android-findings/APP_SLEEP_HEALTH_RESULTS_ZH.txt：干扰日图缺小时与期间缺值不同；鼾声期间图的默认0、duration相减等。
+• android-findings/ANDROID_SLEEP_RESULTS_ZH.txt：Session stages→SleepStagesMetricDataProcessor 的模型。
+• cloud-cleaning-followup/code-only/aggregate-boundary/AGGREGATE_BOUNDARY_CODE_ZH.txt：健康界限等值从聚合 Sample 取出，缺失为 null。
+
+UI 缓存还有一层合并 [A02,A11,A12]：旧图数据为空或显示周期改变时，直接使用本次结果并按日期排序；否则先把旧图列表按日期字符串建 map，再用新结果覆盖同日期，保留本次没返回的旧日期，最后按日期升序排序。它与 xc.c.i 的数据库指标 map 合并是两个层次，不能混写成“全量替换最新数据”。
+
+二、P2.H.a：阶段选择只是构造显示范围
+[B01] Smali 1332–2768，[B02,B03] 辅助函数。
+未选择阶段时，传给具体图的 ranges=null。选择阶段后，从 sleepStartTime 开始，按 Stage 输入顺序累加 duration.toMillis()，得到每段[start,end]；筛出与选中阶段相同的段，把范围列表传到具体图回调。两端均包含，恰在相邻阶段交界的时间可同时落入两段。不会在此重判阶段、合并相邻同阶段、修复重叠/负时长、按时间重新排序。随后还把原 adjustments 传给图，ranges 用于高亮而非删除数据。
+
+三、Ke.l.r：温控回顾图存在合成绘图点
+[C01] 两个 constructor 分别设置 discriminator=0（鼾声）和1（温控），完整 r 102–2182；不要照抄 JADX 的反向条件。
+温控图入口 X4.x 的实参对应 [C03,C04]：b=最早调温事件，c=sleepStartTime，d=最晚调温事件，e=sleepStartTime+所有阶段时长；横轴范围=min(b,c)..max(d,e)。空事件列表的最早/最晚使用 Ga.s 默认值，本轮不把默认值当成实测时间。
+
+纵轴/刻度 [C01,C02,C07–C10]：
+1. 图点 y=Le.i.temperature.a，是内部整数 level×10，转为 Double；不是直接用摄氏温度。
+2. min/max取全部调温点；空列表默认0和10。padding=rint(abs((max−min)×0.1))，rint 的中点采用偶数舍入；下界=min−3×padding，上界=max+padding，均分成4段/5个刻度。没有在这里为恒定值强制扩展轴域。
+3. 每个刻度的几何位置仍用 double；标签先截成 int 再交 Ga.b 做 LEVEL/METRIC/IMPERIAL 映射，格式化为1位小数。因此标签与几何坐标的精度并不相同。
+4. 横轴刻度从整点排布，步长=ceil((duration+起始分钟数).toHours()/4.0)，再按手机12/24小时格式标注。这是坐标轴标签间隔，不是传感数据重采样。
+
+OFF 支路 [C01:803–1235]：只选 phase=OFF 且 classification 为 PHASE_CHANGE/MANUAL 的事件。保留输入顺序，不先排序。设 gap=(long)((轴结束−轴开始)×0.02f)。第一点前复制一个相同 y 的轴起点；每个后续点前，在“当前点时间−gap”插入上一 y 和当前 y 两个点，再放原点。若该点同时是最后一个且不是第一点，再追加轴终点。只有一个 OFF 点时走第一点分支，不追加结束点。该折线的横向长度、拐点由 App 生成，不能从图上反推设备每次实际采样。
+
+非 OFF 支路 [C01:1245–1450]：每个原事件一对时间/数值，不丢掉未高亮点。active 精确条件为：
+  ranges为null -> true；ranges为空 -> false；否则存在某范围，使
+  (事件阶段名==选中阶段名) OR (classification!=SLEEP_RESPONSE AND 时间在该范围内)。
+阶段名相同可不受事件时间限制，但仍要求 ranges 至少一段。此处关键 Smali 为1384跳 cond_19、1392的SLEEP_RESPONSE排除、1396 range.g，已独立REA留证。JADX 458行的布尔式不可直接使用。
+active仅交 Le.i.n 决定颜色：未激活灰色，其余再按环境响应/AUTOPILOT/SMART等类型选色。选择阶段时整体线色/渐变也变化。三个图层（OFF虚线、可选填充、非OFF线）进入 Xm.a.m，未写回 repository 或生成温控命令。
+
+四、同一 Ke.l.r 的鼾声支路：NONE 补段基准是阶段结束
+[C05,C06,C01:1931–2172]：
+调用方先筛出 AUTOPILOT 且时间>=sleepStartTime 的床架/鼾声调整事件。c=这批事件的最大时间，d=sleepStart+sum(Stage.duration)，e=sleepStart+sum(SnorePeriod.duration)。取 M=max(c,d,e)。若 M>d，在原 snorePeriods 后追加 SnorePeriod(start=d,intensity=NONE,duration=M−d,percent=0)。
+特别注意：减的是阶段结束 d，并非原鼾声列表结束 e；不能把它概括为“总能正确补齐鼾声尾部”。当两种总时长不一致，追加列表的总 duration 与 M−sleepStart 可以不相等；这是静态公式结果，尚无真实响应验证其可达性/影响。
+
+已继续追到 Ke.E→Ke.D→Ke.C Canvas [C11–C14]：
+• 横轴总时长取 max(end−start,1秒)。绘制鼾声时忽略每段的独立 start 字段，使用列表顺序和 duration 累加；NONE 只推进累计时间、不画柱。
+• 非 NONE 的位置使用 getSeconds() 与每秒 dp，转 int 后将奇数起点减1对齐到偶数位置；每隔2dp画1dp条带。HEAVY条高120dp，其余非NONE40dp。这是条带绘图，不是2秒采样或实际音量标尺。
+• 选中阶段改变鼾声条颜色；原始强度/时长不在此重分类。调节事件圆点另外按事件时间相对sleepStart定位，阶段名比较决定点色。
+所以此图中的空白和 `NONE` 不能直接当成“设备已证实没有鼾声”；至少有一部分来自本地显示补段。
+
+五、Eg.m0.a：阶段条由服务端阶段列表按时长画出
+[D01,D02] a把start/end及两组列表交给布局；轴时长为end−start。布局实际调用m0.b；b将所有Stage.duration相加，作为阶段图/叠加点的归一化总时长。两处时长来源不同，若响应不一致可能使坐标轴与阶段比例不一致，未用实机证明发生。
+[D03,D04] b绑定的 Eg.e0 是 discriminator=0 的 Canvas 分支1909–3019，已读全分支，JADX此方法失败不构成证据中断：
+• 按输入顺序累积duration，逐段绘制。x=画布宽×累计秒数/总秒数，宽=画布宽×本段秒数/总秒数，再加1dp用于边缘覆盖；起点有半像素宽度修饰。
+• 比值先 long-to-float 再 div-float，不能读成 Java 展示中的整数相除。Duration.getSeconds() 会舍去亚秒部分的表达精度。
+• y只由枚举排布决定：AWAKE、REM、LIGHT、DEEP依次0/1/2/3，OUT也映射0。m0.c公式 y=高度×index/5 + index×(高度/15)，条高为高度/5。OUT与AWAKE共用行不表示它们在业务数据中被改成同一种阶段。
+• 叠加 MetricPoint 按它的时间与sleepStart的秒差定位，以AWAKE颜色绘制窄标记；本分支没有把标记重新识别为阶段。
+• 相邻条之间再生成路径与圆角，角宽受4dp和半条宽限制，横向线段长度下限0；这是视觉连线平滑，不是对生理信号平滑。原Stage列表没有被这个Canvas改写。
+• 构建每段矩形命中区，触摸沿该索引回报；不是从触摸位置运行分类模型。
+
+需要保留的边界与下一步
+1. 这五个指定图表入口的静态解析已经完成，可从“未解读函数”待办中移除。JADX错误分支已由Smali补齐。云端如何生产Stage/指标/调温事件依然没有实现文件，本轮不能填成手机本地算法。
+2. 当前能做的边界公式验收已补完，model_checks.py共29例。温控轴30分钟且起点整点可得到step=0；P2.H.d0/x明确要求step>0，否则抛IllegalArgumentException [C16,C17]。恒定温度生成相同轴上下界和5个重复刻度。阶段浮点0/0为NaN、正数/0为+Infinity，负总时长可生成负比例，低于1秒的总时长getSeconds()为0；鼾声图独立存在至少1秒的轴时长约束。乱序OFF保持原顺序且产生后退的x点。这些均为合成输入下的公式/局部helper结果；没有运行目标App，也没有证明真实接口会给出这些输入、异常会逃逸到界面或最终画面如何表现，因此不报成已复现App故障。
+3. Compose中部分remember以startTime而非整份列表作键（如m0.b的总duration/Path，Ke.E的总duration）。仅有静态代码，尚未验证真实重组顺序与对象替换；报告不把它写成“必然显示旧数据”。
+4. 若取得用户导出的历史JSON，下一步可只读重放：同一晚阶段总时长与鼾声总时长、图轴end-start三者对齐；导出原事件表和OFF合成点表并列；验证阶段切换只改变颜色；核对缺日null与具体processor输出。无需等设备在线即可做JSON离线复现，但目前没有新输入可验证真实可达性。
+5. model_checks.py只运行本轮写的公式模型，不运行目标App；MODEL_CHECKS.json是合成例子，不能冒充设备抓包或官方算法运行结果。

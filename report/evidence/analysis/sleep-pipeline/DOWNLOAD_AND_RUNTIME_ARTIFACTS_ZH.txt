@@ -1,0 +1,105 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方 MTK 固件：下载、运行时文件与姿态标签生产者审计
+日期：2026-11-07；仅静态分析。未执行目标程序，未连接设备，未请求认证 API。
+根：${RESEARCH_ROOT}
+M: = analysis/sleep-pipeline/decompiled/；D: = mediatek/rootfs-selected/home/dac/app/；O: = mediatek/rootfs-selected/opt/eight/。
+范围：24 个 Eight 托管程序集的 1,147 个 C# 文件、DAC 的 34 个应用 JS、配置和 balloon-analyzer 脚本。系统全部 ELF/启动面由 root 并行检查，本报告不替代其结论。
+证据索引：runtime-artifact-evidence.json；生成器 audit_runtime_artifacts.py 只读文本/哈希，不导入或执行固件。
+
+1. 本轮新增的结论和边界
+
+已闭合的外部内容下载路径是音轨；已闭合的可变配置保存路径是附件/硬度/BLE 状态；已闭合的本地脚本执行路径是气囊机械校准。它们各有真实注册、调用和消费者，不能仅因为出现 Download/Config/Analyzer 就作为睡眠模型下载证据。
+没有恢复一条“模型地址或模型字节 → 持久文件 → 睡眠推理器”的调用链，也没有恢复“姿态估计 → research-data/config.json 写入”。这仍不是不存在任何本地推理的证明。
+特别重要：包内有 PostureService、PostureStateFactory、PostureTelemetryHandler、PostureDebugController，但正常服务注册没有启动/注册它们；正常注册的是 DynamicModeService，即既有姿态标签的消费者。先前报告的姿态遥测解析能力，不能据此升级为本版本默认运行中的姿态分类生产链。
+另一个限制：音轨 fileId 参与拼接写文件路径，所读方法没有可见的 ID 规范化；维护 SSH 也存在。因而“未发现专用写入者”不能推成“任何可达机制都不可能向该路径写入”。本报告未构造或测试这种输入，也未把可能性描述成原厂实际行为。
+
+2. 默认可达面：从启动到注册，而非只按类名判断
+
+analysis/system/mtk-rootfs/lib/systemd/system/capybara.service:35-38 设置 bundle 解压目录，WorkingDirectory=/opt/eight，启动 /opt/eight/bin/Eight.Capybara。
+M:Eight.Capybara/Eight.Capybara/Program.cs:188-197 从工作目录 config（否则 ../config）加载 default.json、machine.json；:74-80 清除默认 Host 配置源、传入该配置并 DisableConfigurationReload。
+因此本默认入口不是对 /persistent 下任意 JSON 的通用配置扫描器。Eight.Config/Config.cs 中另外存在环境/production/staging/development 配置帮助函数，不能替代 Program 的真实入口。
+Program.cs:143-150 的普通启动选择及 HostExtensions.cs:118-122 区分 Capybara 与 Cavia。正常 HostExtensions.cs:44-58 注册全功能 handlers、DeviceAPI、类型化配置、音箱和 Firmness；:76-84 注册 NATS 与 DAC。
+M:Eight.Capybara/Eight.Capybara.Extensions/HandlerExtensions.cs:54-67 是显式 controller 列表，正常模式包括音箱、硬度、校准、调试、配对和维护；不是扫描文件夹加载插件。
+M:Eight.DeviceApiClient/Eight.DeviceApiClient/Helpers.cs:11-34 反射枚举的对象是显式泛型 T 的方法；FunctionRoute.cs:36-47、71-79 将已注册 FunctionHandler 属性映射到 MethodInfo.Invoke。没有从请求提供的程序集名/字节加载插件的步骤。
+本轮 Assembly.Load/AssemblyLoadContext/LoadFrom/LoadFile/NativeLibrary.Load/Type.GetType/Activator 与 JS eval/new Function/import 搜索仅是入口枚举的一部分；负向检索本身不承担“不存在推理”的结论。
+
+3. 下载链一：音轨目录与即时播放，最终消费 PCM/WAV
+
+注册：HostExtensions.cs:56 → M:Eight.Audio/Eight.Audio/AudioServiceCollectionExtensions.cs:42-61 AddSpeaker → :22-32 AddAudio，注册 TrackDataManager 与 hosted TrackDownloader。
+目录生产者：M:Eight.Audio/Eight.Capybara/TrackDownloader.cs:37-65 在 SignalR connected 且音箱状态不是 NullSpeaker 时 InvokeAsync<DeviceTrackResponse>("getalltracks")。这不是设备无条件在开机下载；没有音箱或连接不通会每 30 秒等待。
+目录驱动：:84-108 逐个将 track.Id、track.Path、track.Hash 传入 ITrackDataSourceFactory.Create。成功至少一个或空列表时下次刷新为 12 小时；全失败按 1 分钟到 1 小时退避（:27-35、84-97）。这里没有云返回的模型类型/推理节点。
+即时播放另一路：M:Eight.Capybara/Eight.Capybara.DeviceAPI.Handlers/SpeakerController.cs:142-171 从 speaker/play 请求的 FileId、Uri、Hash 构造 Single/Repeating/RepeatFor TrackRequest，交给 ReadyState；M:Eight.Audio/Eight.Audio.StateMachine.Tasks/LoadingTask.cs:25-44 调 TrackFactory.CreateTrack 并入播放队列。
+保存：O:config/default.json:156 指定 /persistent/tracks。M:Eight.Audio/Eight.Audio.DataSources/TrackDataManager.cs:83-103 文件不存在时 HttpClient.GetStreamAsync(url) → FileStream(OpenOrCreate) → CopyToAsync。:49-80 只在 Hash.Algorithm == "MD5" 时校验，不符删除并重下后再校验一次。
+消费：同文件 :106-128 FFProbe 检测媒体，非 wav 时 FFmpeg 转换到 converted/<filename>；TrackFactory.cs:19-47 创建 WavTrack 或循环包装。WavTrack.cs:130-159 检查 RIFF/WAVE、fmt、PCM 格式；:72-94 读取音频数据并写 PipeWriter；Player.cs:75-86 交给 trackPlayer.Play。
+这条链的可恢复语义是“下载媒体再播放”，不是训练权重加载。请求/响应仍可能随服务器变化，实际目录和实际 URL 未获取。
+
+路径边界（与缺失写入者判断相关）：TrackDataManager.cs:90 用 Path.Combine(storageFolder.FullName,fileId)；所读方法不校验 fileId 是否普通相对文件名，实际写入先于 FFProbe/格式检查。故不能把 /persistent/tracks 称为代码已经强制保证的唯一落点，也不能从 research-data 无字面量写入命中断言绝对无可写途径。反之，本包没有证据证明服务器使用这条音轨接口投递姿态文件或模型；不将一种可构造的数据流可能性当已部署功能。
+
+4. 可变配置：真实写入者可定位，但保存的是类型化设备状态
+
+注册落点：M:Eight.Capybara/Eight.Capybara.Extensions/ServiceCollectionExtensions.cs:63-70 固定为 /persistent/AdjustableBaseConfiguration.json、B12Configuration.json、BleConfiguration.json、R12.json。
+保存实现：M:Eight.Capybara.Config/Eight.Capybara.Config/PodConifgurationManager.cs:30-50 UpdateConfiguration → Save；:152-164 序列化 JSON 写 .tmp、Flush(flushToDisk:true)、Move 覆盖目标。:59-101 仅在初始化读取该类型；这不是通用下载配置 URL 的实现。
+可达写入例：配对/移除音箱、床架；BLE 安全设置；FirmnessController.cs:178-182 → DynamicModeService.UpdateDynamicMode(:65-85) → R12.json；FirmnessPresetRepository.cs:21-50 只更新已知默认 preset ID 的左右硬度设置；FirmnessReadyState.cs:226-243 保存目标硬度。
+M:Eight.Firmness/Eight.Firmness.Models/FirmnessConfiguration.cs:5 的字段是 Enabled、左右目标硬度/模式/custom presets/dynamic enabled/telemetry profile/tolerance bands，没有 current_posture/polar_devices、模型路径或程序集字段。
+这些持久化数据可被远端指令改变，构成真正的远端配置/状态路径；但配置内容本身不提供睡眠分期图或任意脚本入口。
+本地固件选择和校准脚本路径来自 Program 加载的 default.json/machine.json，而不是上述 R12.json。M:Eight.Firmness/Eight.Firmness.Extensions/ServiceCollectionExtensions.cs:34-46 把 IConfiguration 固定 section 绑定到选项；未恢复远端设置 AnalyzerScriptPath 的默认 controller。
+
+5. research-data 姿态标签：消费链已闭合，生产链仍缺失
+
+路径绑定：M:Eight.Firmness/Eight.Firmness.Extensions/ServiceCollectionExtensions.cs:82-84 注册 Func<string,string> 为 /persistent/research-data/{deviceId}/config.json，并注册 DynamicModeService 为后台服务。
+deviceId 来源：M:Eight.Capybara/Eight.Capybara/HostExtensions.cs:58-62 给 BalloonOptions.DeviceId 赋硬件 DeviceId.Raw。
+启动条件：DynamicModeService.cs:109-125 要求 R12 配置存在、Enabled 为 true、至少一侧 DynamicModeEnabled。单独存在文件不够触发。
+读取格式：:137-169 读取文件 JSON 的 settings.polar_devices 数组，每项只取 pod_side/current_posture/last_heartbeat。该结构是外部生成的分类标签，不是原始传感器输入或模型参数。
+决策：:185-208 先校验心跳、解析标签并检测变化；PostureExtensions.cs:5-25、29-45 把 supine→back、prone→stomach、lateral-left/right→side；upright/confusing/indeterminate 为非动作标签。
+执行：DynamicModeService.cs:254-269 查对应 preset，仅 FirmnessReadyState 才发 SetFirmnessRequest(Bag0..Bag4)。FirmnessPresetRepository 从默认 presets 与 R12 自定义列表取值。此输出是气囊硬度命令，不是睡眠 wake/light/deep/REM 阶段结果。
+
+本轮新发现的时间边界：
+- PollInterval=5 秒、StaleThreshold=5 分钟（DynamicModeService.cs:45-49），但 :150-159 在 mtime 不变时直接返回 null；:122-125 随即不执行 ProcessDevicePosture。
+- 因此不是“文件一停更，五分钟后必自动恢复默认”。若上次处理为新鲜 supine，此后文件 mtime 永远不变，后续轮询不会再执行 IsStale；本函数不会单凭时间流逝切回 default。
+- 文件缺失时 :140-148 也只返回 null；非动作姿态持续五分钟的分支 :212-233 同样需要后续文件更新才会再次判断。重新启动会重新读取已有文件并可检查其陈旧性，但不等于上述持续运行场景。
+- 这是静态控制流边界，未观察实机保持多久或其他控制源是否覆盖硬度。
+
+为何没有把旁边的 PostureService 当成写入者：
+- ServiceCollectionExtensions.cs:58-85 的注册列表包含 PostureOptions，但没有 PostureService/IPostureProvider、PostureStateFactory、keyed "posture" IPacketHandler 注册；配置项存在不等于后台服务启用。
+- M:Eight.Firmness/Eight.Firmness.Extensions/DeviceApiExtensions.cs:9-18 注册 Firmness/Calibration/Telemetry/Tolerance 等 controller，没有 PostureDebugController。
+- 1,147 个 C# 和 34 个 DAC JS 的 posture 相关符号引用已保存于证据索引；未找到补充注册入口。即使单独实例化 PostureTelemetryHandler，其已见代码也是 MEMS 遥测 → raw.posture.mems，不是标签文件写入。
+- 专用生产者搜索从 research-data/polar_devices/current_posture/last_heartbeat 反向检查全部文件写入与网络/进程候选，结果只闭合到上述消费者、类型化 R12 保存及通用音轨写入，未闭合姿态分类输出写文件。
+- 不能排除设备运行时维护程序、未随 SWU 分发的研究软件、另一个版本、服务器/人工投放或未知原生路径；root 的全部 rootfs 字节/执行面审计与本边界合并判断。
+
+6. 运行脚本和二进制资源：校准器与附件升级
+
+机械校准脚本是实际默认可达的执行路径，不只是字符串：HandlerExtensions.RegisterHandlers → RegisterFirmnessController → CalibrationController.cs:37-55 的 calibration/start → FirmnessReadyState.RequestCalibration → CalibrationRunner。
+M:Eight.Firmness/Eight.Firmness.Services.Calibration/CalibrationRunner.cs:833-837、905-910 按 AnalyzerAuthority 选择 Node/C# 校准分析器并可尝试另一实现；O:config/default.json:66-70 设 node、固定 balloon-analyzer 脚本、authority=node、/ephemeral/calibration。
+CalibrationAnalyzerRunner.cs:15-28 使用 ProcessStartInfo/ArgumentList 启动选定 node + 脚本 + trace CSV + --bags；:78-101 解析 stdout 的 CalibrationAnalyzerResult.Bags，按退出码 0/1 区分全通过/部分失败。
+O:lib/balloon-analyzer/scripts/analyze-calibration.js:13-27 从自身目录 require 本包 build/calibration_analyzer；它读取校准 CSV 并计算机械系数。已读路径没有 HTTP 下载新脚本后 require 的步骤。
+存在 ScriptPath 可配置性，但默认配置固定；未恢复默认远端 handler 修改该选项/下载替换脚本。不能把“可以维护替换文件”写成“每夜下载睡眠算法”。校准数值细节另见既有 REPORT/气囊分析，不在此重复。
+
+附件固件加载也是真实消费路径，但其来源是本包已有文件：
+- O:config/default.json:30-38、89-93、97-154 固定 balloon/posture/床架/音箱镜像路径；M:Eight.Lsp.Subsystems/Eight.Lsp.Subsystems.StateMachine.States/WaitingForBootloaderState.cs:156-178 按硬件版选本地路径并 ReadAllBytes。
+- M:Eight.Audio/Eight.Audio.StateMachine/SpeakerUpdater.cs:22-59 按硬件/软件版本选择 B12/B13，读 FirmwarePath 后交 WriteFirmware/WriteFirmwareFota；不是从云端下载模型。Posture 固件配置仍须结合上一节未注册服务的边界，不能视为默认已运行。
+- M:Eight.Capybara.Pod3Hardware/Eight.Capybara/Tps25751.cs:408-413 GetManifestResourceStream("tps25751_patch.bin") 是嵌入硬件 patch；Pod3Hardware.cs:497 调用它。没有把网络响应当程序集加载。
+- SWU 整系统升级是另一个明确更新边界，会替换这些程序/脚本/配置；本轮未重新展开已经恢复的 SWUpdate 路径。
+
+7. DAC 与维护通道：明确哪些文件读写确实存在
+
+analysis/system/mtk-rootfs/lib/systemd/system/dac.service:14-19 设置 NODE_ENV=pod3、工作目录 /home/dac/app，直接 node build/main.js；package.json 的 build/test/develop 脚本不是服务启动时执行的 npm 安装/更新动作。
+D:build/main.js:19-39 读取本地 endpoints、CA 文件和配置构造 TLS/网络连接；:44-55 启动 Unix sockets 与协调循环。D:build/endpoints_file.js:12-32、38-57 只读 deviceInfoPath/endpoints.json，消费 deviceApi/realm/deviceApiV2；本应用没有这份文件的写入者。
+D:build/loop_coordinator.js:221-243 将远端函数名映射到 Frank 或 DAC 命令；D:build/commands/index.js:9-17 唯一 DAC 自身命令为 SSH，commands/ssh.js:5-8 把请求的 port/key 写到 /run/dac 固定文件。这里不是 eval 或 JS 包加载器，后续 shell 维护消费者归 root 审计。
+托管维护服务在默认 handler 中注册（HandlerExtensions.cs:20-24、65）：RemoteConnectivityController.cs:24-64 接受维护请求，RemoteConnectivityService.cs:338-402 在 pairingMode.Active 时启动 timeout 包裹的 SSH 反向隧道，使用固定外部程序；:90-165、175-185 写会话密钥/授权密钥到指定目录。
+这说明产品有可以改变运行状态/文件的维护边界。没有观察实际维护会话、传输内容，也没有一条“维护端自动投放睡眠模型”的证据；不把可维护性当正常算法分发方案。
+
+8. 对所有 HTTP/文件/进程候选的有界归类
+
+直接 HttpClient 消费者只有三个类：TrackDataManager（上述音频）；NatsMonitoringClient.cs:14-28（默认 localhost:8222 返回监控文本）；HttpNetClient.cs:17-27（联网探测，只取 HTTP 状态）。其余 SignalR/TLS/Unix socket 为已恢复的 RPC/状态或上传边界，不等于下载模型文件。
+直接文件写入候选闭合为：类型化 PodConifgurationManager、音频缓存/转换、校准 CSV/run.json/hex、身份/硬件信息文件、网络状态、启动/运行模式与重启计数、床架心跳、Cavia USB 测试日志、SSH 文件、I2C 设备访问。OSFingerprintFileCache 为网络指纹缓存类，未发现默认构造注册；它不能因存在 Save 方法就视为实际启动功能。
+进程启动候选闭合为：Node 校准器、FFProbe/FFmpeg、rfcomm/btmgmt、IP/neigh 与 nmap、SSH/权限/密钥工具、Cavia stress-ng。后两类的运行条件与正常睡眠工作负载不同，未发现这些输出流向睡眠推理器。
+SWUpdateProgressMonitor 与 Dac 的 Socket 是本地 Unix 连接候选，不能把 Socket 关键字命中归作额外云端下载器。
+证据索引保存整个审计源集 SHA-256、搜索表达式及行号。候选筛选是文本搜索，报告的关键正向结论以以上实际调用链为依据；第三方框架内部实现、原生全执行面、真实持久数据和服务器内容并未由这一次托管审计穷尽。
+
+9. 对睡眠模型缺口的净结果
+
+更强的已知事实：本版本默认注册和网络文件消费能够解释已见下载/Analyzer/Posture 名称；没有必要假设这些就是被漏掉的睡眠模型。
+仍未知：真实睡眠分类器/权重/特征窗、外部姿态标签生产者、服务器是否另行部署研究程序或任何实际设备上的下载内容。本报告不能补出 sleep-stage 结果协议，也不能给未知云端模型命名。
+下一步有效证据应是：root 的原始 rootfs 全字节/启动链扫描结果；能验证发布来源的额外算法 artifact；或合法取得且明确边界的运行时持久文件/已脱敏生产记录。继续重复无命中的模型名称搜索不会填补该缺口。

@@ -1,0 +1,47 @@
+TARGET 08018a98 function=08018a98
+REF_TO 080187d8 UNCONDITIONAL_CALL owner=08018dd6
+FUNCTION_BODY [[08018a98, 08018ac3]]
+
+void FUN_08018a98(void)
+
+{
+  byte bVar1;
+  int iVar2;
+  byte *pbVar3;
+  
+  iVar2 = 0;
+  do {
+    pbVar3 = (byte *)(DAT_08018c38 + iVar2 * 0x806);
+    if ((*pbVar3 != 0) && (bVar1 = *pbVar3 + 1, *pbVar3 = bVar1, 0x32 < bVar1)) {
+      *pbVar3 = 0;
+      pbVar3[2] = 0;
+      pbVar3[3] = 0;
+      pbVar3[1] = 0;
+    }
+    iVar2 = iVar2 + 1;
+  } while (iVar2 < 3);
+  return;
+}
+
+
+INSN 08018a98 0020 movs r0,#0x0
+INSN 08018a9a 40f60602 movw r2,#0x806
+INSN 08018a9e 6649 ldr r1,[0x08018c38] REF[READ:08018c38=200054b8]
+INSN 08018aa0 4243 muls r2,r0
+INSN 08018aa2 1144 add r1,r2
+INSN 08018aa4 0a78 ldrb r2,[r1,#0x0] REF[READ:200054b8] REF[READ:20005cbe]
+INSN 08018aa6 1300 movs r3,r2
+INSN 08018aa8 08d0 beq 0x08018abc REF[CONDITIONAL_JUMP:08018abc]
+INSN 08018aaa 521c adds r2,r2,#0x1
+INSN 08018aac 0a70 strb r2,[r1,#0x0] REF[WRITE:200054b8] REF[WRITE:20005cbe]
+INSN 08018aae d2b2 uxtb r2,r2
+INSN 08018ab0 332a cmp r2,#0x33
+INSN 08018ab2 03db blt 0x08018abc REF[CONDITIONAL_JUMP:08018abc]
+INSN 08018ab4 0022 movs r2,#0x0
+INSN 08018ab6 0a70 strb r2,[r1,#0x0] REF[WRITE:200054b8] REF[WRITE:20005cbe]
+INSN 08018ab8 4a80 strh r2,[r1,#0x2] REF[WRITE:200054ba] REF[WRITE:20005cc0]
+INSN 08018aba 4a70 strb r2,[r1,#0x1] REF[WRITE:200054b9] REF[WRITE:20005cbf]
+INSN 08018abc 401c adds r0,r0,#0x1
+INSN 08018abe 0328 cmp r0,#0x3
+INSN 08018ac0 ebdb blt 0x08018a9a REF[CONDITIONAL_JUMP:08018a9a]
+INSN 08018ac2 7047 bx lr

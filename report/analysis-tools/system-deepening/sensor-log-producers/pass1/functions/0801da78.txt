@@ -1,0 +1,47 @@
+FUNCTION 0801da78 BODY [[0801da78, 0801daad]]
+
+int FUN_0801da78(int param_1,ushort *param_2)
+
+{
+  int iVar1;
+  
+  if (*(int *)(param_1 + 0xc) != 0) {
+    iVar1 = FUN_0801d328(param_1,0,param_2);
+    if (iVar1 == 0) {
+      FUN_0801c8f8("[ads%s] failed to read ads id",*(undefined4 *)(param_1 + 0x40));
+    }
+    else {
+      if (*param_2 >> 0xc == 2) {
+        return iVar1;
+      }
+      FUN_0801c8f8("[ads%s] bad id 0x%04x",*(undefined4 *)(param_1 + 0x40));
+    }
+  }
+  return 0;
+}
+
+
+INSN 0801da78 c368 ldr r3,[r0,#0xc]
+INSN 0801da7a 70b5 push {r4,r5,r6,lr}
+INSN 0801da7c 0400 movs r4,r0
+INSN 0801da7e 0d00 movs r5,r1
+INSN 0801da80 002b cmp r3,#0x0
+INSN 0801da82 09d0 beq 0x0801da98 REF[CONDITIONAL_JUMP:0801da98]
+INSN 0801da84 0a00 movs r2,r1
+INSN 0801da86 0021 movs r1,#0x0
+INSN 0801da88 fff74efc bl 0x0801d328 REF[UNCONDITIONAL_CALL:0801d328]
+INSN 0801da8c 0028 cmp r0,#0x0
+INSN 0801da8e 05d1 bne 0x0801da9c REF[CONDITIONAL_JUMP:0801da9c]
+INSN 0801da90 0748 ldr r0,[0x0801dab0] REF[READ:0801dab0=802e71c] REF[PARAM:0802e71c=7364615b]
+INSN 0801da92 216c ldr r1,[r4,#0x40]
+INSN 0801da94 fef730ff bl 0x0801c8f8 REF[UNCONDITIONAL_CALL:0801c8f8]
+INSN 0801da98 0020 movs r0,#0x0
+INSN 0801da9a 70bd pop {r4,r5,r6,pc}
+INSN 0801da9c 2a88 ldrh r2,[r5,#0x0]
+INSN 0801da9e 130b lsrs r3,r2,#0xc
+INSN 0801daa0 022b cmp r3,#0x2
+INSN 0801daa2 fad0 beq 0x0801da9a REF[CONDITIONAL_JUMP:0801da9a]
+INSN 0801daa4 0348 ldr r0,[0x0801dab4] REF[READ:0801dab4=802e73a] REF[PARAM:0802e73a=7364615b]
+INSN 0801daa6 216c ldr r1,[r4,#0x40]
+INSN 0801daa8 fef726ff bl 0x0801c8f8 REF[UNCONDITIONAL_CALL:0801c8f8]
+INSN 0801daac f4e7 b 0x0801da98 REF[UNCONDITIONAL_JUMP:0801da98]

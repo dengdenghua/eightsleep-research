@@ -1,0 +1,2854 @@
+// IL code: Eight.Firmness
+.class public auto ansi sealed beforefieldinit Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine
+	extends [System.Runtime]System.Object
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Nested Types
+	.class nested private auto ansi sealed Phase
+		extends [System.Runtime]System.Enum
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		// Fields
+		.field public specialname rtspecialname int32 value__
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Seed = int32(0)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase SettleStart = int32(1)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Settling = int32(2)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase PreBaseline = int32(3)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase AwaitDeflate = int32(4)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Freeze = int32(5)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase BagDone = int32(6)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Restore = int32(7)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Done = int32(8)
+
+	} // end of class Phase
+
+	.class nested private auto ansi sealed serializable beforefieldinit '<>c'
+		extends [System.Runtime]System.Object
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Fields
+		.field public static initonly class Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c' '<>9'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public static class [System.Runtime]System.Predicate`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport> '<>9__49_0'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public static class [System.Runtime]System.Predicate`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport> '<>9__49_1'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public static class [System.Runtime]System.Func`2<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport, bool> '<>9__51_0'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+		// Methods
+		.method private hidebysig specialname rtspecialname static 
+			void .cctor () cil managed 
+		{
+			// Method begins at RVA 0x36264
+			// Header size: 1
+			// Code size: 11 (0xb)
+			.maxstack 8
+
+			IL_0000: newobj instance void Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::.ctor()
+			IL_0005: stsfld class Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c' Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<>9'
+			IL_000a: ret
+		} // end of method '<>c'::.cctor
+
+		.method public hidebysig specialname rtspecialname 
+			instance void .ctor () cil managed 
+		{
+			// Method begins at RVA 0x36270
+			// Header size: 1
+			// Code size: 7 (0x7)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+			IL_0006: ret
+		} // end of method '<>c'::.ctor
+
+		.method assembly hidebysig 
+			instance bool '<AwaitDeflate>b__49_0' (
+				valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport r
+			) cil managed 
+		{
+			// Method begins at RVA 0x36278
+			// Header size: 1
+			// Code size: 22 (0x16)
+			.maxstack 8
+
+			IL_0000: ldarga.s r
+			IL_0002: call instance bool Eight.Firmness.Services.Calibration.Landing.ValveReport::get_DeflateChanged()
+			IL_0007: brfalse.s IL_0014
+
+			IL_0009: ldarga.s r
+			IL_000b: call instance valuetype Eight.Firmness.Models.Telemetry.Enhanced.ValveMotion Eight.Firmness.Services.Calibration.Landing.ValveReport::get_Deflate()
+			IL_0010: ldc.i4.0
+			IL_0011: cgt.un
+			IL_0013: ret
+
+			IL_0014: ldc.i4.0
+			IL_0015: ret
+		} // end of method '<>c'::'<AwaitDeflate>b__49_0'
+
+		.method assembly hidebysig 
+			instance bool '<AwaitDeflate>b__49_1' (
+				valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport r
+			) cil managed 
+		{
+			// Method begins at RVA 0x3628f
+			// Header size: 1
+			// Code size: 22 (0x16)
+			.maxstack 8
+
+			IL_0000: ldarga.s r
+			IL_0002: call instance bool Eight.Firmness.Services.Calibration.Landing.ValveReport::get_DeflateChanged()
+			IL_0007: brfalse.s IL_0014
+
+			IL_0009: ldarga.s r
+			IL_000b: call instance valuetype Eight.Firmness.Models.Telemetry.Enhanced.ValveMotion Eight.Firmness.Services.Calibration.Landing.ValveReport::get_Deflate()
+			IL_0010: ldc.i4.0
+			IL_0011: ceq
+			IL_0013: ret
+
+			IL_0014: ldc.i4.0
+			IL_0015: ret
+		} // end of method '<>c'::'<AwaitDeflate>b__49_1'
+
+		.method assembly hidebysig 
+			instance bool '<Freeze>b__51_0' (
+				valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport r
+			) cil managed 
+		{
+			// Method begins at RVA 0x362a6
+			// Header size: 1
+			// Code size: 22 (0x16)
+			.maxstack 8
+
+			IL_0000: ldarga.s r
+			IL_0002: call instance bool Eight.Firmness.Services.Calibration.Landing.ValveReport::get_InflateChanged()
+			IL_0007: brfalse.s IL_0014
+
+			IL_0009: ldarga.s r
+			IL_000b: call instance valuetype Eight.Firmness.Models.Telemetry.Enhanced.ValveMotion Eight.Firmness.Services.Calibration.Landing.ValveReport::get_Inflate()
+			IL_0010: ldc.i4.0
+			IL_0011: cgt.un
+			IL_0013: ret
+
+			IL_0014: ldc.i4.0
+			IL_0015: ret
+		} // end of method '<>c'::'<Freeze>b__51_0'
+
+	} // end of class <>c
+
+
+	// Fields
+	.field private initonly class Eight.Firmness.Services.Calibration.Landing.LandingTimings timings
+	.field private initonly class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> bags
+	.field private initonly int32 bagCount
+	.field private initonly int32 reps
+	.field private initonly class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation> entry
+	.field private initonly class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Protocol.ToleranceBinConfig> bins
+	.field private initonly float32 binMinKpa
+	.field private initonly float32 binWidthKpa
+	.field private initonly valuetype [System.Runtime]System.DateTimeOffset startedAt
+	.field private initonly class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64> seed
+	.field private initonly class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial> trials
+	.field private initonly class [System.Collections]System.Collections.Generic.List`1<string> warnings
+	.field private valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase phase
+	.field private valuetype [System.Runtime]System.DateTimeOffset phaseStartedAt
+	.field private valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome outcome
+	.field private string 'error'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+	.field private int32 bagIndex
+	.field private int32 rep
+	.field private int32 stepIndex
+	.field private int32 repsThisBag
+	.field private bool extraRepRun
+	.field private int32 shortRetries
+	.field private float64 target
+	.field private float64 tolerance
+	.field private valuetype [System.Runtime]System.Nullable`1<uint32> steadySinceMs
+	.field private bool steadyBefore
+	.field private float64 baseline
+	.field private float64 moveTarget
+	.field private uint32 markMs
+	.field private valuetype [System.Runtime]System.DateTimeOffset trialStartedAt
+	.field private valuetype Eight.Firmness.Services.Calibration.Landing.LandingMechanism mechanism
+	.field private valuetype [System.Runtime]System.Nullable`1<float64> stopKpa
+	.field private valuetype [System.Runtime]System.Nullable`1<float64> deflateMs
+	.field private bool inflateLeaked
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class Eight.Firmness.Services.Calibration.Landing.LandingTimings timings,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> bags,
+			int32 bagCount,
+			int32 reps,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation> entry,
+			class Eight.Firmness.Protocol.ControlLoopConfig config,
+			valuetype [System.Runtime]System.DateTimeOffset startedAt
+		) cil managed 
+	{
+		// Method begins at RVA 0x119a8
+		// Header size: 12
+		// Code size: 147 (0x93)
+		.maxstack 2
+
+		IL_0000: ldarg.0
+		IL_0001: newobj instance void class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64>::.ctor()
+		IL_0006: stfld class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::seed
+		IL_000b: ldarg.0
+		IL_000c: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial>::.ctor()
+		IL_0011: stfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::trials
+		IL_0016: ldarg.0
+		IL_0017: newobj instance void class [System.Collections]System.Collections.Generic.List`1<string>::.ctor()
+		IL_001c: stfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::warnings
+		IL_0021: ldarg.0
+		IL_0022: ldc.i4.1
+		IL_0023: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_0028: ldarg.0
+		IL_0029: call instance void [System.Runtime]System.Object::.ctor()
+		IL_002e: ldarg.0
+		IL_002f: ldarg.1
+		IL_0030: stfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0035: ldarg.0
+		IL_0036: ldarg.2
+		IL_0037: stfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_003c: ldarg.0
+		IL_003d: ldarg.3
+		IL_003e: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagCount
+		IL_0043: ldarg.0
+		IL_0044: ldarg.s reps
+		IL_0046: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::reps
+		IL_004b: ldarg.0
+		IL_004c: ldarg.s entry
+		IL_004e: stfld class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::entry
+		IL_0053: ldarg.0
+		IL_0054: ldarg.s config
+		IL_0056: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Protocol.ToleranceBinConfig> Eight.Firmness.Protocol.ControlLoopConfig::get_ToleranceBins()
+		IL_005b: stfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Protocol.ToleranceBinConfig> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bins
+		IL_0060: ldarg.0
+		IL_0061: ldarg.s config
+		IL_0063: callvirt instance float32 Eight.Firmness.Protocol.ControlLoopConfig::get_ToleranceMinKpa()
+		IL_0068: stfld float32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::binMinKpa
+		IL_006d: ldarg.0
+		IL_006e: ldarg.s config
+		IL_0070: callvirt instance float32 Eight.Firmness.Protocol.ControlLoopConfig::get_ToleranceBinWidthKpa()
+		IL_0075: stfld float32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::binWidthKpa
+		IL_007a: ldarg.0
+		IL_007b: ldarg.s startedAt
+		IL_007d: stfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::startedAt
+		IL_0082: ldarg.0
+		IL_0083: ldarg.s startedAt
+		IL_0085: stfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phaseStartedAt
+		IL_008a: ldarg.0
+		IL_008b: ldarg.s reps
+		IL_008d: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::repsThisBag
+		IL_0092: ret
+	} // end of method LandingRunStateMachine::.ctor
+
+	.method public hidebysig specialname 
+		instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial> get_Trials () cil managed 
+	{
+		// Method begins at RVA 0x11a47
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::trials
+		IL_0006: ret
+	} // end of method LandingRunStateMachine::get_Trials
+
+	.method public hidebysig specialname 
+		instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<string> get_Warnings () cil managed 
+	{
+		// Method begins at RVA 0x11a4f
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::warnings
+		IL_0006: ret
+	} // end of method LandingRunStateMachine::get_Warnings
+
+	.method public hidebysig specialname 
+		instance bool get_IsDone () cil managed 
+	{
+		// Method begins at RVA 0x11a57
+		// Header size: 1
+		// Code size: 10 (0xa)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phase
+		IL_0006: ldc.i4.8
+		IL_0007: ceq
+		IL_0009: ret
+	} // end of method LandingRunStateMachine::get_IsDone
+
+	.method public hidebysig 
+		instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Services.Calibration.Landing.LandingFitResult> Fits () cil managed 
+	{
+		// Method begins at RVA 0x11a62
+		// Header size: 1
+		// Code size: 40 (0x28)
+		.maxstack 8
+
+		IL_0000: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingFitResult>::.ctor()
+		IL_0005: dup
+		IL_0006: ldarg.0
+		IL_0007: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_000c: ldarg.0
+		IL_000d: ldftn instance class Eight.Firmness.Services.Calibration.Landing.LandingFitResult Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::'<Fits>b__42_0'(int32)
+		IL_0013: newobj instance void class [System.Runtime]System.Func`2<int32, class Eight.Firmness.Services.Calibration.Landing.LandingFitResult>::.ctor(object, native int)
+		IL_0018: call class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!1> [System.Linq]System.Linq.Enumerable::Select<int32, class Eight.Firmness.Services.Calibration.Landing.LandingFitResult>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>, class [System.Runtime]System.Func`2<!!0, !!1>)
+		IL_001d: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingFitResult>::AddRange(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!0>)
+		IL_0022: newobj instance void class '<>z__ReadOnlyList`1'<class Eight.Firmness.Services.Calibration.Landing.LandingFitResult>::.ctor(class [System.Collections]System.Collections.Generic.List`1<!0>)
+		IL_0027: ret
+	} // end of method LandingRunStateMachine::Fits
+
+	.method public hidebysig 
+		instance class Eight.Firmness.Services.Calibration.Landing.LandingStepResult Advance (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView telemetry,
+			bool cancelRequested
+		) cil managed 
+	{
+		// Method begins at RVA 0x11a8c
+		// Header size: 12
+		// Code size: 188 (0xbc)
+		.maxstack 6
+		.locals init (
+			[0] class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>,
+			[1] bool,
+			[2] valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase,
+			[3] bool,
+			[4] string,
+			[5] valuetype [System.Runtime]System.Nullable`1<int32>
+		)
+
+		IL_0000: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>::.ctor()
+		IL_0005: stloc.0
+		IL_0006: ldarg.0
+		IL_0007: ldfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phase
+		IL_000c: stloc.2
+		IL_000d: ldloc.2
+		IL_000e: ldc.i4.7
+		IL_000f: sub
+		IL_0010: ldc.i4.1
+		IL_0011: bgt.un.s IL_0017
+
+		IL_0013: ldc.i4.1
+		IL_0014: stloc.3
+		IL_0015: br.s IL_0019
+
+		IL_0017: ldc.i4.0
+		IL_0018: stloc.3
+
+		IL_0019: ldloc.3
+		IL_001a: brtrue.s IL_004f
+
+		IL_001c: ldarg.3
+		IL_001d: brtrue.s IL_0029
+
+		IL_001f: ldarg.0
+		IL_0020: ldarg.1
+		IL_0021: ldarg.2
+		IL_0022: call instance string Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Guard(valuetype [System.Runtime]System.DateTimeOffset, class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView)
+		IL_0027: br.s IL_002a
+
+		IL_0029: ldnull
+
+		IL_002a: stloc.s 4
+		IL_002c: ldarg.3
+		IL_002d: brtrue.s IL_0033
+
+		IL_002f: ldloc.s 4
+		IL_0031: brfalse.s IL_004f
+
+		IL_0033: ldarg.0
+		IL_0034: ldarg.3
+		IL_0035: brtrue.s IL_003a
+
+		IL_0037: ldc.i4.2
+		IL_0038: br.s IL_003b
+
+		IL_003a: ldc.i4.3
+
+		IL_003b: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::outcome
+		IL_0040: ldarg.0
+		IL_0041: ldloc.s 4
+		IL_0043: stfld string Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::'error'
+		IL_0048: ldarg.0
+		IL_0049: ldc.i4.7
+		IL_004a: stfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phase
+		// loop start (head: IL_004f)
+			IL_004f: ldarg.0
+			IL_0050: ldarg.1
+			IL_0051: ldarg.2
+			IL_0052: ldloc.0
+			IL_0053: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Step(valuetype [System.Runtime]System.DateTimeOffset, class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>)
+			IL_0058: stloc.1
+			IL_0059: ldloc.1
+			IL_005a: brtrue.s IL_004f
+		// end loop
+		IL_005c: ldloc.0
+		IL_005d: ldarg.0
+		IL_005e: ldfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phase
+		IL_0063: ldc.i4.8
+		IL_0064: beq.s IL_0069
+
+		IL_0066: ldc.i4.0
+		IL_0067: br.s IL_006f
+
+		IL_0069: ldarg.0
+		IL_006a: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::outcome
+
+		IL_006f: ldarg.0
+		IL_0070: call instance string Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Describe()
+		IL_0075: ldarg.0
+		IL_0076: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_007b: ldarg.0
+		IL_007c: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0081: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_0086: blt.s IL_0094
+
+		IL_0088: ldloca.s 5
+		IL_008a: initobj valuetype [System.Runtime]System.Nullable`1<int32>
+		IL_0090: ldloc.s 5
+		IL_0092: br.s IL_00aa
+
+		IL_0094: ldarg.0
+		IL_0095: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_009a: ldarg.0
+		IL_009b: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_00a0: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>::get_Item(int32)
+		IL_00a5: newobj instance void valuetype [System.Runtime]System.Nullable`1<int32>::.ctor(!0)
+
+		IL_00aa: ldarg.0
+		IL_00ab: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_00b0: ldarg.0
+		IL_00b1: ldfld string Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::'error'
+		IL_00b6: newobj instance void Eight.Firmness.Services.Calibration.Landing.LandingStepResult::.ctor(class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>, valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome, string, valuetype [System.Runtime]System.Nullable`1<int32>, int32, string)
+		IL_00bb: ret
+	} // end of method LandingRunStateMachine::Advance
+
+	.method private hidebysig 
+		instance string Guard (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView telemetry
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x11b54
+		// Header size: 12
+		// Code size: 500 (0x1f4)
+		.maxstack 3
+		.locals init (
+			[0] valuetype [System.Runtime]System.DateTimeOffset,
+			[1] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[2] class [System.Runtime]System.Collections.Generic.IEnumerator`1<int32>,
+			[3] int32,
+			[4] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.Telemetry.BagFsmState>,
+			[5] valuetype Eight.Firmness.Models.Telemetry.BagFsmState,
+			[6] bool,
+			[7] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>>,
+			[8] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.Telemetry.BagFsmState>,
+			[9] valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>,
+			[10] string,
+			[11] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>,
+			[12] valuetype [System.Runtime]System.TimeSpan
+		)
+
+		IL_0000: ldarg.2
+		IL_0001: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::get_MaxGaugeKpa()
+		IL_0006: ldarg.0
+		IL_0007: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_000c: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_CeilingKpa()
+		IL_0011: blt.un.s IL_006d
+
+		IL_0013: ldloca.s 1
+		IL_0015: ldc.i4.s 42
+		IL_0017: ldc.i4.2
+		IL_0018: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_001d: ldloca.s 1
+		IL_001f: ldstr "gauge pressure reached "
+		IL_0024: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0029: ldloca.s 1
+		IL_002b: ldarg.2
+		IL_002c: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::get_MaxGaugeKpa()
+		IL_0031: ldstr "F2"
+		IL_0036: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_003b: ldloca.s 1
+		IL_003d: ldstr " kPa (ceiling "
+		IL_0042: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0047: ldloca.s 1
+		IL_0049: ldarg.0
+		IL_004a: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_004f: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_CeilingKpa()
+		IL_0054: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0)
+		IL_0059: ldloca.s 1
+		IL_005b: ldstr " kPa)"
+		IL_0060: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0065: ldloca.s 1
+		IL_0067: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_006c: ret
+
+		IL_006d: ldarg.0
+		IL_006e: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0073: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<int32>::GetEnumerator()
+		IL_0078: stloc.2
+		.try
+		{
+			IL_0079: br IL_0158
+			// loop start (head: IL_0158)
+				IL_007e: ldloc.2
+				IL_007f: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<int32>::get_Current()
+				IL_0084: stloc.3
+				IL_0085: ldarg.2
+				IL_0086: ldloc.3
+				IL_0087: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::FsmState(int32)
+				IL_008c: stloc.s 7
+				IL_008e: ldloca.s 7
+				IL_0090: dup
+				IL_0091: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>>::get_HasValue()
+				IL_0096: brtrue.s IL_00a5
+
+				IL_0098: pop
+				IL_0099: ldloca.s 8
+				IL_009b: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.Telemetry.BagFsmState>
+				IL_00a1: ldloc.s 8
+				IL_00a3: br.s IL_00b4
+
+				IL_00a5: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>>::GetValueOrDefault()
+				IL_00aa: ldfld !0 valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>::Item1
+				IL_00af: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.Telemetry.BagFsmState>::.ctor(!0)
+
+				IL_00b4: stloc.s 4
+				IL_00b6: ldloca.s 4
+				IL_00b8: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.Telemetry.BagFsmState>::get_HasValue()
+				IL_00bd: brfalse.s IL_00d4
+
+				IL_00bf: ldloca.s 4
+				IL_00c1: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.Telemetry.BagFsmState>::GetValueOrDefault()
+				IL_00c6: stloc.s 5
+				IL_00c8: ldloc.s 5
+				IL_00ca: ldc.i4.5
+				IL_00cb: sub
+				IL_00cc: ldc.i4.1
+				IL_00cd: bgt.un.s IL_00d4
+
+				IL_00cf: ldc.i4.1
+				IL_00d0: stloc.s 6
+				IL_00d2: br.s IL_00d7
+
+				IL_00d4: ldc.i4.0
+				IL_00d5: stloc.s 6
+
+				IL_00d7: ldloc.s 6
+				IL_00d9: brfalse.s IL_0158
+
+				IL_00db: ldc.i4.s 35
+				IL_00dd: ldc.i4.2
+				IL_00de: newobj instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+				IL_00e3: stloc.1
+				IL_00e4: ldloca.s 1
+				IL_00e6: ldstr "bag "
+				IL_00eb: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+				IL_00f0: ldloca.s 1
+				IL_00f2: ldloc.3
+				IL_00f3: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+				IL_00f8: ldloca.s 1
+				IL_00fa: ldstr " is in "
+				IL_00ff: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+				IL_0104: ldloca.s 1
+				IL_0106: ldarg.2
+				IL_0107: ldloc.3
+				IL_0108: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::FsmState(int32)
+				IL_010d: stloc.s 7
+				IL_010f: ldloca.s 7
+				IL_0111: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>>::get_Value()
+				IL_0116: stloc.s 9
+				IL_0118: ldloca.s 9
+				IL_011a: ldflda !0 valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>::Item1
+				IL_011f: constrained. Eight.Firmness.Models.Telemetry.BagFsmState
+				IL_0125: callvirt instance string [System.Runtime]System.Object::ToString()
+				IL_012a: callvirt instance string [System.Runtime]System.String::ToUpperInvariant()
+				IL_012f: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted(string)
+				IL_0134: ldloca.s 1
+				IL_0136: ldstr ": the board has stopped "
+				IL_013b: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+				IL_0140: ldloca.s 1
+				IL_0142: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+				IL_0147: ldstr "controlling it (a failed pressure sensor, overpressure, overcurrent or overtemperature). Check debugfirmness/get for the reason and power-cycle the control box before calibrating"
+				IL_014c: call string [System.Runtime]System.String::Concat(string, string)
+				IL_0151: stloc.s 10
+				IL_0153: leave IL_01f1
+
+				IL_0158: ldloc.2
+				IL_0159: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_015e: brtrue IL_007e
+			// end loop
+
+			IL_0163: leave.s IL_016f
+		} // end .try
+		finally
+		{
+			IL_0165: ldloc.2
+			IL_0166: brfalse.s IL_016e
+
+			IL_0168: ldloc.2
+			IL_0169: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_016e: endfinally
+		} // end handler
+
+		IL_016f: ldarg.2
+		IL_0170: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::get_LatestSampleReceivedAt()
+		IL_0175: stloc.s 11
+		IL_0177: ldloca.s 11
+		IL_0179: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>::get_HasValue()
+		IL_017e: brtrue.s IL_0188
+
+		IL_0180: ldarg.0
+		IL_0181: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::startedAt
+		IL_0186: br.s IL_018f
+
+		IL_0188: ldloca.s 11
+		IL_018a: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>::GetValueOrDefault()
+
+		IL_018f: stloc.0
+		IL_0190: ldarg.1
+		IL_0191: ldloc.0
+		IL_0192: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0197: ldarg.0
+		IL_0198: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_019d: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_TelemetryStale()
+		IL_01a2: call bool [System.Runtime]System.TimeSpan::op_GreaterThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_01a7: brtrue.s IL_01ab
+
+		IL_01a9: ldnull
+		IL_01aa: ret
+
+		IL_01ab: ldloca.s 1
+		IL_01ad: ldc.i4.s 71
+		IL_01af: ldc.i4.1
+		IL_01b0: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_01b5: ldloca.s 1
+		IL_01b7: ldstr "no timed pressure samples for "
+		IL_01bc: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_01c1: ldloca.s 1
+		IL_01c3: ldarg.1
+		IL_01c4: ldloc.0
+		IL_01c5: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_01ca: stloc.s 12
+		IL_01cc: ldloca.s 12
+		IL_01ce: call instance float64 [System.Runtime]System.TimeSpan::get_TotalSeconds()
+		IL_01d3: ldstr "F0"
+		IL_01d8: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_01dd: ldloca.s 1
+		IL_01df: ldstr " s: is the enhanced telemetry profile on?"
+		IL_01e4: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_01e9: ldloca.s 1
+		IL_01eb: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_01f0: ret
+
+		IL_01f1: ldloc.s 10
+		IL_01f3: ret
+	} // end of method LandingRunStateMachine::Guard
+
+	.method private hidebysig 
+		instance bool Step (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView telemetry,
+			class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction> actions
+		) cil managed 
+	{
+		// Method begins at RVA 0x11d64
+		// Header size: 12
+		// Code size: 479 (0x1df)
+		.maxstack 6
+		.locals init (
+			[0] valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase,
+			[1] class [System.Runtime]System.Collections.Generic.IEnumerator`1<int32>,
+			[2] int32,
+			[3] valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation,
+			[4] int32
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phase
+		IL_0006: stloc.0
+		IL_0007: ldloc.0
+		IL_0008: switch (IL_0032, IL_00cb, IL_00d4, IL_00dd, IL_0107, IL_0111, IL_013b, IL_0143)
+
+		IL_002d: br IL_01dd
+
+		IL_0032: ldarg.3
+		IL_0033: ldarg.0
+		IL_0034: call instance class Eight.Firmness.Services.Calibration.Landing.LandingAction/SetSetpoints Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::AllOff()
+		IL_0039: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>::Add(!0)
+		IL_003e: ldarg.0
+		IL_003f: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0044: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<int32>::GetEnumerator()
+		IL_0049: stloc.1
+		.try
+		{
+			IL_004a: br.s IL_009d
+			// loop start (head: IL_009d)
+				IL_004c: ldloc.1
+				IL_004d: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<int32>::get_Current()
+				IL_0052: stloc.2
+				IL_0053: ldarg.0
+				IL_0054: ldfld class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::seed
+				IL_0059: ldloc.2
+				IL_005a: ldarg.0
+				IL_005b: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+				IL_0060: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_MaxSeedA()
+				IL_0065: ldarg.0
+				IL_0066: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::entry
+				IL_006b: ldloc.2
+				IL_006c: callvirt instance !1 class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation>::get_Item(!0)
+				IL_0071: stloc.3
+				IL_0072: ldloca.s 3
+				IL_0074: call instance float32 Eight.Firmness.Services.Calibration.Landing.EntryCompensation::get_A()
+				IL_0079: conv.r8
+				IL_007a: ldarg.0
+				IL_007b: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+				IL_0080: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_SeedFactor()
+				IL_0085: mul
+				IL_0086: call float64 [System.Runtime]System.Math::Min(float64, float64)
+				IL_008b: callvirt instance void class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64>::set_Item(!0, !1)
+				IL_0090: ldarg.3
+				IL_0091: ldarg.0
+				IL_0092: ldloc.2
+				IL_0093: call instance class Eight.Firmness.Services.Calibration.Landing.LandingAction/SetCompensation Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Compensation(int32)
+				IL_0098: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>::Add(!0)
+
+				IL_009d: ldloc.1
+				IL_009e: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_00a3: brtrue.s IL_004c
+			// end loop
+
+			IL_00a5: leave.s IL_00b1
+		} // end .try
+		finally
+		{
+			IL_00a7: ldloc.1
+			IL_00a8: brfalse.s IL_00b0
+
+			IL_00aa: ldloc.1
+			IL_00ab: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_00b0: endfinally
+		} // end handler
+
+		IL_00b1: ldarg.0
+		IL_00b2: ldarg.0
+		IL_00b3: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_00b8: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_00bd: ldc.i4.0
+		IL_00be: bgt.s IL_00c3
+
+		IL_00c0: ldc.i4.7
+		IL_00c1: br.s IL_00c4
+
+		IL_00c3: ldc.i4.1
+
+		IL_00c4: ldarg.1
+		IL_00c5: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_00ca: ret
+
+		IL_00cb: ldarg.0
+		IL_00cc: ldarg.1
+		IL_00cd: ldarg.3
+		IL_00ce: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::StartSettle(valuetype [System.Runtime]System.DateTimeOffset, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>)
+		IL_00d3: ret
+
+		IL_00d4: ldarg.0
+		IL_00d5: ldarg.1
+		IL_00d6: ldarg.2
+		IL_00d7: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Settle(valuetype [System.Runtime]System.DateTimeOffset, class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView)
+		IL_00dc: ret
+
+		IL_00dd: ldarg.1
+		IL_00de: ldarg.0
+		IL_00df: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phaseStartedAt
+		IL_00e4: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_00e9: ldarg.0
+		IL_00ea: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_00ef: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_PreBaseline()
+		IL_00f4: call bool [System.Runtime]System.TimeSpan::op_GreaterThanOrEqual(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_00f9: brfalse.s IL_0105
+
+		IL_00fb: ldarg.0
+		IL_00fc: ldarg.1
+		IL_00fd: ldarg.2
+		IL_00fe: ldarg.3
+		IL_00ff: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Move(valuetype [System.Runtime]System.DateTimeOffset, class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>)
+		IL_0104: ret
+
+		IL_0105: ldc.i4.0
+		IL_0106: ret
+
+		IL_0107: ldarg.0
+		IL_0108: ldarg.1
+		IL_0109: ldarg.2
+		IL_010a: ldarg.3
+		IL_010b: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::AwaitDeflate(valuetype [System.Runtime]System.DateTimeOffset, class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>)
+		IL_0110: ret
+
+		IL_0111: ldarg.1
+		IL_0112: ldarg.0
+		IL_0113: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phaseStartedAt
+		IL_0118: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_011d: ldarg.0
+		IL_011e: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0123: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_Freeze()
+		IL_0128: call bool [System.Runtime]System.TimeSpan::op_GreaterThanOrEqual(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_012d: brfalse.s IL_0139
+
+		IL_012f: ldarg.0
+		IL_0130: ldarg.1
+		IL_0131: ldarg.2
+		IL_0132: ldarg.3
+		IL_0133: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Record(valuetype [System.Runtime]System.DateTimeOffset, class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>)
+		IL_0138: ret
+
+		IL_0139: ldc.i4.0
+		IL_013a: ret
+
+		IL_013b: ldarg.0
+		IL_013c: ldarg.1
+		IL_013d: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::NextBag(valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0142: ret
+
+		IL_0143: ldarg.3
+		IL_0144: ldarg.0
+		IL_0145: call instance class Eight.Firmness.Services.Calibration.Landing.LandingAction/SetSetpoints Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::AllOff()
+		IL_014a: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>::Add(!0)
+		IL_014f: ldarg.0
+		IL_0150: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0155: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<int32>::GetEnumerator()
+		IL_015a: stloc.1
+		.try
+		{
+			IL_015b: br.s IL_01b1
+			// loop start (head: IL_01b1)
+				IL_015d: ldloc.1
+				IL_015e: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<int32>::get_Current()
+				IL_0163: stloc.s 4
+				IL_0165: ldarg.3
+				IL_0166: ldloc.s 4
+				IL_0168: ldarg.0
+				IL_0169: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::entry
+				IL_016e: ldloc.s 4
+				IL_0170: callvirt instance !1 class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation>::get_Item(!0)
+				IL_0175: stloc.3
+				IL_0176: ldloca.s 3
+				IL_0178: call instance float32 Eight.Firmness.Services.Calibration.Landing.EntryCompensation::get_A()
+				IL_017d: ldarg.0
+				IL_017e: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::entry
+				IL_0183: ldloc.s 4
+				IL_0185: callvirt instance !1 class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation>::get_Item(!0)
+				IL_018a: stloc.3
+				IL_018b: ldloca.s 3
+				IL_018d: call instance float32 Eight.Firmness.Services.Calibration.Landing.EntryCompensation::get_B()
+				IL_0192: ldarg.0
+				IL_0193: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::entry
+				IL_0198: ldloc.s 4
+				IL_019a: callvirt instance !1 class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation>::get_Item(!0)
+				IL_019f: stloc.3
+				IL_01a0: ldloca.s 3
+				IL_01a2: call instance float32 Eight.Firmness.Services.Calibration.Landing.EntryCompensation::get_Ci()
+				IL_01a7: newobj instance void Eight.Firmness.Services.Calibration.Landing.LandingAction/SetCompensation::.ctor(int32, float32, float32, float32)
+				IL_01ac: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>::Add(!0)
+
+				IL_01b1: ldloc.1
+				IL_01b2: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_01b7: brtrue.s IL_015d
+			// end loop
+
+			IL_01b9: leave.s IL_01c5
+		} // end .try
+		finally
+		{
+			IL_01bb: ldloc.1
+			IL_01bc: brfalse.s IL_01c4
+
+			IL_01be: ldloc.1
+			IL_01bf: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_01c4: endfinally
+		} // end handler
+
+		IL_01c5: ldarg.0
+		IL_01c6: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::outcome
+		IL_01cb: brtrue.s IL_01d4
+
+		IL_01cd: ldarg.0
+		IL_01ce: ldc.i4.1
+		IL_01cf: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::outcome
+
+		IL_01d4: ldarg.0
+		IL_01d5: ldc.i4.8
+		IL_01d6: ldarg.1
+		IL_01d7: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_01dc: ret
+
+		IL_01dd: ldc.i4.0
+		IL_01de: ret
+	} // end of method LandingRunStateMachine::Step
+
+	.method private hidebysig 
+		instance bool StartSettle (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction> actions
+		) cil managed 
+	{
+		// Method begins at RVA 0x11f6c
+		// Header size: 12
+		// Code size: 142 (0x8e)
+		.maxstack 4
+		.locals init (
+			[0] int32,
+			[1] valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0006: ldarg.0
+		IL_0007: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_000c: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>::get_Item(int32)
+		IL_0011: stloc.0
+		IL_0012: ldarg.0
+		IL_0013: ldarg.0
+		IL_0014: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0019: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep> Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_Steps()
+		IL_001e: ldarg.0
+		IL_001f: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stepIndex
+		IL_0024: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep>::get_Item(int32)
+		IL_0029: stloc.1
+		IL_002a: ldloca.s 1
+		IL_002c: call instance float64 Eight.Firmness.Services.Calibration.Landing.LandingStep::get_FromKpa()
+		IL_0031: stfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::target
+		IL_0036: ldarg.0
+		IL_0037: ldarg.0
+		IL_0038: ldarg.0
+		IL_0039: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::target
+		IL_003e: call instance float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::DepartureBand(float64)
+		IL_0043: ldc.r8 0.05
+		IL_004c: ldc.r8 0.15
+		IL_0055: call float64 [System.Runtime]System.Math::Clamp(float64, float64, float64)
+		IL_005a: stfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::tolerance
+		IL_005f: ldarg.0
+		IL_0060: ldflda valuetype [System.Runtime]System.Nullable`1<uint32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::steadySinceMs
+		IL_0065: initobj valuetype [System.Runtime]System.Nullable`1<uint32>
+		IL_006b: ldarg.0
+		IL_006c: ldarg.1
+		IL_006d: stfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::trialStartedAt
+		IL_0072: ldarg.2
+		IL_0073: ldarg.0
+		IL_0074: ldloc.0
+		IL_0075: ldarg.0
+		IL_0076: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::target
+		IL_007b: call instance class Eight.Firmness.Services.Calibration.Landing.LandingAction/SetSetpoints Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Only(int32, float64)
+		IL_0080: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>::Add(!0)
+		IL_0085: ldarg.0
+		IL_0086: ldc.i4.2
+		IL_0087: ldarg.1
+		IL_0088: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_008d: ret
+	} // end of method LandingRunStateMachine::StartSettle
+
+	.method private hidebysig 
+		instance bool Settle (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView telemetry
+		) cil managed 
+	{
+		// Method begins at RVA 0x12008
+		// Header size: 12
+		// Code size: 469 (0x1d5)
+		.maxstack 4
+		.locals init (
+			[0] int32,
+			[1] uint32,
+			[2] valuetype [System.Runtime]System.Nullable`1<uint32>,
+			[3] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>>,
+			[4] uint32,
+			[5] float64,
+			[6] valuetype [System.Runtime]System.TimeSpan,
+			[7] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0006: ldarg.0
+		IL_0007: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_000c: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>::get_Item(int32)
+		IL_0011: stloc.0
+		IL_0012: ldarg.2
+		IL_0013: callvirt instance valuetype [System.Runtime]System.Nullable`1<uint32> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::get_LatestBoardMs()
+		IL_0018: stloc.2
+		IL_0019: ldloca.s 2
+		IL_001b: call instance bool valuetype [System.Runtime]System.Nullable`1<uint32>::get_HasValue()
+		IL_0020: brfalse IL_0103
+
+		IL_0025: ldloca.s 2
+		IL_0027: call instance !0 valuetype [System.Runtime]System.Nullable`1<uint32>::GetValueOrDefault()
+		IL_002c: stloc.1
+		IL_002d: ldarg.2
+		IL_002e: ldloc.0
+		IL_002f: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::FsmState(int32)
+		IL_0034: stloc.3
+		IL_0035: ldarg.0
+		IL_0036: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_003b: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_SteadyWindow()
+		IL_0040: stloc.s 6
+		IL_0042: ldloca.s 6
+		IL_0044: call instance float64 [System.Runtime]System.TimeSpan::get_TotalMilliseconds()
+		IL_0049: conv.u4
+		IL_004a: stloc.s 4
+		IL_004c: ldarg.2
+		IL_004d: ldloc.0
+		IL_004e: ldloc.1
+		IL_004f: ldloc.s 4
+		IL_0051: bgt.un.s IL_0056
+
+		IL_0053: ldc.i4.0
+		IL_0054: br.s IL_005a
+
+		IL_0056: ldloc.1
+		IL_0057: ldloc.s 4
+		IL_0059: sub
+
+		IL_005a: ldloc.1
+		IL_005b: callvirt instance valuetype [System.Runtime]System.ValueTuple`3<float64, float64, int32> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::Window(int32, uint32, uint32)
+		IL_0060: ldfld !0 valuetype [System.Runtime]System.ValueTuple`3<float64, float64, int32>::Item1
+		IL_0065: stloc.s 5
+		IL_0067: ldloca.s 3
+		IL_0069: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>>::get_HasValue()
+		IL_006e: brtrue.s IL_0073
+
+		IL_0070: ldc.i4.0
+		IL_0071: br.s IL_0082
+
+		IL_0073: ldloca.s 3
+		IL_0075: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>>::GetValueOrDefault()
+		IL_007a: ldfld !0 valuetype [System.Runtime]System.ValueTuple`2<valuetype Eight.Firmness.Models.Telemetry.BagFsmState, uint32>::Item1
+		IL_007f: ldc.i4.1
+		IL_0080: ceq
+
+		IL_0082: brfalse.s IL_009f
+
+		IL_0084: ldloc.s 5
+		IL_0086: ldarg.0
+		IL_0087: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::target
+		IL_008c: sub
+		IL_008d: call float64 [System.Runtime]System.Math::Abs(float64)
+		IL_0092: ldarg.0
+		IL_0093: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::tolerance
+		IL_0098: cgt.un
+		IL_009a: ldc.i4.0
+		IL_009b: ceq
+		IL_009d: br.s IL_00a0
+
+		IL_009f: ldc.i4.0
+
+		IL_00a0: brtrue.s IL_00b0
+
+		IL_00a2: ldarg.0
+		IL_00a3: ldflda valuetype [System.Runtime]System.Nullable`1<uint32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::steadySinceMs
+		IL_00a8: initobj valuetype [System.Runtime]System.Nullable`1<uint32>
+		IL_00ae: br.s IL_0103
+
+		IL_00b0: ldarg.0
+		IL_00b1: ldfld valuetype [System.Runtime]System.Nullable`1<uint32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::steadySinceMs
+		IL_00b6: stloc.2
+		IL_00b7: ldloca.s 2
+		IL_00b9: call instance bool valuetype [System.Runtime]System.Nullable`1<uint32>::get_HasValue()
+		IL_00be: brtrue.s IL_00ce
+
+		IL_00c0: ldarg.0
+		IL_00c1: ldloc.1
+		IL_00c2: newobj instance void valuetype [System.Runtime]System.Nullable`1<uint32>::.ctor(!0)
+		IL_00c7: stfld valuetype [System.Runtime]System.Nullable`1<uint32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::steadySinceMs
+		IL_00cc: br.s IL_0103
+
+		IL_00ce: ldloc.1
+		IL_00cf: ldarg.0
+		IL_00d0: ldflda valuetype [System.Runtime]System.Nullable`1<uint32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::steadySinceMs
+		IL_00d5: call instance !0 valuetype [System.Runtime]System.Nullable`1<uint32>::get_Value()
+		IL_00da: sub
+		IL_00db: conv.r.un
+		IL_00dc: conv.r8
+		IL_00dd: ldarg.0
+		IL_00de: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_00e3: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_SteadyHold()
+		IL_00e8: stloc.s 6
+		IL_00ea: ldloca.s 6
+		IL_00ec: call instance float64 [System.Runtime]System.TimeSpan::get_TotalMilliseconds()
+		IL_00f1: blt.un.s IL_0103
+
+		IL_00f3: ldarg.0
+		IL_00f4: ldc.i4.1
+		IL_00f5: stfld bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::steadyBefore
+		IL_00fa: ldarg.0
+		IL_00fb: ldc.i4.3
+		IL_00fc: ldarg.1
+		IL_00fd: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0102: ret
+
+		IL_0103: ldarg.1
+		IL_0104: ldarg.0
+		IL_0105: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phaseStartedAt
+		IL_010a: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_010f: ldarg.0
+		IL_0110: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0115: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_SettleTimeout()
+		IL_011a: call bool [System.Runtime]System.TimeSpan::op_GreaterThanOrEqual(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_011f: brfalse IL_01d3
+
+		IL_0124: ldarg.0
+		IL_0125: ldc.i4.0
+		IL_0126: stfld bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::steadyBefore
+		IL_012b: ldarg.0
+		IL_012c: ldfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::warnings
+		IL_0131: ldloca.s 7
+		IL_0133: ldc.i4.s 62
+		IL_0135: ldc.i4.4
+		IL_0136: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_013b: ldloca.s 7
+		IL_013d: ldstr "bag "
+		IL_0142: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0147: ldloca.s 7
+		IL_0149: ldloc.0
+		IL_014a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_014f: ldloca.s 7
+		IL_0151: ldstr " rep "
+		IL_0156: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_015b: ldloca.s 7
+		IL_015d: ldarg.0
+		IL_015e: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_0163: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_0168: ldloca.s 7
+		IL_016a: ldstr ": did not settle steady at "
+		IL_016f: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0174: ldloca.s 7
+		IL_0176: ldarg.0
+		IL_0177: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::target
+		IL_017c: ldstr "F2"
+		IL_0181: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_0186: ldloca.s 7
+		IL_0188: ldstr " kPa within "
+		IL_018d: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0192: ldloca.s 7
+		IL_0194: ldarg.0
+		IL_0195: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_019a: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_SettleTimeout()
+		IL_019f: stloc.s 6
+		IL_01a1: ldloca.s 6
+		IL_01a3: call instance float64 [System.Runtime]System.TimeSpan::get_TotalSeconds()
+		IL_01a8: ldstr "F0"
+		IL_01ad: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_01b2: ldloca.s 7
+		IL_01b4: ldstr " s; trial kept"
+		IL_01b9: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_01be: ldloca.s 7
+		IL_01c0: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_01c5: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+		IL_01ca: ldarg.0
+		IL_01cb: ldc.i4.3
+		IL_01cc: ldarg.1
+		IL_01cd: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_01d2: ret
+
+		IL_01d3: ldc.i4.0
+		IL_01d4: ret
+	} // end of method LandingRunStateMachine::Settle
+
+	.method private hidebysig 
+		instance bool Move (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView telemetry,
+			class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction> actions
+		) cil managed 
+	{
+		// Method begins at RVA 0x121ec
+		// Header size: 12
+		// Code size: 339 (0x153)
+		.maxstack 5
+		.locals init (
+			[0] int32,
+			[1] uint32,
+			[2] uint32,
+			[3] valuetype [System.Runtime]System.Nullable`1<uint32>,
+			[4] valuetype [System.Runtime]System.TimeSpan,
+			[5] valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep,
+			[6] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0006: ldarg.0
+		IL_0007: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_000c: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>::get_Item(int32)
+		IL_0011: stloc.0
+		IL_0012: ldarg.2
+		IL_0013: callvirt instance valuetype [System.Runtime]System.Nullable`1<uint32> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::get_LatestBoardMs()
+		IL_0018: stloc.3
+		IL_0019: ldloca.s 3
+		IL_001b: call instance !0 valuetype [System.Runtime]System.Nullable`1<uint32>::GetValueOrDefault()
+		IL_0020: stloc.1
+		IL_0021: ldarg.0
+		IL_0022: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0027: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_Baseline()
+		IL_002c: stloc.s 4
+		IL_002e: ldloca.s 4
+		IL_0030: call instance float64 [System.Runtime]System.TimeSpan::get_TotalMilliseconds()
+		IL_0035: conv.u4
+		IL_0036: stloc.2
+		IL_0037: ldarg.0
+		IL_0038: ldarg.2
+		IL_0039: ldloc.0
+		IL_003a: ldloc.1
+		IL_003b: ldloc.2
+		IL_003c: bgt.un.s IL_0041
+
+		IL_003e: ldc.i4.0
+		IL_003f: br.s IL_0044
+
+		IL_0041: ldloc.1
+		IL_0042: ldloc.2
+		IL_0043: sub
+
+		IL_0044: ldloc.1
+		IL_0045: callvirt instance valuetype [System.Runtime]System.ValueTuple`3<float64, float64, int32> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::Window(int32, uint32, uint32)
+		IL_004a: ldfld !0 valuetype [System.Runtime]System.ValueTuple`3<float64, float64, int32>::Item1
+		IL_004f: stfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::baseline
+		IL_0054: ldarg.0
+		IL_0055: ldarg.0
+		IL_0056: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::baseline
+		IL_005b: ldarg.0
+		IL_005c: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0061: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep> Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_Steps()
+		IL_0066: ldarg.0
+		IL_0067: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stepIndex
+		IL_006c: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep>::get_Item(int32)
+		IL_0071: stloc.s 5
+		IL_0073: ldloca.s 5
+		IL_0075: call instance float64 Eight.Firmness.Services.Calibration.Landing.LandingStep::get_DeltaKpa()
+		IL_007a: sub
+		IL_007b: ldc.i4.3
+		IL_007c: ldc.i4.1
+		IL_007d: call float64 [System.Runtime]System.Math::Round(float64, int32, valuetype [System.Runtime]System.MidpointRounding)
+		IL_0082: stfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::moveTarget
+		IL_0087: ldarg.0
+		IL_0088: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::moveTarget
+		IL_008d: call bool [System.Runtime]System.Double::IsFinite(float64)
+		IL_0092: brfalse.s IL_00a5
+
+		IL_0094: ldarg.0
+		IL_0095: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::moveTarget
+		IL_009a: ldc.r8 0.0
+		IL_00a3: bgt.un.s IL_010a
+
+		IL_00a5: ldarg.0
+		IL_00a6: ldc.i4.2
+		IL_00a7: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::outcome
+		IL_00ac: ldarg.0
+		IL_00ad: ldloca.s 6
+		IL_00af: ldc.i4.s 102
+		IL_00b1: ldc.i4.2
+		IL_00b2: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_00b7: ldloca.s 6
+		IL_00b9: ldstr "bag "
+		IL_00be: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_00c3: ldloca.s 6
+		IL_00c5: ldloc.0
+		IL_00c6: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_00cb: ldloca.s 6
+		IL_00cd: ldstr ": no step to command from a baseline of "
+		IL_00d2: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_00d7: ldloca.s 6
+		IL_00d9: ldarg.0
+		IL_00da: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::baseline
+		IL_00df: ldstr "F3"
+		IL_00e4: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_00e9: ldloca.s 6
+		IL_00eb: ldstr " kPa (no usable pressure samples, or the bag did not fill)"
+		IL_00f0: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_00f5: ldloca.s 6
+		IL_00f7: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_00fc: stfld string Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::'error'
+		IL_0101: ldarg.0
+		IL_0102: ldc.i4.7
+		IL_0103: ldarg.1
+		IL_0104: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0109: ret
+
+		IL_010a: ldarg.0
+		IL_010b: ldloc.1
+		IL_010c: stfld uint32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::markMs
+		IL_0111: ldarg.0
+		IL_0112: ldc.i4.1
+		IL_0113: stfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingMechanism Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::mechanism
+		IL_0118: ldarg.0
+		IL_0119: ldflda valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stopKpa
+		IL_011e: initobj valuetype [System.Runtime]System.Nullable`1<float64>
+		IL_0124: ldarg.0
+		IL_0125: ldflda valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::deflateMs
+		IL_012a: initobj valuetype [System.Runtime]System.Nullable`1<float64>
+		IL_0130: ldarg.0
+		IL_0131: ldc.i4.0
+		IL_0132: stfld bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::inflateLeaked
+		IL_0137: ldarg.3
+		IL_0138: ldarg.0
+		IL_0139: ldloc.0
+		IL_013a: ldarg.0
+		IL_013b: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::moveTarget
+		IL_0140: call instance class Eight.Firmness.Services.Calibration.Landing.LandingAction/SetSetpoints Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Only(int32, float64)
+		IL_0145: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>::Add(!0)
+		IL_014a: ldarg.0
+		IL_014b: ldc.i4.4
+		IL_014c: ldarg.1
+		IL_014d: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0152: ret
+	} // end of method LandingRunStateMachine::Move
+
+	.method private hidebysig 
+		instance bool AwaitDeflate (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView telemetry,
+			class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction> actions
+		) cil managed 
+	{
+		// Method begins at RVA 0x1234c
+		// Header size: 12
+		// Code size: 1326 (0x52e)
+		.maxstack 5
+		.locals init (
+			[0] int32,
+			[1] class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>,
+			[2] int32,
+			[3] int32,
+			[4] bool,
+			[5] valuetype [System.Runtime]System.TimeSpan,
+			[6] uint32,
+			[7] uint32,
+			[8] uint32,
+			[9] string,
+			[10] uint32,
+			[11] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>,
+			[12] valuetype [System.Runtime]System.TimeSpan,
+			[13] valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport,
+			[14] valuetype [System.Runtime]System.Nullable`1<uint32>,
+			[15] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[16] valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample,
+			[17] float64,
+			[18] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>,
+			[19] bool,
+			[20] bool,
+			[21] valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation,
+			[22] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>,
+			[23] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0006: ldarg.0
+		IL_0007: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_000c: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>::get_Item(int32)
+		IL_0011: stloc.0
+		IL_0012: ldarg.2
+		IL_0013: ldloc.0
+		IL_0014: ldarg.0
+		IL_0015: ldfld uint32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::markMs
+		IL_001a: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::ValveReports(int32, uint32)
+		IL_001f: stloc.1
+		IL_0020: ldloc.1
+		IL_0021: call class [System.Collections]System.Collections.Generic.List`1<!!0> [System.Linq]System.Linq.Enumerable::ToList<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>)
+		IL_0026: ldsfld class [System.Runtime]System.Predicate`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<>9__49_0'
+		IL_002b: dup
+		IL_002c: brtrue.s IL_0045
+
+		IL_002e: pop
+		IL_002f: ldsfld class Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c' Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<>9'
+		IL_0034: ldftn instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<AwaitDeflate>b__49_0'(valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport)
+		IL_003a: newobj instance void class [System.Runtime]System.Predicate`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>::.ctor(object, native int)
+		IL_003f: dup
+		IL_0040: stsfld class [System.Runtime]System.Predicate`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<>9__49_0'
+
+		IL_0045: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>::FindIndex(class [System.Runtime]System.Predicate`1<!0>)
+		IL_004a: stloc.2
+		IL_004b: ldloc.2
+		IL_004c: ldc.i4.0
+		IL_004d: blt.s IL_007e
+
+		IL_004f: ldloc.1
+		IL_0050: call class [System.Collections]System.Collections.Generic.List`1<!!0> [System.Linq]System.Linq.Enumerable::ToList<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>)
+		IL_0055: ldloc.2
+		IL_0056: ldc.i4.1
+		IL_0057: add
+		IL_0058: ldsfld class [System.Runtime]System.Predicate`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<>9__49_1'
+		IL_005d: dup
+		IL_005e: brtrue.s IL_0077
+
+		IL_0060: pop
+		IL_0061: ldsfld class Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c' Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<>9'
+		IL_0066: ldftn instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<AwaitDeflate>b__49_1'(valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport)
+		IL_006c: newobj instance void class [System.Runtime]System.Predicate`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>::.ctor(object, native int)
+		IL_0071: dup
+		IL_0072: stsfld class [System.Runtime]System.Predicate`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<>9__49_1'
+
+		IL_0077: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>::FindIndex(int32, class [System.Runtime]System.Predicate`1<!0>)
+		IL_007c: br.s IL_007f
+
+		IL_007e: ldc.i4.m1
+
+		IL_007f: stloc.3
+		IL_0080: ldloc.3
+		IL_0081: ldc.i4.0
+		IL_0082: blt IL_04c8
+
+		IL_0087: ldarg.0
+		IL_0088: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_008d: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_CloseDwell()
+		IL_0092: stloc.s 12
+		IL_0094: ldloca.s 12
+		IL_0096: call instance float64 [System.Runtime]System.TimeSpan::get_TotalMilliseconds()
+		IL_009b: conv.u4
+		IL_009c: stloc.s 6
+		IL_009e: ldloc.1
+		IL_009f: ldloc.2
+		IL_00a0: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>::get_Item(int32)
+		IL_00a5: stloc.s 13
+		IL_00a7: ldloca.s 13
+		IL_00a9: call instance uint32 Eight.Firmness.Services.Calibration.Landing.ValveReport::get_BoardMs()
+		IL_00ae: stloc.s 7
+		IL_00b0: ldloc.1
+		IL_00b1: ldloc.3
+		IL_00b2: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>::get_Item(int32)
+		IL_00b7: stloc.s 13
+		IL_00b9: ldloca.s 13
+		IL_00bb: call instance uint32 Eight.Firmness.Services.Calibration.Landing.ValveReport::get_BoardMs()
+		IL_00c0: ldloc.s 6
+		IL_00c2: sub
+		IL_00c3: stloc.s 8
+		IL_00c5: ldarg.2
+		IL_00c6: callvirt instance valuetype [System.Runtime]System.Nullable`1<uint32> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::get_LatestBoardMs()
+		IL_00cb: stloc.s 14
+		IL_00cd: ldloca.s 14
+		IL_00cf: call instance !0 valuetype [System.Runtime]System.Nullable`1<uint32>::GetValueOrDefault()
+		IL_00d4: ldloc.s 8
+		IL_00d6: bge.un.s IL_0118
+
+		IL_00d8: ldarg.1
+		IL_00d9: ldarg.0
+		IL_00da: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phaseStartedAt
+		IL_00df: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_00e4: ldarg.0
+		IL_00e5: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_00ea: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_DeflateWait()
+		IL_00ef: ldarg.0
+		IL_00f0: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_00f5: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_CloseDwell()
+		IL_00fa: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_00ff: ldarg.0
+		IL_0100: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0105: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_Baseline()
+		IL_010a: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_010f: call bool [System.Runtime]System.TimeSpan::op_LessThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0114: brfalse.s IL_0118
+
+		IL_0116: ldc.i4.0
+		IL_0117: ret
+
+		IL_0118: ldarg.0
+		IL_0119: ldc.i4.0
+		IL_011a: stfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingMechanism Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::mechanism
+		IL_011f: ldarg.0
+		IL_0120: ldloc.1
+		IL_0121: ldloc.2
+		IL_0122: ldloc.3
+		IL_0123: ldloc.s 8
+		IL_0125: call instance string Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::DwellInconsistency(class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>, int32, int32, uint32)
+		IL_012a: stloc.s 9
+		IL_012c: ldarg.0
+		IL_012d: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0132: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_StopSampleLead()
+		IL_0137: stloc.s 12
+		IL_0139: ldloca.s 12
+		IL_013b: call instance float64 [System.Runtime]System.TimeSpan::get_TotalMilliseconds()
+		IL_0140: conv.u4
+		IL_0141: stloc.s 10
+		IL_0143: ldarg.2
+		IL_0144: ldloc.0
+		IL_0145: ldloc.s 8
+		IL_0147: ldloc.s 10
+		IL_0149: bgt.un.s IL_014e
+
+		IL_014b: ldc.i4.0
+		IL_014c: br.s IL_0153
+
+		IL_014e: ldloc.s 8
+		IL_0150: ldloc.s 10
+		IL_0152: sub
+
+		IL_0153: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::SampleAtOrBefore(int32, uint32)
+		IL_0158: stloc.s 11
+		IL_015a: ldloc.s 9
+		IL_015c: brtrue.s IL_0167
+
+		IL_015e: ldloc.s 8
+		IL_0160: ldloc.s 7
+		IL_0162: bgt.un IL_01fd
+
+		IL_0167: ldarg.0
+		IL_0168: ldfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::warnings
+		IL_016d: ldloca.s 15
+		IL_016f: ldc.i4.s 51
+		IL_0171: ldc.i4.4
+		IL_0172: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_0177: ldloca.s 15
+		IL_0179: ldstr "bag "
+		IL_017e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0183: ldloca.s 15
+		IL_0185: ldloc.0
+		IL_0186: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_018b: ldloca.s 15
+		IL_018d: ldstr " rep "
+		IL_0192: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0197: ldloca.s 15
+		IL_0199: ldarg.0
+		IL_019a: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_019f: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_01a4: ldloca.s 15
+		IL_01a6: ldstr " from "
+		IL_01ab: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_01b0: ldloca.s 15
+		IL_01b2: ldarg.0
+		IL_01b3: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::target
+		IL_01b8: ldstr "F2"
+		IL_01bd: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_01c2: ldloca.s 15
+		IL_01c4: ldstr ": stop not placed ("
+		IL_01c9: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_01ce: ldloca.s 15
+		IL_01d0: ldloc.s 9
+		IL_01d2: dup
+		IL_01d3: brtrue.s IL_01db
+
+		IL_01d5: pop
+		IL_01d6: ldstr "close edge inside the dwell"
+
+		IL_01db: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted(string)
+		IL_01e0: ldloca.s 15
+		IL_01e2: ldstr "); trial excluded"
+		IL_01e7: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_01ec: ldloca.s 15
+		IL_01ee: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_01f3: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+		IL_01f8: br IL_04be
+
+		IL_01fd: ldloca.s 11
+		IL_01ff: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>::get_HasValue()
+		IL_0204: brfalse.s IL_0239
+
+		IL_0206: ldloc.s 8
+		IL_0208: ldloca.s 11
+		IL_020a: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>::get_Value()
+		IL_020f: stloc.s 16
+		IL_0211: ldloca.s 16
+		IL_0213: call instance uint32 Eight.Firmness.Services.Calibration.Landing.GaugeSample::get_BoardMs()
+		IL_0218: sub
+		IL_0219: conv.r.un
+		IL_021a: conv.r8
+		IL_021b: ldloc.s 10
+		IL_021d: conv.r.un
+		IL_021e: conv.r8
+		IL_021f: ldarg.0
+		IL_0220: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0225: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_EdgeTolerance()
+		IL_022a: stloc.s 12
+		IL_022c: ldloca.s 12
+		IL_022e: call instance float64 [System.Runtime]System.TimeSpan::get_TotalMilliseconds()
+		IL_0233: add
+		IL_0234: ble.un IL_02c3
+
+		IL_0239: ldarg.0
+		IL_023a: ldfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::warnings
+		IL_023f: ldloca.s 15
+		IL_0241: ldc.i4.s 56
+		IL_0243: ldc.i4.3
+		IL_0244: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_0249: ldloca.s 15
+		IL_024b: ldstr "bag "
+		IL_0250: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0255: ldloca.s 15
+		IL_0257: ldloc.0
+		IL_0258: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_025d: ldloca.s 15
+		IL_025f: ldstr " rep "
+		IL_0264: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0269: ldloca.s 15
+		IL_026b: ldarg.0
+		IL_026c: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_0271: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_0276: ldloca.s 15
+		IL_0278: ldstr " from "
+		IL_027d: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0282: ldloca.s 15
+		IL_0284: ldarg.0
+		IL_0285: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::target
+		IL_028a: ldstr "F2"
+		IL_028f: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_0294: ldloca.s 15
+		IL_0296: ldstr ": no sample near the stop; trial excluded"
+		IL_029b: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_02a0: ldloca.s 15
+		IL_02a2: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_02a7: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+		IL_02ac: ldarg.0
+		IL_02ad: ldloc.s 8
+		IL_02af: ldloc.s 7
+		IL_02b1: sub
+		IL_02b2: conv.r.un
+		IL_02b3: conv.r8
+		IL_02b4: newobj instance void valuetype [System.Runtime]System.Nullable`1<float64>::.ctor(!0)
+		IL_02b9: stfld valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::deflateMs
+		IL_02be: br IL_04be
+
+		IL_02c3: ldarg.0
+		IL_02c4: ldloca.s 11
+		IL_02c6: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>::get_Value()
+		IL_02cb: stloc.s 16
+		IL_02cd: ldloca.s 16
+		IL_02cf: call instance float64 Eight.Firmness.Services.Calibration.Landing.GaugeSample::get_Kpa()
+		IL_02d4: newobj instance void valuetype [System.Runtime]System.Nullable`1<float64>::.ctor(!0)
+		IL_02d9: stfld valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stopKpa
+		IL_02de: ldarg.0
+		IL_02df: ldloc.s 8
+		IL_02e1: ldloc.s 7
+		IL_02e3: sub
+		IL_02e4: conv.r.un
+		IL_02e5: conv.r8
+		IL_02e6: newobj instance void valuetype [System.Runtime]System.Nullable`1<float64>::.ctor(!0)
+		IL_02eb: stfld valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::deflateMs
+		IL_02f0: ldarg.0
+		IL_02f1: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::moveTarget
+		IL_02f6: ldarg.0
+		IL_02f7: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::entry
+		IL_02fc: ldloc.0
+		IL_02fd: callvirt instance !1 class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation>::get_Item(!0)
+		IL_0302: stloc.s 21
+		IL_0304: ldloca.s 21
+		IL_0306: call instance float32 Eight.Firmness.Services.Calibration.Landing.EntryCompensation::get_Ci()
+		IL_030b: conv.r8
+		IL_030c: sub
+		IL_030d: ldarg.0
+		IL_030e: ldfld class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::seed
+		IL_0313: ldloc.0
+		IL_0314: callvirt instance !1 class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64>::get_Item(!0)
+		IL_0319: div
+		IL_031a: stloc.s 17
+		IL_031c: ldloca.s 11
+		IL_031e: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>::get_Value()
+		IL_0323: stloc.s 16
+		IL_0325: ldloca.s 16
+		IL_0327: call instance uint32 Eight.Firmness.Services.Calibration.Landing.GaugeSample::get_BoardMs()
+		IL_032c: ldc.i4.0
+		IL_032d: bgt.un.s IL_033b
+
+		IL_032f: ldloca.s 22
+		IL_0331: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>
+		IL_0337: ldloc.s 22
+		IL_0339: br.s IL_0354
+
+		IL_033b: ldarg.2
+		IL_033c: ldloc.0
+		IL_033d: ldloca.s 11
+		IL_033f: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>::get_Value()
+		IL_0344: stloc.s 16
+		IL_0346: ldloca.s 16
+		IL_0348: call instance uint32 Eight.Firmness.Services.Calibration.Landing.GaugeSample::get_BoardMs()
+		IL_034d: ldc.i4.1
+		IL_034e: sub
+		IL_034f: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::SampleAtOrBefore(int32, uint32)
+
+		IL_0354: stloc.s 18
+		IL_0356: ldarg.0
+		IL_0357: ldflda valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stopKpa
+		IL_035c: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::get_Value()
+		IL_0361: ldloc.s 17
+		IL_0363: ldarg.0
+		IL_0364: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0369: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_StopTargetToleranceKpa()
+		IL_036e: add
+		IL_036f: cgt
+		IL_0371: stloc.s 19
+		IL_0373: ldloca.s 18
+		IL_0375: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>::get_HasValue()
+		IL_037a: brfalse.s IL_039e
+
+		IL_037c: ldloca.s 18
+		IL_037e: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>::get_Value()
+		IL_0383: stloc.s 16
+		IL_0385: ldloca.s 16
+		IL_0387: call instance float64 Eight.Firmness.Services.Calibration.Landing.GaugeSample::get_Kpa()
+		IL_038c: ldloc.s 17
+		IL_038e: ldarg.0
+		IL_038f: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0394: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_StopTargetToleranceKpa()
+		IL_0399: sub
+		IL_039a: clt
+		IL_039c: br.s IL_039f
+
+		IL_039e: ldc.i4.0
+
+		IL_039f: stloc.s 20
+		IL_03a1: ldloc.s 19
+		IL_03a3: ldloc.s 20
+		IL_03a5: or
+		IL_03a6: brfalse IL_04be
+
+		IL_03ab: ldarg.0
+		IL_03ac: ldfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::warnings
+		IL_03b1: ldloca.s 15
+		IL_03b3: ldc.i4.s 75
+		IL_03b5: ldc.i4.6
+		IL_03b6: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_03bb: ldloca.s 15
+		IL_03bd: ldstr "bag "
+		IL_03c2: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_03c7: ldloca.s 15
+		IL_03c9: ldloc.0
+		IL_03ca: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_03cf: ldloca.s 15
+		IL_03d1: ldstr " rep "
+		IL_03d6: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_03db: ldloca.s 15
+		IL_03dd: ldarg.0
+		IL_03de: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_03e3: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_03e8: ldloca.s 15
+		IL_03ea: ldstr " from "
+		IL_03ef: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_03f4: ldloca.s 15
+		IL_03f6: ldarg.0
+		IL_03f7: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::target
+		IL_03fc: ldstr "F2"
+		IL_0401: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_0406: ldloca.s 15
+		IL_0408: ldstr ": stop "
+		IL_040d: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0412: ldloca.s 15
+		IL_0414: ldarg.0
+		IL_0415: ldflda valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stopKpa
+		IL_041a: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::get_Value()
+		IL_041f: ldstr "F3"
+		IL_0424: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_0429: ldloca.s 15
+		IL_042b: ldstr " does not match the firmware's target "
+		IL_0430: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0435: ldloca.s 15
+		IL_0437: ldloc.s 17
+		IL_0439: ldstr "F3"
+		IL_043e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_0443: ldloca.s 15
+		IL_0445: ldstr " "
+		IL_044a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_044f: ldloca.s 15
+		IL_0451: ldstr "("
+		IL_0456: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_045b: ldloca.s 15
+		IL_045d: ldloc.s 19
+		IL_045f: brtrue.s IL_049c
+
+		IL_0461: ldloca.s 23
+		IL_0463: ldc.i4.s 25
+		IL_0465: ldc.i4.1
+		IL_0466: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_046b: ldloca.s 23
+		IL_046d: ldstr "sample before it already "
+		IL_0472: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0477: ldloca.s 23
+		IL_0479: ldloca.s 18
+		IL_047b: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Services.Calibration.Landing.GaugeSample>::get_Value()
+		IL_0480: stloc.s 16
+		IL_0482: ldloca.s 16
+		IL_0484: call instance float64 Eight.Firmness.Services.Calibration.Landing.GaugeSample::get_Kpa()
+		IL_0489: ldstr "F3"
+		IL_048e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_0493: ldloca.s 23
+		IL_0495: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_049a: br.s IL_04a1
+
+		IL_049c: ldstr "stop above it"
+
+		IL_04a1: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted(string)
+		IL_04a6: ldloca.s 15
+		IL_04a8: ldstr "); trial kept"
+		IL_04ad: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_04b2: ldloca.s 15
+		IL_04b4: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_04b9: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+
+		IL_04be: ldarg.0
+		IL_04bf: ldarg.1
+		IL_04c0: ldloc.1
+		IL_04c1: ldarg.3
+		IL_04c2: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Freeze(valuetype [System.Runtime]System.DateTimeOffset, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>)
+		IL_04c7: ret
+
+		IL_04c8: ldloc.2
+		IL_04c9: ldc.i4.0
+		IL_04ca: clt
+		IL_04cc: ldc.i4.0
+		IL_04cd: ceq
+		IL_04cf: stloc.s 4
+		IL_04d1: ldloc.s 4
+		IL_04d3: brtrue.s IL_04e2
+
+		IL_04d5: ldarg.0
+		IL_04d6: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_04db: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_DeflateWait()
+		IL_04e0: br.s IL_04fd
+
+		IL_04e2: ldarg.0
+		IL_04e3: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_04e8: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_DeflateWait()
+		IL_04ed: ldarg.0
+		IL_04ee: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_04f3: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_CloseDwell()
+		IL_04f8: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+
+		IL_04fd: stloc.s 5
+		IL_04ff: ldarg.1
+		IL_0500: ldarg.0
+		IL_0501: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phaseStartedAt
+		IL_0506: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_050b: ldloc.s 5
+		IL_050d: call bool [System.Runtime]System.TimeSpan::op_LessThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0512: brfalse.s IL_0516
+
+		IL_0514: ldc.i4.0
+		IL_0515: ret
+
+		IL_0516: ldarg.0
+		IL_0517: ldloc.s 4
+		IL_0519: brtrue.s IL_051e
+
+		IL_051b: ldc.i4.1
+		IL_051c: br.s IL_051f
+
+		IL_051e: ldc.i4.0
+
+		IL_051f: stfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingMechanism Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::mechanism
+		IL_0524: ldarg.0
+		IL_0525: ldarg.1
+		IL_0526: ldloc.1
+		IL_0527: ldarg.3
+		IL_0528: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Freeze(valuetype [System.Runtime]System.DateTimeOffset, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>)
+		IL_052d: ret
+	} // end of method LandingRunStateMachine::AwaitDeflate
+
+	.method private hidebysig 
+		instance string DwellInconsistency (
+			class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport> reports,
+			int32 open,
+			int32 closed,
+			uint32 exitMs
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x12888
+		// Header size: 12
+		// Code size: 269 (0x10d)
+		.maxstack 3
+		.locals init (
+			[0] uint32,
+			[1] valuetype [System.Runtime]System.TimeSpan,
+			[2] int32,
+			[3] valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport,
+			[4] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[5] valuetype Eight.Firmness.Models.Telemetry.Enhanced.ValveMotion,
+			[6] bool
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0006: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_EdgeTolerance()
+		IL_000b: stloc.1
+		IL_000c: ldloca.s 1
+		IL_000e: call instance float64 [System.Runtime]System.TimeSpan::get_TotalMilliseconds()
+		IL_0013: conv.u4
+		IL_0014: stloc.0
+		IL_0015: ldarg.2
+		IL_0016: ldc.i4.1
+		IL_0017: add
+		IL_0018: stloc.2
+		IL_0019: br IL_0104
+		// loop start (head: IL_0104)
+			IL_001e: ldarg.1
+			IL_001f: ldloc.2
+			IL_0020: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>::get_Item(int32)
+			IL_0025: stloc.3
+			IL_0026: ldloca.s 3
+			IL_0028: call instance valuetype Eight.Firmness.Models.Telemetry.Enhanced.ValveMotion Eight.Firmness.Services.Calibration.Landing.ValveReport::get_Deflate()
+			IL_002d: ldc.i4.5
+			IL_002e: bne.un.s IL_008a
+
+			IL_0030: ldloca.s 3
+			IL_0032: call instance uint32 Eight.Firmness.Services.Calibration.Landing.ValveReport::get_BoardMs()
+			IL_0037: ldloc.0
+			IL_0038: add
+			IL_0039: ldarg.s exitMs
+			IL_003b: bge.un.s IL_008a
+
+			IL_003d: ldloca.s 4
+			IL_003f: ldc.i4.s 50
+			IL_0041: ldc.i4.2
+			IL_0042: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+			IL_0047: ldloca.s 4
+			IL_0049: ldstr "ramping down at "
+			IL_004e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+			IL_0053: ldloca.s 4
+			IL_0055: ldloca.s 3
+			IL_0057: call instance uint32 Eight.Firmness.Services.Calibration.Landing.ValveReport::get_BoardMs()
+			IL_005c: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<uint32>(!!0)
+			IL_0061: ldloca.s 4
+			IL_0063: ldstr " ms, before the placed stop at "
+			IL_0068: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+			IL_006d: ldloca.s 4
+			IL_006f: ldarg.s exitMs
+			IL_0071: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<uint32>(!!0)
+			IL_0076: ldloca.s 4
+			IL_0078: ldstr " ms"
+			IL_007d: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+			IL_0082: ldloca.s 4
+			IL_0084: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+			IL_0089: ret
+
+			IL_008a: ldloca.s 3
+			IL_008c: call instance valuetype Eight.Firmness.Models.Telemetry.Enhanced.ValveMotion Eight.Firmness.Services.Calibration.Landing.ValveReport::get_Deflate()
+			IL_0091: stloc.s 5
+			IL_0093: ldloc.s 5
+			IL_0095: ldc.i4.2
+			IL_0096: sub
+			IL_0097: ldc.i4.2
+			IL_0098: bgt.un.s IL_009f
+
+			IL_009a: ldc.i4.1
+			IL_009b: stloc.s 6
+			IL_009d: br.s IL_00a2
+
+			IL_009f: ldc.i4.0
+			IL_00a0: stloc.s 6
+
+			IL_00a2: ldloc.s 6
+			IL_00a4: brfalse.s IL_0100
+
+			IL_00a6: ldloca.s 3
+			IL_00a8: call instance uint32 Eight.Firmness.Services.Calibration.Landing.ValveReport::get_BoardMs()
+			IL_00ad: ldarg.s exitMs
+			IL_00af: ldloc.0
+			IL_00b0: add
+			IL_00b1: ble.un.s IL_0100
+
+			IL_00b3: ldloca.s 4
+			IL_00b5: ldc.i4.s 47
+			IL_00b7: ldc.i4.2
+			IL_00b8: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+			IL_00bd: ldloca.s 4
+			IL_00bf: ldstr "still open at "
+			IL_00c4: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+			IL_00c9: ldloca.s 4
+			IL_00cb: ldloca.s 3
+			IL_00cd: call instance uint32 Eight.Firmness.Services.Calibration.Landing.ValveReport::get_BoardMs()
+			IL_00d2: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<uint32>(!!0)
+			IL_00d7: ldloca.s 4
+			IL_00d9: ldstr " ms, after the placed stop at "
+			IL_00de: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+			IL_00e3: ldloca.s 4
+			IL_00e5: ldarg.s exitMs
+			IL_00e7: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<uint32>(!!0)
+			IL_00ec: ldloca.s 4
+			IL_00ee: ldstr " ms"
+			IL_00f3: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+			IL_00f8: ldloca.s 4
+			IL_00fa: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+			IL_00ff: ret
+
+			IL_0100: ldloc.2
+			IL_0101: ldc.i4.1
+			IL_0102: add
+			IL_0103: stloc.2
+
+			IL_0104: ldloc.2
+			IL_0105: ldarg.3
+			IL_0106: blt IL_001e
+		// end loop
+
+		IL_010b: ldnull
+		IL_010c: ret
+	} // end of method LandingRunStateMachine::DwellInconsistency
+
+	.method private hidebysig 
+		instance bool Freeze (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport> reports,
+			class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction> actions
+		) cil managed 
+	{
+		// Method begins at RVA 0x129a4
+		// Header size: 12
+		// Code size: 64 (0x40)
+		.maxstack 4
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.2
+		IL_0002: ldsfld class [System.Runtime]System.Func`2<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport, bool> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<>9__51_0'
+		IL_0007: dup
+		IL_0008: brtrue.s IL_0021
+
+		IL_000a: pop
+		IL_000b: ldsfld class Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c' Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<>9'
+		IL_0010: ldftn instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<Freeze>b__51_0'(valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport)
+		IL_0016: newobj instance void class [System.Runtime]System.Func`2<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport, bool>::.ctor(object, native int)
+		IL_001b: dup
+		IL_001c: stsfld class [System.Runtime]System.Func`2<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport, bool> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/'<>c'::'<>9__51_0'
+
+		IL_0021: call bool [System.Linq]System.Linq.Enumerable::Any<valuetype Eight.Firmness.Services.Calibration.Landing.ValveReport>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>, class [System.Runtime]System.Func`2<!!0, bool>)
+		IL_0026: stfld bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::inflateLeaked
+		IL_002b: ldarg.3
+		IL_002c: ldarg.0
+		IL_002d: call instance class Eight.Firmness.Services.Calibration.Landing.LandingAction/SetSetpoints Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::AllOff()
+		IL_0032: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>::Add(!0)
+		IL_0037: ldarg.0
+		IL_0038: ldc.i4.5
+		IL_0039: ldarg.1
+		IL_003a: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_003f: ret
+	} // end of method LandingRunStateMachine::Freeze
+
+	.method private hidebysig 
+		instance bool Record (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView telemetry,
+			class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction> actions
+		) cil managed 
+	{
+		// Method begins at RVA 0x129f0
+		// Header size: 12
+		// Code size: 573 (0x23d)
+		.maxstack 14
+		.locals init (
+			[0] int32,
+			[1] uint32,
+			[2] uint32,
+			[3] float64,
+			[4] float64,
+			[5] class Eight.Firmness.Services.Calibration.Landing.LandingTrial,
+			[6] valuetype [System.Runtime]System.Nullable`1<uint32>,
+			[7] valuetype [System.Runtime]System.TimeSpan,
+			[8] valuetype [System.Runtime]System.Nullable`1<float64>,
+			[9] float64,
+			[10] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0006: ldarg.0
+		IL_0007: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_000c: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>::get_Item(int32)
+		IL_0011: stloc.0
+		IL_0012: ldarg.2
+		IL_0013: callvirt instance valuetype [System.Runtime]System.Nullable`1<uint32> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::get_LatestBoardMs()
+		IL_0018: stloc.s 6
+		IL_001a: ldloca.s 6
+		IL_001c: call instance !0 valuetype [System.Runtime]System.Nullable`1<uint32>::GetValueOrDefault()
+		IL_0021: stloc.1
+		IL_0022: ldarg.0
+		IL_0023: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0028: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_Rest()
+		IL_002d: stloc.s 7
+		IL_002f: ldloca.s 7
+		IL_0031: call instance float64 [System.Runtime]System.TimeSpan::get_TotalMilliseconds()
+		IL_0036: conv.u4
+		IL_0037: stloc.2
+		IL_0038: ldarg.2
+		IL_0039: ldloc.0
+		IL_003a: ldloc.1
+		IL_003b: ldloc.2
+		IL_003c: bgt.un.s IL_0041
+
+		IL_003e: ldc.i4.0
+		IL_003f: br.s IL_0044
+
+		IL_0041: ldloc.1
+		IL_0042: ldloc.2
+		IL_0043: sub
+
+		IL_0044: ldloc.1
+		IL_0045: callvirt instance valuetype [System.Runtime]System.ValueTuple`3<float64, float64, int32> Eight.Firmness.Services.Calibration.Landing.ILandingTelemetryView::Window(int32, uint32, uint32)
+		IL_004a: dup
+		IL_004b: ldfld !0 valuetype [System.Runtime]System.ValueTuple`3<float64, float64, int32>::Item1
+		IL_0050: stloc.3
+		IL_0051: ldfld !1 valuetype [System.Runtime]System.ValueTuple`3<float64, float64, int32>::Item2
+		IL_0056: stloc.s 4
+		IL_0058: ldloc.0
+		IL_0059: ldarg.0
+		IL_005a: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_005f: ldarg.0
+		IL_0060: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::target
+		IL_0065: ldarg.0
+		IL_0066: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::moveTarget
+		IL_006b: ldarg.0
+		IL_006c: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::baseline
+		IL_0071: ldarg.0
+		IL_0072: ldfld valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stopKpa
+		IL_0077: ldarg.0
+		IL_0078: ldfld valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::deflateMs
+		IL_007d: ldloc.3
+		IL_007e: ldloc.s 4
+		IL_0080: ldarg.0
+		IL_0081: ldfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingMechanism Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::mechanism
+		IL_0086: ldarg.0
+		IL_0087: ldfld bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::steadyBefore
+		IL_008c: ldarg.0
+		IL_008d: ldfld bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::inflateLeaked
+		IL_0092: ldarg.0
+		IL_0093: ldfld class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::seed
+		IL_0098: ldloc.0
+		IL_0099: callvirt instance !1 class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64>::get_Item(!0)
+		IL_009e: ldarg.0
+		IL_009f: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::trialStartedAt
+		IL_00a4: newobj instance void Eight.Firmness.Services.Calibration.Landing.LandingTrial::.ctor(int32, int32, float64, float64, float64, valuetype [System.Runtime]System.Nullable`1<float64>, valuetype [System.Runtime]System.Nullable`1<float64>, float64, float64, valuetype Eight.Firmness.Services.Calibration.Landing.LandingMechanism, bool, bool, float64, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_00a9: stloc.s 5
+		IL_00ab: ldarg.0
+		IL_00ac: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::trials
+		IL_00b1: ldloc.s 5
+		IL_00b3: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial>::Add(!0)
+		IL_00b8: ldarg.0
+		IL_00b9: ldfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingMechanism Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::mechanism
+		IL_00be: brtrue.s IL_00e8
+
+		IL_00c0: ldarg.0
+		IL_00c1: ldfld valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::deflateMs
+		IL_00c6: stloc.s 8
+		IL_00c8: ldc.r8 400
+		IL_00d1: stloc.s 9
+		IL_00d3: ldloca.s 8
+		IL_00d5: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::GetValueOrDefault()
+		IL_00da: ldloc.s 9
+		IL_00dc: clt
+		IL_00de: ldloca.s 8
+		IL_00e0: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_00e5: and
+		IL_00e6: br.s IL_00e9
+
+		IL_00e8: ldc.i4.0
+
+		IL_00e9: brfalse IL_022d
+
+		IL_00ee: ldarg.0
+		IL_00ef: ldfld class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::seed
+		IL_00f4: ldloc.0
+		IL_00f5: callvirt instance !1 class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64>::get_Item(!0)
+		IL_00fa: ldarg.0
+		IL_00fb: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0100: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_MaxSeedA()
+		IL_0105: bge.un IL_022d
+
+		IL_010a: ldarg.0
+		IL_010b: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::shortRetries
+		IL_0110: ldarg.0
+		IL_0111: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0116: callvirt instance int32 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_ShortRetries()
+		IL_011b: bge IL_022d
+
+		IL_0120: ldarg.0
+		IL_0121: ldarg.0
+		IL_0122: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::shortRetries
+		IL_0127: ldc.i4.1
+		IL_0128: add
+		IL_0129: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::shortRetries
+		IL_012e: ldarg.0
+		IL_012f: ldfld class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::seed
+		IL_0134: ldloc.0
+		IL_0135: ldarg.0
+		IL_0136: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_013b: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_MaxSeedA()
+		IL_0140: ldarg.0
+		IL_0141: ldfld class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::seed
+		IL_0146: ldloc.0
+		IL_0147: callvirt instance !1 class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64>::get_Item(!0)
+		IL_014c: ldarg.0
+		IL_014d: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0152: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_ShortSeedStep()
+		IL_0157: mul
+		IL_0158: call float64 [System.Runtime]System.Math::Min(float64, float64)
+		IL_015d: callvirt instance void class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64>::set_Item(!0, !1)
+		IL_0162: ldarg.3
+		IL_0163: ldarg.0
+		IL_0164: ldloc.0
+		IL_0165: call instance class Eight.Firmness.Services.Calibration.Landing.LandingAction/SetCompensation Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Compensation(int32)
+		IL_016a: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingAction>::Add(!0)
+		IL_016f: ldarg.0
+		IL_0170: ldfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::warnings
+		IL_0175: ldloca.s 10
+		IL_0177: ldc.i4.s 75
+		IL_0179: ldc.i4.5
+		IL_017a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_017f: ldloca.s 10
+		IL_0181: ldstr "bag "
+		IL_0186: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_018b: ldloca.s 10
+		IL_018d: ldloc.0
+		IL_018e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_0193: ldloca.s 10
+		IL_0195: ldstr " rep "
+		IL_019a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_019f: ldloca.s 10
+		IL_01a1: ldarg.0
+		IL_01a2: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_01a7: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_01ac: ldloca.s 10
+		IL_01ae: ldstr " from "
+		IL_01b3: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_01b8: ldloca.s 10
+		IL_01ba: ldarg.0
+		IL_01bb: ldfld float64 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::target
+		IL_01c0: ldstr "F2"
+		IL_01c5: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_01ca: ldloca.s 10
+		IL_01cc: ldstr ": "
+		IL_01d1: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_01d6: ldloca.s 10
+		IL_01d8: ldarg.0
+		IL_01d9: ldfld valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::deflateMs
+		IL_01de: ldstr "F0"
+		IL_01e3: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype [System.Runtime]System.Nullable`1<float64>>(!!0, string)
+		IL_01e8: ldloca.s 10
+		IL_01ea: ldstr " ms deflate is window-limited; seed a raised to "
+		IL_01ef: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_01f4: ldloca.s 10
+		IL_01f6: ldarg.0
+		IL_01f7: ldfld class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::seed
+		IL_01fc: ldloc.0
+		IL_01fd: callvirt instance !1 class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64>::get_Item(!0)
+		IL_0202: ldstr "F3"
+		IL_0207: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_020c: ldloca.s 10
+		IL_020e: ldstr ", retrying"
+		IL_0213: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0218: ldloca.s 10
+		IL_021a: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_021f: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+		IL_0224: ldarg.0
+		IL_0225: ldc.i4.1
+		IL_0226: ldarg.1
+		IL_0227: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_022c: ret
+
+		IL_022d: ldarg.0
+		IL_022e: ldc.i4.0
+		IL_022f: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::shortRetries
+		IL_0234: ldarg.0
+		IL_0235: ldarg.1
+		IL_0236: ldloc.0
+		IL_0237: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::NextAfterTrial(valuetype [System.Runtime]System.DateTimeOffset, int32)
+		IL_023c: ret
+	} // end of method LandingRunStateMachine::Record
+
+	.method private hidebysig 
+		instance bool NextAfterTrial (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			int32 bag
+		) cil managed 
+	{
+		// Method begins at RVA 0x12c3c
+		// Header size: 12
+		// Code size: 397 (0x18d)
+		.maxstack 5
+		.locals init (
+			[0] class Eight.Firmness.Services.Calibration.Landing.LandingFitResult,
+			[1] bool,
+			[2] float64,
+			[3] bool,
+			[4] valuetype [System.Runtime]System.Nullable`1<float64>,
+			[5] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[6] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.0
+		IL_0002: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stepIndex
+		IL_0007: ldc.i4.1
+		IL_0008: add
+		IL_0009: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stepIndex
+		IL_000e: ldarg.0
+		IL_000f: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stepIndex
+		IL_0014: ldarg.0
+		IL_0015: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_001a: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep> Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_Steps()
+		IL_001f: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep>::get_Count()
+		IL_0024: bge.s IL_002f
+
+		IL_0026: ldarg.0
+		IL_0027: ldc.i4.1
+		IL_0028: ldarg.1
+		IL_0029: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_002e: ret
+
+		IL_002f: ldarg.0
+		IL_0030: ldc.i4.0
+		IL_0031: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stepIndex
+		IL_0036: ldarg.0
+		IL_0037: ldarg.0
+		IL_0038: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_003d: ldc.i4.1
+		IL_003e: add
+		IL_003f: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_0044: ldarg.0
+		IL_0045: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_004a: ldarg.0
+		IL_004b: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::repsThisBag
+		IL_0050: bgt.s IL_005b
+
+		IL_0052: ldarg.0
+		IL_0053: ldc.i4.1
+		IL_0054: ldarg.1
+		IL_0055: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_005a: ret
+
+		IL_005b: ldarg.0
+		IL_005c: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::trials
+		IL_0061: ldarg.2
+		IL_0062: call class Eight.Firmness.Services.Calibration.Landing.LandingFitResult Eight.Firmness.Services.Calibration.Landing.LandingFit::Fit(class [System.Runtime]System.Collections.Generic.IEnumerable`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial>, int32)
+		IL_0067: stloc.0
+		IL_0068: ldloc.0
+		IL_0069: callvirt instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingFitResult::get_ResidualSd()
+		IL_006e: stloc.s 4
+		IL_0070: ldloca.s 4
+		IL_0072: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_0077: brfalse.s IL_0091
+
+		IL_0079: ldloca.s 4
+		IL_007b: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::GetValueOrDefault()
+		IL_0080: stloc.2
+		IL_0081: ldloc.2
+		IL_0082: ldarg.0
+		IL_0083: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_0088: callvirt instance float64 Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_AdaptiveResidualKpa()
+		IL_008d: cgt
+		IL_008f: br.s IL_0092
+
+		IL_0091: ldc.i4.0
+
+		IL_0092: stloc.1
+		IL_0093: ldloc.0
+		IL_0094: callvirt instance bool Eight.Firmness.Services.Calibration.Landing.LandingFitResult::get_Success()
+		IL_0099: brtrue.s IL_00bc
+
+		IL_009b: ldloc.0
+		IL_009c: callvirt instance int32 Eight.Firmness.Services.Calibration.Landing.LandingFitResult::get_N()
+		IL_00a1: ldarg.0
+		IL_00a2: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_00a7: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep> Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_Steps()
+		IL_00ac: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep>::get_Count()
+		IL_00b1: ldarg.0
+		IL_00b2: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::reps
+		IL_00b7: mul
+		IL_00b8: clt
+		IL_00ba: br.s IL_00bd
+
+		IL_00bc: ldc.i4.0
+
+		IL_00bd: stloc.3
+		IL_00be: ldarg.0
+		IL_00bf: ldfld bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::extraRepRun
+		IL_00c4: brtrue IL_0184
+
+		IL_00c9: ldloc.1
+		IL_00ca: ldloc.3
+		IL_00cb: or
+		IL_00cc: brfalse IL_0184
+
+		IL_00d1: ldarg.0
+		IL_00d2: ldc.i4.1
+		IL_00d3: stfld bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::extraRepRun
+		IL_00d8: ldarg.0
+		IL_00d9: ldarg.0
+		IL_00da: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::repsThisBag
+		IL_00df: ldc.i4.1
+		IL_00e0: add
+		IL_00e1: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::repsThisBag
+		IL_00e6: ldarg.0
+		IL_00e7: ldfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::warnings
+		IL_00ec: ldloca.s 5
+		IL_00ee: ldc.i4.s 28
+		IL_00f0: ldc.i4.2
+		IL_00f1: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_00f6: ldloca.s 5
+		IL_00f8: ldstr "bag "
+		IL_00fd: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0102: ldloca.s 5
+		IL_0104: ldarg.2
+		IL_0105: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_010a: ldloca.s 5
+		IL_010c: ldstr ": "
+		IL_0111: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0116: ldloca.s 5
+		IL_0118: ldloc.1
+		IL_0119: brtrue.s IL_0123
+
+		IL_011b: ldloc.0
+		IL_011c: callvirt instance string Eight.Firmness.Services.Calibration.Landing.LandingFitResult::get_Error()
+		IL_0121: br.s IL_015e
+
+		IL_0123: ldloca.s 6
+		IL_0125: ldc.i4.s 16
+		IL_0127: ldc.i4.1
+		IL_0128: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_012d: ldloca.s 6
+		IL_012f: ldstr "residual sd "
+		IL_0134: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0139: ldloca.s 6
+		IL_013b: ldloc.0
+		IL_013c: callvirt instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.Landing.LandingFitResult::get_ResidualSd()
+		IL_0141: ldstr "F3"
+		IL_0146: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype [System.Runtime]System.Nullable`1<float64>>(!!0, string)
+		IL_014b: ldloca.s 6
+		IL_014d: ldstr " kPa"
+		IL_0152: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0157: ldloca.s 6
+		IL_0159: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+
+		IL_015e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted(string)
+		IL_0163: ldloca.s 5
+		IL_0165: ldstr "; running one more rep"
+		IL_016a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_016f: ldloca.s 5
+		IL_0171: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_0176: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+		IL_017b: ldarg.0
+		IL_017c: ldc.i4.1
+		IL_017d: ldarg.1
+		IL_017e: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0183: ret
+
+		IL_0184: ldarg.0
+		IL_0185: ldc.i4.6
+		IL_0186: ldarg.1
+		IL_0187: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_018c: ret
+	} // end of method LandingRunStateMachine::NextAfterTrial
+
+	.method private hidebysig 
+		instance bool NextBag (
+			valuetype [System.Runtime]System.DateTimeOffset now
+		) cil managed 
+	{
+		// Method begins at RVA 0x12dd8
+		// Header size: 12
+		// Code size: 85 (0x55)
+		.maxstack 3
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.0
+		IL_0002: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_0007: ldc.i4.1
+		IL_0008: add
+		IL_0009: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_000e: ldarg.0
+		IL_000f: ldc.i4.1
+		IL_0010: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_0015: ldarg.0
+		IL_0016: ldc.i4.0
+		IL_0017: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stepIndex
+		IL_001c: ldarg.0
+		IL_001d: ldarg.0
+		IL_001e: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::reps
+		IL_0023: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::repsThisBag
+		IL_0028: ldarg.0
+		IL_0029: ldc.i4.0
+		IL_002a: stfld bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::extraRepRun
+		IL_002f: ldarg.0
+		IL_0030: ldc.i4.0
+		IL_0031: stfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::shortRetries
+		IL_0036: ldarg.0
+		IL_0037: ldarg.0
+		IL_0038: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_003d: ldarg.0
+		IL_003e: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0043: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_0048: blt.s IL_004d
+
+		IL_004a: ldc.i4.7
+		IL_004b: br.s IL_004e
+
+		IL_004d: ldc.i4.1
+
+		IL_004e: ldarg.1
+		IL_004f: call instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0054: ret
+	} // end of method LandingRunStateMachine::NextBag
+
+	.method private hidebysig 
+		instance float64 DepartureBand (
+			float64 kpa
+		) cil managed 
+	{
+		// Method begins at RVA 0x12e3c
+		// Header size: 12
+		// Code size: 111 (0x6f)
+		.maxstack 4
+		.locals init (
+			[0] float64,
+			[1] int32
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Protocol.ToleranceBinConfig> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bins
+		IL_0006: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<class Eight.Firmness.Protocol.ToleranceBinConfig>::get_Count()
+		IL_000b: brtrue.s IL_0017
+
+		IL_000d: ldc.r8 0.3
+		IL_0016: ret
+
+		IL_0017: ldarg.0
+		IL_0018: ldfld float32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::binWidthKpa
+		IL_001d: ldc.r4 0.0
+		IL_0022: bgt.s IL_002f
+
+		IL_0024: ldc.r8 1
+		IL_002d: br.s IL_0036
+
+		IL_002f: ldarg.0
+		IL_0030: ldfld float32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::binWidthKpa
+		IL_0035: conv.r8
+
+		IL_0036: stloc.0
+		IL_0037: ldarg.1
+		IL_0038: ldarg.0
+		IL_0039: ldfld float32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::binMinKpa
+		IL_003e: conv.r8
+		IL_003f: sub
+		IL_0040: ldloc.0
+		IL_0041: div
+		IL_0042: call float64 [System.Runtime]System.Math::Floor(float64)
+		IL_0047: conv.i4
+		IL_0048: ldc.i4.0
+		IL_0049: ldarg.0
+		IL_004a: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Protocol.ToleranceBinConfig> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bins
+		IL_004f: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<class Eight.Firmness.Protocol.ToleranceBinConfig>::get_Count()
+		IL_0054: ldc.i4.1
+		IL_0055: sub
+		IL_0056: call int32 [System.Runtime]System.Math::Clamp(int32, int32, int32)
+		IL_005b: stloc.1
+		IL_005c: ldarg.0
+		IL_005d: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Protocol.ToleranceBinConfig> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bins
+		IL_0062: ldloc.1
+		IL_0063: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Protocol.ToleranceBinConfig>::get_Item(int32)
+		IL_0068: callvirt instance float32 Eight.Firmness.Protocol.ToleranceBinConfig::get_DepartureKpa()
+		IL_006d: conv.r8
+		IL_006e: ret
+	} // end of method LandingRunStateMachine::DepartureBand
+
+	.method private hidebysig 
+		instance class Eight.Firmness.Services.Calibration.Landing.LandingAction/SetSetpoints AllOff () cil managed 
+	{
+		// Method begins at RVA 0x12eb7
+		// Header size: 1
+		// Code size: 38 (0x26)
+		.maxstack 8
+
+		IL_0000: newobj instance void class [System.Collections]System.Collections.Generic.List`1<float32>::.ctor()
+		IL_0005: dup
+		IL_0006: ldc.r4 -1
+		IL_000b: ldarg.0
+		IL_000c: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagCount
+		IL_0011: call class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0> [System.Linq]System.Linq.Enumerable::Repeat<float32>(!!0, int32)
+		IL_0016: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<float32>::AddRange(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!0>)
+		IL_001b: newobj instance void class '<>z__ReadOnlyList`1'<float32>::.ctor(class [System.Collections]System.Collections.Generic.List`1<!0>)
+		IL_0020: newobj instance void Eight.Firmness.Services.Calibration.Landing.LandingAction/SetSetpoints::.ctor(class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<float32>)
+		IL_0025: ret
+	} // end of method LandingRunStateMachine::AllOff
+
+	.method private hidebysig 
+		instance class Eight.Firmness.Services.Calibration.Landing.LandingAction/SetSetpoints Only (
+			int32 bag,
+			float64 kpa
+		) cil managed 
+	{
+		// Method begins at RVA 0x12ede
+		// Header size: 1
+		// Code size: 32 (0x20)
+		.maxstack 8
+
+		IL_0000: ldc.r4 -1
+		IL_0005: ldarg.0
+		IL_0006: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagCount
+		IL_000b: call class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0> [System.Linq]System.Linq.Enumerable::Repeat<float32>(!!0, int32)
+		IL_0010: call !!0[] [System.Linq]System.Linq.Enumerable::ToArray<float32>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>)
+		IL_0015: dup
+		IL_0016: ldarg.1
+		IL_0017: ldarg.2
+		IL_0018: conv.r4
+		IL_0019: stelem.r4
+		IL_001a: newobj instance void Eight.Firmness.Services.Calibration.Landing.LandingAction/SetSetpoints::.ctor(class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<float32>)
+		IL_001f: ret
+	} // end of method LandingRunStateMachine::Only
+
+	.method private hidebysig 
+		instance class Eight.Firmness.Services.Calibration.Landing.LandingAction/SetCompensation Compensation (
+			int32 bag
+		) cil managed 
+	{
+		// Method begins at RVA 0x12f00
+		// Header size: 12
+		// Code size: 60 (0x3c)
+		.maxstack 5
+		.locals init (
+			[0] valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: ldarg.0
+		IL_0002: ldfld class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::seed
+		IL_0007: ldarg.1
+		IL_0008: callvirt instance !1 class [System.Collections]System.Collections.Generic.Dictionary`2<int32, float64>::get_Item(!0)
+		IL_000d: conv.r4
+		IL_000e: ldarg.0
+		IL_000f: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::entry
+		IL_0014: ldarg.1
+		IL_0015: callvirt instance !1 class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation>::get_Item(!0)
+		IL_001a: stloc.0
+		IL_001b: ldloca.s 0
+		IL_001d: call instance float32 Eight.Firmness.Services.Calibration.Landing.EntryCompensation::get_B()
+		IL_0022: ldarg.0
+		IL_0023: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::entry
+		IL_0028: ldarg.1
+		IL_0029: callvirt instance !1 class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, valuetype Eight.Firmness.Services.Calibration.Landing.EntryCompensation>::get_Item(!0)
+		IL_002e: stloc.0
+		IL_002f: ldloca.s 0
+		IL_0031: call instance float32 Eight.Firmness.Services.Calibration.Landing.EntryCompensation::get_Ci()
+		IL_0036: newobj instance void Eight.Firmness.Services.Calibration.Landing.LandingAction/SetCompensation::.ctor(int32, float32, float32, float32)
+		IL_003b: ret
+	} // end of method LandingRunStateMachine::Compensation
+
+	.method private hidebysig 
+		instance bool Enter (
+			valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase next,
+			valuetype [System.Runtime]System.DateTimeOffset now
+		) cil managed 
+	{
+		// Method begins at RVA 0x12f48
+		// Header size: 12
+		// Code size: 35 (0x23)
+		.maxstack 2
+		.locals init (
+			[0] bool
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phase
+		IL_0007: ldarg.0
+		IL_0008: ldarg.2
+		IL_0009: stfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phaseStartedAt
+		IL_000e: ldarg.1
+		IL_000f: ldc.i4.2
+		IL_0010: sub
+		IL_0011: ldc.i4.3
+		IL_0012: ble.un.s IL_0018
+
+		IL_0014: ldarg.1
+		IL_0015: ldc.i4.8
+		IL_0016: bne.un.s IL_001c
+
+		IL_0018: ldc.i4.1
+		IL_0019: stloc.0
+		IL_001a: br.s IL_001e
+
+		IL_001c: ldc.i4.0
+		IL_001d: stloc.0
+
+		IL_001e: ldloc.0
+		IL_001f: ldc.i4.0
+		IL_0020: ceq
+		IL_0022: ret
+	} // end of method LandingRunStateMachine::Enter
+
+	.method private hidebysig 
+		instance string Describe () cil managed 
+	{
+		// Method begins at RVA 0x12f78
+		// Header size: 12
+		// Code size: 274 (0x112)
+		.maxstack 5
+		.locals init (
+			[0] string,
+			[1] valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase,
+			[2] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[3] valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phase
+		IL_0006: stloc.1
+		IL_0007: ldloc.1
+		IL_0008: ldc.i4.7
+		IL_0009: sub
+		IL_000a: ldc.i4.1
+		IL_000b: bgt.un.s IL_0018
+
+		IL_000d: ldstr "Landing: restoring"
+		IL_0012: stloc.0
+		IL_0013: br IL_0110
+
+		IL_0018: ldarg.0
+		IL_0019: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_001e: ldarg.0
+		IL_001f: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_0024: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_0029: bge IL_010a
+
+		IL_002e: ldloca.s 2
+		IL_0030: ldc.i4.s 32
+		IL_0032: ldc.i4.5
+		IL_0033: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_0038: ldloca.s 2
+		IL_003a: ldstr "Landing: bag "
+		IL_003f: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0044: ldloca.s 2
+		IL_0046: ldarg.0
+		IL_0047: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bags
+		IL_004c: ldarg.0
+		IL_004d: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::bagIndex
+		IL_0052: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>::get_Item(int32)
+		IL_0057: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_005c: ldloca.s 2
+		IL_005e: ldstr " rep "
+		IL_0063: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0068: ldloca.s 2
+		IL_006a: ldarg.0
+		IL_006b: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::rep
+		IL_0070: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_0075: ldloca.s 2
+		IL_0077: ldstr "/"
+		IL_007c: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0081: ldloca.s 2
+		IL_0083: ldarg.0
+		IL_0084: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::repsThisBag
+		IL_0089: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_008e: ldloca.s 2
+		IL_0090: ldstr " from "
+		IL_0095: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_009a: ldloca.s 2
+		IL_009c: ldarg.0
+		IL_009d: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_00a2: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep> Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_Steps()
+		IL_00a7: ldarg.0
+		IL_00a8: ldfld int32 Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::stepIndex
+		IL_00ad: ldarg.0
+		IL_00ae: ldfld class Eight.Firmness.Services.Calibration.Landing.LandingTimings Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::timings
+		IL_00b3: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep> Eight.Firmness.Services.Calibration.Landing.LandingTimings::get_Steps()
+		IL_00b8: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep>::get_Count()
+		IL_00bd: ldc.i4.1
+		IL_00be: sub
+		IL_00bf: call int32 [System.Runtime]System.Math::Min(int32, int32)
+		IL_00c4: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype Eight.Firmness.Services.Calibration.Landing.LandingStep>::get_Item(int32)
+		IL_00c9: stloc.3
+		IL_00ca: ldloca.s 3
+		IL_00cc: call instance float64 Eight.Firmness.Services.Calibration.Landing.LandingStep::get_FromKpa()
+		IL_00d1: ldstr "F2"
+		IL_00d6: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_00db: ldloca.s 2
+		IL_00dd: ldstr " kPa ("
+		IL_00e2: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_00e7: ldloca.s 2
+		IL_00e9: ldarg.0
+		IL_00ea: ldfld valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::phase
+		IL_00ef: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine/Phase>(!!0)
+		IL_00f4: ldloca.s 2
+		IL_00f6: ldstr ")"
+		IL_00fb: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0100: ldloca.s 2
+		IL_0102: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_0107: stloc.0
+		IL_0108: br.s IL_0110
+
+		IL_010a: ldstr "Landing"
+		IL_010f: stloc.0
+
+		IL_0110: ldloc.0
+		IL_0111: ret
+	} // end of method LandingRunStateMachine::Describe
+
+	.method private hidebysig 
+		instance class Eight.Firmness.Services.Calibration.Landing.LandingFitResult '<Fits>b__42_0' (
+			int32 b
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x13096
+		// Header size: 1
+		// Code size: 13 (0xd)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::trials
+		IL_0006: ldarg.1
+		IL_0007: call class Eight.Firmness.Services.Calibration.Landing.LandingFitResult Eight.Firmness.Services.Calibration.Landing.LandingFit::Fit(class [System.Runtime]System.Collections.Generic.IEnumerable`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial>, int32)
+		IL_000c: ret
+	} // end of method LandingRunStateMachine::'<Fits>b__42_0'
+
+	// Properties
+	.property instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial> Trials()
+	{
+		.get instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Services.Calibration.Landing.LandingTrial> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::get_Trials()
+	}
+	.property instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<string> Warnings()
+	{
+		.get instance class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<string> Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::get_Warnings()
+	}
+	.property instance bool IsDone()
+	{
+		.get instance bool Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine::get_IsDone()
+	}
+
+} // end of class Eight.Firmness.Services.Calibration.Landing.LandingRunStateMachine

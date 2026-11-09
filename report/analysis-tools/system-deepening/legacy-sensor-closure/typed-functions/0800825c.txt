@@ -1,0 +1,52 @@
+FUNCTION 0800825c FUN_0800825c BODY [[0800825c, 08008297]]
+INCOMING 0800adb4 UNCONDITIONAL_CALL
+INCOMING 0800a4d0 UNCONDITIONAL_CALL
+
+void FUN_0800825c(byte *param_1)
+
+{
+  byte bVar1;
+  int iVar2;
+  int iVar3;
+  
+  bVar1 = *param_1;
+  iVar2 = (bVar1 & 3) << 3;
+  iVar3 = (uint)(bVar1 >> 2) * 4;
+  *(uint *)(&UNK_e000e400 + iVar3) =
+       ((param_1[1] & 3) << 6) << iVar2 | *(uint *)(&UNK_e000e400 + iVar3) & ~(0xff << iVar2);
+  Rame000e100 = 1 << (bVar1 & 0x1f);
+  return;
+}
+
+
+ASSEMBLY
+0800825c push {r4,r5,r6,r7,lr} BYTES f0b5
+0800825e movs r7,#0xff BYTES ff27
+08008260 movs r1,#0x3 BYTES 0321
+08008262 movs r6,r7 BYTES 3e00
+08008264 ldrb r4,[r0,#0x0] BYTES 0478
+08008266 movs r5,#0xc0 BYTES c025
+08008268 ands r1,r4 BYTES 2140
+0800826a lsls r1,r1,#0x3 BYTES c900
+0800826c lsls r6,r1 BYTES 8e40
+0800826e lsrs r2,r4,#0x2 BYTES a208
+08008270 ldr r3,[0x08008298] BYTES 094b REF READ=08008298 WORD=e000e100
+08008272 lsls r2,r2,#0x2 BYTES 9200
+08008274 lsls r5,r5,#0x2 BYTES ad00
+08008276 adds r2,r2,r3 BYTES d218
+08008278 ldr r3,[r2,r5] BYTES 5359
+0800827a bics r3,r6 BYTES b343
+0800827c movs r6,r3 BYTES 1e00
+0800827e ldrb r3,[r0,#0x1] BYTES 4378
+08008280 lsls r3,r3,#0x6 BYTES 9b01
+08008282 ands r3,r7 BYTES 3b40
+08008284 lsls r3,r1 BYTES 8b40
+08008286 orrs r3,r6 BYTES 3343
+08008288 str r3,[r2,r5] BYTES 5351
+0800828a movs r3,#0x1f BYTES 1f23
+0800828c ands r4,r3 BYTES 1c40
+0800828e subs r3,#0x1e BYTES 1e3b
+08008290 lsls r3,r4 BYTES a340
+08008292 ldr r2,[0x08008298] BYTES 014a REF READ=08008298 WORD=e000e100
+08008294 str r3,[r2,#0x0] BYTES 1360 REF WRITE=e000e100
+08008296 pop {r4,r5,r6,r7,pc} BYTES f0bd

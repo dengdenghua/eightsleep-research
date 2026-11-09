@@ -1,0 +1,117 @@
+// IL code: Eight.Config
+.class public auto ansi abstract sealed beforefieldinit Eight.Config.Config
+	extends [System.Runtime]System.Object
+{
+	.custom instance void System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Methods
+	.method public hidebysig static 
+		class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfiguration Create (
+			class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder builder
+		) cil managed 
+	{
+		// Method begins at RVA 0x2090
+		// Header size: 12
+		// Code size: 179 (0xb3)
+		.maxstack 4
+		.locals init (
+			[0] string,
+			[1] string,
+			[2] valuetype Eight.Config.EightEnvironments,
+			[3] int32
+		)
+
+		IL_0000: call string [System.Runtime]System.IO.Directory::GetCurrentDirectory()
+		IL_0005: stloc.0
+		IL_0006: ldloc.0
+		IL_0007: ldstr "/config"
+		IL_000c: call string [System.Runtime]System.String::Concat(string, string)
+		IL_0011: stloc.1
+		IL_0012: ldloc.1
+		IL_0013: call bool [System.Runtime]System.IO.Directory::Exists(string)
+		IL_0018: brtrue.s IL_003d
+
+		IL_001a: ldloc.0
+		IL_001b: ldstr "/src"
+		IL_0020: callvirt instance int32 [System.Runtime]System.String::LastIndexOf(string)
+		IL_0025: stloc.3
+		IL_0026: ldloc.3
+		IL_0027: ldc.i4.0
+		IL_0028: blt.s IL_003d
+
+		IL_002a: ldloc.0
+		IL_002b: ldc.i4.0
+		IL_002c: ldloc.3
+		IL_002d: callvirt instance string [System.Runtime]System.String::Substring(int32, int32)
+		IL_0032: ldstr "/config"
+		IL_0037: call string [System.Runtime]System.String::Concat(string, string)
+		IL_003c: stloc.1
+
+		IL_003d: ldarg.0
+		IL_003e: call class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder [Microsoft.Extensions.Configuration.EnvironmentVariables]Microsoft.Extensions.Configuration.EnvironmentVariablesExtensions::AddEnvironmentVariables(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder)
+		IL_0043: ldloc.1
+		IL_0044: call class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder [Microsoft.Extensions.Configuration.FileExtensions]Microsoft.Extensions.Configuration.FileConfigurationExtensions::SetBasePath(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder, string)
+		IL_0049: ldstr "default.json"
+		IL_004e: ldc.i4.0
+		IL_004f: ldc.i4.0
+		IL_0050: call class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder [Microsoft.Extensions.Configuration.Json]Microsoft.Extensions.Configuration.JsonConfigurationExtensions::AddJsonFile(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder, string, bool, bool)
+		IL_0055: pop
+		IL_0056: ldarg.0
+		IL_0057: callvirt instance class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationRoot [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder::Build()
+		IL_005c: call valuetype Eight.Config.EightEnvironments Eight.Config.Extensions::EightEnvironment(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfiguration)
+		IL_0061: stloc.2
+		IL_0062: ldloc.2
+		IL_0063: switch (IL_0096, IL_0086, IL_0076)
+
+		IL_0074: br.s IL_00a6
+
+		IL_0076: ldarg.0
+		IL_0077: ldstr "production.json"
+		IL_007c: ldc.i4.0
+		IL_007d: ldc.i4.0
+		IL_007e: call class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder [Microsoft.Extensions.Configuration.Json]Microsoft.Extensions.Configuration.JsonConfigurationExtensions::AddJsonFile(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder, string, bool, bool)
+		IL_0083: pop
+		IL_0084: br.s IL_00ac
+
+		IL_0086: ldarg.0
+		IL_0087: ldstr "staging.json"
+		IL_008c: ldc.i4.0
+		IL_008d: ldc.i4.0
+		IL_008e: call class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder [Microsoft.Extensions.Configuration.Json]Microsoft.Extensions.Configuration.JsonConfigurationExtensions::AddJsonFile(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder, string, bool, bool)
+		IL_0093: pop
+		IL_0094: br.s IL_00ac
+
+		IL_0096: ldarg.0
+		IL_0097: ldstr "development.json"
+		IL_009c: ldc.i4.0
+		IL_009d: ldc.i4.0
+		IL_009e: call class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder [Microsoft.Extensions.Configuration.Json]Microsoft.Extensions.Configuration.JsonConfigurationExtensions::AddJsonFile(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder, string, bool, bool)
+		IL_00a3: pop
+		IL_00a4: br.s IL_00ac
+
+		IL_00a6: newobj instance void [System.Runtime]System.ArgumentOutOfRangeException::.ctor()
+		IL_00ab: throw
+
+		IL_00ac: ldarg.0
+		IL_00ad: callvirt instance class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationRoot [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder::Build()
+		IL_00b2: ret
+	} // end of method Config::Create
+
+	.method public hidebysig static 
+		class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfiguration Create () cil managed 
+	{
+		// Method begins at RVA 0x214f
+		// Header size: 1
+		// Code size: 11 (0xb)
+		.maxstack 8
+
+		IL_0000: newobj instance void [Microsoft.Extensions.Configuration]Microsoft.Extensions.Configuration.ConfigurationBuilder::.ctor()
+		IL_0005: call class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfiguration Eight.Config.Config::Create(class [Microsoft.Extensions.Configuration.Abstractions]Microsoft.Extensions.Configuration.IConfigurationBuilder)
+		IL_000a: ret
+	} // end of method Config::Create
+
+} // end of class Eight.Config.Config

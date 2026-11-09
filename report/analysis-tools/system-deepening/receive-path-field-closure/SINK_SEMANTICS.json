@@ -1,0 +1,286 @@
+{
+  "assertions": [
+    {
+      "got": 134260088,
+      "label": "sink_entry",
+      "ok": true,
+      "want": 134260088
+    },
+    {
+      "got": "[[0800a578, 0800a5c1]]",
+      "label": "sink_body",
+      "ok": true,
+      "want": "[[0800a578, 0800a5c1]]"
+    },
+    {
+      "got": 35,
+      "label": "sink_insn_rows",
+      "ok": true,
+      "want": 35
+    },
+    {
+      "got": 134260160,
+      "label": "sink_last_insn",
+      "ok": true,
+      "want": 134260160
+    },
+    {
+      "got": "[[0800a480, 0800a4d7]]",
+      "label": "mode1_body",
+      "ok": true,
+      "want": "[[0800a480, 0800a4d7]]"
+    },
+    {
+      "got": 44,
+      "label": "mode1_insn_rows",
+      "ok": true,
+      "want": 44
+    },
+    {
+      "got": "[[0800a4d8, 0800a503]]",
+      "label": "mode2_body",
+      "ok": true,
+      "want": "[[0800a4d8, 0800a503]]"
+    },
+    {
+      "got": 22,
+      "label": "mode2_insn_rows",
+      "ok": true,
+      "want": 22
+    },
+    {
+      "got": "movs r3,#0x2",
+      "label": "sink_busy_enter",
+      "ok": true,
+      "want": "movs r3,#0x2"
+    },
+    {
+      "got": true,
+      "label": "sink_busy_enter_store",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "sink_busy_exit_store",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": "movs r3,#0x1",
+      "label": "sink_busy_exit_value",
+      "ok": true,
+      "want": "movs r3,#0x1"
+    },
+    {
+      "got": true,
+      "label": "sink_target_deref",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "sink_target_flag_set",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "sink_mode_load",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": [
+        "cmp r0,#0x2",
+        "cmp r0,#0x3",
+        "cmp r0,#0x1"
+      ],
+      "label": "sink_mode_dispatch_order",
+      "ok": true,
+      "want": [
+        "cmp r0,#0x2",
+        "cmp r0,#0x3",
+        "cmp r0,#0x1"
+      ]
+    },
+    {
+      "got": true,
+      "label": "sink_mode1_call",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "sink_mode2_call",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "sink_default_zero",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode3_scales_count_by_four",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode3_source_increment",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode3_fixed_destination",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode3_returns_last_word",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode1_word_count",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode1_tail_mask",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode1_byte3_to_bits24",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode1_byte2_to_bits16",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode1_byte1_to_bits8",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode1_fixed_destination",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": [
+        "strb",
+        "strh"
+      ],
+      "label": "mode1_tail_kinds",
+      "ok": true,
+      "want": [
+        "strb",
+        "strh"
+      ]
+    },
+    {
+      "got": true,
+      "label": "mode2_halfword_count",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode2_odd_halfword_test",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode2_high_halfword",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "mode2_fixed_destination",
+      "ok": true,
+      "want": true
+    }
+  ],
+  "body": "[[0800a578, 0800a5c1]]",
+  "caller": {
+    "args": {
+      "count": "[0x2000a4a8]",
+      "ctx": "0x2000070c",
+      "src": "[0x2000a4a0]"
+    },
+    "compare": "uxth(return) is compared with the 16-bit trailer [0x2000a4b0]",
+    "state": 4,
+    "va": "0x08016eea"
+  },
+  "common_behaviour": "every mode pushes units to ONE fixed address, *ctx + 0x00, and returns the last value read back from that address; the source pointer advances, the destination does not. This is a single-register / FIFO data port, not a memory copy into a buffer.",
+  "date": "2026-11-09",
+  "entry": "0x0800a578",
+  "extent_bytes": 74,
+  "insn_rows": 35,
+  "modes": [
+    {
+      "body": "[[0800a480, 0800a4d7]]",
+      "count_unit": "bytes",
+      "handler": "0x0800a480",
+      "insn_rows": 44,
+      "mode": 1,
+      "packing": "b0<<24 | b1<<16 | b2<<8 | b3  (big-endian word)",
+      "returns": "*target after the last push",
+      "tail": "remaining (count & 3) bytes written as strb / strh / strb+strh"
+    },
+    {
+      "body": "[[0800a4d8, 0800a503]]",
+      "count_unit": "bytes",
+      "handler": "0x0800a4d8",
+      "insn_rows": 22,
+      "mode": 2,
+      "packing": "h0<<16 | h1  (two little-endian halfwords into one word)",
+      "returns": "*target after the last push",
+      "tail": "odd trailing halfword written as strh"
+    },
+    {
+      "body": "0x0800a5a0..0x0800a5b0",
+      "count_unit": "words",
+      "handler": "inline in 0800a578",
+      "insn_rows": 6,
+      "mode": 3,
+      "packing": "verbatim 32-bit word",
+      "returns": "*target after the last push",
+      "tail": "none; count is already a word count"
+    },
+    {
+      "handler": "none",
+      "mode": 0,
+      "note": "any other mode value returns 0 without touching the port",
+      "returns": 0
+    }
+  ],
+  "schema": "eightsleep.nonusb.receive-path.sink-semantics.v1",
+  "signature": "u32 sink(ctx, void *src, u32 count)",
+  "state": {
+    "busy_field": "ctx + 0x1d",
+    "busy_on_entry": 2,
+    "busy_on_exit": 1,
+    "mode_field": "ctx + 0x20  (ctx[8])",
+    "target_flag": "*ctx + 0x08, bit 0 set before dispatch and never cleared here",
+    "target_object": "*ctx  (ctx[0])"
+  }
+}

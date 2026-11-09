@@ -1,0 +1,2837 @@
+// IL code: Eight.Firmness
+.class public auto ansi sealed beforefieldinit Eight.Firmness.Services.Calibration.CalibrationRunStateMachine
+	extends [System.Runtime]System.Object
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Nested Types
+	.class nested private auto ansi sealed Phase
+		extends [System.Runtime]System.Enum
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		// Fields
+		.field public specialname rtspecialname int32 value__
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Setup = int32(0)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase PurgeOpening = int32(1)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Purging = int32(2)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase PurgeClosing = int32(3)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase PurgeSettle = int32(4)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase BagSetup = int32(5)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase InflateSegmentOpening = int32(6)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase InflatePumping = int32(7)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase InflateHoldOpening = int32(8)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase InflateHold = int32(9)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase InflateSegmentCheck = int32(10)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase DeflatePulseOpening = int32(11)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase DeflatePulseWaiting = int32(12)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase DeflateHoldOpening = int32(13)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase DeflateHold = int32(14)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase DeflateSegmentCheck = int32(15)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase DrainOpening = int32(16)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Draining = int32(17)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase DrainSettle1 = int32(18)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase DrainSettle2 = int32(19)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase VentPulseOpening = int32(20)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase VentPulseWaiting = int32(21)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase CeilingVentOpening = int32(22)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase CeilingVenting = int32(23)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase ShutdownStart = int32(24)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Done = int32(25)
+
+	} // end of class Phase
+
+	.class nested private auto ansi sealed CeilingCheck
+		extends [System.Runtime]System.Enum
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		// Fields
+		.field public specialname rtspecialname int32 value__
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/CeilingCheck Safe = int32(0)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/CeilingCheck StaleVent = int32(1)
+		.field public static literal valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/CeilingCheck Confirmed = int32(2)
+
+	} // end of class CeilingCheck
+
+	.class nested private auto ansi sealed serializable beforefieldinit '<>c'
+		extends [System.Runtime]System.Object
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Fields
+		.field public static initonly class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c' '<>9'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public static class [System.Runtime]System.Func`2<valuetype [System.Runtime]System.TimeSpan, int64> '<>9__47_0'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+		// Methods
+		.method private hidebysig specialname rtspecialname static 
+			void .cctor () cil managed 
+		{
+			// Method begins at RVA 0x35cb0
+			// Header size: 1
+			// Code size: 11 (0xb)
+			.maxstack 8
+
+			IL_0000: newobj instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c'::.ctor()
+			IL_0005: stsfld class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c' Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c'::'<>9'
+			IL_000a: ret
+		} // end of method '<>c'::.cctor
+
+		.method public hidebysig specialname rtspecialname 
+			instance void .ctor () cil managed 
+		{
+			// Method begins at RVA 0x35cbc
+			// Header size: 1
+			// Code size: 7 (0x7)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+			IL_0006: ret
+		} // end of method '<>c'::.ctor
+
+		.method assembly hidebysig 
+			instance int64 '<EstimatedPerBagDuration>b__47_0' (
+				valuetype [System.Runtime]System.TimeSpan d
+			) cil managed 
+		{
+			// Method begins at RVA 0x35cc4
+			// Header size: 1
+			// Code size: 8 (0x8)
+			.maxstack 8
+
+			IL_0000: ldarga.s d
+			IL_0002: call instance int64 [System.Runtime]System.TimeSpan::get_Ticks()
+			IL_0007: ret
+		} // end of method '<>c'::'<EstimatedPerBagDuration>b__47_0'
+
+	} // end of class <>c
+
+	.class nested private auto ansi sealed beforefieldinit '<>c__DisplayClass24_0'
+		extends [System.Runtime]System.Object
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Fields
+		.field public class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> actions
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field public class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+		// Methods
+		.method public hidebysig specialname rtspecialname 
+			instance void .ctor () cil managed 
+		{
+			// Method begins at RVA 0x35ccd
+			// Header size: 1
+			// Code size: 7 (0x7)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+			IL_0006: ret
+		} // end of method '<>c__DisplayClass24_0'::.ctor
+
+		.method assembly hidebysig 
+			instance void '<Step>b__0' () cil managed 
+		{
+			// Method begins at RVA 0x35cd5
+			// Header size: 1
+			// Code size: 28 (0x1c)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+			IL_0006: ldarg.0
+			IL_0007: ldfld class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::'<>4__this'
+			IL_000c: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::totalBagCount
+			IL_0011: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/CloseAllSolenoids::.ctor(int32)
+			IL_0016: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+			IL_001b: ret
+		} // end of method '<>c__DisplayClass24_0'::'<Step>b__0'
+
+	} // end of class <>c__DisplayClass24_0
+
+	.class nested private auto ansi sealed beforefieldinit '<>c__DisplayClass44_0'
+		extends [System.Runtime]System.ValueType
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Fields
+		.field public valuetype [System.Runtime]System.DateTimeOffset now
+		.field public class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	} // end of class <>c__DisplayClass44_0
+
+	.class nested private auto ansi sealed beforefieldinit '<>c__DisplayClass49_0'
+		extends [System.Runtime]System.ValueType
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Fields
+		.field public valuetype [System.Runtime]System.DateTimeOffset now
+		.field public class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	} // end of class <>c__DisplayClass49_0
+
+
+	// Fields
+	.field private static initonly valuetype [System.Runtime]System.TimeSpan ValveSettle
+	.field private initonly class Eight.Firmness.Models.CalibrationOptions options
+	.field private initonly class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> bags
+	.field private initonly class [System.Collections]System.Collections.Generic.HashSet`1<int32> largeBags
+	.field private initonly int32 totalBagCount
+	.field private initonly valuetype [System.Runtime]System.DateTimeOffset startedAt
+	.field private initonly class [System.Collections]System.Collections.Generic.List`1<string> warnings
+	.field private valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase phase
+	.field private valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase afterVentPhase
+	.field private valuetype [System.Runtime]System.DateTimeOffset phaseStartedAt
+	.field private valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome outcome
+	.field private string 'error'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+	.field private bool shutdownEmitted
+	.field private int32 bagIndex
+	.field private int32 inflateSegments
+	.field private int32 deflateSegments
+	.field private bool reachedInflateStopThisSegment
+	.field private valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset> currentBagStartedAt
+	.field private initonly class [System.Collections]System.Collections.Generic.List`1<valuetype [System.Runtime]System.TimeSpan> completedBagDurations
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class Eight.Firmness.Models.CalibrationOptions options,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> bags,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> largeBags,
+			int32 totalBagCount,
+			valuetype [System.Runtime]System.DateTimeOffset startedAt
+		) cil managed 
+	{
+		// Method begins at RVA 0xcc54
+		// Header size: 12
+		// Code size: 139 (0x8b)
+		.maxstack 2
+		.locals init (
+			[0] class [System.Collections]System.Collections.Generic.HashSet`1<int32>,
+			[1] class [System.Runtime]System.Collections.Generic.IEnumerator`1<int32>,
+			[2] int32
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: newobj instance void class [System.Collections]System.Collections.Generic.List`1<string>::.ctor()
+		IL_0006: stfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::warnings
+		IL_000b: ldarg.0
+		IL_000c: ldc.i4.s 25
+		IL_000e: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::afterVentPhase
+		IL_0013: ldarg.0
+		IL_0014: ldc.i4.m1
+		IL_0015: stfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_001a: ldarg.0
+		IL_001b: newobj instance void class [System.Collections]System.Collections.Generic.List`1<valuetype [System.Runtime]System.TimeSpan>::.ctor()
+		IL_0020: stfld class [System.Collections]System.Collections.Generic.List`1<valuetype [System.Runtime]System.TimeSpan> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::completedBagDurations
+		IL_0025: ldarg.0
+		IL_0026: call instance void [System.Runtime]System.Object::.ctor()
+		IL_002b: ldarg.0
+		IL_002c: ldarg.1
+		IL_002d: stfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0032: ldarg.0
+		IL_0033: ldarg.2
+		IL_0034: stfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_0039: newobj instance void class [System.Collections]System.Collections.Generic.HashSet`1<int32>::.ctor()
+		IL_003e: stloc.0
+		IL_003f: ldarg.3
+		IL_0040: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<int32>::GetEnumerator()
+		IL_0045: stloc.1
+		.try
+		{
+			IL_0046: br.s IL_0057
+			// loop start (head: IL_0057)
+				IL_0048: ldloc.1
+				IL_0049: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<int32>::get_Current()
+				IL_004e: stloc.2
+				IL_004f: ldloc.0
+				IL_0050: ldloc.2
+				IL_0051: callvirt instance bool class [System.Collections]System.Collections.Generic.HashSet`1<int32>::Add(!0)
+				IL_0056: pop
+
+				IL_0057: ldloc.1
+				IL_0058: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_005d: brtrue.s IL_0048
+			// end loop
+
+			IL_005f: leave.s IL_006b
+		} // end .try
+		finally
+		{
+			IL_0061: ldloc.1
+			IL_0062: brfalse.s IL_006a
+
+			IL_0064: ldloc.1
+			IL_0065: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_006a: endfinally
+		} // end handler
+
+		IL_006b: ldarg.0
+		IL_006c: ldloc.0
+		IL_006d: stfld class [System.Collections]System.Collections.Generic.HashSet`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::largeBags
+		IL_0072: ldarg.0
+		IL_0073: ldarg.s totalBagCount
+		IL_0075: stfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::totalBagCount
+		IL_007a: ldarg.0
+		IL_007b: ldarg.s startedAt
+		IL_007d: stfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::startedAt
+		IL_0082: ldarg.0
+		IL_0083: ldarg.s startedAt
+		IL_0085: stfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_008a: ret
+	} // end of method CalibrationRunStateMachine::.ctor
+
+	.method public hidebysig specialname 
+		instance bool get_IsDone () cil managed 
+	{
+		// Method begins at RVA 0xccfc
+		// Header size: 1
+		// Code size: 11 (0xb)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0006: ldc.i4.s 25
+		IL_0008: ceq
+		IL_000a: ret
+	} // end of method CalibrationRunStateMachine::get_IsDone
+
+	.method public hidebysig 
+		instance class Eight.Firmness.Services.Calibration.CalibrationStepResult Advance (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64> gaugePressureByBagKpa,
+			valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan> telemetryAge,
+			bool cancelRequested
+		) cil managed 
+	{
+		.param [2]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0xcd08
+		// Header size: 12
+		// Code size: 285 (0x11d)
+		.maxstack 5
+		.locals init (
+			[0] class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>,
+			[1] int32,
+			[2] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[3] valuetype [System.Runtime]System.TimeSpan
+		)
+
+		IL_0000: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::.ctor()
+		IL_0005: stloc.0
+		IL_0006: ldarg.0
+		IL_0007: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::outcome
+		IL_000c: brtrue IL_00e0
+
+		IL_0011: ldarg.0
+		IL_0012: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0017: ldc.i4.s 23
+		IL_0019: beq IL_00e0
+
+		IL_001e: ldarg.0
+		IL_001f: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0024: ldc.i4.s 24
+		IL_0026: beq IL_00e0
+
+		IL_002b: ldarg.0
+		IL_002c: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0031: ldc.i4.s 25
+		IL_0033: beq IL_00e0
+
+		IL_0038: ldarg.s cancelRequested
+		IL_003a: brfalse.s IL_005b
+
+		IL_003c: ldarg.0
+		IL_003d: ldc.i4.3
+		IL_003e: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::outcome
+		IL_0043: ldarg.0
+		IL_0044: ldstr "Calibration aborted by the operator"
+		IL_0049: stfld string Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'error'
+		IL_004e: ldarg.0
+		IL_004f: ldc.i4.s 24
+		IL_0051: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0056: br IL_00e0
+
+		IL_005b: ldarg.1
+		IL_005c: ldarg.0
+		IL_005d: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::startedAt
+		IL_0062: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0067: ldarg.0
+		IL_0068: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_006d: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_MaxRunDuration()
+		IL_0072: call bool [System.Runtime]System.TimeSpan::op_GreaterThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0077: brfalse.s IL_00e0
+
+		IL_0079: ldarg.0
+		IL_007a: ldc.i4.2
+		IL_007b: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::outcome
+		IL_0080: ldarg.0
+		IL_0081: ldloca.s 2
+		IL_0083: ldc.i4.s 50
+		IL_0085: ldc.i4.1
+		IL_0086: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_008b: ldloca.s 2
+		IL_008d: ldstr "Calibration aborted: the run exceeded its "
+		IL_0092: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0097: ldloca.s 2
+		IL_0099: ldarg.0
+		IL_009a: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_009f: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_MaxRunDuration()
+		IL_00a4: stloc.3
+		IL_00a5: ldloca.s 3
+		IL_00a7: call instance float64 [System.Runtime]System.TimeSpan::get_TotalMinutes()
+		IL_00ac: ldstr "F0"
+		IL_00b1: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0, string)
+		IL_00b6: ldloca.s 2
+		IL_00b8: ldstr "-minute "
+		IL_00bd: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_00c2: ldloca.s 2
+		IL_00c4: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_00c9: ldstr "limit. A bag is probably leaking or a valve is stuck."
+		IL_00ce: call string [System.Runtime]System.String::Concat(string, string)
+		IL_00d3: stfld string Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'error'
+		IL_00d8: ldarg.0
+		IL_00d9: ldc.i4.s 24
+		IL_00db: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+
+		IL_00e0: ldc.i4.0
+		IL_00e1: stloc.1
+		// loop start (head: IL_00e2)
+			IL_00e2: ldloc.1
+			IL_00e3: ldc.i4.1
+			IL_00e4: add
+			IL_00e5: dup
+			IL_00e6: stloc.1
+			IL_00e7: ldc.i4 10000
+			IL_00ec: ble.s IL_00f9
+
+			IL_00ee: ldstr "CalibrationRunStateMachine exceeded its instant-transition guard — likely a phase loop bug."
+			IL_00f3: newobj instance void [System.Runtime]System.InvalidOperationException::.ctor(string)
+			IL_00f8: throw
+
+			IL_00f9: ldarg.0
+			IL_00fa: ldarg.1
+			IL_00fb: ldarg.2
+			IL_00fc: ldarg.3
+			IL_00fd: ldloc.0
+			IL_00fe: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Step(valuetype [System.Runtime]System.DateTimeOffset, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>)
+			IL_0103: brtrue.s IL_010f
+
+			IL_0105: ldarg.0
+			IL_0106: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+			IL_010b: ldc.i4.s 25
+			IL_010d: bne.un.s IL_00e2
+		// end loop
+
+		IL_010f: ldloc.0
+		IL_0110: ldarg.0
+		IL_0111: ldarg.1
+		IL_0112: call instance class Eight.Firmness.Services.Calibration.CalibrationRunStatus Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::BuildStatus(valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0117: newobj instance void Eight.Firmness.Services.Calibration.CalibrationStepResult::.ctor(class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Services.Calibration.CalibrationAction>, class Eight.Firmness.Services.Calibration.CalibrationRunStatus)
+		IL_011c: ret
+	} // end of method CalibrationRunStateMachine::Advance
+
+	.method private hidebysig 
+		instance bool Step (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64> gauge,
+			valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan> age,
+			class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> actions
+		) cil managed 
+	{
+		.param [2]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0xce34
+		// Header size: 12
+		// Code size: 2560 (0xa00)
+		.maxstack 6
+		.locals init (
+			[0] class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0',
+			[1] class Eight.Firmness.Services.Calibration.SolenoidOpeningConfig,
+			[2] valuetype [System.Runtime]System.DateTimeOffset,
+			[3] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase,
+			[4] class [System.Runtime]System.Collections.Generic.IEnumerator`1<int32>,
+			[5] int32,
+			[6] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>,
+			[7] int32,
+			[8] valuetype [System.Runtime]System.Nullable`1<int32>,
+			[9] int32,
+			[10] valuetype [System.Runtime]System.TimeSpan,
+			[11] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/CeilingCheck,
+			[12] valuetype [System.Runtime]System.Nullable`1<float64>,
+			[13] float64,
+			[14] int32,
+			[15] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/CeilingCheck,
+			[16] valuetype [System.Runtime]System.Nullable`1<float64>,
+			[17] float64,
+			[18] int32,
+			[19] bool,
+			[20] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[21] int32,
+			[22] int32,
+			[23] valuetype [System.Runtime]System.TimeSpan,
+			[24] int32,
+			[25] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/CeilingCheck,
+			[26] int32,
+			[27] bool,
+			[28] int32,
+			[29] int32,
+			[30] valuetype [System.Runtime]System.TimeSpan,
+			[31] int32,
+			[32] int32,
+			[33] int32,
+			[34] int32
+		)
+
+		IL_0000: newobj instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::.ctor()
+		IL_0005: stloc.0
+		IL_0006: ldloc.0
+		IL_0007: ldarg.s actions
+		IL_0009: stfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_000e: ldloc.0
+		IL_000f: ldarg.0
+		IL_0010: stfld class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::'<>4__this'
+		IL_0015: ldarg.0
+		IL_0016: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_001b: stloc.3
+		IL_001c: ldloc.3
+		IL_001d: switch (IL_008f, IL_0101, IL_014e, IL_0163, IL_0183, IL_0192, IL_021d, IL_02c8, IL_03c0, IL_03cb, IL_0452, IL_0537, IL_059a, IL_0605, IL_0610, IL_0663, IL_073e, IL_076e, IL_07d9, IL_07f4, IL_0803, IL_0833, IL_0887, IL_08b7, IL_096c, IL_09ce)
+
+		IL_008a: br IL_09d0
+
+		IL_008f: ldloc.0
+		IL_0090: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_0095: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/DisableControlLoop::.ctor()
+		IL_009a: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_009f: ldloc.0
+		IL_00a0: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_00a5: ldc.i4.0
+		IL_00a6: ldarg.0
+		IL_00a7: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_00ac: callvirt instance uint8 Eight.Firmness.Models.CalibrationOptions::get_PumpPower()
+		IL_00b1: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetPumpPower::.ctor(uint8, uint8)
+		IL_00b6: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_00bb: ldloc.0
+		IL_00bc: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_00c1: ldc.i4.1
+		IL_00c2: ldarg.0
+		IL_00c3: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_00c8: callvirt instance uint8 Eight.Firmness.Models.CalibrationOptions::get_PumpPower()
+		IL_00cd: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetPumpPower::.ctor(uint8, uint8)
+		IL_00d2: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_00d7: ldarg.0
+		IL_00d8: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_00dd: callvirt instance class Eight.Firmness.Services.Calibration.SolenoidOpeningConfig Eight.Firmness.Models.CalibrationOptions::get_SolenoidOpeningConfig()
+		IL_00e2: stloc.1
+		IL_00e3: ldloc.1
+		IL_00e4: brfalse.s IL_00f7
+
+		IL_00e6: ldloc.0
+		IL_00e7: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_00ec: ldloc.1
+		IL_00ed: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/PinSolenoidOpeningProfile::.ctor(class Eight.Firmness.Services.Calibration.SolenoidOpeningConfig)
+		IL_00f2: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+
+		IL_00f7: ldarg.0
+		IL_00f8: ldc.i4.1
+		IL_00f9: ldarg.1
+		IL_00fa: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_00ff: ldc.i4.0
+		IL_0100: ret
+
+		IL_0101: ldarg.0
+		IL_0102: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_0107: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<int32>::GetEnumerator()
+		IL_010c: stloc.s 4
+		.try
+		{
+			IL_010e: br.s IL_012d
+			// loop start (head: IL_012d)
+				IL_0110: ldloc.s 4
+				IL_0112: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<int32>::get_Current()
+				IL_0117: stloc.s 5
+				IL_0119: ldloc.0
+				IL_011a: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+				IL_011f: ldloc.s 5
+				IL_0121: ldc.i4.0
+				IL_0122: ldc.i4.1
+				IL_0123: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+				IL_0128: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+
+				IL_012d: ldloc.s 4
+				IL_012f: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_0134: brtrue.s IL_0110
+			// end loop
+
+			IL_0136: leave.s IL_0144
+		} // end .try
+		finally
+		{
+			IL_0138: ldloc.s 4
+			IL_013a: brfalse.s IL_0143
+
+			IL_013c: ldloc.s 4
+			IL_013e: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_0143: endfinally
+		} // end handler
+
+		IL_0144: ldarg.0
+		IL_0145: ldc.i4.2
+		IL_0146: ldarg.1
+		IL_0147: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_014c: ldc.i4.0
+		IL_014d: ret
+
+		IL_014e: ldarg.0
+		IL_014f: ldarg.1
+		IL_0150: ldarg.0
+		IL_0151: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0156: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_PurgeDuration()
+		IL_015b: ldc.i4.3
+		IL_015c: ldnull
+		IL_015d: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::WaitFor(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, class [System.Runtime]System.Action)
+		IL_0162: ret
+
+		IL_0163: ldloc.0
+		IL_0164: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_0169: ldarg.0
+		IL_016a: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::totalBagCount
+		IL_016f: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/CloseAllSolenoids::.ctor(int32)
+		IL_0174: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_0179: ldarg.0
+		IL_017a: ldc.i4.4
+		IL_017b: ldarg.1
+		IL_017c: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0181: ldc.i4.0
+		IL_0182: ret
+
+		IL_0183: ldarg.0
+		IL_0184: ldarg.1
+		IL_0185: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_018a: ldc.i4.5
+		IL_018b: ldnull
+		IL_018c: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::WaitFor(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, class [System.Runtime]System.Action)
+		IL_0191: ret
+
+		IL_0192: ldarg.0
+		IL_0193: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_0198: ldc.i4.0
+		IL_0199: blt.s IL_01c6
+
+		IL_019b: ldarg.0
+		IL_019c: ldfld valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::currentBagStartedAt
+		IL_01a1: stloc.s 6
+		IL_01a3: ldloca.s 6
+		IL_01a5: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>::get_HasValue()
+		IL_01aa: brfalse.s IL_01c6
+
+		IL_01ac: ldloca.s 6
+		IL_01ae: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>::GetValueOrDefault()
+		IL_01b3: stloc.2
+		IL_01b4: ldarg.0
+		IL_01b5: ldfld class [System.Collections]System.Collections.Generic.List`1<valuetype [System.Runtime]System.TimeSpan> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::completedBagDurations
+		IL_01ba: ldarg.1
+		IL_01bb: ldloc.2
+		IL_01bc: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_01c1: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<valuetype [System.Runtime]System.TimeSpan>::Add(!0)
+
+		IL_01c6: ldarg.0
+		IL_01c7: ldarg.0
+		IL_01c8: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_01cd: ldc.i4.1
+		IL_01ce: add
+		IL_01cf: stfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_01d4: ldarg.0
+		IL_01d5: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_01da: ldarg.0
+		IL_01db: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_01e0: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_01e5: blt.s IL_01f2
+
+		IL_01e7: ldarg.0
+		IL_01e8: ldc.i4.s 24
+		IL_01ea: ldarg.1
+		IL_01eb: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_01f0: ldc.i4.0
+		IL_01f1: ret
+
+		IL_01f2: ldarg.0
+		IL_01f3: ldc.i4.0
+		IL_01f4: stfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::inflateSegments
+		IL_01f9: ldarg.0
+		IL_01fa: ldc.i4.0
+		IL_01fb: stfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::deflateSegments
+		IL_0200: ldarg.0
+		IL_0201: ldc.i4.0
+		IL_0202: stfld bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::reachedInflateStopThisSegment
+		IL_0207: ldarg.0
+		IL_0208: ldarg.1
+		IL_0209: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>::.ctor(!0)
+		IL_020e: stfld valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::currentBagStartedAt
+		IL_0213: ldarg.0
+		IL_0214: ldc.i4.6
+		IL_0215: ldarg.1
+		IL_0216: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_021b: ldc.i4.0
+		IL_021c: ret
+
+		IL_021d: ldarg.0
+		IL_021e: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_0223: stloc.s 8
+		IL_0225: ldloca.s 8
+		IL_0227: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_022c: stloc.s 7
+		IL_022e: ldarg.0
+		IL_022f: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::inflateSegments
+		IL_0234: ldarg.0
+		IL_0235: ldloc.s 7
+		IL_0237: call instance int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::SegmentsUp(int32)
+		IL_023c: bge.s IL_0256
+
+		IL_023e: ldarg.0
+		IL_023f: ldloc.s 7
+		IL_0241: ldarg.0
+		IL_0242: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0247: callvirt instance float64 Eight.Firmness.Models.CalibrationOptions::get_StopInflateKpa()
+		IL_024c: ldc.i4.1
+		IL_024d: ldarg.2
+		IL_024e: ldarg.3
+		IL_024f: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ThresholdReached(int32, float64, bool, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>)
+		IL_0254: brfalse.s IL_0261
+
+		IL_0256: ldarg.0
+		IL_0257: ldc.i4.s 11
+		IL_0259: ldarg.1
+		IL_025a: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_025f: ldc.i4.0
+		IL_0260: ret
+
+		IL_0261: ldloc.0
+		IL_0262: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_0267: ldloc.s 7
+		IL_0269: ldc.i4.1
+		IL_026a: ldc.i4.1
+		IL_026b: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+		IL_0270: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_0275: ldloc.0
+		IL_0276: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_027b: ldarg.0
+		IL_027c: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0281: callvirt instance uint8 Eight.Firmness.Models.CalibrationOptions::get_PumpId()
+		IL_0286: ldarg.0
+		IL_0287: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_028c: callvirt instance uint8 Eight.Firmness.Models.CalibrationOptions::get_PumpPower()
+		IL_0291: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetPumpPower::.ctor(uint8, uint8)
+		IL_0296: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_029b: ldloc.0
+		IL_029c: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_02a1: ldarg.0
+		IL_02a2: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_02a7: callvirt instance uint8 Eight.Firmness.Models.CalibrationOptions::get_PumpId()
+		IL_02ac: ldc.i4.1
+		IL_02ad: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetPumpEnabled::.ctor(uint8, bool)
+		IL_02b2: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_02b7: ldarg.0
+		IL_02b8: ldc.i4.0
+		IL_02b9: stfld bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::reachedInflateStopThisSegment
+		IL_02be: ldarg.0
+		IL_02bf: ldc.i4.7
+		IL_02c0: ldarg.1
+		IL_02c1: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_02c6: ldc.i4.0
+		IL_02c7: ret
+
+		IL_02c8: ldarg.0
+		IL_02c9: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_02ce: stloc.s 8
+		IL_02d0: ldloca.s 8
+		IL_02d2: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_02d7: stloc.s 9
+		IL_02d9: ldarg.0
+		IL_02da: ldloc.s 9
+		IL_02dc: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::IsLarge(int32)
+		IL_02e1: brtrue.s IL_02f0
+
+		IL_02e3: ldarg.0
+		IL_02e4: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_02e9: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_InflateDurationSmall()
+		IL_02ee: br.s IL_02fb
+
+		IL_02f0: ldarg.0
+		IL_02f1: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_02f6: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_InflateDurationLarge()
+
+		IL_02fb: stloc.s 10
+		IL_02fd: ldarg.0
+		IL_02fe: ldloc.s 9
+		IL_0300: ldarg.2
+		IL_0301: ldarg.3
+		IL_0302: call instance valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/CeilingCheck Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::CheckCeiling(int32, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>)
+		IL_0307: stloc.s 11
+		IL_0309: ldloc.s 11
+		IL_030b: ldc.i4.2
+		IL_030c: bne.un.s IL_0327
+
+		IL_030e: ldarg.0
+		IL_030f: ldloc.0
+		IL_0310: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_0315: ldloc.s 9
+		IL_0317: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::CloseInflateAndStopPump(class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>, int32)
+		IL_031c: ldarg.0
+		IL_031d: ldloc.s 9
+		IL_031f: ldarg.1
+		IL_0320: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::BeginCeilingVent(int32, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0325: ldc.i4.0
+		IL_0326: ret
+
+		IL_0327: ldloc.s 11
+		IL_0329: ldc.i4.1
+		IL_032a: bne.un.s IL_0345
+
+		IL_032c: ldarg.0
+		IL_032d: ldloc.0
+		IL_032e: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_0333: ldloc.s 9
+		IL_0335: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::CloseInflateAndStopPump(class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>, int32)
+		IL_033a: ldarg.0
+		IL_033b: ldarg.1
+		IL_033c: ldc.i4.s 10
+		IL_033e: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::BeginVentPulse(valuetype [System.Runtime]System.DateTimeOffset, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase)
+		IL_0343: ldc.i4.0
+		IL_0344: ret
+
+		IL_0345: ldarg.0
+		IL_0346: ldloc.s 9
+		IL_0348: ldarg.2
+		IL_0349: ldarg.3
+		IL_034a: call instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::FreshGauge(int32, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>)
+		IL_034f: stloc.s 12
+		IL_0351: ldloca.s 12
+		IL_0353: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_0358: brfalse.s IL_0391
+
+		IL_035a: ldloca.s 12
+		IL_035c: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::GetValueOrDefault()
+		IL_0361: stloc.s 13
+		IL_0363: ldloc.s 13
+		IL_0365: ldarg.0
+		IL_0366: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_036b: callvirt instance float64 Eight.Firmness.Models.CalibrationOptions::get_StopInflateKpa()
+		IL_0370: blt.un.s IL_0391
+
+		IL_0372: ldarg.0
+		IL_0373: ldc.i4.1
+		IL_0374: stfld bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::reachedInflateStopThisSegment
+		IL_0379: ldarg.0
+		IL_037a: ldloc.0
+		IL_037b: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_0380: ldloc.s 9
+		IL_0382: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::CloseInflateAndStopPump(class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>, int32)
+		IL_0387: ldarg.0
+		IL_0388: ldc.i4.8
+		IL_0389: ldarg.1
+		IL_038a: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_038f: ldc.i4.0
+		IL_0390: ret
+
+		IL_0391: ldarg.1
+		IL_0392: ldarg.0
+		IL_0393: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_0398: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_039d: ldloc.s 10
+		IL_039f: call bool [System.Runtime]System.TimeSpan::op_GreaterThanOrEqual(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_03a4: brfalse.s IL_03be
+
+		IL_03a6: ldarg.0
+		IL_03a7: ldloc.0
+		IL_03a8: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_03ad: ldloc.s 9
+		IL_03af: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::CloseInflateAndStopPump(class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>, int32)
+		IL_03b4: ldarg.0
+		IL_03b5: ldc.i4.8
+		IL_03b6: ldarg.1
+		IL_03b7: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_03bc: ldc.i4.0
+		IL_03bd: ret
+
+		IL_03be: ldc.i4.1
+		IL_03bf: ret
+
+		IL_03c0: ldarg.0
+		IL_03c1: ldc.i4.s 9
+		IL_03c3: ldarg.1
+		IL_03c4: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_03c9: ldc.i4.0
+		IL_03ca: ret
+
+		IL_03cb: ldarg.0
+		IL_03cc: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_03d1: stloc.s 8
+		IL_03d3: ldloca.s 8
+		IL_03d5: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_03da: stloc.s 14
+		IL_03dc: ldarg.0
+		IL_03dd: ldloc.s 14
+		IL_03df: ldarg.2
+		IL_03e0: ldarg.3
+		IL_03e1: call instance valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/CeilingCheck Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::CheckCeiling(int32, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>)
+		IL_03e6: stloc.s 15
+		IL_03e8: ldloc.s 15
+		IL_03ea: ldc.i4.2
+		IL_03eb: bne.un.s IL_03f8
+
+		IL_03ed: ldarg.0
+		IL_03ee: ldloc.s 14
+		IL_03f0: ldarg.1
+		IL_03f1: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::BeginCeilingVent(int32, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_03f6: ldc.i4.0
+		IL_03f7: ret
+
+		IL_03f8: ldloc.s 15
+		IL_03fa: ldc.i4.1
+		IL_03fb: bne.un.s IL_0408
+
+		IL_03fd: ldarg.0
+		IL_03fe: ldarg.1
+		IL_03ff: ldc.i4.s 10
+		IL_0401: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::BeginVentPulse(valuetype [System.Runtime]System.DateTimeOffset, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase)
+		IL_0406: ldc.i4.0
+		IL_0407: ret
+
+		IL_0408: ldarg.0
+		IL_0409: ldloc.s 14
+		IL_040b: ldarg.2
+		IL_040c: ldarg.3
+		IL_040d: call instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::FreshGauge(int32, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>)
+		IL_0412: stloc.s 16
+		IL_0414: ldloca.s 16
+		IL_0416: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_041b: brfalse.s IL_043c
+
+		IL_041d: ldloca.s 16
+		IL_041f: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::GetValueOrDefault()
+		IL_0424: stloc.s 17
+		IL_0426: ldloc.s 17
+		IL_0428: ldarg.0
+		IL_0429: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_042e: callvirt instance float64 Eight.Firmness.Models.CalibrationOptions::get_StopInflateKpa()
+		IL_0433: blt.un.s IL_043c
+
+		IL_0435: ldarg.0
+		IL_0436: ldc.i4.1
+		IL_0437: stfld bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::reachedInflateStopThisSegment
+
+		IL_043c: ldarg.0
+		IL_043d: ldarg.1
+		IL_043e: ldarg.0
+		IL_043f: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0444: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_HoldDuration()
+		IL_0449: ldc.i4.s 10
+		IL_044b: ldnull
+		IL_044c: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::WaitFor(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, class [System.Runtime]System.Action)
+		IL_0451: ret
+
+		IL_0452: ldarg.0
+		IL_0453: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_0458: stloc.s 8
+		IL_045a: ldloca.s 8
+		IL_045c: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_0461: stloc.s 18
+		IL_0463: ldarg.0
+		IL_0464: ldarg.0
+		IL_0465: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::inflateSegments
+		IL_046a: ldc.i4.1
+		IL_046b: add
+		IL_046c: stfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::inflateSegments
+		IL_0471: ldarg.0
+		IL_0472: ldfld bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::reachedInflateStopThisSegment
+		IL_0477: brtrue.s IL_0491
+
+		IL_0479: ldarg.0
+		IL_047a: ldloc.s 18
+		IL_047c: ldarg.0
+		IL_047d: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0482: callvirt instance float64 Eight.Firmness.Models.CalibrationOptions::get_StopInflateKpa()
+		IL_0487: ldc.i4.1
+		IL_0488: ldarg.2
+		IL_0489: ldarg.3
+		IL_048a: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ThresholdReached(int32, float64, bool, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>)
+		IL_048f: br.s IL_0492
+
+		IL_0491: ldc.i4.1
+
+		IL_0492: stloc.s 19
+		IL_0494: ldloc.s 19
+		IL_0496: brtrue.s IL_04b2
+
+		IL_0498: ldarg.0
+		IL_0499: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::inflateSegments
+		IL_049e: ldarg.0
+		IL_049f: ldloc.s 18
+		IL_04a1: call instance int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::SegmentsUp(int32)
+		IL_04a6: bge.s IL_04b2
+
+		IL_04a8: ldarg.0
+		IL_04a9: ldc.i4.6
+		IL_04aa: ldarg.1
+		IL_04ab: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_04b0: ldc.i4.0
+		IL_04b1: ret
+
+		IL_04b2: ldloc.s 19
+		IL_04b4: brtrue.s IL_052c
+
+		IL_04b6: ldarg.0
+		IL_04b7: ldfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::warnings
+		IL_04bc: ldloca.s 20
+		IL_04be: ldc.i4.s 56
+		IL_04c0: ldc.i4.3
+		IL_04c1: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_04c6: ldloca.s 20
+		IL_04c8: ldstr "Bag "
+		IL_04cd: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_04d2: ldloca.s 20
+		IL_04d4: ldloc.s 18
+		IL_04d6: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_04db: ldloca.s 20
+		IL_04dd: ldstr ": inflate hit its "
+		IL_04e2: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_04e7: ldloca.s 20
+		IL_04e9: ldarg.0
+		IL_04ea: ldloc.s 18
+		IL_04ec: call instance int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::SegmentsUp(int32)
+		IL_04f1: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_04f6: ldloca.s 20
+		IL_04f8: ldstr "-segment cap without reaching "
+		IL_04fd: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0502: ldloca.s 20
+		IL_0504: ldarg.0
+		IL_0505: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_050a: callvirt instance float64 Eight.Firmness.Models.CalibrationOptions::get_StopInflateKpa()
+		IL_050f: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0)
+		IL_0514: ldloca.s 20
+		IL_0516: ldstr " kPa"
+		IL_051b: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0520: ldloca.s 20
+		IL_0522: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_0527: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+
+		IL_052c: ldarg.0
+		IL_052d: ldc.i4.s 11
+		IL_052f: ldarg.1
+		IL_0530: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0535: ldc.i4.0
+		IL_0536: ret
+
+		IL_0537: ldarg.0
+		IL_0538: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_053d: stloc.s 8
+		IL_053f: ldloca.s 8
+		IL_0541: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_0546: stloc.s 21
+		IL_0548: ldarg.0
+		IL_0549: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::deflateSegments
+		IL_054e: ldarg.0
+		IL_054f: ldloc.s 21
+		IL_0551: call instance int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::SegmentsDown(int32)
+		IL_0556: bge.s IL_0570
+
+		IL_0558: ldarg.0
+		IL_0559: ldloc.s 21
+		IL_055b: ldarg.0
+		IL_055c: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0561: callvirt instance float64 Eight.Firmness.Models.CalibrationOptions::get_StopDeflateKpa()
+		IL_0566: ldc.i4.0
+		IL_0567: ldarg.2
+		IL_0568: ldarg.3
+		IL_0569: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ThresholdReached(int32, float64, bool, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>)
+		IL_056e: brfalse.s IL_057b
+
+		IL_0570: ldarg.0
+		IL_0571: ldc.i4.s 16
+		IL_0573: ldarg.1
+		IL_0574: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0579: ldc.i4.0
+		IL_057a: ret
+
+		IL_057b: ldloc.0
+		IL_057c: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_0581: ldloc.s 21
+		IL_0583: ldc.i4.0
+		IL_0584: ldc.i4.1
+		IL_0585: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+		IL_058a: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_058f: ldarg.0
+		IL_0590: ldc.i4.s 12
+		IL_0592: ldarg.1
+		IL_0593: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0598: ldc.i4.0
+		IL_0599: ret
+
+		IL_059a: ldarg.0
+		IL_059b: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_05a0: stloc.s 8
+		IL_05a2: ldloca.s 8
+		IL_05a4: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_05a9: stloc.s 22
+		IL_05ab: ldarg.0
+		IL_05ac: ldloc.s 22
+		IL_05ae: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::IsLarge(int32)
+		IL_05b3: brtrue.s IL_05c2
+
+		IL_05b5: ldarg.0
+		IL_05b6: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_05bb: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_DeflatePulseSmall()
+		IL_05c0: br.s IL_05cd
+
+		IL_05c2: ldarg.0
+		IL_05c3: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_05c8: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_DeflatePulseLarge()
+
+		IL_05cd: stloc.s 23
+		IL_05cf: ldarg.1
+		IL_05d0: ldarg.0
+		IL_05d1: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_05d6: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_05db: ldloc.s 23
+		IL_05dd: call bool [System.Runtime]System.TimeSpan::op_LessThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_05e2: brfalse.s IL_05e6
+
+		IL_05e4: ldc.i4.1
+		IL_05e5: ret
+
+		IL_05e6: ldloc.0
+		IL_05e7: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_05ec: ldloc.s 22
+		IL_05ee: ldc.i4.0
+		IL_05ef: ldc.i4.0
+		IL_05f0: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+		IL_05f5: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_05fa: ldarg.0
+		IL_05fb: ldc.i4.s 13
+		IL_05fd: ldarg.1
+		IL_05fe: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0603: ldc.i4.0
+		IL_0604: ret
+
+		IL_0605: ldarg.0
+		IL_0606: ldc.i4.s 14
+		IL_0608: ldarg.1
+		IL_0609: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_060e: ldc.i4.0
+		IL_060f: ret
+
+		IL_0610: ldarg.0
+		IL_0611: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_0616: stloc.s 8
+		IL_0618: ldloca.s 8
+		IL_061a: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_061f: stloc.s 24
+		IL_0621: ldarg.0
+		IL_0622: ldloc.s 24
+		IL_0624: ldarg.2
+		IL_0625: ldarg.3
+		IL_0626: call instance valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/CeilingCheck Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::CheckCeiling(int32, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>)
+		IL_062b: stloc.s 25
+		IL_062d: ldloc.s 25
+		IL_062f: ldc.i4.2
+		IL_0630: bne.un.s IL_063d
+
+		IL_0632: ldarg.0
+		IL_0633: ldloc.s 24
+		IL_0635: ldarg.1
+		IL_0636: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::BeginCeilingVent(int32, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_063b: ldc.i4.0
+		IL_063c: ret
+
+		IL_063d: ldloc.s 25
+		IL_063f: ldc.i4.1
+		IL_0640: bne.un.s IL_064d
+
+		IL_0642: ldarg.0
+		IL_0643: ldarg.1
+		IL_0644: ldc.i4.s 15
+		IL_0646: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::BeginVentPulse(valuetype [System.Runtime]System.DateTimeOffset, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase)
+		IL_064b: ldc.i4.0
+		IL_064c: ret
+
+		IL_064d: ldarg.0
+		IL_064e: ldarg.1
+		IL_064f: ldarg.0
+		IL_0650: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0655: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_HoldDuration()
+		IL_065a: ldc.i4.s 15
+		IL_065c: ldnull
+		IL_065d: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::WaitFor(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, class [System.Runtime]System.Action)
+		IL_0662: ret
+
+		IL_0663: ldarg.0
+		IL_0664: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_0669: stloc.s 8
+		IL_066b: ldloca.s 8
+		IL_066d: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_0672: stloc.s 26
+		IL_0674: ldarg.0
+		IL_0675: ldarg.0
+		IL_0676: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::deflateSegments
+		IL_067b: ldc.i4.1
+		IL_067c: add
+		IL_067d: stfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::deflateSegments
+		IL_0682: ldarg.0
+		IL_0683: ldloc.s 26
+		IL_0685: ldarg.0
+		IL_0686: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_068b: callvirt instance float64 Eight.Firmness.Models.CalibrationOptions::get_StopDeflateKpa()
+		IL_0690: ldc.i4.0
+		IL_0691: ldarg.2
+		IL_0692: ldarg.3
+		IL_0693: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ThresholdReached(int32, float64, bool, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>)
+		IL_0698: stloc.s 27
+		IL_069a: ldloc.s 27
+		IL_069c: brtrue.s IL_06b9
+
+		IL_069e: ldarg.0
+		IL_069f: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::deflateSegments
+		IL_06a4: ldarg.0
+		IL_06a5: ldloc.s 26
+		IL_06a7: call instance int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::SegmentsDown(int32)
+		IL_06ac: bge.s IL_06b9
+
+		IL_06ae: ldarg.0
+		IL_06af: ldc.i4.s 11
+		IL_06b1: ldarg.1
+		IL_06b2: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_06b7: ldc.i4.0
+		IL_06b8: ret
+
+		IL_06b9: ldloc.s 27
+		IL_06bb: brtrue.s IL_0733
+
+		IL_06bd: ldarg.0
+		IL_06be: ldfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::warnings
+		IL_06c3: ldloca.s 20
+		IL_06c5: ldc.i4.s 59
+		IL_06c7: ldc.i4.3
+		IL_06c8: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_06cd: ldloca.s 20
+		IL_06cf: ldstr "Bag "
+		IL_06d4: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_06d9: ldloca.s 20
+		IL_06db: ldloc.s 26
+		IL_06dd: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_06e2: ldloca.s 20
+		IL_06e4: ldstr ": deflate hit its "
+		IL_06e9: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_06ee: ldloca.s 20
+		IL_06f0: ldarg.0
+		IL_06f1: ldloc.s 26
+		IL_06f3: call instance int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::SegmentsDown(int32)
+		IL_06f8: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_06fd: ldloca.s 20
+		IL_06ff: ldstr "-segment cap without dropping to "
+		IL_0704: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0709: ldloca.s 20
+		IL_070b: ldarg.0
+		IL_070c: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0711: callvirt instance float64 Eight.Firmness.Models.CalibrationOptions::get_StopDeflateKpa()
+		IL_0716: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0)
+		IL_071b: ldloca.s 20
+		IL_071d: ldstr " kPa"
+		IL_0722: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0727: ldloca.s 20
+		IL_0729: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_072e: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+
+		IL_0733: ldarg.0
+		IL_0734: ldc.i4.s 16
+		IL_0736: ldarg.1
+		IL_0737: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_073c: ldc.i4.0
+		IL_073d: ret
+
+		IL_073e: ldarg.0
+		IL_073f: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_0744: stloc.s 8
+		IL_0746: ldloca.s 8
+		IL_0748: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_074d: stloc.s 28
+		IL_074f: ldloc.0
+		IL_0750: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_0755: ldloc.s 28
+		IL_0757: ldc.i4.0
+		IL_0758: ldc.i4.1
+		IL_0759: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+		IL_075e: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_0763: ldarg.0
+		IL_0764: ldc.i4.s 17
+		IL_0766: ldarg.1
+		IL_0767: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_076c: ldc.i4.0
+		IL_076d: ret
+
+		IL_076e: ldarg.0
+		IL_076f: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_0774: stloc.s 8
+		IL_0776: ldloca.s 8
+		IL_0778: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_077d: stloc.s 29
+		IL_077f: ldarg.0
+		IL_0780: ldloc.s 29
+		IL_0782: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::IsLarge(int32)
+		IL_0787: brtrue.s IL_0796
+
+		IL_0789: ldarg.0
+		IL_078a: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_078f: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_DrainSmall()
+		IL_0794: br.s IL_07a1
+
+		IL_0796: ldarg.0
+		IL_0797: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_079c: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_DrainLarge()
+
+		IL_07a1: stloc.s 30
+		IL_07a3: ldarg.1
+		IL_07a4: ldarg.0
+		IL_07a5: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_07aa: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_07af: ldloc.s 30
+		IL_07b1: call bool [System.Runtime]System.TimeSpan::op_LessThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_07b6: brfalse.s IL_07ba
+
+		IL_07b8: ldc.i4.1
+		IL_07b9: ret
+
+		IL_07ba: ldloc.0
+		IL_07bb: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_07c0: ldloc.s 29
+		IL_07c2: ldc.i4.0
+		IL_07c3: ldc.i4.0
+		IL_07c4: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+		IL_07c9: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_07ce: ldarg.0
+		IL_07cf: ldc.i4.s 18
+		IL_07d1: ldarg.1
+		IL_07d2: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_07d7: ldc.i4.0
+		IL_07d8: ret
+
+		IL_07d9: ldarg.0
+		IL_07da: ldarg.1
+		IL_07db: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_07e0: ldc.i4.s 19
+		IL_07e2: ldloc.0
+		IL_07e3: ldftn instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::'<Step>b__0'()
+		IL_07e9: newobj instance void [System.Runtime]System.Action::.ctor(object, native int)
+		IL_07ee: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::WaitFor(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, class [System.Runtime]System.Action)
+		IL_07f3: ret
+
+		IL_07f4: ldarg.0
+		IL_07f5: ldarg.1
+		IL_07f6: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_07fb: ldc.i4.5
+		IL_07fc: ldnull
+		IL_07fd: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::WaitFor(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, class [System.Runtime]System.Action)
+		IL_0802: ret
+
+		IL_0803: ldarg.0
+		IL_0804: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_0809: stloc.s 8
+		IL_080b: ldloca.s 8
+		IL_080d: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_0812: stloc.s 31
+		IL_0814: ldloc.0
+		IL_0815: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_081a: ldloc.s 31
+		IL_081c: ldc.i4.0
+		IL_081d: ldc.i4.1
+		IL_081e: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+		IL_0823: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_0828: ldarg.0
+		IL_0829: ldc.i4.s 21
+		IL_082b: ldarg.1
+		IL_082c: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0831: ldc.i4.0
+		IL_0832: ret
+
+		IL_0833: ldarg.0
+		IL_0834: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_0839: stloc.s 8
+		IL_083b: ldloca.s 8
+		IL_083d: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_0842: stloc.s 32
+		IL_0844: ldarg.1
+		IL_0845: ldarg.0
+		IL_0846: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_084b: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0850: ldarg.0
+		IL_0851: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0856: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_VentPulse()
+		IL_085b: call bool [System.Runtime]System.TimeSpan::op_LessThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0860: brfalse.s IL_0864
+
+		IL_0862: ldc.i4.1
+		IL_0863: ret
+
+		IL_0864: ldloc.0
+		IL_0865: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_086a: ldloc.s 32
+		IL_086c: ldc.i4.0
+		IL_086d: ldc.i4.0
+		IL_086e: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+		IL_0873: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_0878: ldarg.0
+		IL_0879: ldarg.0
+		IL_087a: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::afterVentPhase
+		IL_087f: ldarg.1
+		IL_0880: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0885: ldc.i4.0
+		IL_0886: ret
+
+		IL_0887: ldarg.0
+		IL_0888: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_088d: stloc.s 8
+		IL_088f: ldloca.s 8
+		IL_0891: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_0896: stloc.s 33
+		IL_0898: ldloc.0
+		IL_0899: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_089e: ldloc.s 33
+		IL_08a0: ldc.i4.0
+		IL_08a1: ldc.i4.1
+		IL_08a2: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+		IL_08a7: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_08ac: ldarg.0
+		IL_08ad: ldc.i4.s 23
+		IL_08af: ldarg.1
+		IL_08b0: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_08b5: ldc.i4.0
+		IL_08b6: ret
+
+		IL_08b7: ldarg.0
+		IL_08b8: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_08bd: stloc.s 8
+		IL_08bf: ldloca.s 8
+		IL_08c1: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+		IL_08c6: stloc.s 34
+		IL_08c8: ldarg.1
+		IL_08c9: ldarg.0
+		IL_08ca: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_08cf: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_08d4: ldarg.0
+		IL_08d5: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_08da: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_CeilingDrain()
+		IL_08df: call bool [System.Runtime]System.TimeSpan::op_LessThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_08e4: brfalse.s IL_08e8
+
+		IL_08e6: ldc.i4.1
+		IL_08e7: ret
+
+		IL_08e8: ldloc.0
+		IL_08e9: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_08ee: ldloc.s 34
+		IL_08f0: ldc.i4.0
+		IL_08f1: ldc.i4.0
+		IL_08f2: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+		IL_08f7: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_08fc: ldarg.0
+		IL_08fd: ldc.i4.2
+		IL_08fe: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::outcome
+		IL_0903: ldarg.0
+		IL_0904: ldfld string Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'error'
+		IL_0909: brtrue.s IL_0961
+
+		IL_090b: ldarg.0
+		IL_090c: ldloca.s 20
+		IL_090e: ldc.i4.s 52
+		IL_0910: ldc.i4.2
+		IL_0911: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_0916: ldloca.s 20
+		IL_0918: ldstr "Calibration aborted: bag "
+		IL_091d: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0922: ldloca.s 20
+		IL_0924: ldloc.s 34
+		IL_0926: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_092b: ldloca.s 20
+		IL_092d: ldstr " exceeded the "
+		IL_0932: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0937: ldloca.s 20
+		IL_0939: ldarg.0
+		IL_093a: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_093f: callvirt instance float64 Eight.Firmness.Models.CalibrationOptions::get_MaxGaugeKpa()
+		IL_0944: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<float64>(!!0)
+		IL_0949: ldloca.s 20
+		IL_094b: ldstr " kPa ceiling."
+		IL_0950: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0955: ldloca.s 20
+		IL_0957: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_095c: stfld string Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'error'
+
+		IL_0961: ldarg.0
+		IL_0962: ldc.i4.s 24
+		IL_0964: ldarg.1
+		IL_0965: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_096a: ldc.i4.0
+		IL_096b: ret
+
+		IL_096c: ldarg.0
+		IL_096d: ldfld bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::shutdownEmitted
+		IL_0972: brtrue.s IL_09c4
+
+		IL_0974: ldloc.0
+		IL_0975: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_097a: ldc.i4.0
+		IL_097b: ldc.i4.0
+		IL_097c: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetPumpEnabled::.ctor(uint8, bool)
+		IL_0981: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_0986: ldloc.0
+		IL_0987: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_098c: ldc.i4.1
+		IL_098d: ldc.i4.0
+		IL_098e: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetPumpEnabled::.ctor(uint8, bool)
+		IL_0993: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_0998: ldloc.0
+		IL_0999: ldfld class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass24_0'::actions
+		IL_099e: ldarg.0
+		IL_099f: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::totalBagCount
+		IL_09a4: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/CloseAllSolenoids::.ctor(int32)
+		IL_09a9: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_09ae: ldarg.0
+		IL_09af: ldc.i4.1
+		IL_09b0: stfld bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::shutdownEmitted
+		IL_09b5: ldarg.0
+		IL_09b6: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::outcome
+		IL_09bb: brtrue.s IL_09c4
+
+		IL_09bd: ldarg.0
+		IL_09be: ldc.i4.1
+		IL_09bf: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::outcome
+
+		IL_09c4: ldarg.0
+		IL_09c5: ldc.i4.s 25
+		IL_09c7: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_09cc: ldc.i4.1
+		IL_09cd: ret
+
+		IL_09ce: ldc.i4.1
+		IL_09cf: ret
+
+		IL_09d0: ldloca.s 20
+		IL_09d2: ldc.i4.s 29
+		IL_09d4: ldc.i4.1
+		IL_09d5: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_09da: ldloca.s 20
+		IL_09dc: ldstr "Unhandled calibration phase: "
+		IL_09e1: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_09e6: ldloca.s 20
+		IL_09e8: ldarg.0
+		IL_09e9: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_09ee: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase>(!!0)
+		IL_09f3: ldloca.s 20
+		IL_09f5: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_09fa: newobj instance void [System.Runtime]System.InvalidOperationException::.ctor(string)
+		IL_09ff: throw
+	} // end of method CalibrationRunStateMachine::Step
+
+	.method private hidebysig 
+		instance void Enter (
+			valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase next,
+			valuetype [System.Runtime]System.DateTimeOffset now
+		) cil managed 
+	{
+		// Method begins at RVA 0xd850
+		// Header size: 1
+		// Code size: 15 (0xf)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0007: ldarg.0
+		IL_0008: ldarg.2
+		IL_0009: stfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_000e: ret
+	} // end of method CalibrationRunStateMachine::Enter
+
+	.method private hidebysig 
+		instance bool WaitFor (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			valuetype [System.Runtime]System.TimeSpan duration,
+			valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase next,
+			[opt] class [System.Runtime]System.Action onElapsed
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		.param [4] = nullref
+		// Method begins at RVA 0xd860
+		// Header size: 1
+		// Code size: 43 (0x2b)
+		.maxstack 8
+
+		IL_0000: ldarg.1
+		IL_0001: ldarg.0
+		IL_0002: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_0007: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_000c: ldarg.2
+		IL_000d: call bool [System.Runtime]System.TimeSpan::op_LessThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0012: brfalse.s IL_0016
+
+		IL_0014: ldc.i4.1
+		IL_0015: ret
+
+		IL_0016: ldarg.s onElapsed
+		IL_0018: brfalse.s IL_0021
+
+		IL_001a: ldarg.s onElapsed
+		IL_001c: callvirt instance void [System.Runtime]System.Action::Invoke()
+
+		IL_0021: ldarg.0
+		IL_0022: ldarg.3
+		IL_0023: ldarg.1
+		IL_0024: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0029: ldc.i4.0
+		IL_002a: ret
+	} // end of method CalibrationRunStateMachine::WaitFor
+
+	.method private hidebysig 
+		instance void CloseInflateAndStopPump (
+			class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction> actions,
+			int32 bagId
+		) cil managed 
+	{
+		// Method begins at RVA 0xd88c
+		// Header size: 1
+		// Code size: 38 (0x26)
+		.maxstack 8
+
+		IL_0000: ldarg.1
+		IL_0001: ldarg.0
+		IL_0002: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0007: callvirt instance uint8 Eight.Firmness.Models.CalibrationOptions::get_PumpId()
+		IL_000c: ldc.i4.0
+		IL_000d: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetPumpEnabled::.ctor(uint8, bool)
+		IL_0012: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_0017: ldarg.1
+		IL_0018: ldarg.2
+		IL_0019: ldc.i4.1
+		IL_001a: ldc.i4.0
+		IL_001b: newobj instance void Eight.Firmness.Services.Calibration.CalibrationAction/SetSolenoid::.ctor(int32, valuetype Eight.Firmness.Services.Calibration.SolenoidDirection, valuetype Eight.Firmness.Services.Calibration.SolenoidValveState)
+		IL_0020: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Services.Calibration.CalibrationAction>::Add(!0)
+		IL_0025: ret
+	} // end of method CalibrationRunStateMachine::CloseInflateAndStopPump
+
+	.method private hidebysig 
+		instance void BeginVentPulse (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase resumeAt
+		) cil managed 
+	{
+		// Method begins at RVA 0xd8b3
+		// Header size: 1
+		// Code size: 17 (0x11)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.2
+		IL_0002: stfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::afterVentPhase
+		IL_0007: ldarg.0
+		IL_0008: ldc.i4.s 20
+		IL_000a: ldarg.1
+		IL_000b: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0010: ret
+	} // end of method CalibrationRunStateMachine::BeginVentPulse
+
+	.method private hidebysig 
+		instance void BeginCeilingVent (
+			int32 bagId,
+			valuetype [System.Runtime]System.DateTimeOffset now
+		) cil managed 
+	{
+		// Method begins at RVA 0xd8c5
+		// Header size: 1
+		// Code size: 10 (0xa)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldc.i4.s 22
+		IL_0003: ldarg.2
+		IL_0004: call instance void Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::Enter(valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0009: ret
+	} // end of method CalibrationRunStateMachine::BeginCeilingVent
+
+	.method private hidebysig 
+		instance valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/CeilingCheck CheckCeiling (
+			int32 bagId,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64> gauge,
+			valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan> age
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		// Method begins at RVA 0xd8d0
+		// Header size: 12
+		// Code size: 144 (0x90)
+		.maxstack 3
+		.locals init (
+			[0] bool,
+			[1] valuetype [System.Runtime]System.Nullable`1<float64>,
+			[2] float64,
+			[3] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>,
+			[4] valuetype [System.Runtime]System.TimeSpan,
+			[5] valuetype [System.Runtime]System.Nullable`1<float64>,
+			[6] float64
+		)
+
+		IL_0000: ldarga.s age
+		IL_0002: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::get_HasValue()
+		IL_0007: brfalse.s IL_0034
+
+		IL_0009: ldarg.3
+		IL_000a: stloc.3
+		IL_000b: ldarg.0
+		IL_000c: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0011: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_MaxTelemetryAge()
+		IL_0016: stloc.s 4
+		IL_0018: ldloca.s 3
+		IL_001a: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::get_HasValue()
+		IL_001f: brtrue.s IL_0024
+
+		IL_0021: ldc.i4.0
+		IL_0022: br.s IL_0035
+
+		IL_0024: ldloca.s 3
+		IL_0026: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::GetValueOrDefault()
+		IL_002b: ldloc.s 4
+		IL_002d: call bool [System.Runtime]System.TimeSpan::op_GreaterThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0032: br.s IL_0035
+
+		IL_0034: ldc.i4.1
+
+		IL_0035: stloc.0
+		IL_0036: ldarg.2
+		IL_0037: brfalse.s IL_0044
+
+		IL_0039: ldarg.2
+		IL_003a: ldarg.1
+		IL_003b: ldloca.s 2
+		IL_003d: callvirt instance bool class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>::TryGetValue(!0, !1&)
+		IL_0042: brtrue.s IL_0050
+
+		IL_0044: ldloca.s 5
+		IL_0046: initobj valuetype [System.Runtime]System.Nullable`1<float64>
+		IL_004c: ldloc.s 5
+		IL_004e: br.s IL_0056
+
+		IL_0050: ldloc.2
+		IL_0051: newobj instance void valuetype [System.Runtime]System.Nullable`1<float64>::.ctor(!0)
+
+		IL_0056: stloc.1
+		IL_0057: ldloca.s 1
+		IL_0059: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_005e: ldc.i4.0
+		IL_005f: ceq
+		IL_0061: ldloc.0
+		IL_0062: or
+		IL_0063: brfalse.s IL_0067
+
+		IL_0065: ldc.i4.1
+		IL_0066: ret
+
+		IL_0067: ldloc.1
+		IL_0068: stloc.s 5
+		IL_006a: ldarg.0
+		IL_006b: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0070: callvirt instance float64 Eight.Firmness.Models.CalibrationOptions::get_MaxGaugeKpa()
+		IL_0075: stloc.s 6
+		IL_0077: ldloca.s 5
+		IL_0079: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::GetValueOrDefault()
+		IL_007e: ldloc.s 6
+		IL_0080: cgt
+		IL_0082: ldloca.s 5
+		IL_0084: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_0089: and
+		IL_008a: brtrue.s IL_008e
+
+		IL_008c: ldc.i4.0
+		IL_008d: ret
+
+		IL_008e: ldc.i4.2
+		IL_008f: ret
+	} // end of method CalibrationRunStateMachine::CheckCeiling
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.Nullable`1<float64> FreshGauge (
+			int32 bagId,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64> gauge,
+			valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan> age
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		// Method begins at RVA 0xd96c
+		// Header size: 12
+		// Code size: 84 (0x54)
+		.maxstack 3
+		.locals init (
+			[0] float64,
+			[1] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>,
+			[2] valuetype [System.Runtime]System.TimeSpan,
+			[3] valuetype [System.Runtime]System.Nullable`1<float64>
+		)
+
+		IL_0000: ldarga.s age
+		IL_0002: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::get_HasValue()
+		IL_0007: brfalse.s IL_0032
+
+		IL_0009: ldarg.3
+		IL_000a: stloc.1
+		IL_000b: ldarg.0
+		IL_000c: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0011: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_MaxTelemetryAge()
+		IL_0016: stloc.2
+		IL_0017: ldloca.s 1
+		IL_0019: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::get_HasValue()
+		IL_001e: brtrue.s IL_0023
+
+		IL_0020: ldc.i4.0
+		IL_0021: br.s IL_0033
+
+		IL_0023: ldloca.s 1
+		IL_0025: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::GetValueOrDefault()
+		IL_002a: ldloc.2
+		IL_002b: call bool [System.Runtime]System.TimeSpan::op_GreaterThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0030: br.s IL_0033
+
+		IL_0032: ldc.i4.1
+
+		IL_0033: brtrue.s IL_0043
+
+		IL_0035: ldarg.2
+		IL_0036: brfalse.s IL_0043
+
+		IL_0038: ldarg.2
+		IL_0039: ldarg.1
+		IL_003a: ldloca.s 0
+		IL_003c: callvirt instance bool class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>::TryGetValue(!0, !1&)
+		IL_0041: brtrue.s IL_004d
+
+		IL_0043: ldloca.s 3
+		IL_0045: initobj valuetype [System.Runtime]System.Nullable`1<float64>
+		IL_004b: ldloc.3
+		IL_004c: ret
+
+		IL_004d: ldloc.0
+		IL_004e: newobj instance void valuetype [System.Runtime]System.Nullable`1<float64>::.ctor(!0)
+		IL_0053: ret
+	} // end of method CalibrationRunStateMachine::FreshGauge
+
+	.method private hidebysig 
+		instance bool ThresholdReached (
+			int32 bagId,
+			float64 thresholdKpa,
+			bool up,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64> gauge,
+			valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan> age
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		// Method begins at RVA 0xd9cc
+		// Header size: 12
+		// Code size: 54 (0x36)
+		.maxstack 4
+		.locals init (
+			[0] valuetype [System.Runtime]System.Nullable`1<float64>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: ldarg.s gauge
+		IL_0004: ldarg.s age
+		IL_0006: call instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::FreshGauge(int32, class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<int32, float64>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>)
+		IL_000b: stloc.0
+		IL_000c: ldloca.s 0
+		IL_000e: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_0013: brtrue.s IL_0017
+
+		IL_0015: ldc.i4.1
+		IL_0016: ret
+
+		IL_0017: ldarg.3
+		IL_0018: brtrue.s IL_0028
+
+		IL_001a: ldloca.s 0
+		IL_001c: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::get_Value()
+		IL_0021: ldarg.2
+		IL_0022: cgt.un
+		IL_0024: ldc.i4.0
+		IL_0025: ceq
+		IL_0027: ret
+
+		IL_0028: ldloca.s 0
+		IL_002a: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::get_Value()
+		IL_002f: ldarg.2
+		IL_0030: clt.un
+		IL_0032: ldc.i4.0
+		IL_0033: ceq
+		IL_0035: ret
+	} // end of method CalibrationRunStateMachine::ThresholdReached
+
+	.method private hidebysig 
+		instance bool IsLarge (
+			int32 bagId
+		) cil managed 
+	{
+		// Method begins at RVA 0xda0e
+		// Header size: 1
+		// Code size: 13 (0xd)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections]System.Collections.Generic.HashSet`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::largeBags
+		IL_0006: ldarg.1
+		IL_0007: callvirt instance bool class [System.Collections]System.Collections.Generic.HashSet`1<int32>::Contains(!0)
+		IL_000c: ret
+	} // end of method CalibrationRunStateMachine::IsLarge
+
+	.method private hidebysig 
+		instance int32 SegmentsUp (
+			int32 bagId
+		) cil managed 
+	{
+		// Method begins at RVA 0xda1c
+		// Header size: 1
+		// Code size: 33 (0x21)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::IsLarge(int32)
+		IL_0007: brtrue.s IL_0015
+
+		IL_0009: ldarg.0
+		IL_000a: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_000f: callvirt instance int32 Eight.Firmness.Models.CalibrationOptions::get_SegmentsUpSmall()
+		IL_0014: ret
+
+		IL_0015: ldarg.0
+		IL_0016: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_001b: callvirt instance int32 Eight.Firmness.Models.CalibrationOptions::get_SegmentsUpLarge()
+		IL_0020: ret
+	} // end of method CalibrationRunStateMachine::SegmentsUp
+
+	.method private hidebysig 
+		instance int32 SegmentsDown (
+			int32 bagId
+		) cil managed 
+	{
+		// Method begins at RVA 0xda3e
+		// Header size: 1
+		// Code size: 33 (0x21)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::IsLarge(int32)
+		IL_0007: brtrue.s IL_0015
+
+		IL_0009: ldarg.0
+		IL_000a: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_000f: callvirt instance int32 Eight.Firmness.Models.CalibrationOptions::get_SegmentsDownSmall()
+		IL_0014: ret
+
+		IL_0015: ldarg.0
+		IL_0016: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_001b: callvirt instance int32 Eight.Firmness.Models.CalibrationOptions::get_SegmentsDownLarge()
+		IL_0020: ret
+	} // end of method CalibrationRunStateMachine::SegmentsDown
+
+	.method private hidebysig specialname 
+		instance valuetype [System.Runtime]System.Nullable`1<int32> get_CurrentBagId () cil managed 
+	{
+		// Method begins at RVA 0xda60
+		// Header size: 12
+		// Code size: 61 (0x3d)
+		.maxstack 2
+		.locals init (
+			[0] valuetype [System.Runtime]System.Nullable`1<int32>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_0006: ldc.i4.0
+		IL_0007: blt.s IL_001c
+
+		IL_0009: ldarg.0
+		IL_000a: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_000f: ldarg.0
+		IL_0010: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_0015: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_001a: blt.s IL_0026
+
+		IL_001c: ldloca.s 0
+		IL_001e: initobj valuetype [System.Runtime]System.Nullable`1<int32>
+		IL_0024: ldloc.0
+		IL_0025: ret
+
+		IL_0026: ldarg.0
+		IL_0027: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_002c: ldarg.0
+		IL_002d: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_0032: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>::get_Item(int32)
+		IL_0037: newobj instance void valuetype [System.Runtime]System.Nullable`1<int32>::.ctor(!0)
+		IL_003c: ret
+	} // end of method CalibrationRunStateMachine::get_CurrentBagId
+
+	.method private hidebysig specialname 
+		instance bool get_InPressureDrivenPhase () cil managed 
+	{
+		// Method begins at RVA 0xdaac
+		// Header size: 12
+		// Code size: 29 (0x1d)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase,
+			[1] bool
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0006: stloc.0
+		IL_0007: ldloc.0
+		IL_0008: ldc.i4.6
+		IL_0009: sub
+		IL_000a: ldc.i4.s 9
+		IL_000c: ble.un.s IL_0015
+
+		IL_000e: ldloc.0
+		IL_000f: ldc.i4.s 20
+		IL_0011: sub
+		IL_0012: ldc.i4.1
+		IL_0013: bgt.un.s IL_0019
+
+		IL_0015: ldc.i4.1
+		IL_0016: stloc.1
+		IL_0017: br.s IL_001b
+
+		IL_0019: ldc.i4.0
+		IL_001a: stloc.1
+
+		IL_001b: ldloc.1
+		IL_001c: ret
+	} // end of method CalibrationRunStateMachine::get_InPressureDrivenPhase
+
+	.method private hidebysig specialname 
+		instance bool get_InDeflateSide () cil managed 
+	{
+		// Method begins at RVA 0xdad8
+		// Header size: 12
+		// Code size: 58 (0x3a)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase,
+			[1] bool
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0006: stloc.0
+		IL_0007: ldloc.0
+		IL_0008: ldc.i4.s 11
+		IL_000a: sub
+		IL_000b: ldc.i4.4
+		IL_000c: bgt.un.s IL_0012
+
+		IL_000e: ldc.i4.1
+		IL_000f: stloc.1
+		IL_0010: br.s IL_0014
+
+		IL_0012: ldc.i4.0
+		IL_0013: stloc.1
+
+		IL_0014: ldloc.1
+		IL_0015: brtrue.s IL_0038
+
+		IL_0017: ldarg.0
+		IL_0018: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_001d: ldc.i4.s 20
+		IL_001f: beq.s IL_002b
+
+		IL_0021: ldarg.0
+		IL_0022: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0027: ldc.i4.s 21
+		IL_0029: bne.un.s IL_0036
+
+		IL_002b: ldarg.0
+		IL_002c: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::afterVentPhase
+		IL_0031: ldc.i4.s 15
+		IL_0033: ceq
+		IL_0035: ret
+
+		IL_0036: ldc.i4.0
+		IL_0037: ret
+
+		IL_0038: ldc.i4.1
+		IL_0039: ret
+	} // end of method CalibrationRunStateMachine::get_InDeflateSide
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.TimeSpan OneSegmentFloor (
+			int32 bagId
+		) cil managed 
+	{
+		// Method begins at RVA 0xdb20
+		// Header size: 12
+		// Code size: 92 (0x5c)
+		.maxstack 2
+		.locals init (
+			[0] bool,
+			[1] valuetype [System.Runtime]System.TimeSpan
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::IsLarge(int32)
+		IL_0007: stloc.0
+		IL_0008: ldarg.0
+		IL_0009: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_InDeflateSide()
+		IL_000e: brfalse.s IL_002e
+
+		IL_0010: ldloc.0
+		IL_0011: brtrue.s IL_0020
+
+		IL_0013: ldarg.0
+		IL_0014: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0019: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_DeflatePulseSmall()
+		IL_001e: br.s IL_002b
+
+		IL_0020: ldarg.0
+		IL_0021: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0026: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_DeflatePulseLarge()
+
+		IL_002b: stloc.1
+		IL_002c: br.s IL_004a
+
+		IL_002e: ldloc.0
+		IL_002f: brtrue.s IL_003e
+
+		IL_0031: ldarg.0
+		IL_0032: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0037: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_InflateDurationSmall()
+		IL_003c: br.s IL_0049
+
+		IL_003e: ldarg.0
+		IL_003f: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0044: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_InflateDurationLarge()
+
+		IL_0049: stloc.1
+
+		IL_004a: ldloc.1
+		IL_004b: ldarg.0
+		IL_004c: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0051: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_HoldDuration()
+		IL_0056: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_005b: ret
+	} // end of method CalibrationRunStateMachine::OneSegmentFloor
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan> DeterministicRemainingInBag (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			int32 bagId
+		) cil managed 
+	{
+		// Method begins at RVA 0xdb88
+		// Header size: 12
+		// Code size: 225 (0xe1)
+		.maxstack 3
+		.locals init (
+			[0] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass44_0',
+			[1] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>,
+			[2] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase,
+			[3] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: ldarg.1
+		IL_0003: stfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass44_0'::now
+		IL_0008: ldloca.s 0
+		IL_000a: ldarg.0
+		IL_000b: stfld class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass44_0'::'<>4__this'
+		IL_0010: ldarg.0
+		IL_0011: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0016: stloc.2
+		IL_0017: ldloc.2
+		IL_0018: ldc.i4.s 17
+		IL_001a: sub
+		IL_001b: switch (IL_0041, IL_0086, IL_00a5, IL_00d5, IL_00d5, IL_00d5, IL_00ba)
+
+		IL_003c: br IL_00d5
+
+		IL_0041: ldarg.0
+		IL_0042: ldarg.0
+		IL_0043: ldarg.2
+		IL_0044: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::IsLarge(int32)
+		IL_0049: brtrue.s IL_0058
+
+		IL_004b: ldarg.0
+		IL_004c: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0051: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_DrainSmall()
+		IL_0056: br.s IL_0063
+
+		IL_0058: ldarg.0
+		IL_0059: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_005e: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_DrainLarge()
+
+		IL_0063: ldloca.s 0
+		IL_0065: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'<DeterministicRemainingInBag>g__Left|44_0'(valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass44_0'&)
+		IL_006a: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_006f: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0074: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_0079: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_007e: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::.ctor(!0)
+		IL_0083: stloc.1
+		IL_0084: br.s IL_00df
+
+		IL_0086: ldarg.0
+		IL_0087: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_008c: ldloca.s 0
+		IL_008e: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'<DeterministicRemainingInBag>g__Left|44_0'(valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass44_0'&)
+		IL_0093: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_0098: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_009d: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::.ctor(!0)
+		IL_00a2: stloc.1
+		IL_00a3: br.s IL_00df
+
+		IL_00a5: ldarg.0
+		IL_00a6: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_00ab: ldloca.s 0
+		IL_00ad: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'<DeterministicRemainingInBag>g__Left|44_0'(valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass44_0'&)
+		IL_00b2: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::.ctor(!0)
+		IL_00b7: stloc.1
+		IL_00b8: br.s IL_00df
+
+		IL_00ba: ldarg.0
+		IL_00bb: ldarg.0
+		IL_00bc: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_00c1: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_CeilingDrain()
+		IL_00c6: ldloca.s 0
+		IL_00c8: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'<DeterministicRemainingInBag>g__Left|44_0'(valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass44_0'&)
+		IL_00cd: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::.ctor(!0)
+		IL_00d2: stloc.1
+		IL_00d3: br.s IL_00df
+
+		IL_00d5: ldloca.s 3
+		IL_00d7: initobj valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>
+		IL_00dd: ldloc.3
+		IL_00de: stloc.1
+
+		IL_00df: ldloc.1
+		IL_00e0: ret
+	} // end of method CalibrationRunStateMachine::DeterministicRemainingInBag
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.TimeSpan HonestFloor (
+			valuetype [System.Runtime]System.DateTimeOffset now,
+			int32 bagId
+		) cil managed 
+	{
+		// Method begins at RVA 0xdc78
+		// Header size: 12
+		// Code size: 106 (0x6a)
+		.maxstack 3
+		.locals init (
+			[0] valuetype [System.Runtime]System.TimeSpan,
+			[1] valuetype [System.Runtime]System.TimeSpan,
+			[2] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: ldarg.2
+		IL_0003: call instance valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::DeterministicRemainingInBag(valuetype [System.Runtime]System.DateTimeOffset, int32)
+		IL_0008: stloc.2
+		IL_0009: ldloca.s 2
+		IL_000b: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::get_HasValue()
+		IL_0010: brfalse.s IL_001c
+
+		IL_0012: ldloca.s 2
+		IL_0014: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.TimeSpan>::GetValueOrDefault()
+		IL_0019: stloc.0
+		IL_001a: ldloc.0
+		IL_001b: ret
+
+		IL_001c: ldarg.0
+		IL_001d: ldarg.2
+		IL_001e: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::IsLarge(int32)
+		IL_0023: brtrue.s IL_0032
+
+		IL_0025: ldarg.0
+		IL_0026: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_002b: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_DrainSmall()
+		IL_0030: br.s IL_003d
+
+		IL_0032: ldarg.0
+		IL_0033: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0038: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_DrainLarge()
+
+		IL_003d: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_0042: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0047: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_004c: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0051: stloc.1
+		IL_0052: ldarg.0
+		IL_0053: call instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_InPressureDrivenPhase()
+		IL_0058: brtrue.s IL_005c
+
+		IL_005a: ldloc.1
+		IL_005b: ret
+
+		IL_005c: ldloc.1
+		IL_005d: ldarg.0
+		IL_005e: ldarg.2
+		IL_005f: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::OneSegmentFloor(int32)
+		IL_0064: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0069: ret
+	} // end of method CalibrationRunStateMachine::HonestFloor
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.TimeSpan CurrentBagRemaining (
+			valuetype [System.Runtime]System.DateTimeOffset now
+		) cil managed 
+	{
+		// Method begins at RVA 0xdcf0
+		// Header size: 12
+		// Code size: 132 (0x84)
+		.maxstack 3
+		.locals init (
+			[0] int32,
+			[1] valuetype [System.Runtime]System.TimeSpan,
+			[2] valuetype [System.Runtime]System.TimeSpan,
+			[3] valuetype [System.Runtime]System.TimeSpan,
+			[4] valuetype [System.Runtime]System.Nullable`1<int32>,
+			[5] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_0006: stloc.s 4
+		IL_0008: ldloca.s 4
+		IL_000a: call instance bool valuetype [System.Runtime]System.Nullable`1<int32>::get_HasValue()
+		IL_000f: brfalse.s IL_002a
+
+		IL_0011: ldloca.s 4
+		IL_0013: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::GetValueOrDefault()
+		IL_0018: stloc.0
+		IL_0019: ldarg.0
+		IL_001a: ldfld valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::currentBagStartedAt
+		IL_001f: stloc.s 5
+		IL_0021: ldloca.s 5
+		IL_0023: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>::get_HasValue()
+		IL_0028: brtrue.s IL_0030
+
+		IL_002a: ldsfld valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::Zero
+		IL_002f: ret
+
+		IL_0030: ldarg.1
+		IL_0031: ldarg.0
+		IL_0032: ldflda valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::currentBagStartedAt
+		IL_0037: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>::get_Value()
+		IL_003c: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0041: stloc.1
+		IL_0042: ldarg.0
+		IL_0043: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0048: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_NominalBagDuration()
+		IL_004d: ldloc.1
+		IL_004e: call bool [System.Runtime]System.TimeSpan::op_GreaterThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0053: brtrue.s IL_005c
+
+		IL_0055: ldsfld valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::Zero
+		IL_005a: br.s IL_006d
+
+		IL_005c: ldarg.0
+		IL_005d: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0062: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_NominalBagDuration()
+		IL_0067: ldloc.1
+		IL_0068: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Subtraction(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+
+		IL_006d: stloc.2
+		IL_006e: ldarg.0
+		IL_006f: ldarg.1
+		IL_0070: ldloc.0
+		IL_0071: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::HonestFloor(valuetype [System.Runtime]System.DateTimeOffset, int32)
+		IL_0076: stloc.3
+		IL_0077: ldloc.2
+		IL_0078: ldloc.3
+		IL_0079: call bool [System.Runtime]System.TimeSpan::op_GreaterThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_007e: brtrue.s IL_0082
+
+		IL_0080: ldloc.3
+		IL_0081: ret
+
+		IL_0082: ldloc.2
+		IL_0083: ret
+	} // end of method CalibrationRunStateMachine::CurrentBagRemaining
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.TimeSpan EstimatedPerBagDuration () cil managed 
+	{
+		// Method begins at RVA 0xdd80
+		// Header size: 12
+		// Code size: 75 (0x4b)
+		.maxstack 3
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections]System.Collections.Generic.List`1<valuetype [System.Runtime]System.TimeSpan> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::completedBagDurations
+		IL_0006: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<valuetype [System.Runtime]System.TimeSpan>::get_Count()
+		IL_000b: ldc.i4.0
+		IL_000c: bgt.s IL_001a
+
+		IL_000e: ldarg.0
+		IL_000f: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0014: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_NominalBagDuration()
+		IL_0019: ret
+
+		IL_001a: ldarg.0
+		IL_001b: ldfld class [System.Collections]System.Collections.Generic.List`1<valuetype [System.Runtime]System.TimeSpan> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::completedBagDurations
+		IL_0020: ldsfld class [System.Runtime]System.Func`2<valuetype [System.Runtime]System.TimeSpan, int64> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c'::'<>9__47_0'
+		IL_0025: dup
+		IL_0026: brtrue.s IL_003f
+
+		IL_0028: pop
+		IL_0029: ldsfld class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c' Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c'::'<>9'
+		IL_002e: ldftn instance int64 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c'::'<EstimatedPerBagDuration>b__47_0'(valuetype [System.Runtime]System.TimeSpan)
+		IL_0034: newobj instance void class [System.Runtime]System.Func`2<valuetype [System.Runtime]System.TimeSpan, int64>::.ctor(object, native int)
+		IL_0039: dup
+		IL_003a: stsfld class [System.Runtime]System.Func`2<valuetype [System.Runtime]System.TimeSpan, int64> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c'::'<>9__47_0'
+
+		IL_003f: call float64 [System.Linq]System.Linq.Enumerable::Average<valuetype [System.Runtime]System.TimeSpan>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>, class [System.Runtime]System.Func`2<!!0, int64>)
+		IL_0044: conv.i8
+		IL_0045: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::FromTicks(int64)
+		IL_004a: ret
+	} // end of method CalibrationRunStateMachine::EstimatedPerBagDuration
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.TimeSpan RemainingBagsEstimate () cil managed 
+	{
+		// Method begins at RVA 0xddd8
+		// Header size: 12
+		// Code size: 45 (0x2d)
+		.maxstack 3
+		.locals init (
+			[0] int32
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_0006: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_000b: ldarg.0
+		IL_000c: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_0011: ldc.i4.1
+		IL_0012: add
+		IL_0013: sub
+		IL_0014: stloc.0
+		IL_0015: ldloc.0
+		IL_0016: ldc.i4.0
+		IL_0017: bgt.s IL_001f
+
+		IL_0019: ldsfld valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::Zero
+		IL_001e: ret
+
+		IL_001f: ldarg.0
+		IL_0020: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::EstimatedPerBagDuration()
+		IL_0025: ldloc.0
+		IL_0026: conv.r8
+		IL_0027: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Multiply(valuetype [System.Runtime]System.TimeSpan, float64)
+		IL_002c: ret
+	} // end of method CalibrationRunStateMachine::RemainingBagsEstimate
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.TimeSpan PurgeRemainder (
+			valuetype [System.Runtime]System.DateTimeOffset now
+		) cil managed 
+	{
+		// Method begins at RVA 0xde14
+		// Header size: 12
+		// Code size: 139 (0x8b)
+		.maxstack 3
+		.locals init (
+			[0] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass49_0',
+			[1] valuetype [System.Runtime]System.TimeSpan,
+			[2] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: ldarg.1
+		IL_0003: stfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass49_0'::now
+		IL_0008: ldloca.s 0
+		IL_000a: ldarg.0
+		IL_000b: stfld class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass49_0'::'<>4__this'
+		IL_0010: ldarg.0
+		IL_0011: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0016: stloc.2
+		IL_0017: ldloc.2
+		IL_0018: switch (IL_0033, IL_0033, IL_004b, IL_006b, IL_0073)
+
+		IL_0031: br.s IL_0083
+
+		IL_0033: ldarg.0
+		IL_0034: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0039: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_PurgeDuration()
+		IL_003e: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_0043: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0048: stloc.1
+		IL_0049: br.s IL_0089
+
+		IL_004b: ldarg.0
+		IL_004c: ldarg.0
+		IL_004d: ldfld class Eight.Firmness.Models.CalibrationOptions Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::options
+		IL_0052: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Models.CalibrationOptions::get_PurgeDuration()
+		IL_0057: ldloca.s 0
+		IL_0059: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'<PurgeRemainder>g__Left|49_0'(valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass49_0'&)
+		IL_005e: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_0063: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0068: stloc.1
+		IL_0069: br.s IL_0089
+
+		IL_006b: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_0070: stloc.1
+		IL_0071: br.s IL_0089
+
+		IL_0073: ldarg.0
+		IL_0074: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_0079: ldloca.s 0
+		IL_007b: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'<PurgeRemainder>g__Left|49_0'(valuetype [System.Runtime]System.TimeSpan, valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass49_0'&)
+		IL_0080: stloc.1
+		IL_0081: br.s IL_0089
+
+		IL_0083: ldsfld valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::Zero
+		IL_0088: stloc.1
+
+		IL_0089: ldloc.1
+		IL_008a: ret
+	} // end of method CalibrationRunStateMachine::PurgeRemainder
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.TimeSpan EstimateRemaining (
+			valuetype [System.Runtime]System.DateTimeOffset now
+		) cil managed 
+	{
+		// Method begins at RVA 0xdeac
+		// Header size: 12
+		// Code size: 89 (0x59)
+		.maxstack 3
+		.locals init (
+			[0] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase,
+			[1] bool
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0006: stloc.0
+		IL_0007: ldloc.0
+		IL_0008: ldc.i4.4
+		IL_0009: bgt.un.s IL_000f
+
+		IL_000b: ldc.i4.1
+		IL_000c: stloc.1
+		IL_000d: br.s IL_0011
+
+		IL_000f: ldc.i4.0
+		IL_0010: stloc.1
+
+		IL_0011: ldloc.1
+		IL_0012: brfalse.s IL_0038
+
+		IL_0014: ldarg.0
+		IL_0015: ldarg.1
+		IL_0016: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::PurgeRemainder(valuetype [System.Runtime]System.DateTimeOffset)
+		IL_001b: ldarg.0
+		IL_001c: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::EstimatedPerBagDuration()
+		IL_0021: ldarg.0
+		IL_0022: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_0027: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_002c: conv.r8
+		IL_002d: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Multiply(valuetype [System.Runtime]System.TimeSpan, float64)
+		IL_0032: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0037: ret
+
+		IL_0038: ldarg.0
+		IL_0039: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::outcome
+		IL_003e: brfalse.s IL_0046
+
+		IL_0040: ldsfld valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::Zero
+		IL_0045: ret
+
+		IL_0046: ldarg.0
+		IL_0047: ldarg.1
+		IL_0048: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::CurrentBagRemaining(valuetype [System.Runtime]System.DateTimeOffset)
+		IL_004d: ldarg.0
+		IL_004e: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::RemainingBagsEstimate()
+		IL_0053: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Addition(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0058: ret
+	} // end of method CalibrationRunStateMachine::EstimateRemaining
+
+	.method private hidebysig 
+		instance class Eight.Firmness.Services.Calibration.CalibrationRunStatus BuildStatus (
+			valuetype [System.Runtime]System.DateTimeOffset now
+		) cil managed 
+	{
+		// Method begins at RVA 0xdf14
+		// Header size: 12
+		// Code size: 217 (0xd9)
+		.maxstack 10
+		.locals init (
+			[0] valuetype [System.Runtime]System.TimeSpan,
+			[1] valuetype [System.Runtime]System.TimeSpan,
+			[2] int32,
+			[3] int32,
+			[4] int32,
+			[5] valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase,
+			[6] bool
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: ldarg.0
+		IL_0002: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::startedAt
+		IL_0007: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_000c: stloc.0
+		IL_000d: ldarg.0
+		IL_000e: ldarg.1
+		IL_000f: call instance valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::EstimateRemaining(valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0014: stloc.1
+		IL_0015: ldc.i4.1
+		IL_0016: ldarg.0
+		IL_0017: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_001c: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_0021: add
+		IL_0022: stloc.2
+		IL_0023: ldarg.0
+		IL_0024: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0029: stloc.s 5
+		IL_002b: ldloc.s 5
+		IL_002d: ldc.i4.4
+		IL_002e: bgt.un.s IL_0035
+
+		IL_0030: ldc.i4.1
+		IL_0031: stloc.s 6
+		IL_0033: br.s IL_0038
+
+		IL_0035: ldc.i4.0
+		IL_0036: stloc.s 6
+
+		IL_0038: ldloc.s 6
+		IL_003a: brtrue.s IL_0056
+
+		IL_003c: ldarg.0
+		IL_003d: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_0042: ldarg.0
+		IL_0043: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_0048: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_004d: call int32 [System.Runtime]System.Math::Min(int32, int32)
+		IL_0052: ldc.i4.1
+		IL_0053: add
+		IL_0054: br.s IL_0057
+
+		IL_0056: ldc.i4.0
+
+		IL_0057: stloc.3
+		IL_0058: ldarg.0
+		IL_0059: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::outcome
+		IL_005e: brtrue.s IL_0078
+
+		IL_0060: ldc.r8 100
+		IL_0069: ldloc.3
+		IL_006a: conv.r8
+		IL_006b: mul
+		IL_006c: ldloc.2
+		IL_006d: conv.r8
+		IL_006e: div
+		IL_006f: ldc.i4.1
+		IL_0070: call float64 [System.Runtime]System.Math::Round(float64, valuetype [System.Runtime]System.MidpointRounding)
+		IL_0075: conv.i4
+		IL_0076: br.s IL_007a
+
+		IL_0078: ldc.i4.s 100
+
+		IL_007a: stloc.s 4
+		IL_007c: ldarg.0
+		IL_007d: ldfld valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::outcome
+		IL_0082: ldarg.0
+		IL_0083: ldflda valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phase
+		IL_0088: constrained. Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/Phase
+		IL_008e: callvirt instance string [System.Runtime]System.Object::ToString()
+		IL_0093: ldarg.0
+		IL_0094: call instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+		IL_0099: ldarg.0
+		IL_009a: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bagIndex
+		IL_009f: ldc.i4.0
+		IL_00a0: ldarg.0
+		IL_00a1: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_00a6: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_00ab: call int32 [System.Runtime]System.Math::Clamp(int32, int32, int32)
+		IL_00b0: ldarg.0
+		IL_00b1: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::bags
+		IL_00b6: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<int32>::get_Count()
+		IL_00bb: ldloc.s 4
+		IL_00bd: ldc.i4.0
+		IL_00be: ldc.i4.s 100
+		IL_00c0: call int32 [System.Runtime]System.Math::Clamp(int32, int32, int32)
+		IL_00c5: ldloc.0
+		IL_00c6: ldloc.1
+		IL_00c7: ldarg.0
+		IL_00c8: ldfld class [System.Collections]System.Collections.Generic.List`1<string> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::warnings
+		IL_00cd: ldarg.0
+		IL_00ce: ldfld string Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::'error'
+		IL_00d3: newobj instance void Eight.Firmness.Services.Calibration.CalibrationRunStatus::.ctor(valuetype Eight.Firmness.Services.Calibration.CalibrationRunOutcome, string, valuetype [System.Runtime]System.Nullable`1<int32>, int32, int32, int32, valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<string>, string)
+		IL_00d8: ret
+	} // end of method CalibrationRunStateMachine::BuildStatus
+
+	.method private hidebysig specialname rtspecialname static 
+		void .cctor () cil managed 
+	{
+		// Method begins at RVA 0xdff9
+		// Header size: 1
+		// Code size: 13 (0xd)
+		.maxstack 8
+
+		IL_0000: ldc.i4.1
+		IL_0001: conv.i8
+		IL_0002: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::FromSeconds(int64)
+		IL_0007: stsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::ValveSettle
+		IL_000c: ret
+	} // end of method CalibrationRunStateMachine::.cctor
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.TimeSpan '<DeterministicRemainingInBag>g__Left|44_0' (
+			valuetype [System.Runtime]System.TimeSpan duration,
+			valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass44_0'& ''
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0xe007
+		// Header size: 1
+		// Code size: 55 (0x37)
+		.maxstack 8
+
+		IL_0000: ldarg.1
+		IL_0001: ldarg.2
+		IL_0002: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass44_0'::now
+		IL_0007: ldarg.0
+		IL_0008: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_000d: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0012: call bool [System.Runtime]System.TimeSpan::op_GreaterThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0017: brtrue.s IL_001f
+
+		IL_0019: ldsfld valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::Zero
+		IL_001e: ret
+
+		IL_001f: ldarg.1
+		IL_0020: ldarg.2
+		IL_0021: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass44_0'::now
+		IL_0026: ldarg.0
+		IL_0027: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_002c: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0031: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Subtraction(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0036: ret
+	} // end of method CalibrationRunStateMachine::'<DeterministicRemainingInBag>g__Left|44_0'
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.TimeSpan '<PurgeRemainder>g__Left|49_0' (
+			valuetype [System.Runtime]System.TimeSpan duration,
+			valuetype Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass49_0'& ''
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0xe03f
+		// Header size: 1
+		// Code size: 55 (0x37)
+		.maxstack 8
+
+		IL_0000: ldarg.1
+		IL_0001: ldarg.2
+		IL_0002: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass49_0'::now
+		IL_0007: ldarg.0
+		IL_0008: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_000d: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0012: call bool [System.Runtime]System.TimeSpan::op_GreaterThan(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0017: brtrue.s IL_001f
+
+		IL_0019: ldsfld valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::Zero
+		IL_001e: ret
+
+		IL_001f: ldarg.1
+		IL_0020: ldarg.2
+		IL_0021: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine/'<>c__DisplayClass49_0'::now
+		IL_0026: ldarg.0
+		IL_0027: ldfld valuetype [System.Runtime]System.DateTimeOffset Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::phaseStartedAt
+		IL_002c: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.DateTimeOffset::op_Subtraction(valuetype [System.Runtime]System.DateTimeOffset, valuetype [System.Runtime]System.DateTimeOffset)
+		IL_0031: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::op_Subtraction(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan)
+		IL_0036: ret
+	} // end of method CalibrationRunStateMachine::'<PurgeRemainder>g__Left|49_0'
+
+	// Properties
+	.property instance bool IsDone()
+	{
+		.get instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_IsDone()
+	}
+	.property instance valuetype [System.Runtime]System.Nullable`1<int32> CurrentBagId()
+	{
+		.get instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_CurrentBagId()
+	}
+	.property instance bool InPressureDrivenPhase()
+	{
+		.get instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_InPressureDrivenPhase()
+	}
+	.property instance bool InDeflateSide()
+	{
+		.get instance bool Eight.Firmness.Services.Calibration.CalibrationRunStateMachine::get_InDeflateSide()
+	}
+
+} // end of class Eight.Firmness.Services.Calibration.CalibrationRunStateMachine

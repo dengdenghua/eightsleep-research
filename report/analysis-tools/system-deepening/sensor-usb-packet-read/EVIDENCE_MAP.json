@@ -1,0 +1,90 @@
+{
+  "scope": "USB5.5.34.0 EP81 normal singlebuffer packet reads and local IRQ exclusion",
+  "rows": [
+    {
+      "id": "endpoint_identity",
+      "files": [
+        "pass3/0801bf1c_0801bfcc.txt",
+        "pass4/08014bd4.txt",
+        "pass4/080149e8.txt",
+        "pass2/08017f2c_08018066.txt",
+        "pass3/0801c0d4_0801c0fc.txt"
+      ],
+      "observed": "EP81 singlebuffer mode0, PMA98, reset speed1 selects max64; alternate512 branch excluded"
+    },
+    {
+      "id": "initial_copy",
+      "files": [
+        "pass1/08014ae6.txt",
+        "pass1/08017804.txt",
+        "pass2/0801779c.txt"
+      ],
+      "observed": "original pointer/remaining stored then min(remaining,maxpacket) byte loads to PMA; no whole-record snapshot"
+    },
+    {
+      "id": "next_packet",
+      "files": [
+        "pass2/0801406c.txt"
+      ],
+      "observed": "14524..14552: count=(PMA descriptor >>16)&0x3ff; if remaining>count subtract, advance originalpointer and copy next; otherwise lower callback"
+    },
+    {
+      "id": "PMA_word_copy",
+      "files": [
+        "pass2/0801779c.txt"
+      ],
+      "observed": "177dc..177fa byte load groups; tail177c6..177d8 reads only actual remainder, zero pads stored word"
+    },
+    {
+      "id": "IRQ_route",
+      "files": [
+        "pass6/0801be78.txt",
+        "pass6/080114ac.txt",
+        "pass3/0801be20.txt",
+        "pass3/08013e34.txt",
+        "pass2/0801c0ae_0801c0d4.txt"
+      ],
+      "observed": "vector copied to SRAM/VTOR; IRQ8→1be20→1406c; PCD+328 callback1c0af→class DataIn"
+    },
+    {
+      "id": "mask_scope",
+      "files": [
+        "pass1/08012410.txt",
+        "pass1/080123f8.txt",
+        "pass4/08020c1a_08020c84.txt",
+        "pass4/08028e4c.txt",
+        "pass4/0801d6c8.txt",
+        "pass4/0801c44c.txt"
+      ],
+      "observed": "IRQ8 masked only20c54..20c70 gate drain, not earlier timeout; barriers do not establish IRQ exclusion"
+    },
+    {
+      "id": "same_slot_write",
+      "files": [
+        "pass5/0801c764.txt",
+        "pass5/0801c4c0.txt",
+        "pass6/080292a0.txt",
+        "pass6/08029254.txt",
+        "pass6/08029280.txt"
+      ],
+      "observed": "first nonzero slot scan starts0; encoder writes selected slot with increasing index"
+    },
+    {
+      "id": "class_busy_distinct",
+      "files": [
+        "pass5/08018080.txt",
+        "pass5/080180be.txt",
+        "pass5/0801ba8c_0801bb20.txt"
+      ],
+      "observed": "class pointer overwritten beforebusy guard; no new lower endpoint pointer/copy when TxState!=0"
+    },
+    {
+      "id": "synthetic_checks",
+      "files": [
+        "scripts/packet_cases.py",
+        "SYNTHETIC_CASES.json"
+      ],
+      "observed": "eight finite handwritten checks; no measured behavior"
+    }
+  ]
+}

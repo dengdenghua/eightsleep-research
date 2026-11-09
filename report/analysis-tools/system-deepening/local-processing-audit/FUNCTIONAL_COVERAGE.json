@@ -1,0 +1,164 @@
+{
+  "date": "2026-11-08",
+  "scope": "Functional coverage ledger for the current local-processing pass, not percentage of all functions. New pending firmware rows are added only after evidence closes.",
+  "covered": [
+    {
+      "id": "sensor-g0-usb",
+      "function": "G0 USB采样、电容、温度与正常输出",
+      "report": "local-signal-closure/FINDINGS_ZH.txt",
+      "boundary": "正常数值链与Host字段；实际部署与物理通道未知"
+    },
+    {
+      "id": "sensor-legacy-331",
+      "function": "旧sensor 3.3.1两种ADC路线",
+      "report": "legacy-sensor-closure/FINDINGS_ZH.txt",
+      "boundary": "正常采样数值链；旧闹钟/马达及全电气保护组合未逐分支穷尽"
+    },
+    {
+      "id": "mechanical-calibration",
+      "function": "主控pulse/landing校准",
+      "report": "local-calibration-closure/FINDINGS_ZH.txt",
+      "boundary": "正常拟合、写入与恢复意图；未验证硬件校准精度"
+    },
+    {
+      "id": "motion-controller",
+      "function": "主控床架止鼾运动",
+      "report": "local-snore-control/FINDINGS_ZH.txt",
+      "boundary": "目标角度之后的控制；上游鼾声检测缺实现"
+    },
+    {
+      "id": "mechanical-feedback",
+      "function": "TriMix/Keeson采样与状态",
+      "report": "local-accessory-closure/FINDINGS_ZH.txt",
+      "boundary": "当前主选版本局部完整链；Keeson追加记录生产者仍未绑定"
+    },
+    {
+      "id": "managed-telemetry",
+      "function": "Capybara附件遥测",
+      "report": "local-managed-telemetry/FINDINGS_ZH.txt",
+      "boundary": "第一方字段、时间、秒桶、队列；第三方库全部内部行为未穷尽"
+    },
+    {
+      "id": "audio-playback",
+      "function": "主控音轨播放",
+      "report": "local-audio-closure/FINDINGS_ZH.txt",
+      "boundary": "正常第一方播放链；音箱内部DSP/loader未恢复"
+    },
+    {
+      "id": "android-local",
+      "function": "App健康/潮热/午睡",
+      "report": "local-app-closure/FINDINGS_ZH.txt",
+      "boundary": "正常本地消费与数值；全Compose/反射/动态路由未穷尽"
+    },
+    {
+      "id": "android-jetlag",
+      "function": "App时差任务处理",
+      "report": "local-app-closure/jetlag/FINDINGS_ZH.txt",
+      "boundary": "正常行程/分组/时间/回写与通知入口；服务端计划生成与实际payload未知"
+    },
+    {
+      "id": "alarm-routing",
+      "function": "主控敲击闹钟分流",
+      "report": "local-control-closure/FINDINGS_ZH.txt",
+      "boundary": "六任务时间窗guard；不代表全局控制优先级"
+    },
+    {
+      "id": "sensor-legacy-221",
+      "function": "旧legacy 2.2.12采样/电容/温度/输出",
+      "report": "local-legacy-sensor-closure/FINDINGS_ZH.txt",
+      "boundary": "正常数值/队列/串行/GPIO链；部署、板型与物理测量未知"
+    },
+    {
+      "id": "pillow-local",
+      "function": "Pillow采样/电容/均值/温湿度/输出",
+      "report": "local-pillow-closure/FINDINGS_ZH.txt",
+      "boundary": "正常MCU/Frank链和有限模型；真实时序/轴向/部署未知"
+    },
+    {
+      "id": "balloon-feedback",
+      "function": "A02压力补偿/体动门控/选袋/阀泵PWM",
+      "report": "local-balloon-control/FINDINGS_ZH.txt",
+      "boundary": "当前原件正常机械控制链；不是生理模型，配置与物理效果未知"
+    },
+    {
+      "id": "legacy-normal-control",
+      "function": "旧两版温控GPIO与振动PWM/模式时序",
+      "report": "local-legacy-control/FINDINGS_ZH.txt",
+      "boundary": "完整正常模式0/1与数字端点；不是全板电气验证/全故障路径"
+    },
+    {
+      "id": "legacy-normal-commands",
+      "function": "旧两版硬件配置与18个普通命令",
+      "report": "local-legacy-commands/FINDINGS_ZH.txt",
+      "boundary": "正常直接入口与回复；实际配置区不在原BBIN内，间接调用未穷尽"
+    },
+    {
+      "id": "auxiliary-magnetic",
+      "function": "G0 USB辅助磁传感/TMP到0x39与Frank聚合",
+      "report": "local-tmag-closure/FINDINGS_ZH.txt",
+      "boundary": "正常数值/字段/对象side/主题链；聚合version初值、部署与物理单位仍未知"
+    },
+    {
+      "id": "g0-nonusb-values",
+      "function": "nonUSB G0 FDC/NTC/窗口/融合/正常组包",
+      "report": "local-nonusb-fdc-temperature/FINDINGS_ZH.txt",
+      "boundary": "逐原件绑定及40组有界比较；不等于全固件等价/实机部署验证"
+    }
+  ],
+  "production_implementations_not_obtained": [
+    "heart/respiratory extraction",
+    "person separation and physiological fusion",
+    "HRV 1.2.0 production",
+    "presence 3.2.1 production",
+    "sleep staging 0.1.1 production",
+    "Autopilot target generation",
+    "current_posture label producer"
+  ],
+  "runtime_and_hardware_unverified": [
+    "current firmware/config binding",
+    "physical channel mapping",
+    "live source freshness and loss rates",
+    "actual actuator/temperature response",
+    "cloud receipt and processing"
+  ],
+  "carried_forward": [
+    {
+      "id": "thermal",
+      "report_from_research_root": "analysis/finishable-20261107/thermal-model/FINDINGS_ZH.txt",
+      "scope": "Frozen温控/PID/保护：沿用既有有限验收",
+      "sha256": "a341c6dc120909b1e653ebd470cf20707af31a8f529a3a735014d20aca36244f"
+    },
+    {
+      "id": "upload",
+      "report_from_research_root": "analysis/finishable-20261107/raw-upload/RAW_02_FINDINGS_ZH.txt",
+      "scope": "NATS与上传缓存：沿用既有有限验收",
+      "sha256": "74cc9fb7d389c3b5ae9e6a1bbbca68894471aceafc7fd8cd58e425d36412571c"
+    },
+    {
+      "id": "frank-queue",
+      "report_from_research_root": "analysis/prepublish-queue-20261108/code-audit/FINDINGS_ZH.txt",
+      "scope": "Frank发布前队列：沿用既有有限验收",
+      "sha256": "6f4982e75eb22147e97e20b328be0276854a3f2c7c878da2f785676e9b3e9710"
+    },
+    {
+      "id": "capture-integration",
+      "report_from_research_root": "analysis/system-deepening-20261108/integrated-capture-model/FINDINGS_ZH.txt",
+      "scope": "采样到CBOR与队列：沿用既有有限合成模型",
+      "sha256": "f34a53f9db832b22145f7b8f649bfba167a9d7dc17abc063ae2b933ae4069f31"
+    },
+    {
+      "id": "startup",
+      "report_from_research_root": "analysis/finishable-20261107/startup/FINDINGS_ZH.txt",
+      "scope": "系统启动与依赖：沿用既有静态验收",
+      "sha256": "660553f9e9029443b66c7529626fa65ab2e4637e6e469eaf0dd8f2082baabb4d"
+    }
+  ],
+  "bounded_format_audits": [
+    {
+      "id": "speaker-fot-boundary",
+      "function": "B13主体差分/尾段配置候选/内部格式缺口",
+      "report": "local-audio-firmware-boundary/FINDINGS_ZH.txt",
+      "boundary": "未恢复ISA/代码入口/DSP；已把缺失loader/格式/schema具体化"
+    }
+  ]
+}

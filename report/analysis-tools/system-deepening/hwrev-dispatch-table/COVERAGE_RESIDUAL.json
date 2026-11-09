@@ -1,0 +1,54 @@
+{
+  "schema": "eightsleep.nonusb.hwrev-dispatch-table-coverage-residual.v1",
+  "date": "2026-11-08",
+  "scope": "Gap 1 from the previous round: full 14-row hwrev dispatch table mapping.",
+  "closed_this_round": [
+    {
+      "id": "HWREV-MAP-01",
+      "previous": "Only 4 of 14 setters were checked; string-table order (K10/K05) did not line up with threshold-row order, so no one-to-one mapping was published.",
+      "now": "All 14 rows mapped to 14 version strings and 14 setters via unique in-image string-pointer literals; the index 4/5 order inversion is explained, not avoided.",
+      "evidence": ["DISPATCH_TABLE_MAP.json", "BYTE_VALIDATION.json"]
+    },
+    {
+      "id": "HWREV-MAP-02",
+      "previous": "Dispatch callees 0800fd25 / 0800fd31 had no decoded function body in the retained Ghidra project.",
+      "now": "Both are short Thumb setters (K87 / K90); decoded from raw halfwords with an explicit 16-bit Thumb subset decoder, including K90's strb zero at byte offset 0x18c.",
+      "evidence": ["pass1/0800fd25.txt", "pass1/0800fd31.txt", "pass1/0800fd00_0800fd70.txt", "BYTE_VALIDATION.json"]
+    },
+    {
+      "id": "HWREV-MAP-03",
+      "previous": "Six init variants, two clock config entrances; cumulative application was stated qualitatively.",
+      "now": "Seven init slot candidates found (08012274 reuses 08012008 via BL); cumulative replay modelled over 16 hwrev boundaries; whole-image BL scan confirms only 4 + 2 clock entrance callsites.",
+      "evidence": ["pass2/08012274.txt", "DISPATCH_SIMULATION.json", "BYTE_VALIDATION.json"]
+    },
+    {
+      "id": "HWREV-MAP-04",
+      "previous": "The hwrev >= 0xA87 => 16MHz branch was not tied to a version label.",
+      "now": "0x0A87 is exactly the K87 row; K87/K90 therefore keep the K36 init but switch the HSE software input from 32000000 to 16000000. Still not a product/board/oscillator binding.",
+      "evidence": ["DISPATCH_SIMULATION.json", "upstream-clock-selection/pass1/080108ac.txt"]
+    }
+  ],
+  "residual": [
+    "writer 2 (0800c8dc) PLL configuration bytes are not decoded into an actual core clock",
+    "local structs passed to 080108ac / 08010960 are not decoded into measured frequencies",
+    "hwrev / sku are not bound to a marketing model, board revision or external oscillator",
+    "clock-source switching transition, cumulative tick loss, PLL lock, interrupt latency and ADC CLKIN/DRDY timing need a device",
+    "data tables 08025f00 / 08025f08 / 08025ee8 contents and the 0x18c byte cleared by K90 are not decoded",
+    "semantics of the callback/timeout slots written by individual setters are not identified",
+    "runtime RCC_CFGR source selection is not proven by static bytes"
+  ],
+  "unchanged_boundaries": [
+    "air bladder / bed frame work stays deferred",
+    "core physiological algorithm, Autopilot, posture classification, device binding and speaker DSP still depend on new material",
+    "USB 0x2B first producer and legacy waveform RAW writer gaps stay as-is",
+    "shared log formatting buffer / reentrancy special topic was halted by automated safety checks and is not retried, reworded or cited"
+  ],
+  "verification": {
+    "byte_checks": 109,
+    "byte_failures": 0,
+    "simulation_boundaries": 16,
+    "simulation_assertions": 26,
+    "simulation_failures": 0,
+    "executes_firmware": false
+  }
+}

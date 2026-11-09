@@ -1,0 +1,60 @@
+{
+  "id": "android-app",
+  "title": "客户端解析、缓存与显示",
+  "layer": "app",
+  "status": "partial",
+  "order": 90,
+  "summary": "国行App执行结果读取、缓存合并、图表转换和事件同步。五个原待解公共函数已追至数据消费边界，云端分期与推荐生成实现仍不在这些链中。",
+  "inputs": [
+    "账号授权后的云端结果与设备元数据",
+    "用户的时间编辑、反馈和控制操作",
+    "匹配设备的已缓存 BLE 安全密钥"
+  ],
+  "outputs": [
+    "睡眠、心肺及健康图表",
+    "云端设置与反馈请求",
+    "有条件的 BLE 手动控制"
+  ],
+  "findings": [
+    "4 个 DEX 完整提取；JADX 有 350 个错误，不能视为完整原始源码。",
+    "HRV 日图读取 rmssd，呼吸率日图读取 nemeanRespiratoryRate。",
+    "首尾 awake/out 仅在显示映射中各最多保留 600 秒，独立汇总不随之重算。",
+    "睡眠编辑提交四时刻导出的 awake/asleep/awake 三段；质量反馈 high/low 来源于用户选择。",
+    "已有过期 BLE 缓存可先交操作并后台刷新；无密钥或解密错误恢复仍依赖云端。",
+    "C04静态链已完成：本地consent、cache-first用户/引导状态、家庭与首页路由连接到备用命令门控；普通断网不同于空token清库。",
+    "APP-02指定五函数已完成：WEEK生成7日期、MONTH生成31日期，缺日期传sample=null；同周期UI保留未返回的旧日期。",
+    "数据库聚合新指标覆盖同键，samples整组取新；已有同日缓存合并才补stdDev请求项0。成功历史空响应可覆盖为占位。",
+    "温控OFF曲线含本地合成点；阶段选择改变颜色；鼾声图可追加NONE段，均不能当成设备原始采样。",
+    "alarm事件先局部改Room再回源刷新并进入UI；base-preset在本包完整直接类型/通道检索中未见业务消费者。",
+    "补齐异常字段实际消费者、潮热图与总数的不同取数范围、午睡设置/激活与倒计时；倒计时结束处不发停止设备请求。"
+  ],
+  "unknowns": [
+    "当前账号离线冷启动、系统清数据/卸载和不同token失效条件尚未运行验证。",
+    "动态配置、反射/JNI及线上功能启用不能由限定静态链穷尽。",
+    "阶段/鼾声时长不一致、零时长、OFF乱序等边界仅有静态公式与合成模型，未证明真实接口可达。",
+    "Pod5命名引导流程不能直接绑定当前Pod6实机。"
+  ],
+  "evidence": [
+    "analysis/sleep-pipeline/OFFICIAL_DISTRIBUTION_FOLLOWUP_ZH.txt",
+    "analysis/android-findings/APP_RUNTIME_AND_HARDWARE_ZH.txt",
+    "analysis/android-findings/ANDROID_SLEEP_RESULTS_ZH.txt",
+    "analysis/android-findings/APP_CARDIORESPIRATORY_PIPELINE_ZH.txt",
+    "analysis/android-findings/APP_SLEEP_EDIT_AND_SELECTION_ZH.txt",
+    "analysis/android-findings/APP_SLEEP_FEEDBACK_ZH.txt",
+    "analysis/android-findings/APP_SLEEP_HEALTH_RESULTS_ZH.txt",
+    "analysis/android-findings/APP_NATIVE_ENTRY_BOUNDARY_ZH.txt",
+    "analysis/device-side-followup/offline-boundary/FINDINGS_ZH.txt",
+    "analysis/next-round-20261107/app-lifecycle/FINDINGS_ZH.txt",
+    "analysis/finishable-20261107/app/c04/FINDINGS_ZH.txt",
+    "analysis/finishable-20261107/app/app02/FINDINGS_ZH.txt",
+    "analysis/finishable-20261107/app/charts/FINDINGS_ZH.txt",
+    "analysis/finishable-20261107/app/metrics-aggregate/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/local-app-closure/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/local-app-closure/jetlag/FINDINGS_ZH.txt"
+  ],
+  "next": [
+    "APP-01",
+    "APP-03"
+  ],
+  "plain_intro": "本页梳理国行App的结果读取、缓存、图表转换、事件消费和离线控制入口。"
+}

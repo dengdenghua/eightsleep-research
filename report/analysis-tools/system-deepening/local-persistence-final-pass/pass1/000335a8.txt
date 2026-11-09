@@ -1,0 +1,35 @@
+FUNCTION 000335a8 BODY [[000335a8, 000335c7]]
+REF_TO 0002be18 UNCONDITIONAL_JUMP
+
+void FUN_000335a8(undefined4 param_1,undefined4 param_2,undefined4 param_3,undefined4 *param_4)
+
+{
+  undefined4 uStack_10;
+  undefined4 uStack_c;
+  undefined4 *local_8;
+  
+  uStack_10 = param_2;
+  uStack_c = param_3;
+  local_8 = param_4;
+  FUN_00033674(&uStack_10,DAT_000335c8);
+  while (local_8 != (undefined4 *)0x0) {
+    (*(code *)*local_8)(local_8[1]);
+    FUN_000336a2(&uStack_10);
+  }
+  return;
+}
+
+
+INSN 000335a8 0eb5 push {r1,r2,r3,lr}
+INSN 000335aa 0749 ldr r1,[0x000335c8] REF[READ:000335c8=37020] REF[PARAM:00037020=3703c]
+INSN 000335ac 6846 mov r0,sp
+INSN 000335ae 00f061f8 bl 0x00033674 REF[UNCONDITIONAL_CALL:00033674]
+INSN 000335b2 05e0 b 0x000335c0 REF[UNCONDITIONAL_JUMP:000335c0]
+INSN 000335b4 d0e90010 ldrd r1,r0,[r0,#0x0]
+INSN 000335b8 8847 blx r1
+INSN 000335ba 6846 mov r0,sp
+INSN 000335bc 00f071f8 bl 0x000336a2 REF[UNCONDITIONAL_CALL:000336a2]
+INSN 000335c0 0298 ldr r0,[sp,#0x8] REF[READ:Stack[-0x8]]
+INSN 000335c2 0028 cmp r0,#0x0
+INSN 000335c4 f6d1 bne 0x000335b4 REF[CONDITIONAL_JUMP:000335b4]
+INSN 000335c6 0ebd pop {r1,r2,r3,pc}

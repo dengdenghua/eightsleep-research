@@ -1,0 +1,369 @@
+// IL code: Eight.Audio
+.class public auto ansi sealed beforefieldinit Eight.Audio.StateMachine.Tasks.PlayTask
+	extends [System.Runtime]System.Object
+	implements Eight.Audio.StateMachine.Tasks.IPlayerTask
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.interfaceimpl type Eight.Audio.StateMachine.Tasks.IPlayerTask
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	// Fields
+	.field private class Eight.Audio.Player.IPlayer '<player>P'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Audio.StateMachine.Tasks.PlayTask> logger
+	.field private initonly class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Audio.SpeakerConfiguration> podConfigurationManager
+	.field private initonly class [NodaTime]NodaTime.IClock clock
+	.field private initonly class Eight.Audio.Models.PlayRequest '<PlayRequest>k__BackingField'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+	.field private initonly class [System.Runtime]System.Threading.CancellationTokenSource taskCancellationSource
+	.field private class [System.Runtime]System.Threading.Tasks.Task playTask
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+	.field private valuetype [NodaTime]NodaTime.Instant lastVolumeIncrease
+	.field private int32 lastKnownVolume
+	.field private initonly valuetype [NodaTime]NodaTime.Duration IterationWait
+	.field private bool '<ShouldVolumeRamp>k__BackingField'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+	.field private initonly int32 originalVolume
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Audio.StateMachine.Tasks.PlayTask> logger,
+			class [NodaTime]NodaTime.IClock clock,
+			class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Audio.SpeakerConfiguration> podConfigurationManager,
+			class Eight.Audio.Player.IPlayer player,
+			class Eight.Audio.Models.PlayRequest playRequest
+		) cil managed 
+	{
+		// Method begins at RVA 0x5400
+		// Header size: 12
+		// Code size: 113 (0x71)
+		.maxstack 3
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.s player
+		IL_0003: stfld class Eight.Audio.Player.IPlayer Eight.Audio.StateMachine.Tasks.PlayTask::'<player>P'
+		IL_0008: ldarg.0
+		IL_0009: ldarg.1
+		IL_000a: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Audio.StateMachine.Tasks.PlayTask> Eight.Audio.StateMachine.Tasks.PlayTask::logger
+		IL_000f: ldarg.0
+		IL_0010: ldarg.3
+		IL_0011: stfld class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Audio.SpeakerConfiguration> Eight.Audio.StateMachine.Tasks.PlayTask::podConfigurationManager
+		IL_0016: ldarg.0
+		IL_0017: ldarg.2
+		IL_0018: stfld class [NodaTime]NodaTime.IClock Eight.Audio.StateMachine.Tasks.PlayTask::clock
+		IL_001d: ldarg.0
+		IL_001e: ldarg.s playRequest
+		IL_0020: stfld class Eight.Audio.Models.PlayRequest Eight.Audio.StateMachine.Tasks.PlayTask::'<PlayRequest>k__BackingField'
+		IL_0025: ldarg.0
+		IL_0026: newobj instance void [System.Runtime]System.Threading.CancellationTokenSource::.ctor()
+		IL_002b: stfld class [System.Runtime]System.Threading.CancellationTokenSource Eight.Audio.StateMachine.Tasks.PlayTask::taskCancellationSource
+		IL_0030: ldarg.0
+		IL_0031: call valuetype [NodaTime]NodaTime.Instant [NodaTime]NodaTime.Instant::get_MinValue()
+		IL_0036: stfld valuetype [NodaTime]NodaTime.Instant Eight.Audio.StateMachine.Tasks.PlayTask::lastVolumeIncrease
+		IL_003b: ldarg.0
+		IL_003c: call valuetype [NodaTime]NodaTime.Duration Eight.Audio.StateMachine.Tasks.PlayTask::GetIterationWait()
+		IL_0041: stfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.StateMachine.Tasks.PlayTask::IterationWait
+		IL_0046: ldarg.0
+		IL_0047: ldarg.s playRequest
+		IL_0049: callvirt instance valuetype Eight.Audio.Models.PlayModification[] Eight.Audio.Models.PlayRequest::get_PlayModifications()
+		IL_004e: ldc.i4.0
+		IL_004f: call bool [System.Linq]System.Linq.Enumerable::Contains<valuetype Eight.Audio.Models.PlayModification>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>, !!0)
+		IL_0054: stfld bool Eight.Audio.StateMachine.Tasks.PlayTask::'<ShouldVolumeRamp>k__BackingField'
+		IL_0059: ldarg.0
+		IL_005a: ldarg.0
+		IL_005b: ldfld class Eight.Audio.Player.IPlayer Eight.Audio.StateMachine.Tasks.PlayTask::'<player>P'
+		IL_0060: callvirt instance int32 Eight.Audio.Player.IPlayer::get_Volume()
+		IL_0065: stfld int32 Eight.Audio.StateMachine.Tasks.PlayTask::originalVolume
+		IL_006a: ldarg.0
+		IL_006b: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0070: ret
+	} // end of method PlayTask::.ctor
+
+	.method public hidebysig specialname 
+		instance class Eight.Audio.Models.PlayRequest get_PlayRequest () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x547d
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Audio.Models.PlayRequest Eight.Audio.StateMachine.Tasks.PlayTask::'<PlayRequest>k__BackingField'
+		IL_0006: ret
+	} // end of method PlayTask::get_PlayRequest
+
+	.method public hidebysig specialname 
+		instance bool get_ShouldVolumeRamp () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x5485
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld bool Eight.Audio.StateMachine.Tasks.PlayTask::'<ShouldVolumeRamp>k__BackingField'
+		IL_0006: ret
+	} // end of method PlayTask::get_ShouldVolumeRamp
+
+	.method private hidebysig specialname 
+		instance void set_ShouldVolumeRamp (
+			bool 'value'
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x548d
+		// Header size: 1
+		// Code size: 8 (0x8)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld bool Eight.Audio.StateMachine.Tasks.PlayTask::'<ShouldVolumeRamp>k__BackingField'
+		IL_0007: ret
+	} // end of method PlayTask::set_ShouldVolumeRamp
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<valuetype [System.Runtime]System.ValueTuple`2<bool, class Eight.Audio.StateMachine.Tasks.IPlayerTask>> TryComplete (
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 03 00 00 00 01 00 02 00 00
+			)
+		// Method begins at RVA 0x5498
+		// Header size: 12
+		// Code size: 324 (0x144)
+		.maxstack 4
+		.locals init (
+			[0] class Eight.Audio.Models.PlayRequest
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: call instance bool Eight.Audio.StateMachine.Tasks.PlayTask::get_ShouldVolumeRamp()
+		IL_0006: brfalse IL_008e
+
+		IL_000b: ldarg.0
+		IL_000c: ldfld class [System.Runtime]System.Threading.Tasks.Task Eight.Audio.StateMachine.Tasks.PlayTask::playTask
+		IL_0011: brfalse.s IL_008e
+
+		IL_0013: ldarg.0
+		IL_0014: ldfld class Eight.Audio.Player.IPlayer Eight.Audio.StateMachine.Tasks.PlayTask::'<player>P'
+		IL_0019: callvirt instance int32 Eight.Audio.Player.IPlayer::get_Volume()
+		IL_001e: ldarg.0
+		IL_001f: call instance class Eight.Audio.Models.PlayRequest Eight.Audio.StateMachine.Tasks.PlayTask::get_PlayRequest()
+		IL_0024: callvirt instance int32 Eight.Audio.Models.PlayRequest::get_StartVolume()
+		IL_0029: bne.un.s IL_0034
+
+		IL_002b: ldarg.0
+		IL_002c: ldc.i4.0
+		IL_002d: call instance void Eight.Audio.StateMachine.Tasks.PlayTask::set_ShouldVolumeRamp(bool)
+		IL_0032: br.s IL_008e
+
+		IL_0034: ldarg.0
+		IL_0035: ldfld class [NodaTime]NodaTime.IClock Eight.Audio.StateMachine.Tasks.PlayTask::clock
+		IL_003a: callvirt instance valuetype [NodaTime]NodaTime.Instant [NodaTime]NodaTime.IClock::GetCurrentInstant()
+		IL_003f: ldarg.0
+		IL_0040: ldfld valuetype [NodaTime]NodaTime.Instant Eight.Audio.StateMachine.Tasks.PlayTask::lastVolumeIncrease
+		IL_0045: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Instant::op_Subtraction(valuetype [NodaTime]NodaTime.Instant, valuetype [NodaTime]NodaTime.Instant)
+		IL_004a: ldarg.0
+		IL_004b: ldfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.StateMachine.Tasks.PlayTask::IterationWait
+		IL_0050: call bool [NodaTime]NodaTime.Duration::op_GreaterThan(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+		IL_0055: brfalse.s IL_008e
+
+		IL_0057: ldarg.0
+		IL_0058: ldarg.0
+		IL_0059: ldfld class [NodaTime]NodaTime.IClock Eight.Audio.StateMachine.Tasks.PlayTask::clock
+		IL_005e: callvirt instance valuetype [NodaTime]NodaTime.Instant [NodaTime]NodaTime.IClock::GetCurrentInstant()
+		IL_0063: stfld valuetype [NodaTime]NodaTime.Instant Eight.Audio.StateMachine.Tasks.PlayTask::lastVolumeIncrease
+		IL_0068: ldarg.0
+		IL_0069: ldarg.0
+		IL_006a: ldfld int32 Eight.Audio.StateMachine.Tasks.PlayTask::lastKnownVolume
+		IL_006f: ldc.i4.1
+		IL_0070: add
+		IL_0071: stfld int32 Eight.Audio.StateMachine.Tasks.PlayTask::lastKnownVolume
+		IL_0076: ldarg.0
+		IL_0077: ldfld class Eight.Audio.Player.IPlayer Eight.Audio.StateMachine.Tasks.PlayTask::'<player>P'
+		IL_007c: ldc.i4.s 100
+		IL_007e: ldarg.0
+		IL_007f: ldfld int32 Eight.Audio.StateMachine.Tasks.PlayTask::lastKnownVolume
+		IL_0084: call int32 [System.Runtime]System.Math::Min(int32, int32)
+		IL_0089: callvirt instance void Eight.Audio.Player.IPlayer::set_Volume(int32)
+
+		IL_008e: ldarg.0
+		IL_008f: ldfld class [System.Runtime]System.Threading.Tasks.Task Eight.Audio.StateMachine.Tasks.PlayTask::playTask
+		IL_0094: brtrue.s IL_00f2
+
+		IL_0096: ldarg.0
+		IL_0097: call instance class Eight.Audio.Models.PlayRequest Eight.Audio.StateMachine.Tasks.PlayTask::get_PlayRequest()
+		IL_009c: callvirt instance class Eight.Audio.Models.PlayRequest Eight.Audio.Models.PlayRequest::'<Clone>$'()
+		IL_00a1: dup
+		IL_00a2: ldarg.0
+		IL_00a3: call instance bool Eight.Audio.StateMachine.Tasks.PlayTask::get_ShouldVolumeRamp()
+		IL_00a8: brtrue.s IL_00b7
+
+		IL_00aa: ldarg.0
+		IL_00ab: call instance class Eight.Audio.Models.PlayRequest Eight.Audio.StateMachine.Tasks.PlayTask::get_PlayRequest()
+		IL_00b0: callvirt instance int32 Eight.Audio.Models.PlayRequest::get_StartVolume()
+		IL_00b5: br.s IL_00b8
+
+		IL_00b7: ldc.i4.0
+
+		IL_00b8: callvirt instance void modreq([System.Runtime]System.Runtime.CompilerServices.IsExternalInit) Eight.Audio.Models.PlayRequest::set_StartVolume(int32)
+		IL_00bd: stloc.0
+		IL_00be: ldarg.0
+		IL_00bf: ldarg.0
+		IL_00c0: ldfld class Eight.Audio.Player.IPlayer Eight.Audio.StateMachine.Tasks.PlayTask::'<player>P'
+		IL_00c5: ldloc.0
+		IL_00c6: ldarg.0
+		IL_00c7: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Eight.Audio.StateMachine.Tasks.PlayTask::taskCancellationSource
+		IL_00cc: callvirt instance valuetype [System.Runtime]System.Threading.CancellationToken [System.Runtime]System.Threading.CancellationTokenSource::get_Token()
+		IL_00d1: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Audio.Player.IPlayer::PlayNext(class Eight.Audio.Models.PlayRequest, valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_00d6: stfld class [System.Runtime]System.Threading.Tasks.Task Eight.Audio.StateMachine.Tasks.PlayTask::playTask
+		IL_00db: ldarg.0
+		IL_00dc: ldfld class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Audio.SpeakerConfiguration> Eight.Audio.StateMachine.Tasks.PlayTask::podConfigurationManager
+		IL_00e1: ldarg.0
+		IL_00e2: call instance class Eight.Audio.Models.PlayRequest Eight.Audio.StateMachine.Tasks.PlayTask::get_PlayRequest()
+		IL_00e7: ldarg.0
+		IL_00e8: ldfld class [NodaTime]NodaTime.IClock Eight.Audio.StateMachine.Tasks.PlayTask::clock
+		IL_00ed: call void Eight.Audio.PodConfigurationManagerExtensions::UpdateLastKnownState(class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Audio.SpeakerConfiguration>, class Eight.Audio.Models.PlayRequest, class [NodaTime]NodaTime.IClock)
+
+		IL_00f2: ldarg.0
+		IL_00f3: ldfld class [System.Runtime]System.Threading.Tasks.Task Eight.Audio.StateMachine.Tasks.PlayTask::playTask
+		IL_00f8: callvirt instance bool [System.Runtime]System.Threading.Tasks.Task::get_IsCompleted()
+		IL_00fd: dup
+		IL_00fe: brfalse.s IL_0124
+
+		IL_0100: ldarg.0
+		IL_0101: call instance class Eight.Audio.Models.PlayRequest Eight.Audio.StateMachine.Tasks.PlayTask::get_PlayRequest()
+		IL_0106: callvirt instance valuetype Eight.Audio.Models.PlayModification[] Eight.Audio.Models.PlayRequest::get_PlayModifications()
+		IL_010b: ldc.i4.1
+		IL_010c: call bool [System.Linq]System.Linq.Enumerable::Contains<valuetype Eight.Audio.Models.PlayModification>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>, !!0)
+		IL_0111: brfalse.s IL_0124
+
+		IL_0113: ldarg.0
+		IL_0114: ldfld class Eight.Audio.Player.IPlayer Eight.Audio.StateMachine.Tasks.PlayTask::'<player>P'
+		IL_0119: ldarg.0
+		IL_011a: ldfld int32 Eight.Audio.StateMachine.Tasks.PlayTask::originalVolume
+		IL_011f: callvirt instance void Eight.Audio.Player.IPlayer::set_Volume(int32)
+
+		IL_0124: dup
+		IL_0125: brfalse.s IL_0138
+
+		IL_0127: ldarg.0
+		IL_0128: ldfld class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Audio.SpeakerConfiguration> Eight.Audio.StateMachine.Tasks.PlayTask::podConfigurationManager
+		IL_012d: ldarg.0
+		IL_012e: ldfld class [NodaTime]NodaTime.IClock Eight.Audio.StateMachine.Tasks.PlayTask::clock
+		IL_0133: call void Eight.Audio.PodConfigurationManagerExtensions::Eject(class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Audio.SpeakerConfiguration>, class [NodaTime]NodaTime.IClock)
+
+		IL_0138: ldnull
+		IL_0139: newobj instance void valuetype [System.Runtime]System.ValueTuple`2<bool, class Eight.Audio.StateMachine.Tasks.IPlayerTask>::.ctor(!0, !1)
+		IL_013e: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<valuetype [System.Runtime]System.ValueTuple`2<bool, class Eight.Audio.StateMachine.Tasks.IPlayerTask>>(!!0)
+		IL_0143: ret
+	} // end of method PlayTask::TryComplete
+
+	.method public hidebysig 
+		instance class Eight.Audio.StateMachine.Tasks.IPlayerTask Cancel () cil managed 
+	{
+		// Method begins at RVA 0x55e8
+		// Header size: 1
+		// Code size: 29 (0x1d)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldftn instance class [System.Runtime]System.Threading.Tasks.Task Eight.Audio.StateMachine.Tasks.PlayTask::'<Cancel>b__19_0'()
+		IL_0007: newobj instance void class [System.Runtime]System.Func`1<class [System.Runtime]System.Threading.Tasks.Task>::.ctor(object, native int)
+		IL_000c: ldc.i4 250
+		IL_0011: conv.i8
+		IL_0012: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::FromMilliseconds(int64)
+		IL_0017: newobj instance void Eight.Audio.StateMachine.Tasks.CancelTask::.ctor(class [System.Runtime]System.Func`1<class [System.Runtime]System.Threading.Tasks.Task>, valuetype [NodaTime]NodaTime.Duration)
+		IL_001c: ret
+	} // end of method PlayTask::Cancel
+
+	.method public hidebysig 
+		instance class Eight.Audio.StateMachine.Tasks.IPlayerTask StopVolumeRamp () cil managed 
+	{
+		// Method begins at RVA 0x5606
+		// Header size: 1
+		// Code size: 9 (0x9)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldc.i4.0
+		IL_0002: call instance void Eight.Audio.StateMachine.Tasks.PlayTask::set_ShouldVolumeRamp(bool)
+		IL_0007: ldarg.0
+		IL_0008: ret
+	} // end of method PlayTask::StopVolumeRamp
+
+	.method private hidebysig static 
+		valuetype [NodaTime]NodaTime.Duration GetIterationWait () cil managed 
+	{
+		// Method begins at RVA 0x5610
+		// Header size: 1
+		// Code size: 8 (0x8)
+		.maxstack 8
+
+		IL_0000: ldc.i4.2
+		IL_0001: conv.i8
+		IL_0002: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::FromSeconds(int64)
+		IL_0007: ret
+	} // end of method PlayTask::GetIterationWait
+
+	.method private hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task '<Cancel>b__19_0' () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x5619
+		// Header size: 1
+		// Code size: 18 (0x12)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Eight.Audio.StateMachine.Tasks.PlayTask::taskCancellationSource
+		IL_0006: callvirt instance void [System.Runtime]System.Threading.CancellationTokenSource::Cancel()
+		IL_000b: ldarg.0
+		IL_000c: ldfld class [System.Runtime]System.Threading.Tasks.Task Eight.Audio.StateMachine.Tasks.PlayTask::playTask
+		IL_0011: ret
+	} // end of method PlayTask::'<Cancel>b__19_0'
+
+	// Properties
+	.property instance class Eight.Audio.Models.PlayRequest PlayRequest()
+	{
+		.get instance class Eight.Audio.Models.PlayRequest Eight.Audio.StateMachine.Tasks.PlayTask::get_PlayRequest()
+	}
+	.property instance bool ShouldVolumeRamp()
+	{
+		.get instance bool Eight.Audio.StateMachine.Tasks.PlayTask::get_ShouldVolumeRamp()
+		.set instance void Eight.Audio.StateMachine.Tasks.PlayTask::set_ShouldVolumeRamp(bool)
+	}
+
+} // end of class Eight.Audio.StateMachine.Tasks.PlayTask

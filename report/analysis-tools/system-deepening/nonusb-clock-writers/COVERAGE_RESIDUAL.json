@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-08",
+  "scope": "G0 nonUSB 5.5.34.0 clock-variable writers, configuration entries and fatal error chain, compared with the previously completed USB chain; static bytes and finite integer arithmetic only",
+  "supersedes_partially": "report/analysis-tools/system-deepening/nonusb-timebase-crosscheck/COVERAGE_RESIDUAL.json remaining_static (first three items are now closed)",
+  "byte_validation": {
+    "status": "PASS",
+    "instruction_rows": 2151,
+    "instruction_bytes": 4640,
+    "flash_literals": 150,
+    "bl_targets": 167,
+    "direct_branch_targets": 359,
+    "unique_instruction_addresses": 1174,
+    "failures": 0,
+    "error_chain_items_byte_identical": 5
+  },
+  "closed_this_round": [
+    {
+      "id": "nonusb-clock-writers",
+      "detail": "Three independent writers of 0x20000250 bound at 0800c828 / 0800c8dc / 0800cdb4 with write sites 0800c88c / 0800ca00 / 0800ce1a and BL-to-0800995c at 0800c892 / 0800ca06 / 0800ce1e, all byte-verified against the 132896B BBIN."
+    },
+    {
+      "id": "nonusb-config-entries",
+      "detail": "Two entries 080108ac (16/32 MHz branch on 0x20001cfc) and 08010960 (8 MHz) bound, including the unchecked first writer call and the FUN_08008c04 fatal path on later failures."
+    },
+    {
+      "id": "error-helper-side-effects",
+      "detail": "0800a430 / USB 08012430 writes SCB->AIRCR = 0x05FA0004 (VECTKEY|SYSRESETREQ), dsb, then self-branch; both images byte-identical including the two literals. 08008c04 cpsid i plus trailing loop is an unreachable redundant fallback. The USB-side historical gap is closed."
+    },
+    {
+      "id": "cross-version-address-partition",
+      "detail": "Front SysTick/error region is a pure +0x8000 image-base shift; clock writer/config region is +0x8464; data tables and late code have no constant delta. Using one delta for the whole image was corrected."
+    },
+    {
+      "id": "arithmetic-unit-correction",
+      "detail": "Finite 6-case model q=floor(1000/step), N=floor(clock/q), LOAD=N-1 reproduced; first draft's q/1000 millisecond unit corrected to 1000/q with an explicit core-clock condition and a regression assertion."
+    }
+  ],
+  "remaining_static": [
+    {
+      "id": "all-upstream-config-selections",
+      "target": "both",
+      "detail": "The 0x20001cfc range test that selects 16/32 MHz is not bound to a marketing model, board type or physical oscillator; callers beyond the two identified entries are not exhaustively enumerated.",
+      "kind": "available-static"
+    },
+    {
+      "id": "switch-transition",
+      "target": "both",
+      "detail": "Time between RCC register writes and SysTick reconfiguration, lost or slowed ticks, reload already written while the old step byte is restored, and timeout loops that depend on the same software tick.",
+      "kind": "available-static-plus-measurement"
+    },
+    {
+      "id": "nonusb-pll-decode",
+      "target": "nonusb",
+      "detail": "The 16/32/8 MHz software inputs are NOT decoded PLL/core frequencies. The USB-side conclusion that all three configurations decode to 64 MHz has not been reproduced for nonUSB.",
+      "kind": "available-static"
+    },
+    {
+      "id": "full-cfg-coverage",
+      "target": "both",
+      "detail": "Byte identity and branch arithmetic over 1174 unique addresses in this region are not full-program control-flow coverage; 08008c04 has 106 recorded call references whose individual contexts were not enumerated.",
+      "kind": "available-static"
+    }
+  ],
+  "remaining_measurement": [
+    "Physical core clock, PLL lock and external oscillator",
+    "Whether the AIRCR SYSRESETREQ request actually completes a reset on hardware; watchdog behaviour",
+    "Interrupt latency, masked-interrupt windows and wall-clock send deadlines",
+    "ADC CLKIN / DRDY and achieved sample rate; the 0x3c frequency field is not a measurement",
+    "Installed firmware version, board type and channel placement from one boot"
+  ],
+  "explicitly_excluded": [
+    "Shared log formatting/reentrancy (a separate prior task was stopped by an automatic safety check and is not retried or rephrased)",
+    "Malformed frames, corruption or exploit development",
+    "Firmware execution, device/account/API access, online confirmation",
+    "Air bladder and bed frame topics (deferred by the user)",
+    "Production physiological algorithms, Autopilot, posture classification and speaker DSP (need new artifacts)"
+  ],
+  "prior_records_left_unchanged": [
+    "report/analysis-tools/system-deepening/sensor-timebase/FINDINGS_ZH.txt",
+    "workspace/algorithm-opportunities/sensor-clock/FINDINGS_ZH.txt",
+    "report/analysis-tools/system-deepening/sensor-nonusb-dispatch/FINDINGS_ZH.txt",
+    "report/analysis-tools/system-deepening/nonusb-timebase-crosscheck/FINDINGS_ZH.txt",
+    "report/analysis-tools/system-deepening/nonusb-timebase-crosscheck/COVERAGE_RESIDUAL.json"
+  ],
+  "open_user_decision": "Whether to keep the resident expanded materials tree for the 58766 evidence service, or return to archive-only compact storage. It is currently kept resident."
+}

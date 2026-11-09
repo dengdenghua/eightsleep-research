@@ -1,0 +1,63 @@
+TARGET 0800edec function=0800edec
+REF_TO 0800eeae UNCONDITIONAL_CALL
+REF_TO 0800eeee UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800edec, 0800ee31]]
+
+undefined8 FUN_0800edec(int *param_1,uint param_2)
+
+{
+  undefined2 uVar1;
+  uint uVar2;
+  uint local_1c;
+  
+  if (param_1[0x19] == 0) {
+    uVar1 = 1;
+    *(undefined2 *)((int)param_1 + 0x6a) = 1;
+    local_1c = param_2;
+  }
+  else {
+    local_1c = *(uint *)(*param_1 + 8);
+    uVar2 = *(uint *)(*param_1 + 8) >> 0x1d;
+    uVar1 = FUN_08008288((uint)(byte)(&DAT_0802422c)[uVar2] << 3,(&DAT_08024224)[uVar2]);
+    *(undefined2 *)((int)param_1 + 0x6a) = uVar1;
+    uVar2 = (local_1c & 0xfffffff) >> 0x19;
+    uVar1 = FUN_08008288((uint)(byte)(&DAT_0802422c)[uVar2] << 3,(&DAT_08024224)[uVar2]);
+  }
+  *(undefined2 *)(param_1 + 0x1a) = uVar1;
+  return CONCAT44(local_1c,param_1);
+}
+
+
+INSN 0800edec f7b5 push {r0,r1,r2,r4,r5,r6,r7,lr}
+INSN 0800edee 0700 movs r7,r0
+INSN 0800edf0 436e ldr r3,[r0,#0x64]
+INSN 0800edf2 0400 movs r4,r0
+INSN 0800edf4 6a37 adds r7,#0x6a
+INSN 0800edf6 002b cmp r3,#0x0
+INSN 0800edf8 04d1 bne 0x0800ee04 REF[CONDITIONAL_JUMP:0800ee04]
+INSN 0800edfa 0120 movs r0,#0x1
+INSN 0800edfc 3880 strh r0,[r7,#0x0]
+INSN 0800edfe 6834 adds r4,#0x68
+INSN 0800ee00 2080 strh r0,[r4,#0x0]
+INSN 0800ee02 f7bd pop {r0,r1,r2,r4,r5,r6,r7,pc}
+INSN 0800ee04 0368 ldr r3,[r0,#0x0]
+INSN 0800ee06 0b4e ldr r6,[0x0800ee34] REF[READ:0800ee34=802422c]
+INSN 0800ee08 9a68 ldr r2,[r3,#0x8]
+INSN 0800ee0a 9b68 ldr r3,[r3,#0x8]
+INSN 0800ee0c 0a4d ldr r5,[0x0800ee38] REF[READ:0800ee38=8024224]
+INSN 0800ee0e 5b0f lsrs r3,r3,#0x1d
+INSN 0800ee10 f05c ldrb r0,[r6,r3] REF[DATA:0802422c=3010101]
+INSN 0800ee12 e95c ldrb r1,[r5,r3] REF[DATA:08024224=4020408]
+INSN 0800ee14 c000 lsls r0,r0,#0x3
+INSN 0800ee16 0192 str r2,[sp,#0x4] REF[WRITE:Stack[-0x1c]]
+INSN 0800ee18 f9f736fa bl 0x08008288 REF[UNCONDITIONAL_CALL:08008288]
+INSN 0800ee1c 019b ldr r3,[sp,#0x4] REF[READ:Stack[-0x1c]]
+INSN 0800ee1e 3880 strh r0,[r7,#0x0]
+INSN 0800ee20 1b01 lsls r3,r3,#0x4
+INSN 0800ee22 5b0f lsrs r3,r3,#0x1d
+INSN 0800ee24 f05c ldrb r0,[r6,r3] REF[DATA:0802422c=3010101]
+INSN 0800ee26 e95c ldrb r1,[r5,r3] REF[DATA:08024224=4020408]
+INSN 0800ee28 c000 lsls r0,r0,#0x3
+INSN 0800ee2a f9f72dfa bl 0x08008288 REF[UNCONDITIONAL_CALL:08008288]
+INSN 0800ee2e 80b2 uxth r0,r0
+INSN 0800ee30 e5e7 b 0x0800edfe REF[UNCONDITIONAL_JUMP:0800edfe]

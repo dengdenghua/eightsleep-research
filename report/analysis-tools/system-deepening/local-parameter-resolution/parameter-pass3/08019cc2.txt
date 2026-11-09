@@ -1,0 +1,42 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+void analysis_08019cc2(void)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  int unaff_r4;
+  int unaff_r6;
+  int in_stack_00000058;
+  
+  FUN_08017634("[cmd] set_priority_order: DEPRECATED");
+  uVar2 = 2;
+LAB_080197a2:
+  do {
+    FUN_08015fec(uVar2);
+    FUN_0801a424();
+    FUN_08027fb8(&stack0x00000058,unaff_r6 + 1,4);
+    iVar1 = in_stack_00000058;
+    if (in_stack_00000058 - 1U < 60000) {
+      if (*(char *)(unaff_r4 + 0x1b04) != '\0') {
+        *(int *)(unaff_r4 + 0x1ae4) = in_stack_00000058;
+        FUN_08016fce(unaff_r4 + 0x1adc,in_stack_00000058);
+        FUN_08017634("[scheduler] control interval set to %u ms",iVar1);
+        FUN_08017634("[cmd] control interval set to %u ms",in_stack_00000058);
+        uVar2 = 0;
+        goto LAB_080197a2;
+      }
+      FUN_08017634("[cmd] failed to set control interval");
+    }
+    else {
+      FUN_08017634("[cmd] invalid interval %u ms (must be 1-60000)",in_stack_00000058);
+    }
+    uVar2 = 1;
+  } while( true );
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08019cc2 6248 ldr r0,[0x08019e4c]
+08019cc4 fdf7b6fc bl 0x08017634

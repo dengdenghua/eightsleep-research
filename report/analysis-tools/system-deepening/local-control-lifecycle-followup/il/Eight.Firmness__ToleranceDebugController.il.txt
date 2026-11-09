@@ -1,0 +1,764 @@
+// IL code: Eight.Firmness
+.class public auto ansi beforefieldinit Eight.Firmness.DeviceAPI.ToleranceDebugController
+	extends [Eight.DeviceApiClient]Eight.DeviceApiClient.RequestController
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit '<Apply>d__7'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> '<>t__builder'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.StateMachine.States.FirmnessReadyState readyState
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.Models.ToleranceBands bands
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.DeviceAPI.ToleranceDebugController '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side side
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x3821c
+			// Header size: 12
+			// Code size: 319 (0x13f)
+			.maxstack 6
+			.locals init (
+				[0] int32,
+				[1] class Eight.Firmness.DeviceAPI.ToleranceDebugController,
+				[2] class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response,
+				[3] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[4] class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Exceptions.DeviceCommunicationException,
+				[5] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Firmness.DeviceAPI.ToleranceDebugController Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: pop
+				IL_0010: nop
+				.try
+				{
+					IL_0011: ldloc.0
+					IL_0012: brfalse.s IL_005c
+
+					IL_0014: ldarg.0
+					IL_0015: ldfld class Eight.Firmness.StateMachine.States.FirmnessReadyState Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::readyState
+					IL_001a: ldarg.0
+					IL_001b: ldfld class Eight.Firmness.Models.ToleranceBands Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::bands
+					IL_0020: call valuetype [System.Runtime]System.Threading.CancellationToken [System.Runtime]System.Threading.CancellationToken::get_None()
+					IL_0025: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Firmness.StateMachine.States.FirmnessReadyState::ApplyAndPersistToleranceBandsAsync(class Eight.Firmness.Models.ToleranceBands, valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_002a: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+					IL_002f: stloc.3
+					IL_0030: ldloca.s 3
+					IL_0032: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+					IL_0037: brtrue.s IL_0078
+
+					IL_0039: ldarg.0
+					IL_003a: ldc.i4.0
+					IL_003b: dup
+					IL_003c: stloc.0
+					IL_003d: stfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>1__state'
+					IL_0042: ldarg.0
+					IL_0043: ldloc.3
+					IL_0044: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>u__1'
+					IL_0049: ldarg.0
+					IL_004a: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>t__builder'
+					IL_004f: ldloca.s 3
+					IL_0051: ldarg.0
+					IL_0052: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'>(!!0&, !!1&)
+					IL_0057: leave IL_013e
+
+					IL_005c: ldarg.0
+					IL_005d: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>u__1'
+					IL_0062: stloc.3
+					IL_0063: ldarg.0
+					IL_0064: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>u__1'
+					IL_0069: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+					IL_006f: ldarg.0
+					IL_0070: ldc.i4.m1
+					IL_0071: dup
+					IL_0072: stloc.0
+					IL_0073: stfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>1__state'
+
+					IL_0078: ldloca.s 3
+					IL_007a: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+					IL_007f: leave.s IL_009c
+				} // end .try
+				catch [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Exceptions.DeviceCommunicationException
+				{
+					IL_0081: stloc.s 4
+					IL_0083: ldloc.1
+					IL_0084: ldarg.0
+					IL_0085: ldfld valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::side
+					IL_008a: ldloc.s 4
+					IL_008c: ldstr "tolerance bands"
+					IL_0091: call instance class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.ToleranceDebugController::Refused(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Exceptions.DeviceCommunicationException, string)
+					IL_0096: stloc.2
+					IL_0097: leave IL_012a
+				} // end handler
+
+				IL_009c: ldloc.1
+				IL_009d: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.ToleranceDebugController> Eight.Firmness.DeviceAPI.ToleranceDebugController::logger
+				IL_00a2: ldstr "[tolerance] {Side} set to {BinCount} bin(s), range {Min} to {Max}"
+				IL_00a7: ldc.i4.4
+				IL_00a8: newarr [System.Runtime]System.Object
+				IL_00ad: dup
+				IL_00ae: ldc.i4.0
+				IL_00af: ldarg.0
+				IL_00b0: ldfld valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::side
+				IL_00b5: box [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side
+				IL_00ba: stelem.ref
+				IL_00bb: dup
+				IL_00bc: ldc.i4.1
+				IL_00bd: ldarg.0
+				IL_00be: ldfld class Eight.Firmness.Models.ToleranceBands Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::bands
+				IL_00c3: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.ToleranceBinSetting> Eight.Firmness.Models.ToleranceBands::get_Bins()
+				IL_00c8: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.ToleranceBinSetting>::get_Count()
+				IL_00cd: box [System.Runtime]System.Int32
+				IL_00d2: stelem.ref
+				IL_00d3: dup
+				IL_00d4: ldc.i4.2
+				IL_00d5: ldarg.0
+				IL_00d6: ldfld class Eight.Firmness.Models.ToleranceBands Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::bands
+				IL_00db: callvirt instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Models.ToleranceBands::get_MinKpa()
+				IL_00e0: box valuetype [System.Runtime]System.Nullable`1<float64>
+				IL_00e5: stelem.ref
+				IL_00e6: dup
+				IL_00e7: ldc.i4.3
+				IL_00e8: ldarg.0
+				IL_00e9: ldfld class Eight.Firmness.Models.ToleranceBands Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::bands
+				IL_00ee: callvirt instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Models.ToleranceBands::get_MaxKpa()
+				IL_00f3: box valuetype [System.Runtime]System.Nullable`1<float64>
+				IL_00f8: stelem.ref
+				IL_00f9: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+				IL_00fe: ldarg.0
+				IL_00ff: ldfld class Eight.Firmness.StateMachine.States.FirmnessReadyState Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::readyState
+				IL_0104: call class Eight.Firmness.DeviceAPI.ToleranceStateResponse Eight.Firmness.DeviceAPI.ToleranceDebugController::StoredState(class Eight.Firmness.StateMachine.States.FirmnessReadyState)
+				IL_0109: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateResponse<class Eight.Firmness.DeviceAPI.ToleranceStateResponse>(!!0)
+				IL_010e: stloc.2
+				IL_010f: leave.s IL_012a
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_0111: stloc.s 5
+				IL_0113: ldarg.0
+				IL_0114: ldc.i4.s -2
+				IL_0116: stfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>1__state'
+				IL_011b: ldarg.0
+				IL_011c: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>t__builder'
+				IL_0121: ldloc.s 5
+				IL_0123: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetException(class [System.Runtime]System.Exception)
+				IL_0128: leave.s IL_013e
+			} // end handler
+
+			IL_012a: ldarg.0
+			IL_012b: ldc.i4.s -2
+			IL_012d: stfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>1__state'
+			IL_0132: ldarg.0
+			IL_0133: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>t__builder'
+			IL_0138: ldloc.2
+			IL_0139: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetResult(!0)
+
+			IL_013e: ret
+		} // end of method '<Apply>d__7'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x3839c
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<Apply>d__7'::SetStateMachine
+
+	} // end of class <Apply>d__7
+
+	.class nested private auto ansi sealed beforefieldinit '<Set>d__6'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> '<>t__builder'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.DeviceAPI.ToleranceDebugController '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.DeviceAPI.ToleranceSetArgs args
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> '<>u__1'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x383ac
+			// Header size: 12
+			// Code size: 313 (0x139)
+			.maxstack 4
+			.locals init (
+				[0] int32,
+				[1] class Eight.Firmness.DeviceAPI.ToleranceDebugController,
+				[2] class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response,
+				[3] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+				[4] class Eight.Firmness.StateMachine.States.FirmnessReadyState,
+				[5] class Eight.Firmness.Models.ToleranceBands,
+				[6] string,
+				[7] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>,
+				[8] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Firmness.DeviceAPI.ToleranceDebugController Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse IL_00e4
+
+				IL_0014: ldloc.1
+				IL_0015: ldfld class Eight.Firmness.StateMachine.IFirmnessProvider Eight.Firmness.DeviceAPI.ToleranceDebugController::provider
+				IL_001a: ldarg.0
+				IL_001b: ldfld class Eight.Firmness.DeviceAPI.ToleranceSetArgs Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::args
+				IL_0020: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.ToleranceSetArgs::get_Side()
+				IL_0025: callvirt instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Firmness.StateMachine.IFirmnessProvider::GetCurrentState(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+				IL_002a: stloc.3
+				IL_002b: ldloc.3
+				IL_002c: isinst Eight.Firmness.StateMachine.States.FirmnessReadyState
+				IL_0031: stloc.s 4
+				IL_0033: ldloc.s 4
+				IL_0035: brtrue.s IL_004e
+
+				IL_0037: ldarg.0
+				IL_0038: ldfld class Eight.Firmness.DeviceAPI.ToleranceSetArgs Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::args
+				IL_003d: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.ToleranceSetArgs::get_Side()
+				IL_0042: ldloc.3
+				IL_0043: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.ToleranceDebugController::NotOperational(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState)
+				IL_0048: stloc.2
+				IL_0049: leave IL_0124
+
+				IL_004e: ldarg.0
+				IL_004f: ldfld class Eight.Firmness.DeviceAPI.ToleranceSetArgs Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::args
+				IL_0054: callvirt instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.DeviceAPI.ToleranceSetArgs::get_MinKpa()
+				IL_0059: ldarg.0
+				IL_005a: ldfld class Eight.Firmness.DeviceAPI.ToleranceSetArgs Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::args
+				IL_005f: callvirt instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.DeviceAPI.ToleranceSetArgs::get_MaxKpa()
+				IL_0064: ldarg.0
+				IL_0065: ldfld class Eight.Firmness.DeviceAPI.ToleranceSetArgs Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::args
+				IL_006a: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.ToleranceBinSetting> Eight.Firmness.DeviceAPI.ToleranceSetArgs::get_Bins()
+				IL_006f: dup
+				IL_0070: brtrue.s IL_0078
+
+				IL_0072: pop
+				IL_0073: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.ToleranceBinSetting>::.ctor()
+
+				IL_0078: newobj instance void Eight.Firmness.Models.ToleranceBands::.ctor(valuetype [System.Runtime]System.Nullable`1<float64>, valuetype [System.Runtime]System.Nullable`1<float64>, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.ToleranceBinSetting>)
+				IL_007d: stloc.s 5
+				IL_007f: ldloc.s 5
+				IL_0081: callvirt instance string Eight.Firmness.Models.ToleranceBands::Validate()
+				IL_0086: stloc.s 6
+				IL_0088: ldloc.s 6
+				IL_008a: brfalse.s IL_009e
+
+				IL_008c: ldloc.s 6
+				IL_008e: ldstr "BadRequest"
+				IL_0093: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+				IL_0098: stloc.2
+				IL_0099: leave IL_0124
+
+				IL_009e: ldloc.1
+				IL_009f: ldloc.s 4
+				IL_00a1: ldarg.0
+				IL_00a2: ldfld class Eight.Firmness.DeviceAPI.ToleranceSetArgs Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::args
+				IL_00a7: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.ToleranceSetArgs::get_Side()
+				IL_00ac: ldloc.s 5
+				IL_00ae: call instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController::Apply(class Eight.Firmness.StateMachine.States.FirmnessReadyState, valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class Eight.Firmness.Models.ToleranceBands)
+				IL_00b3: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<!0> class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::GetAwaiter()
+				IL_00b8: stloc.s 7
+				IL_00ba: ldloca.s 7
+				IL_00bc: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::get_IsCompleted()
+				IL_00c1: brtrue.s IL_0101
+
+				IL_00c3: ldarg.0
+				IL_00c4: ldc.i4.0
+				IL_00c5: dup
+				IL_00c6: stloc.0
+				IL_00c7: stfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>1__state'
+				IL_00cc: ldarg.0
+				IL_00cd: ldloc.s 7
+				IL_00cf: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>u__1'
+				IL_00d4: ldarg.0
+				IL_00d5: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>t__builder'
+				IL_00da: ldloca.s 7
+				IL_00dc: ldarg.0
+				IL_00dd: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>, valuetype Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'>(!!0&, !!1&)
+				IL_00e2: leave.s IL_0138
+
+				IL_00e4: ldarg.0
+				IL_00e5: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>u__1'
+				IL_00ea: stloc.s 7
+				IL_00ec: ldarg.0
+				IL_00ed: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>u__1'
+				IL_00f2: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>
+				IL_00f8: ldarg.0
+				IL_00f9: ldc.i4.m1
+				IL_00fa: dup
+				IL_00fb: stloc.0
+				IL_00fc: stfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>1__state'
+
+				IL_0101: ldloca.s 7
+				IL_0103: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::GetResult()
+				IL_0108: stloc.2
+				IL_0109: leave.s IL_0124
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_010b: stloc.s 8
+				IL_010d: ldarg.0
+				IL_010e: ldc.i4.s -2
+				IL_0110: stfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>1__state'
+				IL_0115: ldarg.0
+				IL_0116: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>t__builder'
+				IL_011b: ldloc.s 8
+				IL_011d: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetException(class [System.Runtime]System.Exception)
+				IL_0122: leave.s IL_0138
+			} // end handler
+
+			IL_0124: ldarg.0
+			IL_0125: ldc.i4.s -2
+			IL_0127: stfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>1__state'
+			IL_012c: ldarg.0
+			IL_012d: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>t__builder'
+			IL_0132: ldloc.2
+			IL_0133: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetResult(!0)
+
+			IL_0138: ret
+		} // end of method '<Set>d__6'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x38504
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<Set>d__6'::SetStateMachine
+
+	} // end of class <Set>d__6
+
+
+	// Fields
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.ToleranceDebugController> logger
+	.field private initonly class Eight.Firmness.StateMachine.IFirmnessProvider provider
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.ToleranceDebugController> logger,
+			class Eight.Firmness.StateMachine.IFirmnessProvider provider
+		) cil managed 
+	{
+		// Method begins at RVA 0x2b238
+		// Header size: 1
+		// Code size: 21 (0x15)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.ToleranceDebugController> Eight.Firmness.DeviceAPI.ToleranceDebugController::logger
+		IL_0007: ldarg.0
+		IL_0008: ldarg.2
+		IL_0009: stfld class Eight.Firmness.StateMachine.IFirmnessProvider Eight.Firmness.DeviceAPI.ToleranceDebugController::provider
+		IL_000e: ldarg.0
+		IL_000f: call instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.RequestController::.ctor()
+		IL_0014: ret
+	} // end of method ToleranceDebugController::.ctor
+
+	.method private hidebysig static 
+		class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response NotOperational (
+			valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side side,
+			class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState state
+		) cil managed 
+	{
+		.param [2]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2b24e
+		// Header size: 1
+		// Code size: 19 (0x13)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: ldnull
+		IL_0003: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.FirmnessDeviceStatus::Classify(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState, class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response)
+		IL_0008: dup
+		IL_0009: brtrue.s IL_0012
+
+		IL_000b: pop
+		IL_000c: ldarg.0
+		IL_000d: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.FirmnessDeviceStatus::NotReady(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+
+		IL_0012: ret
+	} // end of method ToleranceDebugController::NotOperational
+
+	.method public hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Get (
+			class Eight.Firmness.DeviceAPI.ToleranceSideArgs args
+		) cil managed 
+	{
+		.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.FunctionHandlerAttribute::.ctor(string) = (
+			01 00 1a 64 65 62 75 67 66 69 72 6d 6e 65 73 73
+			2f 67 65 74 74 6f 6c 65 72 61 6e 63 65 00 00
+		)
+		.param [1]
+			.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.SerializedRequestArgAttribute::.ctor() = (
+				01 00 00 00
+			)
+		// Method begins at RVA 0x2b264
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+			[1] class Eight.Firmness.StateMachine.States.FirmnessReadyState
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Firmness.StateMachine.IFirmnessProvider Eight.Firmness.DeviceAPI.ToleranceDebugController::provider
+		IL_0006: ldarg.1
+		IL_0007: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.ToleranceSideArgs::get_Side()
+		IL_000c: callvirt instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Firmness.StateMachine.IFirmnessProvider::GetCurrentState(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+		IL_0011: stloc.0
+		IL_0012: ldloc.0
+		IL_0013: isinst Eight.Firmness.StateMachine.States.FirmnessReadyState
+		IL_0018: stloc.1
+		IL_0019: ldloc.1
+		IL_001a: brtrue.s IL_002e
+
+		IL_001c: ldarg.1
+		IL_001d: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.ToleranceSideArgs::get_Side()
+		IL_0022: ldloc.0
+		IL_0023: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.ToleranceDebugController::NotOperational(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState)
+		IL_0028: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>(!!0)
+		IL_002d: ret
+
+		IL_002e: ldloc.1
+		IL_002f: call class Eight.Firmness.DeviceAPI.ToleranceStateResponse Eight.Firmness.DeviceAPI.ToleranceDebugController::StoredState(class Eight.Firmness.StateMachine.States.FirmnessReadyState)
+		IL_0034: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateResponse<class Eight.Firmness.DeviceAPI.ToleranceStateResponse>(!!0)
+		IL_0039: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>(!!0)
+		IL_003e: ret
+	} // end of method ToleranceDebugController::Get
+
+	.method private hidebysig static 
+		class Eight.Firmness.DeviceAPI.ToleranceStateResponse StoredState (
+			class Eight.Firmness.StateMachine.States.FirmnessReadyState readyState
+		) cil managed 
+	{
+		// Method begins at RVA 0x2b2b0
+		// Header size: 12
+		// Code size: 65 (0x41)
+		.maxstack 4
+		.locals init (
+			[0] class Eight.Firmness.Models.ToleranceBands,
+			[1] valuetype [System.Runtime]System.Nullable`1<float64>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: callvirt instance class Eight.Firmness.Models.ToleranceBands Eight.Firmness.StateMachine.States.FirmnessReadyState::get_StoredToleranceBands()
+		IL_0006: stloc.0
+		IL_0007: ldloc.0
+		IL_0008: brtrue.s IL_0028
+
+		IL_000a: ldc.i4.0
+		IL_000b: ldloca.s 1
+		IL_000d: initobj valuetype [System.Runtime]System.Nullable`1<float64>
+		IL_0013: ldloc.1
+		IL_0014: ldloca.s 1
+		IL_0016: initobj valuetype [System.Runtime]System.Nullable`1<float64>
+		IL_001c: ldloc.1
+		IL_001d: call !!0[] [System.Runtime]System.Array::Empty<class Eight.Firmness.Models.ToleranceBinSetting>()
+		IL_0022: newobj instance void Eight.Firmness.DeviceAPI.ToleranceStateResponse::.ctor(bool, valuetype [System.Runtime]System.Nullable`1<float64>, valuetype [System.Runtime]System.Nullable`1<float64>, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Models.ToleranceBinSetting>)
+		IL_0027: ret
+
+		IL_0028: ldc.i4.1
+		IL_0029: ldloc.0
+		IL_002a: callvirt instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Models.ToleranceBands::get_MinKpa()
+		IL_002f: ldloc.0
+		IL_0030: callvirt instance valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Models.ToleranceBands::get_MaxKpa()
+		IL_0035: ldloc.0
+		IL_0036: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.ToleranceBinSetting> Eight.Firmness.Models.ToleranceBands::get_Bins()
+		IL_003b: newobj instance void Eight.Firmness.DeviceAPI.ToleranceStateResponse::.ctor(bool, valuetype [System.Runtime]System.Nullable`1<float64>, valuetype [System.Runtime]System.Nullable`1<float64>, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Models.ToleranceBinSetting>)
+		IL_0040: ret
+	} // end of method ToleranceDebugController::StoredState
+
+	.method public hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Set (
+			class Eight.Firmness.DeviceAPI.ToleranceSetArgs args
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 3b 45 69 67 68 74 2e 46 69 72 6d 6e 65 73
+			73 2e 44 65 76 69 63 65 41 50 49 2e 54 6f 6c 65
+			72 61 6e 63 65 44 65 62 75 67 43 6f 6e 74 72 6f
+			6c 6c 65 72 2b 3c 53 65 74 3e 64 5f 5f 36 00 00
+		)
+		.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.FunctionHandlerAttribute::.ctor(string) = (
+			01 00 1a 64 65 62 75 67 66 69 72 6d 6e 65 73 73
+			2f 73 65 74 74 6f 6c 65 72 61 6e 63 65 00 00
+		)
+		.param [1]
+			.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.SerializedRequestArgAttribute::.ctor() = (
+				01 00 00 00
+			)
+		// Method begins at RVA 0x2b300
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Firmness.DeviceAPI.ToleranceDebugController Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class Eight.Firmness.DeviceAPI.ToleranceSetArgs Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::args
+		IL_001c: ldloca.s 0
+		IL_001e: ldc.i4.m1
+		IL_001f: stfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>1__state'
+		IL_0024: ldloca.s 0
+		IL_0026: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>t__builder'
+		IL_002b: ldloca.s 0
+		IL_002d: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::Start<valuetype Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'>(!!0&)
+		IL_0032: ldloca.s 0
+		IL_0034: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Set>d__6'::'<>t__builder'
+		IL_0039: call instance class [System.Runtime]System.Threading.Tasks.Task`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::get_Task()
+		IL_003e: ret
+	} // end of method ToleranceDebugController::Set
+
+	.method private hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Apply (
+			class Eight.Firmness.StateMachine.States.FirmnessReadyState readyState,
+			valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side side,
+			class Eight.Firmness.Models.ToleranceBands bands
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 3d 45 69 67 68 74 2e 46 69 72 6d 6e 65 73
+			73 2e 44 65 76 69 63 65 41 50 49 2e 54 6f 6c 65
+			72 61 6e 63 65 44 65 62 75 67 43 6f 6e 74 72 6f
+			6c 6c 65 72 2b 3c 41 70 70 6c 79 3e 64 5f 5f 37
+			00 00
+		)
+		// Method begins at RVA 0x2b34c
+		// Header size: 12
+		// Code size: 79 (0x4f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Firmness.DeviceAPI.ToleranceDebugController Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class Eight.Firmness.StateMachine.States.FirmnessReadyState Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::readyState
+		IL_001c: ldloca.s 0
+		IL_001e: ldarg.2
+		IL_001f: stfld valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::side
+		IL_0024: ldloca.s 0
+		IL_0026: ldarg.3
+		IL_0027: stfld class Eight.Firmness.Models.ToleranceBands Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::bands
+		IL_002c: ldloca.s 0
+		IL_002e: ldc.i4.m1
+		IL_002f: stfld int32 Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>1__state'
+		IL_0034: ldloca.s 0
+		IL_0036: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>t__builder'
+		IL_003b: ldloca.s 0
+		IL_003d: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::Start<valuetype Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'>(!!0&)
+		IL_0042: ldloca.s 0
+		IL_0044: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.ToleranceDebugController/'<Apply>d__7'::'<>t__builder'
+		IL_0049: call instance class [System.Runtime]System.Threading.Tasks.Task`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::get_Task()
+		IL_004e: ret
+	} // end of method ToleranceDebugController::Apply
+
+	.method private hidebysig 
+		instance class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Refused (
+			valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side side,
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Exceptions.DeviceCommunicationException ex,
+			string what
+		) cil managed 
+	{
+		// Method begins at RVA 0x2b3a8
+		// Header size: 12
+		// Code size: 194 (0xc2)
+		.maxstack 7
+		.locals init (
+			[0] valuetype [System.Runtime]System.Nullable`1<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ResponseCode>,
+			[1] valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ResponseCode,
+			[2] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.ToleranceDebugController> Eight.Firmness.DeviceAPI.ToleranceDebugController::logger
+		IL_0006: ldarg.2
+		IL_0007: ldstr "[tolerance] {Side} refused a {What} write"
+		IL_000c: ldc.i4.2
+		IL_000d: newarr [System.Runtime]System.Object
+		IL_0012: dup
+		IL_0013: ldc.i4.0
+		IL_0014: ldarg.1
+		IL_0015: box [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side
+		IL_001a: stelem.ref
+		IL_001b: dup
+		IL_001c: ldc.i4.1
+		IL_001d: ldarg.3
+		IL_001e: stelem.ref
+		IL_001f: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+		IL_0024: ldarg.2
+		IL_0025: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ResponseCode> [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Exceptions.DeviceCommunicationException::get_ResponseCode()
+		IL_002a: stloc.0
+		IL_002b: ldc.i4.2
+		IL_002c: stloc.1
+		IL_002d: ldloca.s 0
+		IL_002f: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ResponseCode>::GetValueOrDefault()
+		IL_0034: ldloc.1
+		IL_0035: ceq
+		IL_0037: ldloca.s 0
+		IL_0039: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ResponseCode>::get_HasValue()
+		IL_003e: and
+		IL_003f: brtrue.s IL_0092
+
+		IL_0041: ldloca.s 2
+		IL_0043: ldc.i4.s 30
+		IL_0045: ldc.i4.3
+		IL_0046: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_004b: ldloca.s 2
+		IL_004d: ldarg.1
+		IL_004e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>(!!0)
+		IL_0053: ldloca.s 2
+		IL_0055: ldstr " balloon board rejected the "
+		IL_005a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_005f: ldloca.s 2
+		IL_0061: ldarg.3
+		IL_0062: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted(string)
+		IL_0067: ldloca.s 2
+		IL_0069: ldstr ": "
+		IL_006e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0073: ldloca.s 2
+		IL_0075: ldarg.2
+		IL_0076: callvirt instance string [System.Runtime]System.Exception::get_Message()
+		IL_007b: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted(string)
+		IL_0080: ldloca.s 2
+		IL_0082: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_0087: ldstr "BadRequest"
+		IL_008c: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+		IL_0091: ret
+
+		IL_0092: ldloca.s 2
+		IL_0094: ldc.i4.s 63
+		IL_0096: ldc.i4.1
+		IL_0097: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_009c: ldloca.s 2
+		IL_009e: ldarg.1
+		IL_009f: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>(!!0)
+		IL_00a4: ldloca.s 2
+		IL_00a6: ldstr " balloon firmware does not support tolerance band configuration"
+		IL_00ab: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_00b0: ldloca.s 2
+		IL_00b2: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_00b7: ldstr "AccessoryInitialization"
+		IL_00bc: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+		IL_00c1: ret
+	} // end of method ToleranceDebugController::Refused
+
+} // end of class Eight.Firmness.DeviceAPI.ToleranceDebugController

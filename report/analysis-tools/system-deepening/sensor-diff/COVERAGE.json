@@ -1,0 +1,72 @@
+{
+  "completed": [
+    "ADC cache/ready branches",
+    "4-IMU update loop",
+    "timer snapshot and independent overflow",
+    "sampling ring layout and push/pop",
+    "multi 0x3c FIFO batching and serialization",
+    "gain dirty→flush/resync",
+    "start/reset phase",
+    "framing pool",
+    "USB bounded vs nonUSB unbounded buffer scan",
+    "submission adapter and ignored batch send result"
+  ],
+  "remaining": [
+    {
+      "id": "clock-units",
+      "question": "elapsed 500与cache 8的真实时钟单位",
+      "next": "追tick RAM写入者、定时器/SysTick初始化和分频；验证中断被屏蔽时是否推进。",
+      "needs_device": false
+    },
+    {
+      "id": "nonusb-command-dispatch",
+      "question": "nonUSB增益/开始处理体对应的opcode",
+      "next": "恢复缺失的Thumb switch表与分支地址，验证1747e/1721c可达边；本轮只确认局部处理体。",
+      "needs_device": false
+    },
+    {
+      "id": "hardware-completion",
+      "question": "两版callback +0x30/+0x34和完成IRQ如何释放32槽",
+      "next": "从各硬件配置表绑定busy/start及完成callback，追descriptor完成、status回收与USB gate设置者，不猜物理连接名。",
+      "needs_device": false
+    },
+    {
+      "id": "actual-timing",
+      "question": "混合快照、配对错位或发送失败在实机何时发生",
+      "next": "获得被动串口/USB抓包或合法设备研究数据后，以tick、包长度、样本内容与诊断计数对照；不以恒值当重放证据。",
+      "needs_device": true
+    },
+    {
+      "id": "larger-frames",
+      "question": "大于1024转义输出后的分段buffer所有权",
+      "next": "独立审计非0x3c大消息的flush和buffer复用，不把377B合同外推。",
+      "needs_device": false
+    },
+    {
+      "id": "global-proof",
+      "question": "全程序等价/所有硬件SKU/全部命令",
+      "next": "不在该有限交付声明内；需独立覆盖计划。",
+      "needs_device": false
+    }
+  ],
+  "analysis_gaps": [
+    "nonUSB persisted function080152d8错误地只覆盖到080152fd，C反编译报jumptable错误；用现有listing的明确指令段代替，未修改DB。",
+    "nonUSB callback08019648无函数定义；用start的08019649 Thumb指针、明确指令范围和原文件字节支持。",
+    "nonUSB gain体在持久listing未解码：PseudoDisassembler只临时解码1747e..174da，TMode在内存上下文设1，无程序数据库写入。",
+    "nonusb-pass8脚本context未启动失败；pass9第二范围误穿switch数据后停止，保留日志作诊断，不用pass9 17200范围支撑语义。pass10取gain体完整范围，start仅使用1721c..17228；其1721a为表尾数据不作指令语义。",
+    "REA MCP工具未加载；按skill要求发现缺失后复用已安装Ghidra12.1.4，未联网安装，不伪造REA Evidence标识。"
+  ],
+  "exclusions": [
+    "执行BBIN或设备固件",
+    "账号/API/联网/浏览器",
+    "改写持久Ghidra程序",
+    "重算K60启动map作为新增",
+    "实机部署与实际丢包率",
+    "整程序等价",
+    "P网页与F冻结包修改"
+  ],
+  "checks": {
+    "bytes": "BYTE_VALIDATION.json",
+    "synthetic": "CONTRACT_CHECKS.json"
+  }
+}

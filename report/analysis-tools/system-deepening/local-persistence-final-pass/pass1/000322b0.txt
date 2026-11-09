@@ -1,0 +1,61 @@
+FUNCTION 000322b0 BODY [[000322b0, 000322cd] [000322d0, 000322f5]]
+REF_TO 000369e8 UNCONDITIONAL_CALL
+
+undefined4 FUN_000322b0(int *param_1)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  int iVar3;
+  uint uVar4;
+  uint uVar5;
+  
+  iVar1 = DAT_000322f8;
+  if ((param_1 != (int *)0x0) && (*param_1 != 0)) {
+                    /* WARNING: Could not recover jumptable at 0x000322c0. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    uVar2 = (**(code **)(*param_1 + 0x1c))();
+    return uVar2;
+  }
+  uVar4 = 0;
+  uVar5 = DAT_000322fc - DAT_000322f8;
+  while( true ) {
+    if (uVar5 / 0x14 <= uVar4) {
+      return 0;
+    }
+    iVar3 = *(int *)(iVar1 + uVar4 * 0x14);
+    if ((iVar3 != 0) && (iVar3 = (**(code **)(iVar3 + 0x1c))(), iVar3 != 0)) break;
+    uVar4 = uVar4 + 1;
+  }
+  return 1;
+}
+
+
+INSN 000322b0 2de9f041 push {r4,r5,r6,r7,r8,lr}
+INSN 000322b4 28b1 cbz r0,0x000322c2 REF[CONDITIONAL_JUMP:000322c2]
+INSN 000322b6 0168 ldr r1,[r0,#0x0]
+INSN 000322b8 19b1 cbz r1,0x000322c2 REF[CONDITIONAL_JUMP:000322c2]
+INSN 000322ba c969 ldr r1,[r1,#0x1c]
+INSN 000322bc bde8f041 pop.w {r4,r5,r6,r7,r8,lr}
+INSN 000322c0 0847 bx r1
+INSN 000322c2 0d4d ldr r5,[0x000322f8] REF[READ:000322f8=20003748]
+INSN 000322c4 0d48 ldr r0,[0x000322fc] REF[READ:000322fc=20003770]
+INSN 000322c6 0024 movs r4,#0x0
+INSN 000322c8 461b subs r6,r0,r5
+INSN 000322ca 1427 movs r7,#0x14
+INSN 000322cc 0de0 b 0x000322ea REF[UNCONDITIONAL_JUMP:000322ea]
+INSN 000322d0 04eb8400 add.w r0,r4,r4, lsl #0x2
+INSN 000322d4 05eb8000 add.w r0,r5,r0, lsl #0x2 REF[PARAM:20003748]
+INSN 000322d8 0168 ldr r1,[r0,#0x0] REF[READ:20003748]
+INSN 000322da 29b1 cbz r1,0x000322e8 REF[CONDITIONAL_JUMP:000322e8]
+INSN 000322dc c969 ldr r1,[r1,#0x1c]
+INSN 000322de 8847 blx r1
+INSN 000322e0 10b1 cbz r0,0x000322e8 REF[CONDITIONAL_JUMP:000322e8]
+INSN 000322e2 0120 movs r0,#0x1
+INSN 000322e4 bde8f081 pop.w {r4,r5,r6,r7,r8,pc}
+INSN 000322e8 641c adds r4,r4,#0x1
+INSN 000322ea b6fbf7f0 udiv r0,r6,r7
+INSN 000322ee a042 cmp r0,r4
+INSN 000322f0 eed8 bhi 0x000322d0 REF[CONDITIONAL_JUMP:000322d0]
+INSN 000322f2 0020 movs r0,#0x0
+INSN 000322f4 f6e7 b 0x000322e4 REF[UNCONDITIONAL_JUMP:000322e4]

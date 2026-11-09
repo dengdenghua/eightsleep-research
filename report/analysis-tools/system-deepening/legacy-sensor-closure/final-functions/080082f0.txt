@@ -1,0 +1,59 @@
+FUNCTION 080082f0 FUN_080082f0 BODY [[080082f0, 08008325]]
+INCOMING 08008364 UNCONDITIONAL_CALL
+INCOMING 0800d106 UNCONDITIONAL_CALL
+
+void __stdcall_softfp FUN_080082f0(byte *param_1,int param_2)
+
+{
+  uint uVar1;
+  ushort uVar2;
+  byte *pbVar3;
+  char cVar4;
+  ushort uVar5;
+  
+  pbVar3 = param_1 + param_2;
+  uVar2 = 0x1d0f;
+  for (; param_1 != pbVar3; param_1 = param_1 + 1) {
+    cVar4 = '\t';
+    uVar2 = uVar2 ^ (ushort)*param_1 << 8;
+    while (cVar4 = cVar4 + -1, cVar4 != '\0') {
+      uVar5 = uVar2 << 1;
+      uVar1 = (uint)uVar2;
+      uVar2 = uVar5;
+      if ((int)(uVar1 << 0x10) < 0) {
+        uVar2 = uVar5 ^ 0x1021;
+      }
+    }
+  }
+  return;
+}
+
+
+ASSEMBLY
+080082f0 push {r4,r5,r6,lr} BYTES 70b5
+080082f2 movs r5,#0x9 BYTES 0925
+080082f4 movs r3,r0 BYTES 0300
+080082f6 adds r1,r0,r1 BYTES 4118
+080082f8 ldr r6,[0x08008328] BYTES 0b4e REF READ=08008328 WORD=1021
+080082fa ldr r0,[0x0800832c] BYTES 0c48 REF READ=0800832c WORD=1d0f
+080082fc cmp r3,r1 BYTES 8b42
+080082fe bne 0x08008302 BYTES 00d1 REF CONDITIONAL_JUMP=08008302
+08008300 pop {r4,r5,r6,pc} BYTES 70bd
+08008302 ldrb r2,[r3,#0x0] BYTES 1a78
+08008304 lsls r2,r2,#0x8 BYTES 1202
+08008306 eors r0,r2 BYTES 5040
+08008308 movs r2,r5 BYTES 2a00
+0800830a uxth r0,r0 BYTES 80b2
+0800830c subs r2,#0x1 BYTES 013a
+0800830e uxtb r2,r2 BYTES d2b2
+08008310 cmp r2,#0x0 BYTES 002a
+08008312 bne 0x08008318 BYTES 01d1 REF CONDITIONAL_JUMP=08008318
+08008314 adds r3,#0x1 BYTES 0133
+08008316 b 0x080082fc BYTES f1e7 REF UNCONDITIONAL_JUMP=080082fc
+08008318 lsls r4,r0,#0x1 BYTES 4400
+0800831a uxth r4,r4 BYTES a4b2
+0800831c lsls r0,r0,#0x10 BYTES 0004
+0800831e bpl 0x08008322 BYTES 00d5 REF CONDITIONAL_JUMP=08008322
+08008320 eors r4,r6 BYTES 7440
+08008322 movs r0,r4 BYTES 2000
+08008324 b 0x0800830c BYTES f2e7 REF UNCONDITIONAL_JUMP=0800830c

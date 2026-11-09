@@ -1,0 +1,974 @@
+{
+ "ahb_prescaler": {
+  "address": "0x080241cc",
+  "table": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   1,
+   2,
+   3,
+   4,
+   6,
+   7,
+   8,
+   9
+  ]
+ },
+ "apb_clock": {
+  "call_sites": [
+   "0x0800e91e",
+   "0x0800ea14"
+  ],
+  "formula": "PCLK = DAT_20000250 >> APB_TABLE[((reg@0x40021008 >> 12) & 7)]",
+  "function": "0800cf10",
+  "note": "DAT_20000250 is the software SYSCLK field written by 0800cdb4; 64MHz is the conditional computed value from the previous round, not a measurement.",
+  "parameterised_results": {
+   "HSI_16MHz": [
+    {
+     "index": 0,
+     "pclk": 16000000,
+     "shift": 0
+    },
+    {
+     "index": 1,
+     "pclk": 16000000,
+     "shift": 0
+    },
+    {
+     "index": 2,
+     "pclk": 16000000,
+     "shift": 0
+    },
+    {
+     "index": 3,
+     "pclk": 16000000,
+     "shift": 0
+    },
+    {
+     "index": 4,
+     "pclk": 8000000,
+     "shift": 1
+    },
+    {
+     "index": 5,
+     "pclk": 4000000,
+     "shift": 2
+    },
+    {
+     "index": 6,
+     "pclk": 2000000,
+     "shift": 3
+    },
+    {
+     "index": 7,
+     "pclk": 1000000,
+     "shift": 4
+    }
+   ],
+   "LSE_32768": [
+    {
+     "index": 0,
+     "pclk": 32768,
+     "shift": 0
+    },
+    {
+     "index": 1,
+     "pclk": 32768,
+     "shift": 0
+    },
+    {
+     "index": 2,
+     "pclk": 32768,
+     "shift": 0
+    },
+    {
+     "index": 3,
+     "pclk": 32768,
+     "shift": 0
+    },
+    {
+     "index": 4,
+     "pclk": 16384,
+     "shift": 1
+    },
+    {
+     "index": 5,
+     "pclk": 8192,
+     "shift": 2
+    },
+    {
+     "index": 6,
+     "pclk": 4096,
+     "shift": 3
+    },
+    {
+     "index": 7,
+     "pclk": 2048,
+     "shift": 4
+    }
+   ],
+   "computed_64MHz": [
+    {
+     "index": 0,
+     "pclk": 64000000,
+     "shift": 0
+    },
+    {
+     "index": 1,
+     "pclk": 64000000,
+     "shift": 0
+    },
+    {
+     "index": 2,
+     "pclk": 64000000,
+     "shift": 0
+    },
+    {
+     "index": 3,
+     "pclk": 64000000,
+     "shift": 0
+    },
+    {
+     "index": 4,
+     "pclk": 32000000,
+     "shift": 1
+    },
+    {
+     "index": 5,
+     "pclk": 16000000,
+     "shift": 2
+    },
+    {
+     "index": 6,
+     "pclk": 8000000,
+     "shift": 3
+    },
+    {
+     "index": 7,
+     "pclk": 4000000,
+     "shift": 4
+    }
+   ]
+  },
+  "table": [
+   0,
+   0,
+   0,
+   0,
+   1,
+   2,
+   3,
+   4
+  ],
+  "table_address": "0x080241ac"
+ },
+ "bbin_sha256": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+ "checks": [
+  {
+   "expected": "[0, 0, 0, 0, 1, 2, 3, 4]",
+   "got": "[0, 0, 0, 0, 1, 2, 3, 4]",
+   "name": "apb_prescaler_table",
+   "status": "PASS"
+  },
+  {
+   "expected": "[0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9]",
+   "got": "[0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9]",
+   "name": "ahb_prescaler_table",
+   "status": "PASS"
+  },
+  {
+   "expected": "[1, 2, 4, 6, 8, 10, 12, 16, 32, 64, 128, 256, 1032, 1026, 264, 257]",
+   "got": "[1, 2, 4, 6, 8, 10, 12, 16, 32, 64, 128, 256, 1032, 1026, 264, 257]",
+   "name": "usart_divisor_table",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "first_12_divisors_are_monotonic",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "last_4_divisors_are_all_above_256",
+   "status": "PASS"
+  },
+  {
+   "expected": "[4, 4, 1, 1]",
+   "got": "[4, 4, 1, 1]",
+   "name": "last_4_high_nibbles",
+   "status": "PASS"
+  },
+  {
+   "expected": "[8, 2, 8, 1]",
+   "got": "[8, 2, 8, 1]",
+   "name": "last_4_low_bytes",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e900",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e902",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e904",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e906",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e908",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e90a",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e910",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e912",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e914",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e916",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e918",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e91e",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e93e",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e960",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e964",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e96c",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e970",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e974",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e976",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e982",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e988",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e98a",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9a0",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9ba",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9b2",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9b4",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9b6",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9b8",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9c0",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9c6",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e958",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9da",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9e4",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9f2",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800e9f8",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800ea14",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800ea18",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "anchor_0800ea20",
+   "status": "PASS"
+  },
+  {
+   "expected": "4",
+   "got": "4",
+   "name": "bl_08008174_count",
+   "status": "PASS"
+  },
+  {
+   "expected": "2",
+   "got": "2",
+   "name": "bl_0800cf10_count",
+   "status": "PASS"
+  },
+  {
+   "expected": "2",
+   "got": "2",
+   "name": "bl_0800cd24_count",
+   "status": "PASS"
+  },
+  {
+   "expected": "3",
+   "got": "3",
+   "name": "rcc_0x54_read_count",
+   "status": "PASS"
+  },
+  {
+   "expected": "4",
+   "got": "4",
+   "name": "over8_0x8000_construction_count",
+   "status": "PASS"
+  },
+  {
+   "expected": "['0x0800e916', '0x0800e95a', '0x0800e966', '0x0800e9b4']",
+   "got": "['0x0800e916', '0x0800e95a', '0x0800e966', '0x0800e9b4']",
+   "name": "four_clock_source_branches_each_test_OVER8",
+   "status": "PASS"
+  },
+  {
+   "expected": "16000000",
+   "got": "16000000",
+   "name": "hsi16_literal_value",
+   "status": "PASS"
+  },
+  {
+   "expected": "65519",
+   "got": "65519",
+   "name": "brr_upper_bound_literal",
+   "status": "PASS"
+  },
+  {
+   "expected": "1073876992",
+   "got": "1073876992",
+   "name": "rcc_base_literal",
+   "status": "PASS"
+  },
+  {
+   "expected": "134365708",
+   "got": "134365708",
+   "name": "divisor_table_literal",
+   "status": "PASS"
+  },
+  {
+   "expected": "64000000",
+   "got": "64000000",
+   "name": "pclk_shift_0_is_sysclk",
+   "status": "PASS"
+  },
+  {
+   "expected": "4000000",
+   "got": "4000000",
+   "name": "pclk_shift_4_is_sysclk_div16",
+   "status": "PASS"
+  },
+  {
+   "expected": "[0, 0, 0, 0]",
+   "got": "[0, 0, 0, 0]",
+   "name": "pclk_index_0_to_3_all_no_division",
+   "status": "PASS"
+  },
+  {
+   "expected": "556",
+   "got": "556",
+   "name": "brr_64MHz_115200_div1_pathA",
+   "status": "PASS"
+  },
+  {
+   "expected": "1107",
+   "got": "1107",
+   "name": "brr_64MHz_115200_div1_pathB",
+   "status": "PASS"
+  },
+  {
+   "expected": "139",
+   "got": "139",
+   "name": "brr_16MHz_115200_div1_pathA",
+   "status": "PASS"
+  },
+  {
+   "expected": "4",
+   "got": "4",
+   "name": "brr_64_vs_16_ratio_4x",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "brr_pathB_bit3_clear",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "last4_115200_never_legal_at_16_or_64MHz",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "last4_9600_legal_for_at_least_one_pair",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "last4_are_not_standard_baud_divisors",
+   "status": "PASS"
+  },
+  {
+   "expected": "134373072",
+   "got": "134373072",
+   "name": "literal_0800fbcc",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "no_function_body_0800fbcc",
+   "status": "PASS"
+  },
+  {
+   "expected": "134373056",
+   "got": "134373056",
+   "name": "literal_0800fdc0",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "no_function_body_0800fdc0",
+   "status": "PASS"
+  },
+  {
+   "expected": "134373056",
+   "got": "134373056",
+   "name": "literal_080125a4",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "no_function_body_080125a4",
+   "status": "PASS"
+  },
+  {
+   "expected": "134373160",
+   "got": "134373160",
+   "name": "literal_08012cf0",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "no_function_body_08012cf0",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "no_function_body_0800fc00",
+   "status": "PASS"
+  }
+ ],
+ "consumers": [
+  {
+   "finding": "calls FUN_0801fdd0(0); 0801fdd0 indexes a 12-byte descriptor table at 0x08027f0c (+4 = 0x50000000, +8 = 1) and calls 0800acbc",
+   "kind": "function",
+   "name": "080110f6",
+   "source": "pass1/080110f6.txt + pass3/0801fdd0.txt"
+  },
+  {
+   "finding": "APB/peripheral clock selector: PCLK = DAT_20000250 >> APB_TABLE[(0x40021008 >> 12) & 7]",
+   "kind": "function",
+   "name": "0800cf10",
+   "source": "pass1/0800cf10.txt"
+  },
+  {
+   "finding": "USART CR1/CR2/CR3 bit-field configuration driven by param_1[10] flags (bits 31..25)",
+   "kind": "function",
+   "name": "0800ea60",
+   "source": "pass1/0800ea60.txt"
+  },
+  {
+   "finding": "USART follow-up setup; param_1[0x24]=0, 0x1ffffff mask, BRR/CR1 writes and a 0x20 timeout field",
+   "kind": "function",
+   "name": "0800ebf8",
+   "source": "pass1/0800ebf8.txt"
+  },
+  {
+   "finding": "the 8-byte copy helper: a byte loop from r1 to r0 of r2 bytes (9 INSN rows, exact)",
+   "kind": "function",
+   "name": "08020f94",
+   "source": "pass1/08020f94.txt"
+  },
+  {
+   "finding": "driver handle-block initialiser: DSB/DMB, clears param_1[7], zero-fills 0x100 bytes, sets 0x40/4/0",
+   "kind": "function",
+   "name": "08019c90",
+   "source": "pass1/08019c90.txt"
+  },
+  {
+   "finding": "wraps 080124f8 with a stack pair and stores the result",
+   "kind": "function",
+   "name": "0801273c",
+   "source": "pass1/0801273c.txt"
+  },
+  {
+   "finding": "formats a log line through 08020fbc / 08020f7c using DAT_20000264 and the 0x0802426c format string",
+   "kind": "function",
+   "name": "08012754",
+   "source": "pass1/08012754.txt"
+  },
+  {
+   "finding": "reads hwrev 0x20001cfc and calls 080110f6 when it is not 0xa32; also consumes the 0x08025f28 tail array",
+   "kind": "function",
+   "name": "08012ad8",
+   "source": "pass3/08012b5e.txt + 08012b40_08012d10.txt"
+  },
+  {
+   "finding": "indexes the 0x08025ec0 mask table with a bounded value",
+   "kind": "function",
+   "name": "080124f8",
+   "source": "pass3/08012538.txt"
+  },
+  {
+   "finding": "clamps (value & 0x1f) - 0x18 to <= 3 and indexes the 0x08025ec0 [1,2,4,8] mask table",
+   "kind": "function",
+   "name": "0800fd94",
+   "source": "pass3/0800fdaa.txt"
+  },
+  {
+   "finding": "post-init callback: hwrev == 0xa35 and devicesn/sku gate selects 08025ef8 or 08025ef0 into config +0x1a4",
+   "kind": "function",
+   "name": "08011100",
+   "source": "pass3/08011100.txt"
+  }
+ ],
+ "date": "2026-11-08",
+ "divisor_table": {
+  "address": "0x0802420c",
+  "conclusion": "The last four entries are passed WHOLE to the 08008174 division helper (ldrh then bl); no instruction splits the high bits off. \"Packed\" describes the byte pattern only, not a proven field layout. At 16/64 MHz and 115200 baud none of them yields a legal BRR.",
+  "last_four_split": [
+   {
+    "high": 4,
+    "low": 8,
+    "split": "0x400|0x8",
+    "value": 1032
+   },
+   {
+    "high": 4,
+    "low": 2,
+    "split": "0x400|0x2",
+    "value": 1026
+   },
+   {
+    "high": 1,
+    "low": 8,
+    "split": "0x100|0x8",
+    "value": 264
+   },
+   {
+    "high": 1,
+    "low": 1,
+    "split": "0x100|0x1",
+    "value": 257
+   }
+  ],
+  "legal_baud_scan": [
+   {
+    "clock": 16000000,
+    "divisor": 1032,
+    "legal_bauds": [],
+    "legal_count": 0
+   },
+   {
+    "clock": 64000000,
+    "divisor": 1032,
+    "legal_bauds": [
+     1200,
+     2400
+    ],
+    "legal_count": 2
+   },
+   {
+    "clock": 16000000,
+    "divisor": 1026,
+    "legal_bauds": [],
+    "legal_count": 0
+   },
+   {
+    "clock": 64000000,
+    "divisor": 1026,
+    "legal_bauds": [
+     1200,
+     2400
+    ],
+    "legal_count": 2
+   },
+   {
+    "clock": 16000000,
+    "divisor": 264,
+    "legal_bauds": [
+     1200,
+     2400
+    ],
+    "legal_count": 2
+   },
+   {
+    "clock": 64000000,
+    "divisor": 264,
+    "legal_bauds": [
+     1200,
+     2400,
+     4800,
+     9600
+    ],
+    "legal_count": 4
+   },
+   {
+    "clock": 16000000,
+    "divisor": 257,
+    "legal_bauds": [
+     1200,
+     2400
+    ],
+    "legal_count": 2
+   },
+   {
+    "clock": 64000000,
+    "divisor": 257,
+    "legal_bauds": [
+     1200,
+     2400,
+     4800,
+     9600
+    ],
+    "legal_count": 4
+   }
+  ],
+  "values": [
+   1,
+   2,
+   4,
+   6,
+   8,
+   10,
+   12,
+   16,
+   32,
+   64,
+   128,
+   256,
+   1032,
+   1026,
+   264,
+   257
+  ]
+ },
+ "executes_firmware": false,
+ "failures": [],
+ "limits": [
+  "Clock values, baud rates and the divisor index are explicit parameters; no runtime RCC state, baud setting or hardware measurement is available in the frozen image.",
+  "Peripheral register names are deliberately NOT asserted: without a datasheet or schematic the 0x4000xxxx addresses stay unnamed.",
+  "The four (plus one) literal-pool addresses are data slots, not callable functions; the earlier candidate list mis-classified them."
+ ],
+ "literal_pool_corrections": [
+  {
+   "address": "0800fbcc",
+   "meaning": "peripheral address table A pointer",
+   "pointer": 134373072,
+   "reader": "0800fbc0"
+  },
+  {
+   "address": "0800fdc0",
+   "meaning": "[1,2,4,8] mask table pointer",
+   "pointer": 134373056,
+   "reader": "0800fdaa"
+  },
+  {
+   "address": "080125a4",
+   "meaning": "[1,2,4,8] mask table pointer",
+   "pointer": 134373056,
+   "reader": "08012538"
+  },
+  {
+   "address": "08012cf0",
+   "meaning": "8-byte tail index array pointer",
+   "pointer": 134373160,
+   "reader": "08012b5e"
+  },
+  {
+   "address": "0800fc00",
+   "meaning": "literal-pool slot, not a callable consumer",
+   "pointer": null,
+   "reader": "0800fbf4"
+  }
+ ],
+ "method": "instruction-anchored modelling from pass1/pass3 read-only exports plus exact in-image table bytes",
+ "schema": "eightsleep.nonusb.consumer-models.v1",
+ "status": "PASS",
+ "totals": {
+  "assertions": 75,
+  "brr_scan_cases": 8,
+  "consumers": 12,
+  "failures": 0,
+  "instruction_anchors": 38,
+  "literal_corrections": 5
+ },
+ "usart_brr": {
+  "divisor_index": "param_1[9], also written into a 4-bit register field",
+  "path_A": "BRR = (clock // divisor + (baud >> 1)) // baud",
+  "path_B": "N = (2 * (clock // divisor) + (baud >> 1)) // baud; BRR = (N & 0xfff0) | ((N & 0xf) >> 1)",
+  "range_check": "0x10 <= N <= 0xffff, else 0800e8b4 returns 1",
+  "range_literal": "0xffef = 0xffef"
+ },
+ "usart_clock_source_matrix": {
+  "groups": [
+   {
+    "base": 1073821696,
+    "cases": {
+     "0": [
+      "0800e914",
+      "PCLK via 0800cf10"
+     ],
+     "1": [
+      "0800e9b2",
+      "SYSCLK via 0800cd24"
+     ],
+     "2": [
+      "0800e964",
+      "HSI16 16000000"
+     ],
+     "3": [
+      "0800e958",
+      "32768 (0x8000)"
+     ]
+    },
+    "group": "USART1",
+    "mask": 3
+   },
+   {
+    "base": 1073759232,
+    "cases": {
+     "0": [
+      "0800e914",
+      "PCLK via 0800cf10"
+     ],
+     "4": [
+      "0800e9b2",
+      "SYSCLK via 0800cd24"
+     ],
+     "8": [
+      "0800e964",
+      "HSI16 16000000"
+     ],
+     "12": [
+      "0800e958",
+      "32768 (0x8000)"
+     ]
+    },
+    "group": "group_2",
+    "mask": 12
+   },
+   {
+    "base": 1073760256,
+    "cases": {
+     "0": [
+      "0800e914",
+      "PCLK via 0800cf10"
+     ],
+     "16": [
+      "0800e9b2",
+      "SYSCLK via 0800cd24"
+     ],
+     "32": [
+      "0800e964",
+      "HSI16 16000000"
+     ],
+     "48": [
+      "0800e958",
+      "32768 (0x8000)"
+     ]
+    },
+    "group": "group_3",
+    "mask": 48
+   },
+   {
+    "bases": [
+     1073761280,
+     1073762304,
+     1073822720
+    ],
+    "cases": {
+     "any": [
+      "0800e914",
+      "PCLK via 0800cf10"
+     ]
+    },
+    "group": "group_4_always_pclk",
+    "mask": null
+   }
+  ],
+  "note": "0800e8b4 param_1 is a USART configuration descriptor built by 0800ec64, NOT the hwrev config object of 0801d888.",
+  "over8_flag": "param_1[7] == 0x8000 built by movs r3,#0x80 / lsls r3,r3,#0x8 / cmp r0,r3",
+  "over8_meaning": "OVER8 selects BRR path B (8x oversampling); otherwise path A (16x)",
+  "register": "0x40021054 (selected by three ldr r3,[r3,#0x54] rows)",
+  "sources": {
+   "HSI16": "literal 0xf42400 = 16000000",
+   "LSE32768": "movs r0,r3 where r3 = 0x8000 = 32768",
+   "PCLK": "0800cf10()",
+   "SYSCLK": "0800cd24()"
+  }
+ }
+}

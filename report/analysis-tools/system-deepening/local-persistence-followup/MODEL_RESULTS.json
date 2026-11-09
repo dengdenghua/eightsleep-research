@@ -1,0 +1,100 @@
+{
+  "status": "PASS",
+  "case_count": 8,
+  "cases": [
+    {
+      "case": "Keeson_snapshot_preserves_two_words_and_marker",
+      "status": "PASS",
+      "synthetic": true,
+      "result": {
+        "extra_and_marker_hex": "443322118877665505000000"
+      },
+      "source": "k1-scan/0002b6a8.txt"
+    },
+    {
+      "case": "Keeson_snapshot_crc_covers_extra_words",
+      "status": "PASS",
+      "synthetic": true,
+      "result": {
+        "crc": 1692994208
+      },
+      "source": "k1-scan/0002b6a8.txt + local-accessory-closure/2f28c"
+    },
+    {
+      "case": "Keeson_opaque_word_changes_crc_not_restored_four_positions",
+      "status": "PASS",
+      "synthetic": true,
+      "result": true,
+      "source": "k1-scan/0002b680.txt +0002b6a8.txt"
+    },
+    {
+      "case": "Keeson_normal_same_snapshot_no_crc_change",
+      "status": "PASS",
+      "synthetic": true,
+      "result": true,
+      "source": "k1-scan/0002b6a8.txt"
+    },
+    {
+      "case": "Keeson_diagnostic_uses_Flash_not_new_RAM",
+      "status": "PASS",
+      "synthetic": true,
+      "result": {
+        "total_bytes": 196,
+        "flash_positions": [
+          10,
+          20,
+          30,
+          40
+        ],
+        "ram_positions": [
+          11,
+          22,
+          33,
+          44
+        ]
+      },
+      "source": "k1-scan/000298bc.txt + k2/00026e9c.txt"
+    },
+    {
+      "case": "Keeson_normal_last_record_selected",
+      "status": "PASS",
+      "synthetic": true,
+      "result": {
+        "index": 6
+      },
+      "source": "k1-scan/000298bc.txt"
+    },
+    {
+      "case": "TriMix_four_position_snapshot_preserves_extra_halfwords",
+      "status": "PASS",
+      "synthetic": true,
+      "result": {
+        "extra_hex": "34127856"
+      },
+      "source": "t1-scan/0800824a.txt +0800fd54.txt"
+    },
+    {
+      "case": "TriMix_flash_little_endian_crc_input_big_endian",
+      "status": "PASS",
+      "synthetic": true,
+      "result": {
+        "words": [
+          11,
+          22,
+          33,
+          44,
+          4660,
+          22136,
+          46716
+        ]
+      },
+      "source": "t1-scan/0800fd9e.txt +0800a7dc.txt"
+    }
+  ],
+  "limits": [
+    "Synthetic normal records only; no malformed-input, concurrency, power-loss or fault testing.",
+    "No actual32B append is simulated or claimed. dump reads explicitly supplied Flash records.",
+    "Opaque fields deliberately given artificial values; not real device configuration.",
+    "Only record-local preservation/CRC/normal read relationships, not full boot/runtime proof."
+  ]
+}

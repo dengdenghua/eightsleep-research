@@ -1,0 +1,113 @@
+FUNCTION 080094b0 FUN_080094b0 BODY [[080094b0, 08009527]]
+INCOMING 0800d9be UNCONDITIONAL_CALL
+INCOMING 0800d9d8 UNCONDITIONAL_CALL
+
+byte FUN_080094b0(float param_1,float param_2)
+
+{
+  byte bVar1;
+  int iVar2;
+  byte bVar3;
+  byte bVar4;
+  float arg0;
+  float extraout_s0;
+  float arg0_00;
+  float extraout_s0_00;
+  float fVar5;
+  float arg0_01;
+  float arg1;
+  float extraout_s1;
+  float arg1_00;
+  float extraout_s1_00;
+  float fVar6;
+  float arg1_01;
+  
+  iVar2 = analyst_flt(param_1,param_2);
+  if (iVar2 == 0) {
+    bVar3 = 0;
+    fVar5 = arg0;
+    fVar6 = arg1;
+  }
+  else {
+    iVar2 = analyst_fgt(arg0,arg1);
+    bVar3 = -(iVar2 != 0) & 1;
+    fVar5 = extraout_s0;
+    fVar6 = extraout_s1;
+  }
+  iVar2 = analyst_flt(fVar5,fVar6);
+  if (iVar2 == 0) {
+    bVar4 = 0;
+    fVar5 = arg0_00;
+    fVar6 = arg1_00;
+  }
+  else {
+    iVar2 = analyst_fgt(arg0_00,arg1_00);
+    bVar4 = -(iVar2 != 0) & 1;
+    fVar5 = extraout_s0_00;
+    fVar6 = extraout_s1_00;
+  }
+  iVar2 = analyst_flt(fVar5,fVar6);
+  bVar1 = 0;
+  if (iVar2 != 0) {
+    iVar2 = analyst_fgt(arg0_01,arg1_01);
+    bVar1 = -(iVar2 != 0) & 1;
+  }
+  return bVar1 | bVar3 | bVar4;
+}
+
+
+ASSEMBLY
+080094b0 movs r1,#0xfc BYTES fc21
+080094b2 push {r4,r5,r6,lr} BYTES 70b5
+080094b4 ldr r4,[r0,#0x4] BYTES 4468
+080094b6 movs r6,r0 BYTES 0600
+080094b8 lsls r1,r1,#0x16 BYTES 8905
+080094ba adds r0,r4,#0x0 BYTES 201c
+080094bc bl 0x0800518c BYTES fbf766fe REF UNCONDITIONAL_CALL=0800518c
+080094c0 cmp r0,#0x0 BYTES 0028
+080094c2 beq 0x08009520 BYTES 2dd0 REF CONDITIONAL_JUMP=08009520
+080094c4 adds r0,r4,#0x0 BYTES 201c
+080094c6 movs r1,#0x0 BYTES 0021
+080094c8 bl 0x080051b4 BYTES fbf774fe REF UNCONDITIONAL_CALL=080051b4
+080094cc subs r4,r0,#0x1 BYTES 441e
+080094ce sbcs r0,r4 BYTES a041
+080094d0 movs r4,#0x1 BYTES 0124
+080094d2 rsbs r0,r0 BYTES 4042
+080094d4 ands r4,r0 BYTES 0440
+080094d6 movs r1,#0xfc BYTES fc21
+080094d8 ldr r5,[r6,#0x0] BYTES 3568
+080094da lsls r1,r1,#0x16 BYTES 8905
+080094dc adds r0,r5,#0x0 BYTES 281c
+080094de bl 0x0800518c BYTES fbf755fe REF UNCONDITIONAL_CALL=0800518c
+080094e2 cmp r0,#0x0 BYTES 0028
+080094e4 beq 0x08009524 BYTES 1ed0 REF CONDITIONAL_JUMP=08009524
+080094e6 adds r0,r5,#0x0 BYTES 281c
+080094e8 movs r1,#0x0 BYTES 0021
+080094ea bl 0x080051b4 BYTES fbf763fe REF UNCONDITIONAL_CALL=080051b4
+080094ee subs r5,r0,#0x1 BYTES 451e
+080094f0 sbcs r0,r5 BYTES a841
+080094f2 movs r5,#0x1 BYTES 0125
+080094f4 rsbs r0,r0 BYTES 4042
+080094f6 ands r5,r0 BYTES 0540
+080094f8 movs r1,#0xfc BYTES fc21
+080094fa ldr r6,[r6,#0x8] BYTES b668
+080094fc lsls r1,r1,#0x16 BYTES 8905
+080094fe adds r0,r6,#0x0 BYTES 301c
+08009500 bl 0x0800518c BYTES fbf744fe REF UNCONDITIONAL_CALL=0800518c
+08009504 cmp r0,#0x0 BYTES 0028
+08009506 beq 0x0800951a BYTES 08d0 REF CONDITIONAL_JUMP=0800951a
+08009508 movs r1,#0x0 BYTES 0021
+0800950a adds r0,r6,#0x0 BYTES 301c
+0800950c bl 0x080051b4 BYTES fbf752fe REF UNCONDITIONAL_CALL=080051b4
+08009510 subs r3,r0,#0x1 BYTES 431e
+08009512 sbcs r0,r3 BYTES 9841
+08009514 rsbs r3,r0 BYTES 4342
+08009516 movs r0,#0x1 BYTES 0120
+08009518 ands r0,r3 BYTES 1840
+0800951a orrs r4,r5 BYTES 2c43
+0800951c orrs r0,r4 BYTES 2043
+0800951e pop {r4,r5,r6,pc} BYTES 70bd
+08009520 movs r4,r0 BYTES 0400
+08009522 b 0x080094d6 BYTES d8e7 REF UNCONDITIONAL_JUMP=080094d6
+08009524 movs r5,r0 BYTES 0500
+08009526 b 0x080094f8 BYTES e7e7 REF UNCONDITIONAL_JUMP=080094f8

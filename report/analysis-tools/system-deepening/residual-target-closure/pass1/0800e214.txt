@@ -1,0 +1,65 @@
+TARGET 0800e214 function=0800e214
+REF_TO 0800e406 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800e214, 0800e24b]]
+
+void FUN_0800e214(int *param_1)
+
+{
+  bool bVar1;
+  uint uVar2;
+  
+  uVar2 = 0;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    uVar2 = isIRQinterruptsEnabled();
+  }
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts(1);
+  }
+  *(uint *)*param_1 = *(uint *)*param_1 & 0xffffff3f;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts((uVar2 & 1) == 1);
+  }
+  uVar2 = 0;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    uVar2 = isIRQinterruptsEnabled();
+  }
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts(1);
+  }
+  *(uint *)(*param_1 + 8) = *(uint *)(*param_1 + 8) & 0xff7fffff;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts((uVar2 & 1) == 1);
+  }
+  param_1[0x22] = 0x20;
+  return;
+}
+
+
+INSN 0800e214 30b5 push {r4,r5,lr}
+INSN 0800e216 eff31084 mrs r4,primask
+INSN 0800e21a 0122 movs r2,#0x1
+INSN 0800e21c 82f31088 msr primask,r2
+INSN 0800e220 c025 movs r5,#0xc0
+INSN 0800e222 0168 ldr r1,[r0,#0x0]
+INSN 0800e224 0b68 ldr r3,[r1,#0x0]
+INSN 0800e226 ab43 bics r3,r5
+INSN 0800e228 0b60 str r3,[r1,#0x0]
+INSN 0800e22a 84f31088 msr primask,r4
+INSN 0800e22e eff31081 mrs r1,primask
+INSN 0800e232 82f31088 msr primask,r2
+INSN 0800e236 0268 ldr r2,[r0,#0x0]
+INSN 0800e238 044c ldr r4,[0x0800e24c] REF[READ:0800e24c=ff7fffff]
+INSN 0800e23a 9368 ldr r3,[r2,#0x8]
+INSN 0800e23c 2340 ands r3,r4
+INSN 0800e23e 9360 str r3,[r2,#0x8]
+INSN 0800e240 81f31088 msr primask,r1
+INSN 0800e244 2023 movs r3,#0x20
+INSN 0800e246 8830 adds r0,#0x88
+INSN 0800e248 0360 str r3,[r0,#0x0]
+INSN 0800e24a 30bd pop {r4,r5,pc}

@@ -1,0 +1,75 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+void analysis_08019c96(void)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  char *pcVar3;
+  int unaff_r4;
+  uint unaff_r5;
+  int unaff_r6;
+  int in_stack_00000058;
+  
+  if (4 < unaff_r5) {
+    FUN_08027fb8(&stack0x00000058,unaff_r6 + 1,4);
+    if (0x1963 < in_stack_00000058 - 1U) {
+      pcVar3 = "[cmd] invalid steady duration %u ms (must be 1-60000)";
+      goto LAB_080198b6;
+    }
+    pcVar3 = "[bag_task] steady time required set to %u ms";
+    DAT_2000025c = in_stack_00000058;
+    goto LAB_08019a0e;
+  }
+  FUN_08017634("[cmd] set_steady_duration: need 5 bytes");
+  uVar2 = 6;
+  do {
+    while( true ) {
+      FUN_08015fec(uVar2);
+      FUN_0801a424();
+      FUN_08027fb8(&stack0x00000058,unaff_r6 + 1,4);
+      iVar1 = in_stack_00000058;
+      pcVar3 = "[cmd] invalid interval %u ms (must be 1-60000)";
+      if (in_stack_00000058 - 1U < 60000) break;
+LAB_080198b6:
+      FUN_08017634(pcVar3,in_stack_00000058);
+LAB_0801988e:
+      uVar2 = 1;
+    }
+    if (*(char *)(unaff_r4 + 0x1b04) == '\0') {
+      FUN_08017634("[cmd] failed to set control interval");
+      goto LAB_0801988e;
+    }
+    *(int *)(unaff_r4 + 0x1ae4) = in_stack_00000058;
+    FUN_08016fce(unaff_r4 + 0x1adc,in_stack_00000058);
+    FUN_08017634("[scheduler] control interval set to %u ms",iVar1);
+    pcVar3 = "[cmd] control interval set to %u ms";
+LAB_08019a0e:
+    FUN_08017634(pcVar3,in_stack_00000058);
+    uVar2 = 0;
+  } while( true );
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08019c96 6848 ldr r0,[0x08019e38]
+08019c98 042d cmp r5,#0x4
+08019c9a 00d8 bhi 0x08019c9e
+08019c9c 7ee5 b 0x0801979c
+08019c9e 0422 movs r2,#0x4
+08019ca0 711c adds r1,r6,#0x1
+08019ca2 16a8 add r0,sp,#0x58
+08019ca4 0ef088f9 bl 0x08027fb8
+08019ca8 1699 ldr r1,[sp,#0x58]
+08019caa 644b ldr r3,[0x08019e3c]
+08019cac 4a1e subs r2,r1,#0x1
+08019cae 9a42 cmp r2,r3
+08019cb0 05d8 bhi 0x08019cbe
+08019cb2 634b ldr r3,[0x08019e40]
+08019cb4 6348 ldr r0,[0x08019e44]
+08019cb6 1960 str r1,[r3,#0x0]
+08019cb8 fdf7bcfc bl 0x08017634
+08019cbc a7e6 b 0x08019a0e
+08019cbe 6248 ldr r0,[0x08019e48]
+08019cc0 f9e5 b 0x080198b6

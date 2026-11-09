@@ -1,0 +1,509 @@
+{
+  "status": "PASS",
+  "case_count": 34,
+  "cases": [
+    {
+      "name": "later_provider_same_key",
+      "observed": 2,
+      "expected": 2,
+      "source": "ConfigurationRoot.GetConfiguration",
+      "status": "PASS"
+    },
+    {
+      "name": "missing_key_retains_prior_provider",
+      "observed": 1,
+      "expected": 1,
+      "source": "ConfigurationRoot.GetConfiguration",
+      "status": "PASS"
+    },
+    {
+      "name": "absent_business_env_provider",
+      "observed": null,
+      "expected": null,
+      "source": "Program.LoadConfiguration and Sources.Clear",
+      "status": "PASS"
+    },
+    {
+      "name": "watermark_A00",
+      "observed": "A00",
+      "expected": "A00",
+      "source": "MachineConfig.ResolveSectionKey",
+      "status": "PASS"
+    },
+    {
+      "name": "watermark_I00",
+      "observed": "I00",
+      "expected": "I00",
+      "source": "MachineConfig.ResolveSectionKey",
+      "status": "PASS"
+    },
+    {
+      "name": "watermark_I20",
+      "observed": "I00",
+      "expected": "I00",
+      "source": "MachineConfig.ResolveSectionKey",
+      "status": "PASS"
+    },
+    {
+      "name": "watermark_I21",
+      "observed": "I21",
+      "expected": "I21",
+      "source": "MachineConfig.ResolveSectionKey",
+      "status": "PASS"
+    },
+    {
+      "name": "watermark_I99",
+      "observed": "I21",
+      "expected": "I21",
+      "source": "MachineConfig.ResolveSectionKey",
+      "status": "PASS"
+    },
+    {
+      "name": "watermark_000",
+      "observed": "A00",
+      "expected": "A00",
+      "source": "MachineConfig.ResolveSectionKey",
+      "status": "PASS"
+    },
+    {
+      "name": "I00_does_not_inherit_A00_roots",
+      "observed": null,
+      "expected": null,
+      "source": "HostExtensions.PostConfigure",
+      "status": "PASS"
+    },
+    {
+      "name": "post_config_replaces_port_object",
+      "observed": {
+        "left": [
+          "newL"
+        ]
+      },
+      "expected": {
+        "left": [
+          "newL"
+        ]
+      },
+      "source": "HostExtensions.PostConfigure",
+      "status": "PASS"
+    },
+    {
+      "name": "empty_roots_do_not_clear_base",
+      "observed": [
+        "baseRoot"
+      ],
+      "expected": [
+        "baseRoot"
+      ],
+      "source": "HostExtensions.PostConfigure",
+      "status": "PASS"
+    },
+    {
+      "name": "nonempty_roots_override_base",
+      "observed": [
+        "new"
+      ],
+      "expected": [
+        "new"
+      ],
+      "source": "HostExtensions.PostConfigure",
+      "status": "PASS"
+    },
+    {
+      "name": "save_failure_leaves_new_RAM_old_disk",
+      "observed": [
+        {
+          "left": 2,
+          "right": 1
+        },
+        {
+          "left": 1,
+          "right": 1
+        }
+      ],
+      "expected": [
+        {
+          "left": 2,
+          "right": 1
+        },
+        {
+          "left": 1,
+          "right": 1
+        }
+      ],
+      "source": "PodConifgurationManager.UpdateConfiguration/Save",
+      "status": "PASS"
+    },
+    {
+      "name": "retry_after_failure_writes",
+      "observed": 1,
+      "expected": 1,
+      "source": "PodConifgurationManager.savedJson assigned only after successful SaveConfiguration",
+      "status": "PASS"
+    },
+    {
+      "name": "unchanged_serialized_value_skips_write",
+      "observed": 1,
+      "expected": 1,
+      "source": "PodConifgurationManager.Save",
+      "status": "PASS"
+    },
+    {
+      "name": "two_updates_based_on_same_old_snapshot_can_lose_first",
+      "observed": [
+        {
+          "left": 1,
+          "right": 3
+        },
+        {
+          "left": 1,
+          "right": 3
+        }
+      ],
+      "expected": [
+        {
+          "left": 1,
+          "right": 3
+        },
+        {
+          "left": 1,
+          "right": 3
+        }
+      ],
+      "source": "record with + UpdateConfiguration; no shared read-modify-write lock",
+      "status": "PASS"
+    },
+    {
+      "name": "external_file_change_does_not_update_cached_property",
+      "observed": {
+        "mode": 0
+      },
+      "expected": {
+        "mode": 0
+      },
+      "source": "Create loads once; Configuration updated by UpdateConfiguration",
+      "status": "PASS"
+    },
+    {
+      "name": "batch_keeps_last_target",
+      "observed": [
+        [
+          "firmness",
+          "manual2"
+        ]
+      ],
+      "expected": [
+        [
+          "firmness",
+          "manual2"
+        ]
+      ],
+      "source": "FirmnessReadyState.RunTick",
+      "status": "PASS"
+    },
+    {
+      "name": "mode_runs_after_target_regardless_enqueue_order",
+      "observed": [
+        [
+          "firmness",
+          6
+        ],
+        [
+          "mode",
+          1
+        ]
+      ],
+      "expected": [
+        [
+          "firmness",
+          6
+        ],
+        [
+          "mode",
+          1
+        ]
+      ],
+      "source": "FirmnessReadyState.RunTick",
+      "status": "PASS"
+    },
+    {
+      "name": "calibration_suppresses_drained_target_and_mode",
+      "observed": [
+        [
+          "calibrate",
+          [
+            0
+          ]
+        ]
+      ],
+      "expected": [
+        [
+          "calibrate",
+          [
+            0
+          ]
+        ]
+      ],
+      "source": "FirmnessReadyState.RunTick",
+      "status": "PASS"
+    },
+    {
+      "name": "last_calibration_request_wins_batch",
+      "observed": [
+        [
+          "calibrate",
+          [
+            1
+          ]
+        ]
+      ],
+      "expected": [
+        [
+          "calibrate",
+          [
+            1
+          ]
+        ]
+      ],
+      "source": "FirmnessReadyState.RunTick",
+      "status": "PASS"
+    },
+    {
+      "name": "dynamic_after_manual_wins_same_target_type",
+      "observed": [
+        [
+          "firmness",
+          "dynamic"
+        ]
+      ],
+      "expected": [
+        [
+          "firmness",
+          "dynamic"
+        ]
+      ],
+      "source": "DynamicModeService.ApplyPresetToSide + Ready.RunTick",
+      "status": "PASS"
+    },
+    {
+      "name": "manual_after_dynamic_wins_same_target_type",
+      "observed": [
+        [
+          "firmness",
+          "manual"
+        ]
+      ],
+      "expected": [
+        [
+          "firmness",
+          "manual"
+        ]
+      ],
+      "source": "FirmnessController.SetFirmness + Ready.RunTick",
+      "status": "PASS"
+    },
+    {
+      "name": "target_saved_before_failed_send",
+      "observed": [
+        {
+          "target": 8
+        },
+        1
+      ],
+      "expected": [
+        {
+          "target": 8
+        },
+        1
+      ],
+      "source": "Ready.OnRequest + SendFirmnessCommand catches errors",
+      "status": "PASS"
+    },
+    {
+      "name": "target_save_failed_but_send_may_succeed",
+      "observed": [
+        {
+          "target": 8
+        },
+        {
+          "target": 1
+        },
+        8
+      ],
+      "expected": [
+        {
+          "target": 8
+        },
+        {
+          "target": 1
+        },
+        8
+      ],
+      "source": "Ready.SaveTargetFirmness catches errors then OnRequest sends",
+      "status": "PASS"
+    },
+    {
+      "name": "tolerance_later_send_failure_retains_old_store",
+      "observed": [
+        {
+          "range": [
+            0,
+            10
+          ],
+          "bins": {
+            "0": [
+              0.1,
+              0.1
+            ],
+            "1": [
+              0.2,
+              0.2
+            ]
+          }
+        },
+        {
+          "range": [
+            0,
+            8
+          ],
+          "bins": {
+            "0": [
+              0.3,
+              0.3
+            ],
+            "1": [
+              0.2,
+              0.2
+            ]
+          }
+        }
+      ],
+      "expected": [
+        {
+          "range": [
+            0,
+            10
+          ],
+          "bins": {
+            "0": [
+              0.1,
+              0.1
+            ],
+            "1": [
+              0.2,
+              0.2
+            ]
+          }
+        },
+        {
+          "range": [
+            0,
+            8
+          ],
+          "bins": {
+            "0": [
+              0.3,
+              0.3
+            ],
+            "1": [
+              0.2,
+              0.2
+            ]
+          }
+        }
+      ],
+      "source": "ApplyAndPersistToleranceBandsAsync: Save only after every send; no rollback",
+      "status": "PASS"
+    },
+    {
+      "name": "tolerance_patch_merge_by_bin_index",
+      "observed": {
+        "range": [
+          0,
+          10
+        ],
+        "bins": {
+          "0": [
+            0.1,
+            0.1
+          ],
+          "1": [
+            0.5,
+            0.5
+          ]
+        }
+      },
+      "expected": {
+        "range": [
+          0,
+          10
+        ],
+        "bins": {
+          "0": [
+            0.1,
+            0.1
+          ],
+          "1": [
+            0.5,
+            0.5
+          ]
+        }
+      },
+      "source": "ToleranceBands.MergedOnto",
+      "status": "PASS"
+    },
+    {
+      "name": "unchanged_mtime_prevents_stale_fallback",
+      "observed": "skip before heartbeat check",
+      "expected": "skip before heartbeat check",
+      "source": "DynamicModeService.ReadAndParseConfigFile",
+      "status": "PASS"
+    },
+    {
+      "name": "same_posture_after_manual_does_not_reassert",
+      "observed": "no new target",
+      "expected": "no new target",
+      "source": "DynamicModeService.ProcessDevicePosture",
+      "status": "PASS"
+    },
+    {
+      "name": "changed_posture_not_ready_updates_state_without_send",
+      "observed": "record posture then skip not ready",
+      "expected": "record posture then skip not ready",
+      "source": "ProcessDevicePosture state set before ApplyPresetToSide",
+      "status": "PASS"
+    },
+    {
+      "name": "stale_heartbeat_when_file_changed",
+      "observed": "queue default",
+      "expected": "queue default",
+      "source": "DynamicModeService.ProcessDevicePosture/IsStale",
+      "status": "PASS"
+    },
+    {
+      "name": "level_mapping_not_linear",
+      "observed": [
+        0.0,
+        0.05,
+        2.05,
+        8.5
+      ],
+      "expected": [
+        0.0,
+        0.05,
+        2.05,
+        8.5
+      ],
+      "source": "PressureMappings.GetPressureForLevel",
+      "status": "PASS"
+    },
+    {
+      "name": "target_four_bags_has_four_floats",
+      "observed": 16,
+      "expected": 16,
+      "source": "Ready.SendFirmnessCommand 0x52",
+      "status": "PASS"
+    }
+  ],
+  "scope": "Finite synthetic source-precedence/order/failure contracts only. No vendor code, filesystem-failure injection, peripheral, account or device execution; concurrency example specifies an allowed interleaving, not a measured frequency."
+}

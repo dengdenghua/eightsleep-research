@@ -1,0 +1,12 @@
+仅离线重跑，Python标准库。
+
+cd '/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/sensor-reentrancy-preconditions'
+python3 model/preconditions.py
+python3 scripts/verify_evidence.py
+
+若希望保留本次冻结结果，用外部新目录：
+python3 model/preconditions.py --out '/tmp/eightsleep-preconditions-replay'
+
+verify_evidence.py逐字节读取原BBIN；不执行原件，不请求网络，不开Ghidra。
+既有导出为同原件的保留结果，10个原路径及副本SHA见REUSED_SOURCES.json。
+SOURCE_MANIFEST.json排除自身。新增文件后应重新生成manifest并独立逐文件核验。

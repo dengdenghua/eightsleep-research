@@ -1,0 +1,84 @@
+TARGET 00029d9c function=00029d9c
+REF_TO 0002c718 UNCONDITIONAL_CALL owner=0002c70c
+FUNCTION_BODY [[00029d9c, 00029df5]]
+
+void FUN_00029d9c(void)
+
+{
+  int iVar1;
+  int iVar2;
+  uint uVar3;
+  int iVar4;
+  int iVar5;
+  
+  iVar2 = DAT_00029dfc;
+  iVar1 = DAT_00029df8;
+  uVar3 = 0;
+  do {
+    iVar4 = iVar1 + uVar3 * 0x28;
+    if (*(char *)(iVar4 + 0x19) == '\0') {
+      if (*(char *)(iVar4 + 0x1a) != '\x01') {
+        if (*(int *)(iVar4 + 8) != -1) {
+          iVar5 = *(int *)(iVar4 + 8) + 1;
+          *(int *)(iVar4 + 8) = iVar5;
+          *(int *)(iVar1 + uVar3 * 0x28) = iVar5;
+        }
+        goto LAB_00029de4;
+      }
+    }
+    else if (*(char *)(iVar4 + 0x19) == '\x01') {
+      if (0 < *(int *)(iVar4 + 8)) {
+        iVar5 = *(int *)(iVar4 + 8) + -1;
+        *(int *)(iVar4 + 8) = iVar5;
+        *(int *)(iVar1 + uVar3 * 0x28) = iVar5;
+      }
+LAB_00029de4:
+      *(undefined1 *)(iVar4 + 0x1a) = 2;
+      *(undefined2 *)(iVar2 + uVar3 * 2 + 0x16) = 100;
+    }
+    uVar3 = uVar3 + 1 & 0xff;
+    if (3 < uVar3) {
+      return;
+    }
+  } while( true );
+}
+
+
+INSN 00029d9c f0b5 push {r4,r5,r6,r7,lr}
+INSN 00029d9e 0021 movs r1,#0x0
+INSN 00029da0 1548 ldr r0,[0x00029df8] REF[READ:00029df8=20003bc8] REF[DATA:20003bc8]
+INSN 00029da2 0225 movs r5,#0x2
+INSN 00029da4 154f ldr r7,[0x00029dfc] REF[READ:00029dfc=20003f48]
+INSN 00029da6 6426 movs r6,#0x64
+INSN 00029da8 01eb8104 add.w r4,r1,r1, lsl #0x2
+INSN 00029dac 00ebc402 add.w r2,r0,r4, lsl #0x3
+INSN 00029db0 537e ldrb r3,[r2,#0x19] REF[READ:20003be1] REF[READ:20003c09]
+INSN 00029db2 13b1 cbz r3,0x00029dba REF[CONDITIONAL_JUMP:00029dba]
+INSN 00029db4 012b cmp r3,#0x1
+INSN 00029db6 0ed0 beq 0x00029dd6 REF[CONDITIONAL_JUMP:00029dd6]
+INSN 00029db8 18e0 b 0x00029dec REF[UNCONDITIONAL_JUMP:00029dec]
+INSN 00029dba 937e ldrb r3,[r2,#0x1a] REF[READ:20003c0a]
+INSN 00029dbc 012b cmp r3,#0x1
+INSN 00029dbe 15d0 beq 0x00029dec REF[CONDITIONAL_JUMP:00029dec]
+INSN 00029dc0 9368 ldr r3,[r2,#0x8] REF[READ:20003bf8]
+INSN 00029dc2 9c46 mov r12,r3
+INSN 00029dc4 5b1c adds r3,r3,#0x1
+INSN 00029dc6 0dd0 beq 0x00029de4 REF[CONDITIONAL_JUMP:00029de4]
+INSN 00029dc8 0cf1010c add.w r12,r12,#0x1
+INSN 00029dcc c2f808c0 str.w r12,[r2,#0x8] REF[WRITE:20003bf8]
+INSN 00029dd0 40f834c0 str.w r12,[r0,r4,lsl #0x3] REF[WRITE:20003bf0]
+INSN 00029dd4 06e0 b 0x00029de4 REF[UNCONDITIONAL_JUMP:00029de4]
+INSN 00029dd6 9368 ldr r3,[r2,#0x8] REF[READ:20003bf8]
+INSN 00029dd8 002b cmp r3,#0x0
+INSN 00029dda 03dd ble 0x00029de4 REF[CONDITIONAL_JUMP:00029de4]
+INSN 00029ddc 5b1e subs r3,r3,#0x1
+INSN 00029dde 9360 str r3,[r2,#0x8] REF[WRITE:20003bf8]
+INSN 00029de0 40f83430 str.w r3,[r0,r4,lsl #0x3] REF[WRITE:20003bf0]
+INSN 00029de4 9576 strb r5,[r2,#0x1a] REF[WRITE:20003c0a]
+INSN 00029de6 07eb4102 add.w r2,r7,r1, lsl #0x1
+INSN 00029dea d682 strh r6,[r2,#0x16] REF[WRITE:20003f60]
+INSN 00029dec 491c adds r1,r1,#0x1
+INSN 00029dee c9b2 uxtb r1,r1
+INSN 00029df0 0429 cmp r1,#0x4
+INSN 00029df2 d9d3 bcc 0x00029da8 REF[CONDITIONAL_JUMP:00029da8]
+INSN 00029df4 f0bd pop {r4,r5,r6,r7,pc}

@@ -1,0 +1,55 @@
+TARGET 001da1f0 function=001da1f0
+REF_TO 004cbbec INDIRECTION owner=none
+REF_TO 004ee814 DATA owner=none
+REF_TO 001d9b00 UNCONDITIONAL_CALL owner=001d9ac0
+FUNCTION_BODY [[001da1f0, 001da26b]]
+
+void FUN_001da1f0(undefined8 *param_1)
+
+{
+  ulong uVar1;
+  
+  uVar1 = param_1[0x102];
+  if (uVar1 < 0x800) {
+    param_1[0x102] = uVar1 + 1;
+    *(undefined1 *)((long)param_1 + uVar1 + 0x10) = 0x7e;
+    return;
+  }
+  (*(code *)*param_1)(param_1 + 2,uVar1,param_1[1]);
+  param_1[0x102] = 1;
+  *(undefined1 *)(param_1 + 2) = 0x7e;
+  return;
+}
+
+
+INSN 001da1f0 3f2303d5 paciasp
+INSN 001da1f4 fd7bbea9 stp x29,x30,[sp, #-0x20]! REF[WRITE:Stack[-0x20]]
+INSN 001da1f8 fd030091 mov x29,sp
+INSN 001da1fc 010844f9 ldr x1,[x0, #0x810]
+INSN 001da200 f30b00f9 str x19,[sp, #0x10] REF[WRITE:Stack[-0x10]]
+INSN 001da204 f30300aa mov x19,x0
+INSN 001da208 20040091 add x0,x1,#0x1
+INSN 001da20c 3ffc1ff1 cmp x1,#0x7ff
+INSN 001da210 28010054 b.hi 0x001da234 REF[CONDITIONAL_JUMP:001da234]
+INSN 001da214 6102018b add x1,x19,x1
+INSN 001da218 600a04f9 str x0,[x19, #0x810]
+INSN 001da21c c00f8052 mov w0,#0x7e
+INSN 001da220 20400039 strb w0,[x1, #0x10]
+INSN 001da224 f30b40f9 ldr x19,[sp, #0x10] REF[READ:Stack[-0x10]]
+INSN 001da228 fd7bc2a8 ldp x29,x30,[sp], #0x20 REF[DATA:Stack[-0x20]]
+INSN 001da22c bf2303d5 autiasp
+INSN 001da230 c0035fd6 ret
+INSN 001da234 e00313aa mov x0,x19
+INSN 001da238 620640f9 ldr x2,[x19, #0x8]
+INSN 001da23c 030441f8 ldr x3,[x0], #0x10
+INSN 001da240 60003fd6 blr x3
+INSN 001da244 010080d2 mov x1,#0x0
+INSN 001da248 6102018b add x1,x19,x1
+INSN 001da24c 200080d2 mov x0,#0x1
+INSN 001da250 600a04f9 str x0,[x19, #0x810]
+INSN 001da254 c00f8052 mov w0,#0x7e
+INSN 001da258 20400039 strb w0,[x1, #0x10]
+INSN 001da25c f30b40f9 ldr x19,[sp, #0x10] REF[READ:Stack[-0x10]]
+INSN 001da260 fd7bc2a8 ldp x29,x30,[sp], #0x20 REF[DATA:Stack[-0x20]]
+INSN 001da264 bf2303d5 autiasp
+INSN 001da268 c0035fd6 ret

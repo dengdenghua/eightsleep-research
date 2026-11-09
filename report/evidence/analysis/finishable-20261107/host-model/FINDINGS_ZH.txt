@@ -1,0 +1,106 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+HOST-01 续轮：主控时间、双侧排队、四路输出、元数据和编码的可复跑模型
+2026-11-07
+
+结论
+已把采样 tick 映射、真实共享重同步位、单点复制、双侧秒桶、watermark、四类缓冲区的装填与提前退出、版本/gain 元数据、真实格式 CBOR 编码以及受控协程交错串进同一个 Python 模型。34 个边界场景通过，包括取得 gate 前后取消和编码后已有分配异常分支。
+这是根据原 ELF 和 Ghidra 导出重写的离线模型，不是执行 frankenfirmware，不是实机抓包，更不是云端算法复现。输入、时间和协程运行顺序均由测试控制。
+
+一、本轮消除的旧假设
+上一轮 reciprocal masks 是场景参数。本轮直接从 ELF .data 取出四组 24 字节，并追初始化与构造调用：
+  005E0048 sensor left  : consume=1，notify=2
+  005E0060 sensor right : consume=2，notify=1
+  005E0018 pillow left  : consume=1，notify=2
+  005E0030 pillow right : consume=2，notify=1
+0017A7B0 为 sensor pair 和 pillow pair 各创建一个独立的 uint32 原子对象，初值 0。同一对左右通道共享对象，两对之间不共享。
+sensor：0017A7B0 → 0019E7F0 → 0019C7F0，最终 timing+0x70/+0x74 为 consume/notify，timing+0x78 为对象指针。
+pillow：0017A7B0 → 0019EDF0 → 0019C7F0，使用另一共享对象。模型仅验证该共享关系，未将 pillow 数据格式冒充为床垫 A30 数据格式。
+
+已绑定的共享位写入口：
+  001A5120：构造时写初值 0。
+  0021A370 → 004602C0：漂移超过 2 秒时，atomic OR notify mask。
+  0021A370 → 00460290：消费自己 mask 的请求，atomic AND NOT consume mask。
+  0021A6B4：只复位 timing 自身 +0x20/+0x24/+0x28/+0x30，不写共享对象。
+构造全局的交叉引用及构造函数、时钟映射函数、原 ELF 原子辅助函数都已保留。这个“全部”限于已识别的正常构造/时间处理入口，不是对任意内存别名、损坏指针或所有线程做形式化证明。
+请求仍要等接收侧进入 reference check：500 Hz 下计数达到 1000、tick 回退，或首次初始化。不是设置共享位后，下一个样本就必然重同步。
+
+二、四类输出实际上怎样装填
+来源为 001FEE40 / 001FFA70；数值通道以下标 0 起算。
+  buzzer：每侧 ADC[8..12]，500 槽/秒，每槽 5 个 int32。
+  IMU：每侧 24 个 int16；只在桶遍历下标 i%5==0 时装填，100 槽/秒。
+  multi（2e piezo）：每侧 ADC[14..15]，500 槽/秒。
+  extADC：ADC[13]；RAM 中四个数组分别 left、right、left、right，后两组复制前两组。不是四路不同采样。loader 同时设置 adc=0x41；该 flags 下实际 CBOR 只输出 left1/right1，两份 RAM 副本不进入这一正常输出包。
+同一轮中，各输出的时间与落槽位置取自主侧样本，副侧按相同桶下标拿数据，没有在这里做波形相关、信号分离或独立副侧时间校验。
+本轮输出记录实际合成数值和原输入 token/source/copied 标记。未写槽明确保持 int32=2147483647、int16=32767；没有把缺失写成 0。
+
+每个 buffer 独立判断：flags==0 且 epoch 相同则接收；否则只有原 epoch==0 才允许设新 epoch 并接收；其余拒绝。
+每次接收会增加 count，覆盖同一目标槽也会增加，因此 count 不是最终不同有效槽的数量。
+普通顺序是 buzzer →（每五槽一次）IMU →（compat 开启时）extADC → multi。
+某一路拒绝不会立即阻止当前槽的所有其他输出。例如 IMU 拒绝时，buzzer 已写入，compat 下 extADC/multi 仍尝试当前槽；之后才退出。
+循环退出后，选中的一个或两个秒桶仍被删除，watermark 仍前进。后续未遍历的有效点不会自动留在桶里等重试。
+compat 关闭时只走 buzzer/IMU，模型分别覆盖单侧与双侧、各路独立旧 epoch 和 flags 非零的边界。注入旧 epoch/flags 的测试是在验证可达分支含义，不证明实机常态会出现该故障。
+
+三、两个特别容易漏掉的结果
+1. 主侧第 0 槽为空时，它的默认 epoch/relative 都是 0。若副侧第 0 槽存在，IMU 这一轮可以装入副侧真实值，输出 epoch 仍为 0。随后 i=1、2 的主侧真值并不更新 IMU（IMU 只在 i%5==0 执行）。本轮给出 i=3 提前退出的合成案例，形成 epoch=0、带真实副侧值的 IMU 编码候选。不能据此断言云端会接收、保存或正确处理这条候选。
+2. 稀疏桶中出现主侧缺槽，不只是“填一个缺值”。已设为真实 epoch 的 buffer 会拒绝下一条 epoch=0 默认样本，然后终止当前桶。副侧后面的完整数据也可能随桶删除。
+
+四、编码失败不会恢复已删除的输入
+00200960 在 stealth mask 0x04000000 下依次执行 loader、buzzer 编码、IMU 编码及可选 multi 编码；并非前一编码器返回 false 就短路跳过后面的编码器。
+各编码器正常返回路径（包括布尔失败）会清 epoch/count 和数据区。001E9390 对 body 编码失败会放弃该 body，未见恢复桶或回退 watermark。
+001EA774 随后在 compat 模式另发 mask 0x10 的 extADC。001F6920 的构造证明 sync+0xC0 与 logger+0x10E0 绑定同一个 extADC buffer，故这不是凭名称拼接的假链。
+测试注入 IMU 编码 false：buzzer/IMU/multi 整个 stealth body 不可用，但 extADC 可独立形成候选；四路仍清空，晚到同秒数据仍被 watermark 跳过。
+本轮已生成格式与原编码器一致的合成 CBOR 字节，并由独立 decoder 解码校验。但未验证 NATS enqueue 成功或服务器 ACK。“body_candidate”只表示到达该编码结果边界，不能等同于成功上传。布尔失败是明确注入的边界条件，没有冒充真实固件运行时返回值。
+
+五、gain 与版本不是逐采样附带的完整历史
+001F6920 初始化缓冲区与 sync-side 配置。原 ELF 0046BDF8 的 64 字节为两份 16 个 uint16：前八个 100，后八个 400；此处使用的 buzzer 五通道、extADC 和 multi 两通道 gain 均落在后半，初值 400。原字节与偏移在 RAW_CONSTANTS.json。
+001FEE40 / 001FFA70 在每次 buffer 接受当前点后写入元数据：
+  buzzer/multi：双侧各写对应采样 version 和当前 side gain；单侧时两侧 version 都取主侧采样 version，缺失侧 gain 为 400。
+  IMU：写双侧 version；单侧时两侧 version 同样镜像主侧。
+  extADC：置 adc=0x41；双侧分别读当前 side gain，单侧将主侧 gain 写入两个位置。
+buffer 拒绝时，不更新它自己的 gain/version；其他仍接受该槽的 buffer 可以更新。编码后 epoch/count/数据区清零或置缺值，gain/version 保留。
+
+两点会影响后续重放解释：
+1. loader 从 sync 对象读取装填时的 gain；样本此前已经排入秒桶，gain 若在等待期间改变，旧样本会带上新 gain。模型在 enqueue 后、load 前改变字段，独立解码字节确认这个边界。这里模拟的是元数据字段，不证明 ADC 硬件此时实际切换了增益。
+2. 同秒内 version 改变不触发拆桶或拆包。最后一次成功装填的 version 会标记整组数组，数组里仍可能留有前一版本的采样。TRACE 保留每个源点的 source_version，因而能识别这个差别。
+
+编码器还存在类型差异：buzzer 的 gain 从 uint16 RAM 按 signed int16 编码，32768/65535 会成为 -32768/-1；multi 则按 unsigned uint16 编码。测试使用这些边界值验证，不能据此推断实机正常 gain 会达到这些值。
+
+六、四个实际编码器已接入
+model.buffer_ram() 按原偏移构造完整 RAM 布局，调用独立恢复的 ../cbor-encoder/encode_buffers.py：
+  buzzer：0x4E50 字节，两侧×五通道×500 个 int32。
+  IMU：0x25A0 字节，两侧×24 通道×100 个 int16。
+  multi：0x1F68 字节，两侧×两通道×500 个 int32。
+  extADC：0x1F58 字节，四个 500 点 int32 RAM 数组，编码字段由 adc flags 决定。
+三个 stealth map 直接拼接，没有额外数组容器；extADC 为另一 body。未写槽保持原 sentinel，不缩减成仅有效点。已独立核对原 C 导出的数组起点、侧/通道步长、gain 类型、版本偏移、extADC bit6/7 分支，再用既有 CBORReader 解码模型生成的输出。
+fixtures/integrated-{buzzer,imu,multi,extadc,stealth}.cbor 为五份真实格式的合成字节；不是设备导出的生产文件。每次输出记录字节长度和 SHA-256。CBOR 实现的独立 30 场景验证见 ../cbor-encoder/，本模型另有 34 个贯通与边界场景，不能把两组数量当成 64 次实机验证。
+
+七、协程等待及选定异常分支
+001EA774 → 001F5710 → 001F8D90 → 002010F0。
+等待的是 raw-gate+0x90 的 byte：00460180 实际为 CAS(expected=0, desired=1)，已用原 ELF 指令确认。
+CAS 忙时设 steady_clock::now()+50000 的定时器，暂停，恢复后再次 CAS。模型使用原代码的 steady ticks，不把合成 tick 当成实测延迟。
+拿到 gate 后，上一层恢复执行 flush；可选 extADC flush 后才写 byte0 解锁。
+预先因“三桶/十桶”条件进入等待的任务，恢复时会先 flush，再重新检查阈值；不会先用最新阈值取消原来的 flush。
+普通 enqueue 路径没有拿这个 flush gate。因此，当一个早先已等待的任务拿到 gate、但上层尚未执行 flush 时，另一新任务仍可能在未达预刷阈值的情况下直接 enqueue。模型给出可控案例，不宣称真实 Asio 每次都以这个顺序调度。
+另覆盖：持续预刷循环（5 桶先完成 3 次等待/flush 才插入）、两任务争锁、50000 tick 前后重试、取得 gate 前 timer 异常不刷写/不入队/不释放别人的 gate。
+
+取得 gate 后取消已追到显式销毁分支：001EA774 的奇数状态 5/7 销毁子协程；001F8D90 的奇数状态 5 继续销毁 gate 子协程；00201820 进入 002010F0 的销毁状态。上述路径未执行正常状态 4/6 末尾的 byte0 释放写入。模型分别在取得前、取得后显式调用该析构入口；后者保留已置位的 gate，下一等待者仍然忙。它证明选定销毁路径的局部语义，不证明生产调度器必然允许或经常触发这个交错。
+
+还覆盖原代码已有的具体异常点：001E9390 在 00200960 编码之后、NATS 入队之前存在 std::__throw_bad_alloc。注入此点后，再显式销毁外层等待 frame：选中桶和 watermark 已前进，buzzer/IMU/multi 已清空；extADC 虽在 loader 中装填，却尚未来得及单独编码，仍留在 buffer；gate 没有走正常释放。模型输出明确标记 publish_allocation=injected_failure_before_NATS_queue。这里没有把任意 C++ 栈展开 ABI 或全部第三方库异常都伪造成已执行验证。
+
+八、复跑与审计
+  python3 analysis/finishable-20261107/host-model/run_cases.py
+  python3 analysis/finishable-20261107/host-model/verify_sources.py
+RESULTS.json：34 场景结果和测试性质。
+TRACE.json：逐输入、复制点、覆盖、各路装填、gain/version 变化、编码字节摘要、候选/失败、协程状态及最终队列处置。
+RAW_CONSTANTS.json：原 ELF 的 masks 24 字节记录、初始 gain 配置块、偏移与 hash。
+SOURCE_MAP.json：每段模型对应的函数、共享位写入口和 gate 链。
+SOURCE_MANIFEST.json：输入 ELF、反编译/反汇编证据、模型及结果 SHA-256。
+previous_model.py / previous_cases.py：原模型原样副本，明确继承关系；本轮主要扩展在 model.py 与 run_cases.py。
+Ghidra VA = ELF VA + 0x100000；反编译文件不是原始源代码。
+
+九、覆盖边界与下一步
+当前样本的 HOST-01 主数据路径与上述具体边界已完成可复跑静态模型；原来列出的真实 masks、四 buffer、gain/version、实际 CBOR 字节、取得 gate 前后销毁均不再是未做项。来源清单保留原 ELF 与具体函数，未借用新固件或联网文档补造行为。
+下一步需要新的运行证据：核对 Pod 正在运行的镜像版本；取得输入、对应输出和 gain 变更日志，逐包比对模型；实际复现取消/异常及并发顺序；核验 NATS 入队、服务器 ACK 与最终云端保留结果。现有材料能继续泛化分析第三方库任意异常或整个调度器，但这不等于已经找到了新的生产算法，也不能替代上述实机验证。
+未覆盖范围：原程序执行、所有 C++ 异常展开与分配器路径、任意线程交错的形式化证明、硬件 gain 生效时刻及云端处理。HOST-01 可标“当前样本静态重建及离线边界验证完成，待生产对照”；整个系统不能标成完全闭环。

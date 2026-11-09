@@ -1,0 +1,39 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+MTK Capybara：气囊/姿态遥测的本地整理与发布
+2026-11-08；仅静态读取，不执行原厂组件或设备/API请求。
+
+范围与来源
+原 MTK Eight.Capybara 中 Eight.Nats、Eight.Firmness、Eight.Capybara DLL 已逐字节匹配原 bundle 偏移，见 SOURCE_LEDGER.json。保留56份反编译上下文与6个关键类型的独立 IL 导出。此报告覆盖附件正常遥测路径；与 Frank 的压电 raw.x.sens.stealth、16条发布前队列是不同实现。
+
+1. 输入与数值变化
+Eight.Firmness.Services.Telemetry.TelemetryHandler：0x59→PressureTelemetry；0x5a→ControlState；0x5b→Current；0x5d→Health；0x5e→增强文档。解析异常捕获并记日志；未将错误包作为成功结果提交。
+TelemetryParser.ParsePressureTelemetry：7字节头为频率BE16、传感器数u8、设备时间BE32；每传感器每点两BE float32。压力转double保留该float数值，另一温度值 Math.Round(value,2)。从最后一个传感器向前找“至少有一个压力>0”的列作为ambient；全无正值时用最后列。这个内容驱动选择不等于固定物理大气传感器编号。
+PressureSideAccumulator 的 NATS数据仅拼接压力；温度不进入这个发布类型。它首次以传感器数建立列表；同一秒随后减少列数不补缺列，增加列数超过首次数量的部分不加入。由此不能假设每个列表总是等长，也不能仅由数据中列顺序反推物理编号不变。
+CurrentTelemetry 固定四路，各值先 Math.Round(value,2) 再拼接；Control的目标/当前压力、Health的温度/湿度同样取两位小数。这里的取整和删除字段是真实本地处理，不是数据原封不动上传。
+
+2. 与 Frank 不同的时间模型
+Eight.Nats.SecondBuffer.TryEnqueue 使用 stepMs = 1000u / frequency，整数除法；第i点 tick=deviceTimestampMs+i*stepMs（uint32）。20Hz为50ms；60Hz为16ms，不保留2/3ms余数。这里只给代码在该参数下的结果，不声称实际设备使用60Hz。frequency=0直接拒绝加入。
+SensorTiming 首次以主机 Unix 整秒与当前tick配对：ts=refEpoch+uint32(tick-refTick)/1000，msecOffset为余数。每达到2*frequency次检查或原tick倒退会检查锚点，主机/映射时间绝对差>=3秒才重设。tick倒退触发检查，不等于无条件重置；偏差比较和无符号差值已核IL。
+SecondBuffer 仅使用ts，忽略msecOffset；逐包把数值追加到对应一秒，不按固定槽去重、补点或平均。相同tick的重复包可以追加重复项，时间缺口不补零、不插空秒。不能套用Frank的单缺点复制规则。
+
+3. 何时发出、哪些尾部仍留在内存
+遇到下一条属于不同ts的样本时，TryEnqueue返回本秒已消费数量，SecondBufferManager Flush旧组，再从同一offset继续处理新组。包恰好结束于一秒尾部时不会立刻Flush；需要后续不同秒样本。
+在已查TelemetryHandler/PostureTelemetryHandler及SecondBufferManager的直接调用中，没有周期Flush或退出尾桶Flush。停止输入后最后一个桶因此可以留在对象里。此为所列调用链结论，不是全进程任意反射路径不存在的证明。
+Reset只清桶和累加器，不清SensorTiming；ResetAll才同时清锚点。频率保留第一次填桶时的值；同一秒中途频率变化，不会自动拆成不同频率桶。
+左右侧分别放在dictionary中并各自发布单侧Envelope，没有在这里合并为同一双侧消息。
+
+4. 发布前队列必须与 Frank 分开
+HostExtensions注册AddNatsPublisher；Eight.Nats.Extensions.ServiceCollectionExtensions 的构造IL明确传capacity=1000。NatsPublisher配置BoundedChannel FullMode=DropOldest，单reader、多writer；不能描述成Frank的16条满拒新规则。
+PublishAsync在jetStream尚未创建时只记节流日志，不入队。已创建后WriteAsync把对象/字节加入channel，这个返回不是JetStream ACK。worker出队后才把对象转CBOR、调用jetStream.PublishAsync并EnsureSuccess。
+worker遇到connection非Open时跳过已出队条目；序列化或发布异常捕获记录后继续下一条，在这层没有把该条放回channel的重试。第三方NATS库自身可能做内部处理，本报告不以这一层概括其全部行为。
+ResetAsync取消worker、断开并清连接字段，但保留channel对象；DisposeAsync先TryComplete又取消worker，没有在这层等待所有存量逐条成功发完。由此不能承诺附件遥测在断线/停止期间全部保留；未做真实丢失率或云端接收测试。
+
+5. 增强文档与姿态边界
+0x5e已解析文档分别发布raw.balloon.control.enhanced、raw.balloon.samples.pressure/current、raw.balloon.solenoid。增强控制含MotionScore等字段；这里只读取已有字段，并未在主控重算运动分类。
+可选PostureTelemetryParser解0x5c：version、频率、ADC数、每ADC通道数、样本数、tick，随后将BE32按int存入数组。PostureMemsSideAccumulator追加数组并复用SecondBuffer→raw.posture.mems；没有在这些方法生成supine等姿态标签。
+沿用已证注册边界：本包正常默认注册DynamicModeService等气囊服务，但未注册PostureService/PostureTelemetryHandler；不能由类存在宣称该姿态流当前启动。见原DOWNLOAD_AND_RUNTIME_ARTIFACTS_ZH。DynamicMode读取外部current_posture的链与上述原始数组发布也是两条不同链。
+
+验收与剩余
+输入布局、实际使用字段、时间/分组、单侧封装、入队与worker语义已按源与IL核对。正常有限模型见model_normal_telemetry.py和MODEL_RESULTS.json。未测设备频率/列数、实际附件启用、真实尾桶/队列损失、第三方库全部间接行为或云端处理。不能把管理对象的原始字段列表等同于物理原始信号，也不将本链视为生理推理。

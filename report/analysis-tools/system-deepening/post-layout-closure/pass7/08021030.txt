@@ -1,0 +1,38 @@
+TARGET 08021030 function=08021030
+REF_TO 0801a1c4 UNCONDITIONAL_CALL
+FUNCTION_BODY [[08021030, 0802104b]]
+
+int FUN_08021030(int param_1,int param_2,int param_3)
+
+{
+  byte *pbVar1;
+  int iVar2;
+  uint uVar3;
+  
+  iVar2 = 0;
+  do {
+    if (param_3 == iVar2) {
+      return 0;
+    }
+    pbVar1 = (byte *)(param_1 + iVar2);
+    iVar2 = iVar2 + 1;
+    uVar3 = (uint)*(byte *)(param_2 + -1 + iVar2);
+  } while (*pbVar1 == uVar3);
+  return *pbVar1 - uVar3;
+}
+
+
+INSN 08021030 30b5 push {r4,r5,lr}
+INSN 08021032 0024 movs r4,#0x0
+INSN 08021034 0139 subs r1,#0x1
+INSN 08021036 a242 cmp r2,r4
+INSN 08021038 01d1 bne 0x0802103e REF[CONDITIONAL_JUMP:0802103e]
+INSN 0802103a 0020 movs r0,#0x0
+INSN 0802103c 05e0 b 0x0802104a REF[UNCONDITIONAL_JUMP:0802104a]
+INSN 0802103e 035d ldrb r3,[r0,r4]
+INSN 08021040 0134 adds r4,#0x1
+INSN 08021042 0d5d ldrb r5,[r1,r4]
+INSN 08021044 ab42 cmp r3,r5
+INSN 08021046 f6d0 beq 0x08021036 REF[CONDITIONAL_JUMP:08021036]
+INSN 08021048 581b subs r0,r3,r5
+INSN 0802104a 30bd pop {r4,r5,pc}

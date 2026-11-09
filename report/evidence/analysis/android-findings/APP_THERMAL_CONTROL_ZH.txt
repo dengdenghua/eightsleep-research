@@ -1,0 +1,142 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+中国版 Eight Sleep Android：温控、日程、Autopilot、唤醒与 Backup BLE 静态证据
+分析日期：2026-11-07
+
+一、样本、方法和边界
+
+APK：com.eightsleep.eight，7.63.5-cn-tencent。
+SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+REA workspace：${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5
+当前 index_id：462a22f663ae482ea93bab3130b96eaf。
+复用现成 4 DEX/Smali/Java 索引，不重复 prepare；JADX 部分失败，重要参数、分支及 JSON 注解以 Smali 交叉核对。
+未运行 App、未连接设备、未调用云 API、未读取用户账号凭据。以下是发布 APK 的静态调用契约，不是运行时抓包。
+这是跨机型客户端；不能凭一个请求或 shared package 把行为专属绑定 Pod6。用户已确认 Pod5/Pod6 主控同为 MT8365，报告不据主控划分代际。
+
+本报告简称 J/ = workspace/java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/；
+S2/ = workspace/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/。
+证据标签 [tag] 对应 android-findings/thermal/tag.json，内含当前 index、文件 SHA256、准确行号及保留内容。
+完整逐文件证据目录及结论绑定在 thermal/source-ledger.json；7 条结论已写入 REA findings，均为 static_observation。
+
+二、温度设置发送链及真实字段
+
+已闭合：ld/H0.d → ld/C0 → TemperatureRepository.updateTemperatureSettings → gd/m0.invokeSuspend → fd/b.a。
+接口是 PUT v1/users/{userId}/temperature/{deviceType}，ignoreDeviceErrors 为 query，TemperatureSettingsRequest 为 body。
+fd/b 是 TemperatureRepository 注入服务；DI helper androidx/fragment/app/AbstractC2375d0.g 明确调用 ce/C2685l.X3().b(cls)，即 app-api 组。中国区域环境/域名另见 APP_RUNTIME_AND_HARDWARE_ZH.txt，不混用 client-api。
+证据：J/p135fd/b.java:6–10；J/p162gd/m0.java:58–75；J/com/eightsleep/data_temperature/data/repository/TemperatureRepository.java:256–260；J/androidx/fragment/app/AbstractC2375d0.java:55–58。
+Smali：S2/gd/m0.smali:123–240，S2/fd/b.smali:79–118；DI 为 S2/ce/k.smali:1200,3035–3092 → decoded/同包/smali/androidx/fragment/app/d0.smali:165–179 → X3。[temperature-api, temperature-update-call, smali-temperature-request, smali-temperature-api, api-retrofit-provider, smali-temp-di-class, smali-temp-di-create, smali-api-helper-x3]
+HTTP 注解不是凭字母猜测：J/Xq/W.java:574–585 将 Zq.p 映射 PUT、Zq.f 映射 GET、Zq.o 映射 POST。[retrofit-http-verb]
+
+Request 的真实 JSON 名与域内模型名不同：
+  targetTemperature → currentLevel
+  overrideTemperatures → overrideLevels
+  state → currentState
+  scheduleType → scheduleType
+  sleepPhaseTemperatures → smart
+  reason → reason
+S2/com/eightsleep/data_temperature/data/model/TemperatureSettingsRequest.smali:113–165 的构造参数注解和字段赋值直接支持上述对应。[smali-temperaturesettingsrequest-constructor]
+gd/m0 从 Ga.b.a 取 int 后装箱，未作摄氏度转换；可选 override/state/smart 分别转 DTO，当前这个更新构造给 scheduleType 传 null。
+currentState 的 activeState 实际 JSON 名为 type；可另带 started/until/overridePhase/instance。此请求构造只填 activeState 和可选 instance，其余默认 null。
+S2/TemperatureStateNetworkModel.smali:87–115，S2/gd/m0.smali:165–232。[smali-temperaturestatenetworkmodel-constructor, smali-temperature-request]
+
+具体开关入口：J/p284ld/N0.java:13–14 的 Off 动作写 currentState=OFF，BLE Off；P0.java:13–14 的 On 动作写 currentState=SMART，可选原始目标档位与 BLE On。
+状态枚举真实 JSON 为 smart、smart:bedtime、smart:initial、smart:final、alarm、off、timeBased、hotFlash、nap、unknown。
+这些是温控状态，不是 REM/deep/light 睡眠阶段。[temperature-off-action, temperature-on-action, smali-temperature-state-enum]
+
+三、整数档位、App 显示温度和设备水温必须分开
+
+Ga.b.a 是发送的原始整数档位。LEVEL 显示以 raw/10 为基础，整数显示使用 sign(raw/10)×round(abs(raw/10))。
+METRIC 分支先把 raw 钳到 [-100,100]，再用分段线性函数：
+  raw < -90：13 + (raw+100)×3.2/10
+  -90 <= raw < 0：16.2 + (raw+90)×10.8/90
+  raw >= 0：27 + raw×17/100
+IMPERIAL 分别为 55+(raw+100)×6.2/10；61.2+(raw+90)×19.4/90；80.6+raw×29.4/100。
+因此 raw -100/-90/0/100 对应 App 摄氏刻度 13/16.2/27/44，华氏刻度 55/61.2/80.6/110。两个刻度是分别写死的映射，不应用精确 C↔F 恒等式替换原代码。
+Ga.b.g 对显示整数做逆向转换，e/f 增减显示值再限制原始档位范围；构造本身仍可接收任意 int，不能据此宣称网络层已验证所有越界输入。
+证据：J/Ga/a.java:13–26，J/Ga/b.java:19–169；Smali S2/Ga/b.smali:31–264，含常数和乘除顺序。[temperature-level-type, temperature-enum-map, smali-unit-conversion-a, smali-unit-conversion-b]
+
+这证明的是 App 的显示/输入转换。不能把 App 的 13–44°C 刻度直接替代此前固件 Frank 普通温控目标映射，更不能当成床面或水温实测范围。云端可能进一步转换，当前未获得服务器实现。
+
+四、Backup BLE 条件、命令和成功后处理
+
+主分支：C0 只有在 BLE command 可构造、device 存在且 Qb.u.b() 为 true 时直接走 H0.c。
+u.b() = device.supportsOfflineCommands && 当前计算的 SystemStatus != NORMAL。
+u.c() 综合强制 offline/outage、功能开关、设备在线和服务状态，可能返回 DEVICE_OFFLINE、OUTAGE、PHONE_OFFLINE、POOR_CONNECTION；不能简单写成“手机没网就一定可用”。
+正常云路径失败后 y0 检查 BLE command 存在且 u.a()，才 fallback；u.a() 还要求设备支持及 offline/outage/phoneOffline 对应开关之一。
+证据：J/Qb/u.java:51–79，J/Qb/g.java:52–53，J/p284ld/C0.java:41–73，J/p284ld/C3931y0.java:61–78；Smali S2/ld/C0.smali:131–241、S2/Qb/u.smali:107–134。[hardware-path-state, device-backup-support-state, temperature-api-or-ble, temperature-ble-fallback, smali-backup-path, smali-backup-state-gate]
+
+BLE 温控 characteristic UUID：[ID_REDACTED]；WriteType.WithResponse。
+请求 DTO 为 {name, value}。真实 name 从 Smali 字段注解得出：
+  LEFT / RIGHT / SOLO → leftLevel / rightLevel / soloLevel
+  LEFT_OFF / RIGHT_OFF / SOLO_OFF → leftOff / rightOff / soloOff
+Update/On 的 value 为 Ga.b.a 原值；Off 先用 Integer.MIN_VALUE 内部哨兵选 *_OFF，再将请求 value 改为 0。不得把 MIN_VALUE 当发往设备的 Off 数值。
+JADX 的 UpdatePodTemperatureSide.java 未显示这些枚举字段 Json 注解，单读 Java 会误写实际协议。
+证据：J/TemperatureBleCommand$DefaultImpls.java:toWriteCharacteristic；S2/com/eightsleep/data_temperature/data/model/TemperatureBleCommand$DefaultImpls.smali:75–140；S2/com/eightsleep/data_device/enums/UpdatePodTemperatureSide.smali:61–94；J/BleAddress.java:17–20；WriteCharacteristic$UpdatePodTemperature.java:9–10。
+[smali-ble-temperature-command, smali-ble-wire-enum, ble-temp-characteristic, ble-characteristic-addresses]
+
+发送链继续到 OfflineRepository.write → cb/M0 case1 → ab/L → ab/O。ab/O 实际用 Moshi.adapter(modelClass).toJson(request)，字节编码后 GZIP，再经离线通道加密封装交给底层 BLE writer。
+这里 JSON 是封装前业务对象，不能把裸 JSON 当此 Backup characteristic 的完整空中帧。报告不提供密钥内容，也未尝试生成设备命令。
+证据：OfflineRepository.java:615–625；p058cb/M0.java:59–68；p011ab/L.java:34–40；p011ab/O.java:86–109,165–175；S2/ab/O.smali:182–227。[offline-write-entry, offline-execute-write, offline-write-call, offline-ble-serializer, smali-offline-serializer]
+
+成功后并非只停留在 BLE：H0.c 将 write 的 Flow 接 G0；P2.q.u→Hb.h 的 success 分支才调用 G0。G0 合并请求到本地温控缓存，随后调 updateTemperatureSettings(..., true) 同步云端。
+证据：S2/ld/H0.smali:148–206；J/p284ld/G0.java:51–94；J/P2/q.java:2145–2149；J/Hb/h.java:398–418。[smali-ble-to-sync, temperature-update-usecase, flow-success-bind, flow-success-gate]
+由此可证“先 BLE 再尽力云同步”的代码路径；不能宣称云同步必成、永久完全离线，或缓存更新即设备已达到目标。
+
+五、日程和三段偏好传什么
+
+SmartTemperatureNetworkModelJsonAdapter.toJson 明确输出 bedTimeLevel、initialSleepLevel、finalSleepLevel 三个 int，对应域内 bedTime/night/morning。
+TemperatureSettingsRequest 的 smart 字段持有这个对象。[smart-temperature-adapter: J/com/eightsleep/data_core/data/model/SmartTemperatureNetworkModelJsonAdapter.java:76–88]
+这是三段设定值的 wire schema；不是生理睡眠阶段分类器，不能将 initial/final 解读成模型的 NREM/REM 输出。
+
+BedtimeUpdateRepository.updateBedtimeTemperature 从缓存日程列表找目标 id，更新对应 device type 的原始档位，再 PUT v1/users/{USER_ID}/bedtime。
+请求 schedules[] 每项为 id/enabled/time/days/startSettings；startSettings 可含 elevationPreset、bedtime、pillowBedtime、audioSettings。
+bedtime/pillowBedtime 均从 Ga.b.a 原值取得。days 用 DayOfWeek.toString().toLowerCase(Locale.ROOT)，time 经注册 LocalTimeAdapter 输出 ISO_LOCAL_TIME。
+响应 schedules 转实体写 Room。这里证明了客户端上传与本地缓存，未建立其与 native TemperatureScheduler 的直接调用；不能用此前 calendar stub 的结果否定云日程功能。
+证据：J/BedtimeUpdateRepository.java:20–30,115–165；T9/a.java:6–7；U9/d.java:49–51；BedtimeScheduleRequest.java:6–21；BedtimeScheduleStartSettingsRequest.java:6–16；LocalTimeAdapter.java:38–43；ce/C2685l.java:1781。
+Smali T9/a.smali:38–65 复核 PUT 路由。[bedtime-repo, bedtime-api, bedtime-request-call, bedtime-request, bedtime-start-request, schedule-time-serializer, time-serializer-registration, smali-bedtime-api]
+
+六、Autopilot 是设置与结果通道，尚未给出目标计算算法
+
+AutopilotRepository.updateAutopilotSettings(userId,autopilotEnabled,ambientTempEnabled)
+ → L9/y 构造 {autopilotEnabled, autopilotOptions:{ambientTempEnabled}}
+ → J9/a.a PUT v1/users/{USER_ID}/level-suggestions-mode。
+响应包含 autopilotMode、autopilotEnabled、autopilotOptions，toEntity 存 userId、选项与缓存时间。
+同一接口另有 GET autopilotDetails、autopilot-history、autopilotRecap；它们属于读取结果契约，不能由命名还原服务器决策。
+证据：J/AutopilotRepository.java:240–247；L9/y.java:53–57；J9/a.java:6–22；AutopilotSettingsRequest.java:6–9,68–70；AutopilotSettingsOptionsNetworkModel.java:6–10；AutopilotSettingsResponse.java:80–85；Smali L9/y:109–137、J9/a:54–81。
+[autopilot-repo, autopilot-request-call, autopilot-api, autopilot-request, autopilot-options, autopilot-settings-response, smali-autopilot-api-call, smali-autopilot-api]
+ambientTempEnabled 这个 bool 并不披露环境温度补偿函数；当前闭合路径没有睡眠输入→目标温度的模型计算。此边界限于追踪路径，不能推广成整个 APK/产品不存在任何本地算法。
+
+七、热唤醒设置、dismiss、snooze
+
+AlarmRepository 创建/更新经 i9/a 调 POST v1/users/{USER_ID}/alarms 或 PUT .../alarms/{ALARM_ID}；响应为 AlarmResponseWrapper。
+创建/更新模型中 thermal={enabled,level}，level 从 l9/k 或 l9/m 的 Ga.b.a 原值生成；smart={lightSleepEnabled,sleepCapEnabled,sleepCapMinutes}；还可带 time、repeat、vibration、audio、dismissedUntil/skippedUntil/snoozedUntil。
+Update 另带 nextTimestamp/startTimestamp/endTimestamp/oneTimeOverride/skipNext/ignoreDeviceErrors。LocalTime 为 ISO_LOCAL_TIME，Instant 用 toString 格式序列化。
+证据：AlarmRepository.java:69–86,213–222；p207i9/a.java:6–34；p229j9/C3474b.java:53–78；p229j9/C.java:53–56；ThermalAlarmNetworkModel.java:6–12；p280l9/k.java:17–19；SmartAlarmNetworkModel.java:6–14；decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali/com/eightsleep/data_alarm/data/model/ThermalAlarmNetworkModel.smali:64–76。
+[alarm-api, alarm-repo, alarm-create-call, alarm-update-call, alarm-create-fields, alarm-update-fields, alarm-thermal-model, alarm-thermal-level, alarm-smart-model, smali-thermalalarmnetworkmodel-constructor, alarm-instant-serializer]
+lightSleepEnabled 表示上送选项，不能证明手机端检测浅睡眠；这些 DTO 也未披露热唤醒随时间变化曲线。
+
+Dismiss/Snooze 除云接口外有独立 BLE：
+  Dismiss 云 PUT .../alarms/{id}/dismiss（或 active/dismiss-all）；BLE 业务对象仅 side。
+  Snooze 云 PUT .../alarms/{id}/snooze；BLE 业务对象为 side、minutes。
+BLE characteristic 分别为 [ID_REDACTED] 与 [ID_REDACTED]。
+这些动作也受 Qb.u 备用模式门控；Dismiss 成功后 C4024l 调 dismissAlarm(...,true) 同步云。
+证据：m9/C4032u.java:44–53；m9/C4034w.java:47–75；m9/C4024l.java:35–38；m9/b0.java:47–62；WriteCharacteristic$Companion.java:10–19；AlarmSnoozeBluetoothRequest.java:5–12。[alarm-dismiss-routing, alarm-dismiss-backup, alarm-dismiss-sync, alarm-snooze-backup, ble-alarm-requests, alarm-ble-snooze-fields]
+这些 App 动作请求没有旧温度恢复值。它们在 Hub 上如何改 heat/level，应结合 signal-host/ALARM_THERMAL_INTERACTION_ZH.txt 的 Capybara/Frank 证据；不能由“dismiss”名字推断保留或恢复旧目标。
+
+八、读取状态与缓存为何不能当作传感实测结果
+
+云 DeviceTemperatureSettingsResponse.currentLevel/currentDeviceLevel/currentState/smart 经过 toDomain 映射，currentDeviceLevel 为 null 时用 0；gd/q0 按 device specialization 选择响应，并缓存日程和该设备温控结果。
+BLE ReadPodTemperature DTO 含 heatLevelL/R、tgHeatLevelL/R（字符串）和 activeL/R。
+currentLevel()/targetLevel() 对所选侧字符串转 int，解析失败返回 0；ld/C3908m0 以 target 更新目标档位，以 current 更新设备档位，active true/false 映射 SMART/OFF，合并到同一 TemperatureRepository map。
+证据：DeviceTemperatureSettingsResponse.java:131–150；p162gd/q0.java:52–80；PodTemperatureBluetoothResponse.java:88–101,143–161；p284ld/C3908m0.java:81–120；p284ld/C3914p0.java:49–76。
+[temperature-response-domain, temperature-response-cache, ble-temperature-current-level, ble-temperature-reply, ble-temperature-reply-cache, ble-temperature-read-usecase]
+这类状态可能来自云响应、BLE 读取或写后乐观更新；SMART 是温控状态，字符串解析默认 0 也不是传感器测得零度。未抓真实响应，不能宣称某次设备动作已完成。
+
+九、剩余缺口
+
+1. 已追普通温控、开关、三段偏好、bedtime 日程、Autopilot bool 设置、闹钟设置及备用动作的请求/结果路径；未穷举 pregnancy/hot-flash/nap/jetlag 等全部功能。
+2. 没有服务器实现，未知云端如何把用户偏好、睡眠阶段、环境温度和历史数据变成每时刻目标；未获得神经网络结构、权重、训练或决策阈值。
+3. 未运行客户端、未抓包、未做 BLE/设备实测；服务是否接受请求、账号权限、功能开关具体值和地区实装行为未知。
+4. 日程上传不等于 native scheduler 已工作；App 摄氏显示不等于固件控制或实测温度；BLE write success 不等于热平衡完成。
+5. 审计范围是发布 APK 的可见路径，JADX 有失败且动态加载/服务器逻辑不在本样本中。未用全局关键词阴性推断整个产品没有算法。

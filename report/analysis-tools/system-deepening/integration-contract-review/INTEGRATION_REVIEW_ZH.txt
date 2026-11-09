@@ -1,0 +1,38 @@
+对 integrated-capture-model 最终实现的独立审阅
+2026-11-08。审阅 prepare_vendor.py、run_cases.py、vendor输入身份及8场景/9条body输出。
+最终 run_cases.py SHA256：ea7902d6893ec428a29ad29bc463ad7d69c0a233623eb7efd9f7f9ddeda76b9e。
+初稿审阅与78,400单元结果单独保留在 revision-initial/、integration-replay/；它们不是本最终版的运行记录。
+结果：未发现阻断本轮所选窄范围交付的问题。不是原厂实现等价证明，也不覆盖新参数、新时序或设备运行。
+
+实际检查
+1. prepare_vendor复制的七份既有文件逐字节与研究目录原件一致，包括新增host-receiver/parser_model.py；ordinal_queues中的Queues class与原文件AST选出的完整源码段一致。没有通过导入旧脚本main产生旧目录写入。
+2. 独立运行root run_cases.py --output integration-contract-review/integration-replay-v2，8场景全部通过，9条body、88,200单元。RESULTS.json与root最终结果逐字节一致，SHA256为c4cb77dfd10fef10bccf9c6acb90d3b52812856d54dfdee62ba3bf512c5dae71。没有改root文件。
+3. 新增scripts/review_integrated_provenance.py独立联表校验，不用host stage['values']作为期望值：
+   MCU快照/IMU记录 → packet的ordinal与side → host-inputs → output-provenance →实际CBOR解码。
+   核对输入记录中每个ADC/IMU值、生成来源ID、包内tick推导、固定flags、缺值哨兵、左右侧；再核全部88,200输出单元是否对应上述输入值或sentinel。
+   对每侧LSP保存流逐包核offset、长度与SHA，单独解转义比较Receiver接受的body SHA，再把解析字段与host-inputs核对；对输出body核CBOR类型、版本flags、gain、ts、frequency；对queue核唯一admission、body SHA、publish次数及重试同序号。第二body的ts与caller sequence分别为1700000001和1，没有沿用第一body常量。
+   详细计数见INTEGRATION_REVIEW_CHECKS.json。解码使用既有CBOR reader；这是独立数据关联检查，不是另一套原生固件模型。
+
+结构结论
+- MCU.sample明确合成ADC1×4和IMU数值；缓存ready、ordinal与schedule_slot分开。fifo只存ordinal，drain按ordinal取实际对应快照，未根据旁路时间偷偷重新配对IMU。
+- flags固定f200，ADC0组禁用且在adapter转sentinel，ADC1启用；IMU四组共享到包内五个样本。version传完整flags。没有意外使用host.Sample的演示默认值。
+- 新增Receiver在每侧跨帧保留状态；每个完整规范帧拆为1、72、剩余字节三个任意userspace read块。仅CRC接受后才将body交给parse_usb；结果还与原严格parse_lsp对照。独立核验各accepted_crc事件的长度、body SHA、累计读偏移与实际流相符。这是规范输入的状态机集成，不是USB包时序或错误流测试。
+- skip_left_slot=101明确注入外部缺callback；packet丢失发生在fifo pop/封装之后。两种损失未混成同一原因。
+- host使用顺序自动flush，capture_outputs按outputs增长取同序wire_payloads；没有末尾强行空flush，剩余桶保留pending。输入只调用一次主控mapper，不与旧host_map重复补点。
+- compat=False，stealth消息包含buzzer与IMU两个连续CBOR map。实际bytes直接传RawCaller，入队后的body逐字节核对；不是只传token/近似长度。
+- raw_queue_full预载16条明确external-prefill消息，真实链候选被拒后caller sequence仍为1，未假装候选重试。发布失败场景保留同一body，手动注入重连后再次API返回，未重新admission、未伪造ACK。
+- 队列停顿场景延长到1505个调度slot，以原自动flush生成第二body，没有强制补flush。第二body左右各500行ADC；左100行IMU均追溯到skew=-30的包，100个不同IMU来源；右侧100行均skew=0。首body左右各6个有效IMU行仍均skew=0。
+- 缺callback场景左IMU数组100行来自99个不同快照；基线对应100个。该计数从output-provenance重新关联host-inputs与IMU来源得出，与摘要一致；不把100行直接等同100次不同采样。
+- trace和结果明确synthetic/unknown_not_simulated，没有看到物理测量、生产可达率或云端结果被冒充为证据。
+
+交付说明必须保留的边界（不要求扩大模型）
+A. “MCU记录”在这里是依据字段构造的合成字典，不是逐字节恢复80B内部RAM记录、SPI总线、ADC滤波或中断执行。signed24范围/×4只是已选择合法缓存更新输入。普通通道map按本fixture顺序给定，不证明实机板级map。
+B. 101恰在前一五点包后的边界。当前缺callback场景的全部reconstructed_tick_matches_stored为true，只对这组时序成立；缺点落在包内部时，只有首tick上线可能掩盖内部时间不连续。本模型已有显式mismatch字段，不能把本轮0误读为任意丢callback都保持逐点时间准确。
+C. 所有发布worker step都在1005个schedule_slot输入完成后才显式调用，停顿场景为1505。它不是实时调度、网络带宽或持续接收吞吐模型。基线只有1条输出、停顿场景2条，未来秒桶仍pending；16条预载只能验证既定容量分支，不能解释真实“16秒后丢包”。
+D. stall-left第一秒loader在slot30提前退出，仅保留最初30个ADC行和6个IMU行，均属于最初6包、配对skew=0；新第二body才包含100行左IMU错配。可以说“在这个明确停顿fixture里，错配能穿透本地编码并交给模拟发布调用”，不能写成真实数据已上传或云端接受。-30的单位是callback ordinal，不能无条件换算成实机60ms或物理采样年龄。
+E. 88,200包含有效值与sentinel，是数组单元核对数，不是88,200个独立转换、物理样本或云端记录；IMU重复附带、host copy、缺值都单列解释。
+F. 当前有Receiver的规范帧/分块验收，但没有把CRC失败、异常长度、非规范转义和重同步场景贯通到host/CBOR，也未模拟UsbSensor外围状态/可用性门控、USB PMA逐包读竞争、NATS内部DiscardOld或云端。不要在总图中将这些未执行分支画成此集成已覆盖；局部接收器模型的12场景属于另一份证据。
+G. 编码失败、gain变化、flags变化、非500Hz、异步gate与取消由既有局部模型覆盖，此集成未再次贯通；测试入口应保留当前固定条件，不声称支持任意配置。
+
+非阻断建议
+root既有88,200检查主要比较stage与CBOR；本审阅新增来源联表检查补强了MCU→wire→Receiver→host→输出来源链。可将其结果作为独立审阅附件，或以后将同类不变量纳入集成回归。无须为此次交付添加额外现场断言或伪造更多输入。

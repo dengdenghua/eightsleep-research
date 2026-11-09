@@ -1,0 +1,164 @@
+{
+  "result": "PASS",
+  "cases": [
+    {
+      "name": "small_positive",
+      "input": [
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "expected_outputs": [
+        0
+      ],
+      "rows": [
+        {
+          "sum_f32": 4.0,
+          "output": 0,
+          "exact_mean": "4/5",
+          "ideal_trunc": 0,
+          "output_difference": 0
+        }
+      ]
+    },
+    {
+      "name": "small_negative",
+      "input": [
+        -1,
+        -1,
+        -1,
+        -1,
+        0
+      ],
+      "expected_outputs": [
+        0
+      ],
+      "rows": [
+        {
+          "sum_f32": -4.0,
+          "output": 0,
+          "exact_mean": "-4/5",
+          "ideal_trunc": 0,
+          "output_difference": 0
+        }
+      ]
+    },
+    {
+      "name": "max_constant",
+      "input": [
+        8388607,
+        8388607,
+        8388607,
+        8388607,
+        8388607
+      ],
+      "expected_outputs": [
+        8388607
+      ],
+      "rows": [
+        {
+          "sum_f32": 41943036.0,
+          "output": 8388607,
+          "exact_mean": "8388607",
+          "ideal_trunc": 8388607,
+          "output_difference": 0
+        }
+      ]
+    },
+    {
+      "name": "large_then_zeros",
+      "input": [
+        8388607,
+        8388607,
+        8388607,
+        8388607,
+        8388607,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected_outputs": [
+        8388607,
+        0
+      ],
+      "rows": [
+        {
+          "sum_f32": 41943036.0,
+          "output": 8388607,
+          "exact_mean": "8388607",
+          "ideal_trunc": 8388607,
+          "output_difference": 0
+        },
+        {
+          "sum_f32": -1.0,
+          "output": 0,
+          "exact_mean": "0",
+          "ideal_trunc": 0,
+          "output_difference": 0
+        }
+      ]
+    },
+    {
+      "name": "history_changes_next_small_group",
+      "input": [
+        -8388608,
+        8388606,
+        8388606,
+        8388607,
+        8388606,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_outputs": [
+        5033163,
+        0
+      ],
+      "rows": [
+        {
+          "sum_f32": 25165816.0,
+          "output": 5033163,
+          "exact_mean": "25165817/5",
+          "ideal_trunc": 5033163,
+          "output_difference": 0
+        },
+        {
+          "sum_f32": 4.0,
+          "output": 0,
+          "exact_mean": "1",
+          "ideal_trunc": 1,
+          "output_difference": -1
+        }
+      ]
+    },
+    {
+      "name": "fresh_small_group",
+      "input": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "expected_outputs": [
+        1
+      ],
+      "rows": [
+        {
+          "sum_f32": 5.0,
+          "output": 1,
+          "exact_mean": "1",
+          "ideal_trunc": 1,
+          "output_difference": 0
+        }
+      ]
+    }
+  ],
+  "scope": "Six synthetic finite numeric sequences, no empirical occurrence/error distribution. IEEE round-to-nearest-even assumed; original software helpers not executed."
+}

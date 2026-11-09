@@ -1,0 +1,45 @@
+TARGET 0800fd94 function=0800fd94
+REF_TO 0801267c UNCONDITIONAL_CALL
+REF_TO 08012720 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800fd94, 0800fdbd]]
+
+int FUN_0800fd94(int *param_1,int param_2)
+
+{
+  int iVar1;
+  uint uVar2;
+  
+  uVar2 = (*(byte *)(*param_1 + param_2) & 0x1f) - 0x18;
+  iVar1 = 0;
+  if ((uVar2 & 0xff) < 4) {
+    iVar1 = *(int *)(&DAT_08025ec0 + uVar2 * 4);
+  }
+  iVar1 = iVar1 + 1;
+  if ((uint)param_1[1] < (uint)(param_2 + iVar1)) {
+    iVar1 = 0;
+  }
+  return iVar1;
+}
+
+
+INSN 0800fd94 0368 ldr r3,[r0,#0x0]
+INSN 0800fd96 0200 movs r2,r0
+INSN 0800fd98 1f20 movs r0,#0x1f
+INSN 0800fd9a 10b5 push {r4,lr}
+INSN 0800fd9c 5b5c ldrb r3,[r3,r1]
+INSN 0800fd9e 0340 ands r3,r0
+INSN 0800fda0 183b subs r3,#0x18
+INSN 0800fda2 dcb2 uxtb r4,r3
+INSN 0800fda4 0020 movs r0,#0x0
+INSN 0800fda6 032c cmp r4,#0x3
+INSN 0800fda8 02d8 bhi 0x0800fdb0 REF[CONDITIONAL_JUMP:0800fdb0]
+INSN 0800fdaa 0548 ldr r0,[0x0800fdc0] REF[READ:0800fdc0=8025ec0]
+INSN 0800fdac 9b00 lsls r3,r3,#0x2
+INSN 0800fdae 1858 ldr r0,[r3,r0] REF[DATA:08025ec0=1]
+INSN 0800fdb0 0130 adds r0,#0x1
+INSN 0800fdb2 5368 ldr r3,[r2,#0x4]
+INSN 0800fdb4 0918 adds r1,r1,r0
+INSN 0800fdb6 9942 cmp r1,r3
+INSN 0800fdb8 00d9 bls 0x0800fdbc REF[CONDITIONAL_JUMP:0800fdbc]
+INSN 0800fdba 0020 movs r0,#0x0
+INSN 0800fdbc 10bd pop {r4,pc}

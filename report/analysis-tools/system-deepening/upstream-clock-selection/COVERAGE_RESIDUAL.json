@@ -1,0 +1,96 @@
+{
+  "date": "2026-11-08",
+  "scope": "nonUSB upstream clock-configuration selection and runtime system-clock computation; static bytes, retained Ghidra exports and finite integer arithmetic only",
+  "supersedes_partially": "report/analysis-tools/system-deepening/nonusb-clock-writers/COVERAGE_RESIDUAL.json remaining_static (all-upstream-config-selections, nonusb-pll-decode and full-cfg-coverage are partially advanced)",
+  "byte_validation": {
+    "status": "PASS",
+    "instruction_rows": 6782,
+    "instruction_bytes": 15096,
+    "flash_literals": 856,
+    "bl_targets": 765,
+    "direct_branch_targets": 577,
+    "unique_instruction_addresses": 5051,
+    "data_tables": 7,
+    "export_files": 39,
+    "failures": 0
+  },
+  "closed_this_round": [
+    {
+      "id": "hwrev_field_identity",
+      "detail": "0x20001cfc identified as the HWINFO hwrev field parsed by 0801d888; the range test in 080108ac is hwrev 0x0A87..0x0AFF -> 16 MHz, else 32 MHz."
+    },
+    {
+      "id": "version_dispatch_tables",
+      "detail": "14-row hwrev threshold table at 0x08025da4, 14 version strings at 0x08024234, loop count byte-proven by cmp r5,#0xe at 0x0801d8cc; cumulative application for all thresholds <= hwrev."
+    },
+    {
+      "id": "init_variant_binding",
+      "detail": "Six init functions bound to two clock config entries with byte-verified Thumb pointer literals; 080108ac has 4 callers, 08010960 has 2."
+    },
+    {
+      "id": "runtime_system_clock_formula",
+      "detail": "0800cd24 computes SYSCLK from RCC source/PLL fields; 0800cdb4 applies the 16-entry prescaler shift table at 0x080241cc before writing 0x20000250. The running clock is NOT a hardcoded 64 MHz."
+    },
+    {
+      "id": "downstream_clock_consumer",
+      "detail": "0800e8b4 uses 0800cd24 for USART baud-rate generation, so the clock value affects peripheral timing beyond SysTick."
+    },
+    {
+      "id": "fatal_call_distribution",
+      "detail": "106 fatal-error call references quantified by 4 KB segment with four sampled contexts; confirms 08008c04 is a generic entry, not clock-specific."
+    }
+  ],
+  "remaining_static": [
+    {
+      "id": "version_table_full_mapping",
+      "detail": "Only 4 of 14 version setters were inspected. A complete string <-> threshold <-> setter <-> init-pointer mapping is not established; the string order (K10 before K05) differs from the numeric threshold order.",
+      "kind": "available-static"
+    },
+    {
+      "id": "two_undecoded_dispatch_callees",
+      "detail": "0x0800fd25 and 0x0800fd31 (thresholds 0x0A87 / 0x0A90) have no decoded function body in the retained project; a range export found no instructions at those addresses.",
+      "kind": "available-static-with-new-analysis"
+    },
+    {
+      "id": "pll_config_decode",
+      "detail": "The PLL configuration written by writer 2 (0800c8dc) and the config structs in 080108ac / 08010960 were not decoded into an actual running core frequency. The USB-side 64 MHz conclusion remains un-reproduced for nonUSB.",
+      "kind": "available-static"
+    },
+    {
+      "id": "marketing_model_binding",
+      "detail": "hwrev / sku values are not bound to a marketing model, board type or physical oscillator. HWINFO parse reads an in-image factory block, not a device measurement.",
+      "kind": "needs-artifact-or-device"
+    },
+    {
+      "id": "switch-transition",
+      "detail": "Time between RCC register writes and SysTick reconfiguration, lost or slowed ticks, reload already written while old step byte restored, and timeout loops depending on the same software tick.",
+      "kind": "available-static-plus-measurement"
+    },
+    {
+      "id": "full-cfg-coverage",
+      "detail": "6782 instruction rows over 5051 unique addresses in the exported regions are not full-program control-flow coverage; only 4 of 106 fatal-error callers were sampled.",
+      "kind": "available-static"
+    }
+  ],
+  "remaining_measurement": [
+    "Running RCC register values, PLL lock and actual core clock",
+    "Whether the AIRCR SYSRESETREQ request completes a reset; watchdog behaviour",
+    "Interrupt latency, masked-interrupt windows and wall-clock send deadlines",
+    "ADC CLKIN / DRDY, achieved sample rate and the installed hwrev/sku of a real unit"
+  ],
+  "explicitly_excluded": [
+    "Shared log formatting/reentrancy (a separate prior task was stopped by an automatic safety check and is not retried or rephrased)",
+    "Malformed frames, corruption or exploit development",
+    "Firmware execution, device/account/API access, online confirmation",
+    "Air bladder and bed frame topics (deferred by the user)",
+    "Production physiological algorithms, Autopilot, posture classification and speaker DSP (need new artifacts)"
+  ],
+  "prior_records_left_unchanged": [
+    "report/analysis-tools/system-deepening/sensor-timebase/FINDINGS_ZH.txt",
+    "workspace/algorithm-opportunities/sensor-clock/FINDINGS_ZH.txt",
+    "report/analysis-tools/system-deepening/sensor-nonusb-dispatch/FINDINGS_ZH.txt",
+    "report/analysis-tools/system-deepening/nonusb-timebase-crosscheck/FINDINGS_ZH.txt",
+    "report/analysis-tools/system-deepening/nonusb-clock-writers/FINDINGS_ZH.txt"
+  ],
+  "open_user_decision": "Whether to keep the resident expanded materials tree for the 58766 evidence service, or return to archive-only compact storage. It is currently kept resident."
+}

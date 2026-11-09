@@ -1,0 +1,43 @@
+TARGET 08009480 function=08009468
+FUNCTION_BODY [[08009468, 08009497]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+undefined8 FUN_08009468(undefined4 param_1,undefined4 param_2,undefined4 param_3)
+
+{
+  undefined4 uVar1;
+  undefined4 uVar2;
+  
+  _DAT_40021040 = _DAT_40021040 | 1;
+  uVar1 = 1;
+  _DAT_4002103c = _DAT_4002103c | 0x10000000;
+  uVar2 = 0x10000000;
+  FUN_08009a44(0x600,0x10000000,_DAT_4002103c,0x10000000,1,0x10000000,param_3);
+  return CONCAT44(uVar2,uVar1);
+}
+
+
+INSN 08009468 07b5 push {r0,r1,r2,lr}
+INSN 0800946a 0121 movs r1,#0x1
+INSN 0800946c 0a4b ldr r3,[0x08009498] REF[READ:08009498=40021000]
+INSN 0800946e c020 movs r0,#0xc0
+INSN 08009470 1a6c ldr r2,[r3,#0x40] REF[READ:40021040]
+INSN 08009472 c000 lsls r0,r0,#0x3
+INSN 08009474 0a43 orrs r2,r1
+INSN 08009476 1a64 str r2,[r3,#0x40] REF[WRITE:40021040]
+INSN 08009478 1a6c ldr r2,[r3,#0x40] REF[READ:40021040]
+INSN 0800947a 0a40 ands r2,r1
+INSN 0800947c 8021 movs r1,#0x80
+INSN 0800947e 0092 str r2,[sp,#0x0] REF[WRITE:Stack[-0x10]]
+INSN 08009480 009a ldr r2,[sp,#0x0] REF[READ:Stack[-0x10]]
+INSN 08009482 da6b ldr r2,[r3,#0x3c] REF[READ:4002103c]
+INSN 08009484 4905 lsls r1,r1,#0x15
+INSN 08009486 0a43 orrs r2,r1
+INSN 08009488 da63 str r2,[r3,#0x3c] REF[WRITE:4002103c]
+INSN 0800948a db6b ldr r3,[r3,#0x3c] REF[READ:4002103c]
+INSN 0800948c 0b40 ands r3,r1
+INSN 0800948e 0193 str r3,[sp,#0x4] REF[WRITE:Stack[-0xc]]
+INSN 08009490 019b ldr r3,[sp,#0x4] REF[READ:Stack[-0xc]]
+INSN 08009492 00f0d7fa bl 0x08009a44 REF[UNCONDITIONAL_CALL:08009a44]
+INSN 08009496 07bd pop {r0,r1,r2,pc}

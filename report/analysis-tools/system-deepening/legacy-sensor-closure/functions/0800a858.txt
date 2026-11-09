@@ -1,0 +1,306 @@
+FUNCTION 0800a858 FUN_0800a858 BODY [[0800a858, 0800a9cd]]
+INCOMING 0800aafa UNCONDITIONAL_CALL
+INCOMING 0800ab04 UNCONDITIONAL_CALL
+INCOMING 0800a926 UNCONDITIONAL_CALL
+INCOMING 0800a980 UNCONDITIONAL_CALL
+INCOMING 0800a990 UNCONDITIONAL_CALL
+INCOMING 0800a9c0 UNCONDITIONAL_CALL
+INCOMING 0800a9fc UNCONDITIONAL_CALL
+
+int FUN_0800a858(int *param_1,int param_2)
+
+{
+  int iVar1;
+  int iVar2;
+  byte bVar3;
+  byte bVar4;
+  uint uVar5;
+  int iVar6;
+  uint local_20;
+  int local_1c;
+  
+  if ((uint)param_1[1] < param_2 + 1U) {
+    return 0;
+  }
+  bVar3 = *(byte *)(*param_1 + param_2);
+  bVar4 = bVar3 & 0xe0;
+  if (bVar4 == 0x60) {
+LAB_0800a902:
+    local_20 = 0;
+    local_1c = 0;
+    iVar1 = FUN_0800a7a0(param_1,param_2,&local_20);
+    if ((uint)param_1[1] < param_2 + iVar1 + local_20) {
+      return 0;
+    }
+    return iVar1 + local_20;
+  }
+  if (0x60 < bVar4) {
+    if (bVar4 == 0xa0) {
+      bVar3 = bVar3 & 0x1f;
+      local_20 = 0;
+      local_1c = 0;
+      if (bVar3 == 0x1f) {
+        iVar1 = 1;
+      }
+      else {
+        iVar1 = FUN_0800a7a0(param_1,param_2,&local_20);
+        if (iVar1 == 0) {
+          return 0;
+        }
+      }
+      uVar5 = 0;
+      while( true ) {
+        if (((bVar3 != 0x1f) && (local_1c == 0)) && (local_20 <= uVar5)) {
+          return iVar1;
+        }
+        iVar6 = param_2 + iVar1;
+        if ((uint)param_1[1] < iVar6 + 1U) {
+          return 0;
+        }
+        if ((bVar3 == 0x1f) && (iVar2 = FUN_080082d0(param_1,iVar6), iVar2 != 0)) break;
+        iVar6 = FUN_0800a858(param_1,iVar6);
+        if (iVar6 == 0) {
+          return 0;
+        }
+        iVar2 = FUN_0800a858(param_1,param_2 + iVar1 + iVar6);
+        if (iVar2 == 0) {
+          return 0;
+        }
+        iVar1 = iVar1 + iVar6 + iVar2;
+        uVar5 = uVar5 + 1;
+      }
+    }
+    else {
+      if (0xa0 < bVar4) {
+        if (bVar4 == 0xc0) {
+          iVar1 = FUN_080082a0(param_1,param_2);
+          if (iVar1 == 0) {
+            return 0;
+          }
+          iVar6 = FUN_0800a858(param_1,param_2 + iVar1);
+          if (iVar6 == 0) {
+            return 0;
+          }
+          return iVar1 + iVar6;
+        }
+        if (bVar4 != 0xe0) {
+          return 0;
+        }
+        goto LAB_0800a888;
+      }
+      if (bVar4 != 0x80) {
+        return 0;
+      }
+      bVar3 = bVar3 & 0x1f;
+      local_20 = 0;
+      local_1c = 0;
+      iVar1 = 1;
+      if (bVar3 != 0x1f) {
+        iVar1 = FUN_0800a7a0(param_1,param_2,&local_20);
+      }
+      uVar5 = 0;
+      while( true ) {
+        if (((bVar3 != 0x1f) && (local_1c == 0)) && (local_20 <= uVar5)) {
+          return iVar1;
+        }
+        iVar6 = param_2 + iVar1;
+        if ((uint)param_1[1] < iVar6 + 1U) {
+          return 0;
+        }
+        if ((bVar3 == 0x1f) && (iVar2 = FUN_080082d0(param_1,iVar6), iVar2 != 0)) break;
+        iVar6 = FUN_0800a858(param_1,iVar6);
+        iVar1 = iVar1 + iVar6;
+        uVar5 = uVar5 + 1;
+      }
+    }
+    return iVar1 + 1;
+  }
+  if (bVar4 != 0x20) {
+    if (bVar4 == 0x40) goto LAB_0800a902;
+    if ((bVar3 & 0xe0) != 0) {
+      return 0;
+    }
+  }
+LAB_0800a888:
+  iVar1 = FUN_080082a0(param_1,param_2);
+  return iVar1;
+}
+
+
+ASSEMBLY
+0800a858 push {r4,r5,r6,r7,lr} BYTES f0b5
+0800a85a ldr r2,[r0,#0x4] BYTES 4268
+0800a85c adds r3,r1,#0x1 BYTES 4b1c
+0800a85e sub sp,#0x14 BYTES 85b0
+0800a860 movs r5,r0 BYTES 0500
+0800a862 movs r6,r1 BYTES 0e00
+0800a864 cmp r3,r2 BYTES 9342
+0800a866 bls 0x0800a86c BYTES 01d9 REF CONDITIONAL_JUMP=0800a86c
+0800a868 movs r4,#0x0 BYTES 0024
+0800a86a b 0x0800a892 BYTES 12e0 REF UNCONDITIONAL_JUMP=0800a892
+0800a86c ldr r3,[r0,#0x0] BYTES 0368
+0800a86e ldrb r2,[r3,r1] BYTES 5a5c
+0800a870 movs r1,#0x1f BYTES 1f21
+0800a872 movs r3,r2 BYTES 1300
+0800a874 bics r3,r1 BYTES 8b43
+0800a876 cmp r3,#0x60 BYTES 602b
+0800a878 beq 0x0800a902 BYTES 43d0 REF CONDITIONAL_JUMP=0800a902
+0800a87a bhi 0x0800a898 BYTES 0dd8 REF CONDITIONAL_JUMP=0800a898
+0800a87c cmp r3,#0x20 BYTES 202b
+0800a87e beq 0x0800a888 BYTES 03d0 REF CONDITIONAL_JUMP=0800a888
+0800a880 cmp r3,#0x40 BYTES 402b
+0800a882 beq 0x0800a902 BYTES 3ed0 REF CONDITIONAL_JUMP=0800a902
+0800a884 cmp r3,#0x0 BYTES 002b
+0800a886 bne 0x0800a868 BYTES efd1 REF CONDITIONAL_JUMP=0800a868
+0800a888 movs r1,r6 BYTES 3100
+0800a88a movs r0,r5 BYTES 2800
+0800a88c bl 0x080082a0 BYTES fdf708fd REF UNCONDITIONAL_CALL=080082a0
+0800a890 movs r4,r0 BYTES 0400
+0800a892 movs r0,r4 BYTES 2000
+0800a894 add sp,#0x14 BYTES 05b0
+0800a896 pop {r4,r5,r6,r7,pc} BYTES f0bd
+0800a898 cmp r3,#0xa0 BYTES a02b
+0800a89a beq 0x0800a932 BYTES 4ad0 REF CONDITIONAL_JUMP=0800a932
+0800a89c bhi 0x0800a8f8 BYTES 2cd8 REF CONDITIONAL_JUMP=0800a8f8
+0800a89e cmp r3,#0x80 BYTES 802b
+0800a8a0 bne 0x0800a868 BYTES e2d1 REF CONDITIONAL_JUMP=0800a868
+0800a8a2 ands r2,r1 BYTES 0a40
+0800a8a4 str r2,[sp,#0x0] BYTES 0092 REF WRITE=Stack[-0x28]
+0800a8a6 movs r3,#0x0 BYTES 0023
+0800a8a8 movs r2,#0x0 BYTES 0022
+0800a8aa str r2,[sp,#0x8] BYTES 0292 REF WRITE=Stack[-0x20]
+0800a8ac str r3,[sp,#0xc] BYTES 0393 REF WRITE=Stack[-0x1c]
+0800a8ae ldr r3,[sp,#0x0] BYTES 009b REF READ=Stack[-0x28]
+0800a8b0 movs r4,#0x1 BYTES 0124
+0800a8b2 cmp r3,#0x1f BYTES 1f2b
+0800a8b4 beq 0x0800a8c0 BYTES 04d0 REF CONDITIONAL_JUMP=0800a8c0
+0800a8b6 add r2,sp,#0x8 BYTES 02aa
+0800a8b8 movs r1,r6 BYTES 3100
+0800a8ba bl 0x0800a7a0 BYTES fff771ff REF UNCONDITIONAL_CALL=0800a7a0
+0800a8be movs r4,r0 BYTES 0400
+0800a8c0 movs r3,#0x0 BYTES 0023
+0800a8c2 str r3,[sp,#0x4] BYTES 0193 REF WRITE=Stack[-0x24]
+0800a8c4 ldr r3,[sp,#0x0] BYTES 009b REF READ=Stack[-0x28]
+0800a8c6 cmp r3,#0x1f BYTES 1f2b
+0800a8c8 beq 0x0800a8d8 BYTES 06d0 REF CONDITIONAL_JUMP=0800a8d8
+0800a8ca ldr r3,[sp,#0xc] BYTES 039b REF READ=Stack[-0x1c]
+0800a8cc cmp r3,#0x0 BYTES 002b
+0800a8ce bne 0x0800a8d8 BYTES 03d1 REF CONDITIONAL_JUMP=0800a8d8
+0800a8d0 ldr r3,[sp,#0x8] BYTES 029b REF READ=Stack[-0x20]
+0800a8d2 ldr r2,[sp,#0x4] BYTES 019a REF READ=Stack[-0x24]
+0800a8d4 cmp r3,r2 BYTES 9342
+0800a8d6 bls 0x0800a892 BYTES dcd9 REF CONDITIONAL_JUMP=0800a892
+0800a8d8 adds r7,r6,r4 BYTES 3719
+0800a8da ldr r2,[r5,#0x4] BYTES 6a68
+0800a8dc adds r3,r7,#0x1 BYTES 7b1c
+0800a8de cmp r3,r2 BYTES 9342
+0800a8e0 bhi 0x0800a868 BYTES c2d8 REF CONDITIONAL_JUMP=0800a868
+0800a8e2 ldr r3,[sp,#0x0] BYTES 009b REF READ=Stack[-0x28]
+0800a8e4 cmp r3,#0x1f BYTES 1f2b
+0800a8e6 bne 0x0800a922 BYTES 1cd1 REF CONDITIONAL_JUMP=0800a922
+0800a8e8 movs r1,r7 BYTES 3900
+0800a8ea movs r0,r5 BYTES 2800
+0800a8ec bl 0x080082d0 BYTES fdf7f0fc REF UNCONDITIONAL_CALL=080082d0
+0800a8f0 cmp r0,#0x0 BYTES 0028
+0800a8f2 beq 0x0800a922 BYTES 16d0 REF CONDITIONAL_JUMP=0800a922
+0800a8f4 adds r4,#0x1 BYTES 0134
+0800a8f6 b 0x0800a892 BYTES cce7 REF UNCONDITIONAL_JUMP=0800a892
+0800a8f8 cmp r3,#0xc0 BYTES c02b
+0800a8fa beq 0x0800a9b0 BYTES 59d0 REF CONDITIONAL_JUMP=0800a9b0
+0800a8fc cmp r3,#0xe0 BYTES e02b
+0800a8fe beq 0x0800a888 BYTES c3d0 REF CONDITIONAL_JUMP=0800a888
+0800a900 b 0x0800a868 BYTES b2e7 REF UNCONDITIONAL_JUMP=0800a868
+0800a902 movs r3,#0x0 BYTES 0023
+0800a904 movs r2,#0x0 BYTES 0022
+0800a906 movs r1,r6 BYTES 3100
+0800a908 str r2,[sp,#0x8] BYTES 0292 REF WRITE=Stack[-0x20]
+0800a90a str r3,[sp,#0xc] BYTES 0393 REF WRITE=Stack[-0x1c]
+0800a90c movs r0,r5 BYTES 2800
+0800a90e add r2,sp,#0x8 BYTES 02aa
+0800a910 bl 0x0800a7a0 BYTES fff746ff REF UNCONDITIONAL_CALL=0800a7a0
+0800a914 ldr r3,[sp,#0x8] BYTES 029b REF READ=Stack[-0x20]
+0800a916 adds r4,r0,r3 BYTES c418
+0800a918 ldr r3,[r5,#0x4] BYTES 6b68
+0800a91a adds r6,r6,r4 BYTES 3619
+0800a91c cmp r6,r3 BYTES 9e42
+0800a91e bls 0x0800a892 BYTES b8d9 REF CONDITIONAL_JUMP=0800a892
+0800a920 b 0x0800a868 BYTES a2e7 REF UNCONDITIONAL_JUMP=0800a868
+0800a922 movs r1,r7 BYTES 3900
+0800a924 movs r0,r5 BYTES 2800
+0800a926 bl 0x0800a858 BYTES fff797ff REF UNCONDITIONAL_CALL=0800a858
+0800a92a ldr r3,[sp,#0x4] BYTES 019b REF READ=Stack[-0x24]
+0800a92c adds r4,r4,r0 BYTES 2418
+0800a92e adds r3,#0x1 BYTES 0133
+0800a930 b 0x0800a8c2 BYTES c7e7 REF UNCONDITIONAL_JUMP=0800a8c2
+0800a932 ands r2,r1 BYTES 0a40
+0800a934 str r2,[sp,#0x0] BYTES 0092 REF WRITE=Stack[-0x28]
+0800a936 movs r3,#0x0 BYTES 0023
+0800a938 movs r2,#0x0 BYTES 0022
+0800a93a str r2,[sp,#0x8] BYTES 0292 REF WRITE=Stack[-0x20]
+0800a93c str r3,[sp,#0xc] BYTES 0393 REF WRITE=Stack[-0x1c]
+0800a93e ldr r3,[sp,#0x0] BYTES 009b REF READ=Stack[-0x28]
+0800a940 cmp r3,#0x1f BYTES 1f2b
+0800a942 bne 0x0800a9a2 BYTES 2ed1 REF CONDITIONAL_JUMP=0800a9a2
+0800a944 movs r4,#0x1 BYTES 0124
+0800a946 movs r3,#0x0 BYTES 0023
+0800a948 str r3,[sp,#0x4] BYTES 0193 REF WRITE=Stack[-0x24]
+0800a94a ldr r3,[sp,#0x0] BYTES 009b REF READ=Stack[-0x28]
+0800a94c cmp r3,#0x1f BYTES 1f2b
+0800a94e beq 0x0800a95e BYTES 06d0 REF CONDITIONAL_JUMP=0800a95e
+0800a950 ldr r3,[sp,#0xc] BYTES 039b REF READ=Stack[-0x1c]
+0800a952 cmp r3,#0x0 BYTES 002b
+0800a954 bne 0x0800a95e BYTES 03d1 REF CONDITIONAL_JUMP=0800a95e
+0800a956 ldr r3,[sp,#0x8] BYTES 029b REF READ=Stack[-0x20]
+0800a958 ldr r2,[sp,#0x4] BYTES 019a REF READ=Stack[-0x24]
+0800a95a cmp r3,r2 BYTES 9342
+0800a95c bls 0x0800a892 BYTES 99d9 REF CONDITIONAL_JUMP=0800a892
+0800a95e adds r7,r6,r4 BYTES 3719
+0800a960 ldr r2,[r5,#0x4] BYTES 6a68
+0800a962 adds r3,r7,#0x1 BYTES 7b1c
+0800a964 cmp r3,r2 BYTES 9342
+0800a966 bls 0x0800a96a BYTES 00d9 REF CONDITIONAL_JUMP=0800a96a
+0800a968 b 0x0800a868 BYTES 7ee7 REF UNCONDITIONAL_JUMP=0800a868
+0800a96a ldr r3,[sp,#0x0] BYTES 009b REF READ=Stack[-0x28]
+0800a96c cmp r3,#0x1f BYTES 1f2b
+0800a96e bne 0x0800a97c BYTES 05d1 REF CONDITIONAL_JUMP=0800a97c
+0800a970 movs r1,r7 BYTES 3900
+0800a972 movs r0,r5 BYTES 2800
+0800a974 bl 0x080082d0 BYTES fdf7acfc REF UNCONDITIONAL_CALL=080082d0
+0800a978 cmp r0,#0x0 BYTES 0028
+0800a97a bne 0x0800a8f4 BYTES bbd1 REF CONDITIONAL_JUMP=0800a8f4
+0800a97c movs r1,r7 BYTES 3900
+0800a97e movs r0,r5 BYTES 2800
+0800a980 bl 0x0800a858 BYTES fff76aff REF UNCONDITIONAL_CALL=0800a858
+0800a984 cmp r0,#0x0 BYTES 0028
+0800a986 bne 0x0800a98a BYTES 00d1 REF CONDITIONAL_JUMP=0800a98a
+0800a988 b 0x0800a868 BYTES 6ee7 REF UNCONDITIONAL_JUMP=0800a868
+0800a98a adds r4,r4,r0 BYTES 2418
+0800a98c adds r1,r6,r4 BYTES 3119
+0800a98e movs r0,r5 BYTES 2800
+0800a990 bl 0x0800a858 BYTES fff762ff REF UNCONDITIONAL_CALL=0800a858
+0800a994 cmp r0,#0x0 BYTES 0028
+0800a996 bne 0x0800a99a BYTES 00d1 REF CONDITIONAL_JUMP=0800a99a
+0800a998 b 0x0800a868 BYTES 66e7 REF UNCONDITIONAL_JUMP=0800a868
+0800a99a ldr r3,[sp,#0x4] BYTES 019b REF READ=Stack[-0x24]
+0800a99c adds r4,r4,r0 BYTES 2418
+0800a99e adds r3,#0x1 BYTES 0133
+0800a9a0 b 0x0800a948 BYTES d2e7 REF UNCONDITIONAL_JUMP=0800a948
+0800a9a2 add r2,sp,#0x8 BYTES 02aa
+0800a9a4 movs r1,r6 BYTES 3100
+0800a9a6 bl 0x0800a7a0 BYTES fff7fbfe REF UNCONDITIONAL_CALL=0800a7a0
+0800a9aa subs r4,r0,#0x0 BYTES 041e
+0800a9ac bne 0x0800a946 BYTES cbd1 REF CONDITIONAL_JUMP=0800a946
+0800a9ae b 0x0800a868 BYTES 5be7 REF UNCONDITIONAL_JUMP=0800a868
+0800a9b0 movs r1,r6 BYTES 3100
+0800a9b2 bl 0x080082a0 BYTES fdf775fc REF UNCONDITIONAL_CALL=080082a0
+0800a9b6 subs r4,r0,#0x0 BYTES 041e
+0800a9b8 bne 0x0800a9bc BYTES 00d1 REF CONDITIONAL_JUMP=0800a9bc
+0800a9ba b 0x0800a868 BYTES 55e7 REF UNCONDITIONAL_JUMP=0800a868
+0800a9bc adds r1,r6,r0 BYTES 3118
+0800a9be movs r0,r5 BYTES 2800
+0800a9c0 bl 0x0800a858 BYTES fff74aff REF UNCONDITIONAL_CALL=0800a858
+0800a9c4 adds r4,r4,r0 BYTES 2418
+0800a9c6 cmp r0,#0x0 BYTES 0028
+0800a9c8 beq 0x0800a9cc BYTES 00d0 REF CONDITIONAL_JUMP=0800a9cc
+0800a9ca b 0x0800a892 BYTES 62e7 REF UNCONDITIONAL_JUMP=0800a892
+0800a9cc b 0x0800a868 BYTES 4ce7 REF UNCONDITIONAL_JUMP=0800a868

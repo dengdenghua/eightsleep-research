@@ -1,0 +1,184 @@
+{
+  "assertions": [
+    {
+      "got": 4,
+      "label": "hole_verdicts",
+      "ok": true,
+      "want": 4
+    },
+    {
+      "got": 2,
+      "label": "witnessed_holes",
+      "ok": true,
+      "want": 2
+    },
+    {
+      "got": 2,
+      "label": "unwitnessed_holes",
+      "ok": true,
+      "want": 2
+    },
+    {
+      "got": 43,
+      "label": "unwitnessed_bytes",
+      "ok": true,
+      "want": 43
+    },
+    {
+      "got": [
+        "0234..0258",
+        "1c08..1c0c"
+      ],
+      "label": "closed_holes",
+      "ok": true,
+      "want": [
+        "0234..0258",
+        "1c08..1c0c"
+      ]
+    },
+    {
+      "got": true,
+      "label": "closed_hole_offsets_1c08",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": 5,
+      "label": "closed_hole_bound_functions_1c08",
+      "ok": true,
+      "want": 5
+    },
+    {
+      "got": true,
+      "label": "hole_0234_bound_via_log_producer",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "hole_027c_single_unbound_candidate",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": 0,
+      "label": "hole_3e01_no_candidates",
+      "ok": true,
+      "want": 0
+    },
+    {
+      "got": 15176,
+      "label": "nested_block_base",
+      "ok": true,
+      "want": 15176
+    },
+    {
+      "got": 592,
+      "label": "nested_block_size",
+      "ok": true,
+      "want": 592
+    },
+    {
+      "got": 15764,
+      "label": "nested_id_maps_to",
+      "ok": true,
+      "want": 15764
+    }
+  ],
+  "bytes_unwitnessed": 43,
+  "date": "2026-11-09",
+  "holes_total": 14,
+  "holes_witnessed_after": 12,
+  "holes_witnessed_before": 10,
+  "note": "Witness means \"this offset is used as a field by an object-bound function\", not \"the main instance was written at this address\". Type-level field evidence does not require instance identity, but it does require the binding rule above.",
+  "rejected_binding": {
+    "candidate_functions": [
+      "report-object-layout/pass1/08019bac.txt",
+      "local-tmag-closure/pass4/08023958.txt",
+      "local-sensor-recovery-followup/pass2/080224f0.txt",
+      "post-layout-closure/pass6/08018744.txt"
+    ],
+    "candidate_offsets": [
+      "0x024d",
+      "0x024e"
+    ],
+    "hole": "0234..0258",
+    "hole_status": "witnessed by an unrelated, object-bound function; the four functions below are NOT valid witnesses for it",
+    "main_offset_mapping": [
+      "0x3b48+0x24c=0x3d94",
+      "0x3b48+0x24d=0x3d95",
+      "0x3b48+0x24e=0x3d96"
+    ],
+    "reason": "these offsets belong to the 0x250 nested block whose base in the main object is 0x3b48, so 0x24d/0x24e map to main offsets 0x3d95/0x3d96, not to 0x024d/0x024e; the binding rule independently rejects them because those functions touch no other covered offset"
+  },
+  "round": 11,
+  "schema": "eightsleep.nonusb.literal-field-access.hole-witnesses.v1",
+  "source": {
+    "frozen_bbin": "materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/lib/subsystem_updates/firmware-sensor-g0.bbin",
+    "sha256": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891"
+  },
+  "verdicts": [
+    {
+      "bound_accesses": 2,
+      "bound_functions": [
+        "sensor-log-producers/pass1/callsites.asm.txt"
+      ],
+      "bytes": 36,
+      "candidate_accesses": 10,
+      "hole": "0234..0258",
+      "offsets": [
+        "0x024d",
+        "0x024e"
+      ],
+      "unbound_functions": [
+        "local-sensor-recovery-followup/pass2/080224f0.txt",
+        "local-tmag-closure/pass4/08023958.txt",
+        "post-layout-closure/pass6/08018744.txt",
+        "report-object-layout/pass1/08019bac.txt"
+      ],
+      "witnessed": true
+    },
+    {
+      "bound_accesses": 0,
+      "bound_functions": [],
+      "bytes": 36,
+      "candidate_accesses": 1,
+      "hole": "027c..02a0",
+      "offsets": [
+        "0x029e"
+      ],
+      "unbound_functions": [
+        "sensor-usb-lifecycle/pass8/08018468_08018968.txt"
+      ],
+      "witnessed": false
+    },
+    {
+      "bound_accesses": 7,
+      "bound_functions": [
+        "local-nonusb-fdc-temperature/pass2/080164d0_08016815.txt",
+        "post-layout-closure/pass5/08016098.txt",
+        "post-layout-closure/pass5/08016226.txt",
+        "residual-target-closure/pass8/08015e00_08017000.txt",
+        "sensor-usb-lifecycle/pass6/0801f0d0.txt"
+      ],
+      "bytes": 4,
+      "candidate_accesses": 7,
+      "hole": "1c08..1c0c",
+      "offsets": [
+        "0x1c08"
+      ],
+      "unbound_functions": [],
+      "witnessed": true
+    },
+    {
+      "bound_accesses": 0,
+      "bound_functions": [],
+      "bytes": 7,
+      "candidate_accesses": 0,
+      "hole": "3e01..3e08",
+      "offsets": [],
+      "unbound_functions": [],
+      "witnessed": false
+    }
+  ]
+}

@@ -1,0 +1,624 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+void FUN_08018dfc(int param_1,char *param_2,uint param_3)
+
+{
+  char cVar1;
+  char *pcVar2;
+  undefined4 *puVar3;
+  undefined4 uVar4;
+  char *pcVar5;
+  uint uVar6;
+  char cVar7;
+  uint uVar8;
+  uint uVar9;
+  int iVar10;
+  char *pcVar11;
+  int iVar12;
+  uint uVar13;
+  undefined4 local_a4;
+  undefined4 local_a0;
+  uint local_9c;
+  uint local_98;
+  undefined1 auStack_94 [128];
+  
+  pcVar2 = "[cmd] invalid solenoid payload (need at least 1 byte for subcommand)";
+  if (param_3 == 0) {
+LAB_080190c6:
+    FUN_08017634(pcVar2);
+    uVar4 = 6;
+    goto LAB_08018e44;
+  }
+  cVar1 = *param_2;
+  if (cVar1 == '\x01') {
+    pcVar2 = "[cmd] invalid opening config payload (need 11 bytes)";
+    if (param_3 < 0xb) goto LAB_080190c6;
+    FUN_08027fb8(&local_98,param_2 + 1,4);
+    uVar8 = (uint)(byte)param_2[5];
+    FUN_08027fb8(&local_9c,param_2 + 6,4);
+    uVar9 = (uint)(byte)param_2[10];
+    pcVar2 = "[cmd] invalid ramp_interval %u ms (must be 1-1000)";
+    uVar13 = local_98;
+    if (local_98 - 1 < 1000) {
+      if (uVar8 - 1 < 100) {
+        pcVar2 = "[cmd] invalid hold %u ms (must be 0-10000)";
+        uVar13 = local_9c;
+        if (local_9c < 0x2711) {
+          if (uVar9 - 1 < 100) {
+            iVar10 = *(int *)(param_1 + 0x1df4) + (uint)*(byte *)(param_1 + 0x1df0) * 0x34;
+            cVar7 = *(char *)(iVar10 + 0x11);
+            local_a0 = *(undefined4 *)(iVar10 + 0x14);
+            cVar1 = *(char *)(iVar10 + 0x18);
+            local_a4 = *(undefined4 *)(iVar10 + 0x1c);
+            if (param_3 < 0x15) {
+              if (0xf < param_3) {
+                cVar7 = param_2[0xb];
+                param_2 = param_2 + 0xc;
+                puVar3 = &local_a0;
+                goto LAB_08019022;
+              }
+            }
+            else {
+              cVar7 = param_2[0xb];
+              FUN_08027fb8(&local_a0,param_2 + 0xc,4);
+              cVar1 = param_2[0x10];
+              param_2 = param_2 + 0x11;
+              puVar3 = &local_a4;
+LAB_08019022:
+              FUN_08027fb8(puVar3,param_2,4);
+            }
+            for (uVar13 = 0; iVar10 = param_1 + 0x1164, uVar13 < *(byte *)(param_1 + 0x1554);
+                uVar13 = uVar13 + 1 & 0xff) {
+              iVar12 = uVar13 * 0xa8;
+              if (*(char *)(iVar10 + iVar12 + 0xa4) != '\0') {
+                FUN_08021a14(iVar10 + iVar12 + 4,local_98,uVar8,local_9c,uVar9,cVar7,local_a0,cVar1,
+                             local_a4);
+                FUN_08021a14(iVar10 + iVar12 + 0x54,local_98,uVar8,local_9c,uVar9,cVar7,local_a0,
+                             cVar1,local_a4);
+              }
+            }
+            FUN_08017634("[cmd] solenoid config: ramp=%ums/%u%% hold=%ums maintain=%u%% close=%u%%/%ums->%u%%/%ums->0"
+                         ,local_98,uVar8,local_9c,uVar9,cVar7,local_a0,cVar1,local_a4);
+            goto LAB_08018ee2;
+          }
+          pcVar2 = "[cmd] invalid maintain %u%% (must be 1-100)";
+          uVar13 = uVar9;
+        }
+      }
+      else {
+        pcVar2 = "[cmd] invalid ramp_step %u%% (must be 1-100)";
+        uVar13 = uVar8;
+      }
+    }
+LAB_08018e52:
+    FUN_08017634(pcVar2,uVar13);
+  }
+  else {
+    if (cVar1 == '\x02') {
+      if (param_3 < 0xb) {
+        pcVar2 = "[cmd] invalid close dwell payload (need 11 bytes)";
+        goto LAB_080190c6;
+      }
+      cVar1 = param_2[1];
+      FUN_08027fb8(&local_98,param_2 + 2,4);
+      cVar7 = param_2[6];
+      FUN_08027fb8(&local_9c,param_2 + 7,4);
+      pcVar5 = (char *)(param_1 + 0x1189);
+      pcVar2 = (char *)(param_1 + 0x11d9);
+      pcVar11 = pcVar5 + (uint)*(byte *)(param_1 + 0x1554) * 0xa8;
+      for (; pcVar11 != pcVar5; pcVar5 = pcVar5 + 0xa8) {
+        if (pcVar5[0x7f] != '\0') {
+          *pcVar5 = cVar1;
+          *(uint *)(pcVar5 + 3) = local_98;
+          pcVar5[7] = cVar7;
+          *(uint *)(pcVar5 + 0xb) = local_9c;
+          *pcVar2 = cVar1;
+          *(uint *)(pcVar2 + 3) = local_98;
+          pcVar2[7] = cVar7;
+          *(uint *)(pcVar2 + 0xb) = local_9c;
+        }
+        pcVar2 = pcVar2 + 0xa8;
+      }
+      FUN_08017634("[cmd] solenoid close dwell: %u%%/%ums -> %u%%/%ums -> 0",cVar1,local_98,cVar7,
+                   local_9c);
+LAB_08018ee2:
+      uVar4 = 0;
+      goto LAB_08018e44;
+    }
+    if (cVar1 != '\0') {
+      FUN_08017634("[cmd] invalid solenoid subcommand 0x%02x",cVar1);
+      uVar4 = 2;
+      goto LAB_08018e44;
+    }
+    pcVar2 = 
+    "[cmd] invalid solenoid state payload (need 4 bytes: subcommand, bag, direction, state)";
+    if (param_3 < 4) goto LAB_080190c6;
+    uVar9 = (uint)(byte)param_2[1];
+    uVar8 = (uint)(byte)param_2[2];
+    uVar13 = (uint)(byte)param_2[3];
+    if (uVar9 < *(byte *)(param_1 + 0x2473)) {
+      if (uVar8 < 2) {
+        if (uVar13 < 2) {
+          pcVar2 = "inflate";
+          if (uVar8 != 1) {
+            pcVar2 = "deflate";
+          }
+          uVar6 = (uint)*(byte *)(param_1 + 0x1554);
+          if (uVar13 == 1) {
+            if ((uVar6 <= uVar9) || (*(char *)(param_1 + 0x1164 + uVar9 * 0xa8 + 0xa4) == '\0')) {
+              pcVar5 = "failed to open";
+LAB_08018eec:
+              FUN_08017634("[cmd] bag %u %s %s",uVar9,pcVar2,pcVar5);
+              goto LAB_08018e42;
+            }
+            if (uVar8 == 0) {
+              iVar10 = 0x11b8;
+            }
+            else {
+              iVar10 = 0x1168;
+            }
+            FUN_08021fe4(param_1 + uVar9 * 0xa8 + iVar10);
+            pcVar5 = "opened";
+          }
+          else {
+            if ((uVar6 <= uVar9) || (*(char *)(param_1 + 0x1164 + uVar9 * 0xa8 + 0xa4) == '\0')) {
+              pcVar5 = "failed to close";
+              goto LAB_08018eec;
+            }
+            if (uVar8 == 0) {
+              iVar10 = 0x11b8;
+            }
+            else {
+              iVar10 = 0x1168;
+            }
+            FUN_08021804(param_1 + uVar9 * 0xa8 + iVar10,0);
+            pcVar5 = "closed";
+          }
+          FUN_08017634("[cmd] bag %u %s %s",uVar9,pcVar2,pcVar5);
+          if (*(byte *)(param_1 + 0x1554) != 0) {
+            uVar13 = 0;
+            local_98 = 0;
+            FUN_0801066c(auStack_94,0,0x7c);
+            iVar10 = param_1 + 0x11b8;
+            for (uVar8 = 0;
+                (((uVar13 & 0xff) < (uint)*(byte *)(param_1 + 0x1554) && (uVar13 != 6)) &&
+                (uVar8 < 0x7f)); uVar8 = uVar8 + uVar9) {
+              if (uVar8 != 0) {
+                auStack_94[uVar8 - 4] = 0x20;
+                uVar8 = uVar8 + 1;
+              }
+              uVar9 = FUN_0802186e(iVar10 + -0x50);
+              cVar1 = '?';
+              if (uVar9 < 6) {
+                cVar1 = "c?uomdSTEADY"[uVar9];
+              }
+              uVar9 = FUN_0802186e(iVar10);
+              cVar7 = '?';
+              if (uVar9 < 6) {
+                cVar7 = "c?uomdSTEADY"[uVar9];
+              }
+              uVar9 = FUN_08027fe0(auStack_94 + (uVar8 - 4),0x80 - uVar8,&DAT_0802cb2c,uVar13,cVar1,
+                                   uVar13,cVar7);
+              if ((int)uVar9 < 1) break;
+              uVar13 = uVar13 + 1;
+              iVar10 = iVar10 + 0xa8;
+              if (0x80 - uVar8 <= uVar9) break;
+            }
+            FUN_08017634("[bags] solenoids: %s",&local_98);
+          }
+          goto LAB_08018ee2;
+        }
+        pcVar2 = "[cmd] invalid state %u (must be 0=off or 1=on)";
+      }
+      else {
+        pcVar2 = "[cmd] invalid direction %u (must be 0=out or 1=in)";
+        uVar13 = uVar8;
+      }
+      goto LAB_08018e52;
+    }
+    FUN_08017634("[cmd] invalid bag %u (must be 0-%u)",uVar9,*(byte *)(param_1 + 0x2473) - 1);
+  }
+LAB_08018e42:
+  uVar4 = 1;
+LAB_08018e44:
+  FUN_08015fec(uVar4);
+  return;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08018dfc f0b5 push {r4,r5,r6,r7,lr}
+08018dfe 0700 movs r7,r0
+08018e00 0d00 movs r5,r1
+08018e02 1600 movs r6,r2
+08018e04 c248 ldr r0,[0x08019110]
+08018e06 afb0 sub sp,#0xbc
+08018e08 002a cmp r2,#0x0
+08018e0a 00d1 bne 0x08018e0e
+08018e0c 5be1 b 0x080190c6
+08018e0e 0c78 ldrb r4,[r1,#0x0]
+08018e10 012c cmp r4,#0x1
+08018e12 00d1 bne 0x08018e16
+08018e14 b8e0 b 0x08018f88
+08018e16 022c cmp r4,#0x2
+08018e18 00d1 bne 0x08018e1c
+08018e1a 51e1 b 0x080190c0
+08018e1c 002c cmp r4,#0x0
+08018e1e 00d0 beq 0x08018e22
+08018e20 cae1 b 0x080191b8
+08018e22 bc48 ldr r0,[0x08019114]
+08018e24 032a cmp r2,#0x3
+08018e26 00d8 bhi 0x08018e2a
+08018e28 4de1 b 0x080190c6
+08018e2a bb4b ldr r3,[0x08019118]
+08018e2c 4c78 ldrb r4,[r1,#0x1]
+08018e2e fa5c ldrb r2,[r7,r3]
+08018e30 8978 ldrb r1,[r1,#0x2]
+08018e32 e878 ldrb r0,[r5,#0x3]
+08018e34 a242 cmp r2,r4
+08018e36 09d8 bhi 0x08018e4c
+08018e38 2100 movs r1,r4
+08018e3a b848 ldr r0,[0x0801911c]
+08018e3c 013a subs r2,#0x1
+08018e3e fef7f9fb bl 0x08017634
+08018e42 0120 movs r0,#0x1
+08018e44 fdf7d2f8 bl 0x08015fec
+08018e48 2fb0 add sp,#0xbc
+08018e4a f0bd pop {r4,r5,r6,r7,pc}
+08018e4c 0129 cmp r1,#0x1
+08018e4e 03d9 bls 0x08018e58
+08018e50 b348 ldr r0,[0x08019120]
+08018e52 fef7effb bl 0x08017634
+08018e56 f4e7 b 0x08018e42
+08018e58 0128 cmp r0,#0x1
+08018e5a 03d9 bls 0x08018e64
+08018e5c b14b ldr r3,[0x08019124]
+08018e5e 0100 movs r1,r0
+08018e60 1800 movs r0,r3
+08018e62 f6e7 b 0x08018e52
+08018e64 b04d ldr r5,[0x08019128]
+08018e66 0129 cmp r1,#0x1
+08018e68 00d0 beq 0x08018e6c
+08018e6a b04d ldr r5,[0x0801912c]
+08018e6c b04a ldr r2,[0x08019130]
+08018e6e b14b ldr r3,[0x08019134]
+08018e70 ba18 adds r2,r7,r2
+08018e72 0692 str r2,[sp,#0x18]
+08018e74 1278 ldrb r2,[r2,#0x0]
+08018e76 b04e ldr r6,[0x08019138]
+08018e78 fb18 adds r3,r7,r3
+08018e7a 0128 cmp r0,#0x1
+08018e7c 3cd1 bne 0x08018ef8
+08018e7e 9442 cmp r4,r2
+08018e80 33d2 bcs 0x08018eea
+08018e82 a730 adds r0,#0xa7
+08018e84 6043 muls r0,r4
+08018e86 1b18 adds r3,r3,r0
+08018e88 a433 adds r3,#0xa4
+08018e8a 1b78 ldrb r3,[r3,#0x0]
+08018e8c 002b cmp r3,#0x0
+08018e8e 2cd0 beq 0x08018eea
+08018e90 0029 cmp r1,#0x0
+08018e92 28d0 beq 0x08018ee6
+08018e94 a94b ldr r3,[0x0801913c]
+08018e96 c018 adds r0,r0,r3
+08018e98 3818 adds r0,r7,r0
+08018e9a 09f0a3f8 bl 0x08021fe4
+08018e9e a84b ldr r3,[0x08019140]
+08018ea0 2a00 movs r2,r5
+08018ea2 2100 movs r1,r4
+08018ea4 3000 movs r0,r6
+08018ea6 fef7c5fb bl 0x08017634
+08018eaa 069b ldr r3,[sp,#0x18]
+08018eac 1b78 ldrb r3,[r3,#0x0]
+08018eae 002b cmp r3,#0x0
+08018eb0 17d0 beq 0x08018ee2
+08018eb2 0024 movs r4,#0x0
+08018eb4 2500 movs r5,r4
+08018eb6 7c22 movs r2,#0x7c
+08018eb8 2100 movs r1,r4
+08018eba 0fa8 add r0,sp,#0x3c
+08018ebc 0e94 str r4,[sp,#0x38]
+08018ebe f7f7d5fb bl 0x0801066c
+08018ec2 a04b ldr r3,[0x08019144]
+08018ec4 fe18 adds r6,r7,r3
+08018ec6 9a4b ldr r3,[0x08019130]
+08018ec8 fb18 adds r3,r7,r3
+08018eca 1a78 ldrb r2,[r3,#0x0]
+08018ecc e3b2 uxtb r3,r4
+08018ece 9a42 cmp r2,r3
+08018ed0 03d9 bls 0x08018eda
+08018ed2 062c cmp r4,#0x6
+08018ed4 01d0 beq 0x08018eda
+08018ed6 7e2d cmp r5,#0x7e
+08018ed8 25d9 bls 0x08018f26
+08018eda 9b48 ldr r0,[0x08019148]
+08018edc 0ea9 add r1,sp,#0x38
+08018ede fef7a9fb bl 0x08017634
+08018ee2 0020 movs r0,#0x0
+08018ee4 aee7 b 0x08018e44
+08018ee6 974b ldr r3,[0x08019144]
+08018ee8 d5e7 b 0x08018e96
+08018eea 984b ldr r3,[0x0801914c]
+08018eec 2a00 movs r2,r5
+08018eee 2100 movs r1,r4
+08018ef0 3000 movs r0,r6
+08018ef2 fef79ffb bl 0x08017634
+08018ef6 a4e7 b 0x08018e42
+08018ef8 9442 cmp r4,r2
+08018efa 12d2 bcs 0x08018f22
+08018efc a820 movs r0,#0xa8
+08018efe 6043 muls r0,r4
+08018f00 1b18 adds r3,r3,r0
+08018f02 a433 adds r3,#0xa4
+08018f04 1b78 ldrb r3,[r3,#0x0]
+08018f06 002b cmp r3,#0x0
+08018f08 0bd0 beq 0x08018f22
+08018f0a 0029 cmp r1,#0x0
+08018f0c 07d0 beq 0x08018f1e
+08018f0e 8b4b ldr r3,[0x0801913c]
+08018f10 c018 adds r0,r0,r3
+08018f12 0021 movs r1,#0x0
+08018f14 3818 adds r0,r7,r0
+08018f16 08f075fc bl 0x08021804
+08018f1a 8d4b ldr r3,[0x08019150]
+08018f1c c0e7 b 0x08018ea0
+08018f1e 894b ldr r3,[0x08019144]
+08018f20 f6e7 b 0x08018f10
+08018f22 8c4b ldr r3,[0x08019154]
+08018f24 e2e7 b 0x08018eec
+08018f26 0eab add r3,sp,#0x38
+08018f28 002d cmp r5,#0x0
+08018f2a 02d0 beq 0x08018f32
+08018f2c 2022 movs r2,#0x20
+08018f2e 5a55 strb r2,[r3,r5]
+08018f30 0135 adds r5,#0x1
+08018f32 8022 movs r2,#0x80
+08018f34 3000 movs r0,r6
+08018f36 5b19 adds r3,r3,r5
+08018f38 521b subs r2,r2,r5
+08018f3a 5038 subs r0,#0x50
+08018f3c 0893 str r3,[sp,#0x20]
+08018f3e 0692 str r2,[sp,#0x18]
+08018f40 08f095fc bl 0x0802186e
+08018f44 3f23 movs r3,#0x3f
+08018f46 0793 str r3,[sp,#0x1c]
+08018f48 0528 cmp r0,#0x5
+08018f4a 02d8 bhi 0x08018f52
+08018f4c 824b ldr r3,[0x08019158]
+08018f4e 1b5c ldrb r3,[r3,r0]
+08018f50 0793 str r3,[sp,#0x1c]
+08018f52 3000 movs r0,r6
+08018f54 08f08bfc bl 0x0802186e
+08018f58 3f23 movs r3,#0x3f
+08018f5a 0528 cmp r0,#0x5
+08018f5c 01d8 bhi 0x08018f62
+08018f5e 7e4b ldr r3,[0x08019158]
+08018f60 1b5c ldrb r3,[r3,r0]
+08018f62 0293 str r3,[sp,#0x8]
+08018f64 079b ldr r3,[sp,#0x1c]
+08018f66 7d4a ldr r2,[0x0801915c]
+08018f68 0093 str r3,[sp,#0x0]
+08018f6a 0699 ldr r1,[sp,#0x18]
+08018f6c 2300 movs r3,r4
+08018f6e 0898 ldr r0,[sp,#0x20]
+08018f70 0194 str r4,[sp,#0x4]
+08018f72 0ff035f8 bl 0x08027fe0
+08018f76 0028 cmp r0,#0x0
+08018f78 afdd ble 0x08018eda
+08018f7a 069b ldr r3,[sp,#0x18]
+08018f7c 0134 adds r4,#0x1
+08018f7e a836 adds r6,#0xa8
+08018f80 8342 cmp r3,r0
+08018f82 aad9 bls 0x08018eda
+08018f84 2d18 adds r5,r5,r0
+08018f86 9ee7 b 0x08018ec6
+08018f88 7548 ldr r0,[0x08019160]
+08018f8a 0a2a cmp r2,#0xa
+08018f8c 00d8 bhi 0x08018f90
+08018f8e 9ae0 b 0x080190c6
+08018f90 0422 movs r2,#0x4
+08018f92 0131 adds r1,#0x1
+08018f94 0ea8 add r0,sp,#0x38
+08018f96 0ff00ff8 bl 0x08027fb8
+08018f9a 6b79 ldrb r3,[r5,#0x5]
+08018f9c 0422 movs r2,#0x4
+08018f9e a91d adds r1,r5,#0x6
+08018fa0 0da8 add r0,sp,#0x34
+08018fa2 0793 str r3,[sp,#0x1c]
+08018fa4 0ff008f8 bl 0x08027fb8
+08018fa8 ab7a ldrb r3,[r5,#0xa]
+08018faa 0e99 ldr r1,[sp,#0x38]
+08018fac 0893 str r3,[sp,#0x20]
+08018fae fa23 movs r3,#0xfa
+08018fb0 4a1e subs r2,r1,#0x1
+08018fb2 6c48 ldr r0,[0x08019164]
+08018fb4 9b00 lsls r3,r3,#0x2
+08018fb6 9a42 cmp r2,r3
+08018fb8 00d3 bcc 0x08018fbc
+08018fba 4ae7 b 0x08018e52
+08018fbc 079b ldr r3,[sp,#0x1c]
+08018fbe 013b subs r3,#0x1
+08018fc0 632b cmp r3,#0x63
+08018fc2 02d9 bls 0x08018fca
+08018fc4 6848 ldr r0,[0x08019168]
+08018fc6 0799 ldr r1,[sp,#0x1c]
+08018fc8 43e7 b 0x08018e52
+08018fca 0d99 ldr r1,[sp,#0x34]
+08018fcc 674b ldr r3,[0x0801916c]
+08018fce 6848 ldr r0,[0x08019170]
+08018fd0 9942 cmp r1,r3
+08018fd2 00d9 bls 0x08018fd6
+08018fd4 3de7 b 0x08018e52
+08018fd6 089b ldr r3,[sp,#0x20]
+08018fd8 013b subs r3,#0x1
+08018fda 632b cmp r3,#0x63
+08018fdc 02d9 bls 0x08018fe4
+08018fde 6548 ldr r0,[0x08019174]
+08018fe0 0899 ldr r1,[sp,#0x20]
+08018fe2 36e7 b 0x08018e52
+08018fe4 3422 movs r2,#0x34
+08018fe6 644b ldr r3,[0x08019178]
+08018fe8 fb5c ldrb r3,[r7,r3]
+08018fea 5a43 muls r2,r3
+08018fec 634b ldr r3,[0x0801917c]
+08018fee fb58 ldr r3,[r7,r3]
+08018ff0 9b18 adds r3,r3,r2
+08018ff2 5a7c ldrb r2,[r3,#0x11]
+08018ff4 0692 str r2,[sp,#0x18]
+08018ff6 5a69 ldr r2,[r3,#0x14]
+08018ff8 0c92 str r2,[sp,#0x30]
+08018ffa 1a7e ldrb r2,[r3,#0x18]
+08018ffc db69 ldr r3,[r3,#0x1c]
+08018ffe 0992 str r2,[sp,#0x24]
+08019000 0b93 str r3,[sp,#0x2c]
+08019002 142e cmp r6,#0x14
+08019004 2ad9 bls 0x0801905c
+08019006 2900 movs r1,r5
+08019008 eb7a ldrb r3,[r5,#0xb]
+0801900a 0422 movs r2,#0x4
+0801900c 0c31 adds r1,#0xc
+0801900e 0ca8 add r0,sp,#0x30
+08019010 0693 str r3,[sp,#0x18]
+08019012 0ef0d1ff bl 0x08027fb8
+08019016 2900 movs r1,r5
+08019018 0422 movs r2,#0x4
+0801901a 2b7c ldrb r3,[r5,#0x10]
+0801901c 1131 adds r1,#0x11
+0801901e 0993 str r3,[sp,#0x24]
+08019020 0ba8 add r0,sp,#0x2c
+08019022 0ef0c9ff bl 0x08027fb8
+08019026 0025 movs r5,#0x0
+08019028 4248 ldr r0,[0x08019134]
+0801902a 0c9a ldr r2,[sp,#0x30]
+0801902c 3e18 adds r6,r7,r0
+0801902e 4048 ldr r0,[0x08019130]
+08019030 9446 mov r12,r2
+08019032 3818 adds r0,r7,r0
+08019034 0078 ldrb r0,[r0,#0x0]
+08019036 0e99 ldr r1,[sp,#0x38]
+08019038 0d9b ldr r3,[sp,#0x34]
+0801903a 0b9a ldr r2,[sp,#0x2c]
+0801903c a842 cmp r0,r5
+0801903e 16d8 bhi 0x0801906e
+08019040 0492 str r2,[sp,#0x10]
+08019042 099a ldr r2,[sp,#0x24]
+08019044 4e48 ldr r0,[0x08019180]
+08019046 0392 str r2,[sp,#0xc]
+08019048 6246 mov r2,r12
+0801904a 0292 str r2,[sp,#0x8]
+0801904c 069a ldr r2,[sp,#0x18]
+0801904e 0192 str r2,[sp,#0x4]
+08019050 089a ldr r2,[sp,#0x20]
+08019052 0092 str r2,[sp,#0x0]
+08019054 079a ldr r2,[sp,#0x1c]
+08019056 fef7edfa bl 0x08017634
+0801905a 42e7 b 0x08018ee2
+0801905c 0f2e cmp r6,#0xf
+0801905e e2d9 bls 0x08019026
+08019060 2900 movs r1,r5
+08019062 eb7a ldrb r3,[r5,#0xb]
+08019064 0422 movs r2,#0x4
+08019066 0693 str r3,[sp,#0x18]
+08019068 0c31 adds r1,#0xc
+0801906a 0ca8 add r0,sp,#0x30
+0801906c d9e7 b 0x08019022
+0801906e a824 movs r4,#0xa8
+08019070 6c43 muls r4,r5
+08019072 3019 adds r0,r6,r4
+08019074 a430 adds r0,#0xa4
+08019076 0078 ldrb r0,[r0,#0x0]
+08019078 0028 cmp r0,#0x0
+0801907a 1ed0 beq 0x080190ba
+0801907c 0492 str r2,[sp,#0x10]
+0801907e 099a ldr r2,[sp,#0x24]
+08019080 201d adds r0,r4,#0x4
+08019082 0392 str r2,[sp,#0xc]
+08019084 6246 mov r2,r12
+08019086 0292 str r2,[sp,#0x8]
+08019088 069a ldr r2,[sp,#0x18]
+0801908a 3018 adds r0,r6,r0
+0801908c 0192 str r2,[sp,#0x4]
+0801908e 089a ldr r2,[sp,#0x20]
+08019090 5434 adds r4,#0x54
+08019092 0092 str r2,[sp,#0x0]
+08019094 079a ldr r2,[sp,#0x1c]
+08019096 08f0bdfc bl 0x08021a14
+0801909a 0b9b ldr r3,[sp,#0x2c]
+0801909c 079a ldr r2,[sp,#0x1c]
+0801909e 0493 str r3,[sp,#0x10]
+080190a0 099b ldr r3,[sp,#0x24]
+080190a2 0e99 ldr r1,[sp,#0x38]
+080190a4 0393 str r3,[sp,#0xc]
+080190a6 0c9b ldr r3,[sp,#0x30]
+080190a8 3019 adds r0,r6,r4
+080190aa 0293 str r3,[sp,#0x8]
+080190ac 069b ldr r3,[sp,#0x18]
+080190ae 0193 str r3,[sp,#0x4]
+080190b0 089b ldr r3,[sp,#0x20]
+080190b2 0093 str r3,[sp,#0x0]
+080190b4 0d9b ldr r3,[sp,#0x34]
+080190b6 08f0adfc bl 0x08021a14
+080190ba 0135 adds r5,#0x1
+080190bc edb2 uxtb r5,r5
+080190be b3e7 b 0x08019028
+080190c0 0a2a cmp r2,#0xa
+080190c2 04d8 bhi 0x080190ce
+080190c4 2f48 ldr r0,[0x08019184]
+080190c6 fef7b5fa bl 0x08017634
+080190ca 0620 movs r0,#0x6
+080190cc bae6 b 0x08018e44
+080190ce 0422 movs r2,#0x4
+080190d0 4c78 ldrb r4,[r1,#0x1]
+080190d2 0ea8 add r0,sp,#0x38
+080190d4 0231 adds r1,#0x2
+080190d6 0ef06fff bl 0x08027fb8
+080190da e91d adds r1,r5,#0x7
+080190dc 0422 movs r2,#0x4
+080190de 0da8 add r0,sp,#0x34
+080190e0 ae79 ldrb r6,[r5,#0x6]
+080190e2 0ef069ff bl 0x08027fb8
+080190e6 284b ldr r3,[0x08019188]
+080190e8 0e9a ldr r2,[sp,#0x38]
+080190ea f918 adds r1,r7,r3
+080190ec 274b ldr r3,[0x0801918c]
+080190ee 0d9d ldr r5,[sp,#0x34]
+080190f0 f818 adds r0,r7,r3
+080190f2 0f4b ldr r3,[0x08019130]
+080190f4 fb18 adds r3,r7,r3
+080190f6 1f78 ldrb r7,[r3,#0x0]
+080190f8 a823 movs r3,#0xa8
+080190fa 7b43 muls r3,r7
+080190fc 5b18 adds r3,r3,r1
+080190fe 8b42 cmp r3,r1
+08019100 48d1 bne 0x08019194
+08019102 3300 movs r3,r6
+08019104 2100 movs r1,r4
+08019106 2248 ldr r0,[0x08019190]
+08019108 0095 str r5,[sp,#0x0]
+0801910a fef793fa bl 0x08017634
+0801910e e8e6 b 0x08018ee2
+08019194 0f00 movs r7,r1
+08019196 7f37 adds r7,#0x7f
+08019198 3f78 ldrb r7,[r7,#0x0]
+0801919a 002f cmp r7,#0x0
+0801919c 09d0 beq 0x080191b2
+0801919e cf1c adds r7,r1,#0x3
+080191a0 0c70 strb r4,[r1,#0x0]
+080191a2 3a60 str r2,[r7,#0x0]
+080191a4 ce71 strb r6,[r1,#0x7]
+080191a6 bd60 str r5,[r7,#0x8]
+080191a8 c71c adds r7,r0,#0x3
+080191aa 0470 strb r4,[r0,#0x0]
+080191ac 3a60 str r2,[r7,#0x0]
+080191ae c671 strb r6,[r0,#0x7]
+080191b0 bd60 str r5,[r7,#0x8]
+080191b2 a831 adds r1,#0xa8
+080191b4 a830 adds r0,#0xa8
+080191b6 a2e7 b 0x080190fe
+080191b8 0248 ldr r0,[0x080191c4]
+080191ba 2100 movs r1,r4
+080191bc fef73afa bl 0x08017634
+080191c0 0220 movs r0,#0x2
+080191c2 3fe6 b 0x08018e44

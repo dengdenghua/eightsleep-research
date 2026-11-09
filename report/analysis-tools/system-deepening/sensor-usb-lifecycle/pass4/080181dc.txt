@@ -1,0 +1,31 @@
+TARGET 080181dc function=080181dc
+REF_TO 08020f8c UNCONDITIONAL_CALL owner=0801f0d0
+REF_TO 08021046 UNCONDITIONAL_CALL owner=0801f0d0
+FUNCTION_BODY [[080181dc, 080181fb]]
+
+undefined4 FUN_080181dc(int param_1)
+
+{
+  FUN_0801bfbc();
+  if (*(int *)(param_1 + 0x2b8) != 0) {
+    (**(code **)(*(int *)(param_1 + 0x2b8) + 4))(param_1,*(uint *)(param_1 + 4) & 0xff);
+  }
+  return 0;
+}
+
+
+INSN 080181dc 10b5 push {r4,lr}
+INSN 080181de 0400 movs r4,r0
+INSN 080181e0 03f0ecfe bl 0x0801bfbc REF[UNCONDITIONAL_CALL:0801bfbc]
+INSN 080181e4 ae23 movs r3,#0xae
+INSN 080181e6 9b00 lsls r3,r3,#0x2
+INSN 080181e8 e358 ldr r3,[r4,r3]
+INSN 080181ea 002b cmp r3,#0x0
+INSN 080181ec 04d0 beq 0x080181f8 REF[CONDITIONAL_JUMP:080181f8]
+INSN 080181ee 6168 ldr r1,[r4,#0x4]
+INSN 080181f0 2000 movs r0,r4
+INSN 080181f2 5b68 ldr r3,[r3,#0x4]
+INSN 080181f4 c9b2 uxtb r1,r1
+INSN 080181f6 9847 blx r3
+INSN 080181f8 0020 movs r0,#0x0
+INSN 080181fa 10bd pop {r4,pc}

@@ -1,0 +1,59 @@
+TARGET 001d9a50 function=001d9a50
+REF_TO 004cbbac INDIRECTION owner=none
+REF_TO 004ee650 DATA owner=none
+REF_TO 00280b70 UNCONDITIONAL_CALL owner=00280b10
+REF_TO 00205b6c UNCONDITIONAL_CALL owner=00205a20
+REF_TO 00243f14 UNCONDITIONAL_CALL owner=00243e70
+FUNCTION_BODY [[001d9a50, 001d9abf]]
+
+void FUN_001d9a50(undefined4 *param_1,undefined8 *param_2,undefined8 param_3,undefined8 param_4,
+                 undefined8 param_5,undefined1 param_6)
+
+{
+  undefined8 uVar1;
+  undefined8 uVar2;
+  
+  uVar1 = *param_2;
+  uVar2 = param_2[2];
+  *param_1 = 0;
+  *(undefined8 *)(param_1 + 0x412) = param_3;
+  *(undefined8 *)(param_1 + 0x414) = param_4;
+  *(undefined8 *)(param_1 + 0x418) = param_5;
+  *(undefined1 *)((long)param_1 + 0x106a) = param_6;
+  FUN_001d9e20(param_1 + 2,uVar1,uVar2);
+  FUN_001d9f24(param_1 + 0x20c,param_2[1],param_2[2]);
+  *(undefined8 *)(param_1 + 0x416) = 0;
+  **(undefined8 **)(param_1 + 0x418) = 0;
+  *(undefined2 *)(param_1 + 0x41a) = 0;
+  return;
+}
+
+
+INSN 001d9a50 3f2303d5 paciasp
+INSN 001d9a54 fd7bbea9 stp x29,x30,[sp, #-0x20]! REF[WRITE:Stack[-0x20]]
+INSN 001d9a58 06044091 add x6,x0,#0x1, LSL #12
+INSN 001d9a5c fd030091 mov x29,sp
+INSN 001d9a60 f35301a9 stp x19,x20,[sp, #0x10] REF[WRITE:Stack[-0x10]]
+INSN 001d9a64 f40301aa mov x20,x1
+INSN 001d9a68 f30300aa mov x19,x0
+INSN 001d9a6c e00302aa mov x0,x2
+INSN 001d9a70 210040f9 ldr x1,[x1]
+INSN 001d9a74 820a40f9 ldr x2,[x20, #0x10]
+INSN 001d9a78 7f0200b9 str wzr,[x19]
+INSN 001d9a7c 602608f9 str x0,[x19, #0x1048]
+INSN 001d9a80 60220091 add x0,x19,#0x8
+INSN 001d9a84 632a08f9 str x3,[x19, #0x1050]
+INSN 001d9a88 643208f9 str x4,[x19, #0x1060]
+INSN 001d9a8c c5a80139 strb w5,[x6, #0x6a]
+INSN 001d9a90 e4000094 bl 0x001d9e20 REF[UNCONDITIONAL_CALL:001d9e20]
+INSN 001d9a94 818a40a9 ldp x1,x2,[x20, #0x8]
+INSN 001d9a98 60c22091 add x0,x19,#0x830
+INSN 001d9a9c 22010094 bl 0x001d9f24 REF[UNCONDITIONAL_CALL:001d9f24]
+INSN 001d9aa0 7f2e08f9 str xzr,[x19, #0x1058]
+INSN 001d9aa4 603248f9 ldr x0,[x19, #0x1060]
+INSN 001d9aa8 1f0000f9 str xzr,[x0]
+INSN 001d9aac 7fd22079 strh wzr,[x19, #0x1068]
+INSN 001d9ab0 f35341a9 ldp x19,x20,[sp, #0x10] REF[READ:Stack[-0x10]]
+INSN 001d9ab4 fd7bc2a8 ldp x29,x30,[sp], #0x20 REF[DATA:Stack[-0x20]]
+INSN 001d9ab8 bf2303d5 autiasp
+INSN 001d9abc c0035fd6 ret

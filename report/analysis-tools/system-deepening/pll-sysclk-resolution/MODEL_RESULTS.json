@@ -1,0 +1,270 @@
+{
+  "schema": "eightsleep.nonusb.pll-sysclk-model.v1",
+  "date": "2026-11-08",
+  "status": "PASS",
+  "method": "Integer replay of the field shifts and two divisions in 0800cd24; prescaler lookup from 080241cc; SysTick arithmetic from 0800995c.",
+  "cases": [
+    {
+      "variant": "16MHz",
+      "hse_software_input_hz": 16000000,
+      "cfgr2": "0x56061813",
+      "pll_source": "HSE software field",
+      "prediv": 2,
+      "pllmul": 24,
+      "plldiv": 3,
+      "pll_input_after_prediv_hz": 8000000,
+      "vco_before_plldiv_hz": 192000000,
+      "sysclk_hz": 64000000
+    },
+    {
+      "variant": "32MHz",
+      "hse_software_input_hz": 32000000,
+      "cfgr2": "0x56061833",
+      "pll_source": "HSE software field",
+      "prediv": 4,
+      "pllmul": 24,
+      "plldiv": 3,
+      "pll_input_after_prediv_hz": 8000000,
+      "vco_before_plldiv_hz": 192000000,
+      "sysclk_hz": 64000000
+    },
+    {
+      "variant": "8MHz",
+      "hse_software_input_hz": 8000000,
+      "cfgr2": "0x56061803",
+      "pll_source": "HSE software field",
+      "prediv": 1,
+      "pllmul": 24,
+      "plldiv": 3,
+      "pll_input_after_prediv_hz": 8000000,
+      "vco_before_plldiv_hz": 192000000,
+      "sysclk_hz": 64000000
+    }
+  ],
+  "prescaler": {
+    "index": 0,
+    "shift": 0,
+    "clock_variable_hz": 64000000
+  },
+  "systick": [
+    {
+      "step_software_ticks": 1,
+      "q": 1000,
+      "N": 64000,
+      "LOAD": 63999,
+      "nominal_unit_ms_conditional": 1
+    },
+    {
+      "step_software_ticks": 10,
+      "q": 100,
+      "N": 640000,
+      "LOAD": 639999,
+      "nominal_unit_ms_conditional": 10
+    }
+  ],
+  "counterfactuals": {
+    "32mhz_with_prediv_2": {
+      "cfgr2": "0x56061813",
+      "sysclk_hz": 128000000
+    },
+    "sw_not_pll": {
+      "branch": "HSE",
+      "values_hz": {
+        "16MHz": 16000000,
+        "32MHz": 32000000,
+        "8MHz": 8000000
+      }
+    }
+  },
+  "assertions": [
+    {
+      "name": "16MHz_sysclk_is_64mhz",
+      "ok": true,
+      "got": 64000000,
+      "expected": 64000000
+    },
+    {
+      "name": "16MHz_pllmul",
+      "ok": true,
+      "got": 24,
+      "expected": 24
+    },
+    {
+      "name": "16MHz_plldiv",
+      "ok": true,
+      "got": 3,
+      "expected": 3
+    },
+    {
+      "name": "16MHz_source_is_hse",
+      "ok": true,
+      "got": "HSE software field",
+      "expected": "HSE software field"
+    },
+    {
+      "name": "16MHz_prediv_input_is_8mhz",
+      "ok": true,
+      "got": 8000000,
+      "expected": 8000000
+    },
+    {
+      "name": "32MHz_sysclk_is_64mhz",
+      "ok": true,
+      "got": 64000000,
+      "expected": 64000000
+    },
+    {
+      "name": "32MHz_pllmul",
+      "ok": true,
+      "got": 24,
+      "expected": 24
+    },
+    {
+      "name": "32MHz_plldiv",
+      "ok": true,
+      "got": 3,
+      "expected": 3
+    },
+    {
+      "name": "32MHz_source_is_hse",
+      "ok": true,
+      "got": "HSE software field",
+      "expected": "HSE software field"
+    },
+    {
+      "name": "32MHz_prediv_input_is_8mhz",
+      "ok": true,
+      "got": 8000000,
+      "expected": 8000000
+    },
+    {
+      "name": "8MHz_sysclk_is_64mhz",
+      "ok": true,
+      "got": 64000000,
+      "expected": 64000000
+    },
+    {
+      "name": "8MHz_pllmul",
+      "ok": true,
+      "got": 24,
+      "expected": 24
+    },
+    {
+      "name": "8MHz_plldiv",
+      "ok": true,
+      "got": 3,
+      "expected": 3
+    },
+    {
+      "name": "8MHz_source_is_hse",
+      "ok": true,
+      "got": "HSE software field",
+      "expected": "HSE software field"
+    },
+    {
+      "name": "8MHz_prediv_input_is_8mhz",
+      "ok": true,
+      "got": 8000000,
+      "expected": 8000000
+    },
+    {
+      "name": "prediv_16mhz",
+      "ok": true,
+      "got": 2,
+      "expected": 2
+    },
+    {
+      "name": "prediv_32mhz",
+      "ok": true,
+      "got": 4,
+      "expected": 4
+    },
+    {
+      "name": "prediv_8mhz",
+      "ok": true,
+      "got": 1,
+      "expected": 1
+    },
+    {
+      "name": "all_three_variants_agree",
+      "ok": true,
+      "got": 1,
+      "expected": 1
+    },
+    {
+      "name": "prescaler_index_from_second_struct",
+      "ok": true,
+      "got": 0,
+      "expected": 0
+    },
+    {
+      "name": "prescaler_shift_table_zero",
+      "ok": true,
+      "got": 0,
+      "expected": 0
+    },
+    {
+      "name": "systick_clock_variable_64mhz",
+      "ok": true,
+      "got": 64000000,
+      "expected": 64000000
+    },
+    {
+      "name": "systick_LOAD_step1",
+      "ok": true,
+      "got": 63999,
+      "expected": 63999
+    },
+    {
+      "name": "systick_LOAD_step10",
+      "ok": true,
+      "got": 639999,
+      "expected": 639999
+    },
+    {
+      "name": "systick_nominal_step1_ms",
+      "ok": true,
+      "got": 1,
+      "expected": 1
+    },
+    {
+      "name": "systick_nominal_step10_ms",
+      "ok": true,
+      "got": 10,
+      "expected": 10
+    },
+    {
+      "name": "counterfactual_32mhz_with_prediv2_is_128mhz",
+      "ok": true,
+      "got": 128000000,
+      "expected": 128000000
+    },
+    {
+      "name": "hse_branch_16mhz",
+      "ok": true,
+      "got": 16000000,
+      "expected": 16000000
+    },
+    {
+      "name": "hse_branch_32mhz",
+      "ok": true,
+      "got": 32000000,
+      "expected": 32000000
+    },
+    {
+      "name": "hse_branch_8mhz",
+      "ok": true,
+      "got": 8000000,
+      "expected": 8000000
+    }
+  ],
+  "failures": [],
+  "limits": [
+    "HSE 16/32/8MHz are software inputs written by 080108ac / 08010960, not measurements of a fitted oscillator.",
+    "64MHz is the value the firmware would compute and store, conditional on PLL lock, a successful SW=2 switch with SWS readback 0x10, and no fatal error.",
+    "The integer-division semantics of 08008174 come from its three quotient call sites; the helper itself was not formally proved.",
+    "Nominal SysTick units assume the running core clock equals the stored clock variable and the interrupt is serviced normally.",
+    "Static bytes do not prove PLL lock, switch transition, tick loss or interrupt latency."
+  ],
+  "executes_firmware": false
+}

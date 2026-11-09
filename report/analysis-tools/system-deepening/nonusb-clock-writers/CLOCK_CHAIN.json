@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-08",
+  "purpose": "Bind the nonUSB clock-variable writers, configuration entries and fatal error chain, and compare them with the previously completed USB chain. Read-only Ghidra exports plus byte-level verification; no firmware execution.",
+  "samples": {
+    "nonusb": {"file": "firmware-sensor-g0.bbin", "bytes": 132896,
+               "sha256": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+               "image_base": "0x08008000"},
+    "usb": {"file": "firmware-sensor-g0-usb.bbin", "bytes": 140828,
+            "sha256": "1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563",
+            "image_base": "0x08010000"}
+  },
+  "address_deltas": {
+    "front_sysTick_and_error_region": "0x8000 (pure image-base shift; bytes identical for the error chain)",
+    "clock_writer_and_config_region": "0x8464 (three writers and their BL-to-SysTick callers all share this delta)",
+    "data_tables_and_late_code": "not constant; e.g. nonUSB divider table 0x080241cc vs USB 0x0802DFA0"
+  },
+  "rows": [
+    {"role": "clock_frequency_variable", "usb": "0x20000250", "nonusb": "0x20000250", "note": "same RAM address in both"},
+    {"role": "software_input_frequency_field", "usb": "0x2000054c", "nonusb": "0x20000474", "note": "different RAM layout"},
+    {"role": "SysTick config function", "usb": "0x0801195c", "nonusb": "0x0800995c"},
+    {"role": "clock writer 1 (reset/switch, 16MHz)", "usb": "0x08014c8c", "nonusb": "0x0800c828",
+     "write_site_usb": "0x08014cf0", "write_site_nonusb": "0x0800c88c",
+     "detail": "RCC wait loops with tick-based timeouts (3 / 5001 / 3 ticks); on success writes 16000000 to 0x20000250 and calls SysTick config; returns 3 on timeout, otherwise forwards config result 0/1"},
+    {"role": "clock writer 2 (oscillator/PLL)", "usb": "0x08014d40", "nonusb": "0x0800c8dc",
+     "write_site_usb": "0x08014e64", "write_site_nonusb": "0x0800ca00",
+     "detail": "16000000 >> ((RCC_CR & 0x3fff) >> 0xb) written to 0x20000250, then SysTick config; non-zero return does not restore the prior configuration"},
+    {"role": "clock writer 3 (source/divider + Flash wait)", "usb": "0x08015218", "nonusb": "0x0800cdb4",
+     "write_site_usb": "0x0801527e", "write_site_nonusb": "0x0800ce1a",
+     "detail": "decodes source frequency, shifts by divider table (nonUSB 0x080241cc / USB 0x0802DFA0), writes 0x20000250, then SysTick config; failure happens after registers and variable were already changed"},
+    {"role": "config entry 1 (16/32MHz branch)", "usb": "0x08019fd0", "nonusb": "0x080108ac",
+     "detail": "range test on a 16-bit field (nonUSB 0x20001cfc, condition value-0xA87 <= 0x78) selects 16000000 or 32000000 into the software input field; calls writer 1 WITHOUT checking its return, then writers 2/3 and checks non-zero"},
+    {"role": "config entry 2 (8MHz)", "usb": "0x0801a084", "nonusb": "0x08010960",
+     "detail": "software input field = 8000000; same three-writer call pattern"},
+    {"role": "fatal error halt", "usb": "0x08010c04", "nonusb": "0x08008c04",
+     "detail": "calls the SYSRESETREQ helper, then cpsid i and an infinite loop; 27+ call sites in nonUSB, so it is a generic fatal-error entry, not clock-failure-specific"},
+    {"role": "SYSRESETREQ helper", "usb": "0x08012430", "nonusb": "0x0800a430",
+     "detail": "dsb; ldr SCB base 0xE000ED00; ldr 0x05FA0004 (VECTKEY|SYSRESETREQ); str to AIRCR(+0xC); dsb; b . infinite loop. Byte-identical between the two images including both literals."}
+  ],
+  "key_findings": [
+    "The nonUSB clock chain is structurally the same as USB (three writers, two config entries, unchecked first call, fatal halt on later failures) but every address and every byte in that region is independently evidenced; the 0x8464 delta is an observation, not a substitute for proof.",
+    "The prior USB gap '08012430 side effects not followed' is now closed: the helper writes SCB->AIRCR with VECTKEY|SYSRESETREQ, i.e. the code actively requests a system reset rather than merely waiting for a watchdog. Static bytes cannot prove the reset actually completes on hardware.",
+    "Because the helper ends in an unconditional self-branch, the cpsid i and trailing loop in 08008c04 / 08010c04 are unreachable in normal control flow; they are a redundant fallback if the reset request does not take effect.",
+    "08008c04 is a generic fatal-error entry with 106 recorded UNCONDITIONAL_CALL references in this export; the HardFault-style handler 080127c4 dumps r0..r3/r12/lr/pc/psr, delays with a 32000000-iteration loop and then calls the same SYSRESETREQ helper. It must not be described as clock-failure-specific.",
+    "The 080108ac / 08010960 input values (16000000 / 32000000 / 8000000) are software inputs, not measured or decoded PLL/core frequencies. The USB-side conclusion that three configurations decode to 64MHz has NOT been reproduced for nonUSB."
+  ],
+  "byte_validation": {
+    "file": "BYTE_VALIDATION.json",
+    "instruction_rows": 2151, "instruction_bytes": 4640, "flash_literals": 150,
+    "bl_targets": 167, "direct_branch_targets": 359,
+    "unique_addresses": 1174, "failures": 0,
+    "error_chain_bytes_identical": true
+  },
+  "arithmetic_model": {"file": "MODEL_RESULTS.json", "cases": 6, "checks": 7, "checks_failed": 0,
+                       "note": "Integer q/N/LOAD for software input values and step 1/10; not a PLL decode or a clock measurement. The first draft's conditional nominal unit q/1000 ms was wrong for step=10 and was corrected to 1000/q ms (10 ms) with an explicit core-clock condition and a regression assertion; see MODEL_RESULTS.json corrections."}
+}

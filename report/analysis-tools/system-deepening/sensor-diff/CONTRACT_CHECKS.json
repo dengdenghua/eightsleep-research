@@ -1,0 +1,158 @@
+{
+  "artifact_type": "synthetic_contract_checks",
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "ADC_full_phase_continues_FIFO_pairing",
+      "status": "PASS",
+      "initial_batches": [
+        {
+          "adc_synthetic_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "imu_synthetic_id": 5
+        },
+        {
+          "adc_synthetic_ids": [
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "imu_synthetic_id": 10
+        },
+        {
+          "adc_synthetic_ids": [
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "imu_synthetic_id": 15
+        },
+        {
+          "adc_synthetic_ids": [
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "imu_synthetic_id": 20
+        },
+        {
+          "adc_synthetic_ids": [
+            21,
+            22,
+            23,
+            24,
+            25
+          ],
+          "imu_synthetic_id": 25
+        },
+        {
+          "adc_synthetic_ids": [
+            26,
+            27,
+            28,
+            29,
+            30
+          ],
+          "imu_synthetic_id": 30
+        }
+      ],
+      "next_batch": {
+        "adc_synthetic_ids": [
+          36,
+          37,
+          38,
+          39,
+          40
+        ],
+        "imu_synthetic_id": 35
+      },
+      "adc_rejections": 5,
+      "meaning": "Constructed schedule shows possible pairing skew; IDs are synthetic, not wire fields or actual time."
+    },
+    {
+      "case": "both_queues_full_reject_new",
+      "status": "PASS",
+      "adc_rejections": 35,
+      "imu_rejections": 1,
+      "first_adc_retained": 1,
+      "last_adc_retained": 30
+    },
+    {
+      "case": "flush_does_not_reset_phase",
+      "status": "PASS",
+      "removed": 8,
+      "phase_after_flush": 2
+    },
+    {
+      "case": "usb_batch_popped_before_buffer_wait",
+      "status": "PASS",
+      "already_removed_packet": {
+        "adc_synthetic_ids": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "imu_synthetic_id": 5
+      },
+      "observed_outcome": "timeout_local_failure",
+      "queue_counts": [
+        0,
+        0
+      ],
+      "host_delivery": "not_observed"
+    },
+    {
+      "case": "nonusb_batch_popped_before_buffer_wait",
+      "status": "PASS",
+      "already_removed_packet": {
+        "adc_synthetic_ids": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "imu_synthetic_id": 5
+      },
+      "observed_outcome": "still_waiting_at_observation_bound",
+      "queue_counts": [
+        0,
+        0
+      ],
+      "host_delivery": "not_observed"
+    },
+    {
+      "case": "500_boundary_is_checked_before_USB_slot_scan",
+      "status": "PASS"
+    }
+  ],
+  "source_contracts": [
+    "DIFF_TABLE.json#queue-overflow",
+    "DIFF_TABLE.json#pairing",
+    "DIFF_TABLE.json#flush",
+    "DIFF_TABLE.json#send-buffer-wait"
+  ],
+  "not_covered": [
+    "firmware execution",
+    "interrupt timing and priority",
+    "clock calibration",
+    "allocation faults",
+    "hardware transfer completion",
+    "host receipt",
+    "whole-program equivalence"
+  ],
+  "interpretation": "Hand-written model tests consequences of stated branches; does not independently prove the binary."
+}

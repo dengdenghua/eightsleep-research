@@ -1,0 +1,93 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方中国版 App：孕期／产后温控模式与推荐接受、撤销链
+日期：2026-11-07。仅静态分析官方 APK；未调用账户、设备或生产 API，未运行目标代码。
+
+结论
+已闭合实际 ViewModel -> use case -> TemperatureRepository -> Retrofit 请求链。
+模式切换提交的是启用标志和日期；推荐读取返回三档温度；接受提交一个 action，撤销提交独立请求。
+在这些已审阅路径中，App 不把孕周、生理指标或压电波形计算成温度目标。推荐值来自响应，服务端如何产生和应用它们仍未知。
+还修正了反编译中的显示条件：Smali 要求 pregnancyModeAvailable=true，且推荐非空、状态为 PENDING，才构建这一推荐卡片。Java 文本把 availability 方向写反，不能照抄。
+
+样本和证据身份
+官方腾讯分发 7.63.5-cn-tencent，versionCode 1007063005。
+APK SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+当前索引：462a22f663ae482ea93bab3130b96eaf。
+索引 SHA256：4a6a63564ae05b2404ebdd218a5c579798c3486a83ddbf92bc913274641843a4。
+Java 整体反编译 partial；本报告对日期参数、协程继续分支、默认 mask、接口动词、显示 gate、成功回调使用 Smali。
+thermal-strategy/SOURCE_LEDGER.json 列出 PGT claim、查询副本、不可变 REA evidence_id、源文件 SHA256 和行范围。接手保留先前83份查询，并针对本报告关键路径补充37份查询；补充内容主要为编译 Smali，也含一份 Retrofit Java 对照。
+
+PGT1：模式启用、产后切换、关闭，提交什么
+PregnancyActivationViewModel.activate(lmpDate,dueDate,...) -> $activate$1 -> ld.j.a -> ld.g -> TemperatureRepository.activatePregnancyMode。
+产后入口 activatePostpartum(deliveryDate,weeksPregnantAtDelivery,...) 先在本地生成可空的 lastMenstrualDate：
+  weeks 参数存在：deliveryDate.minusWeeks(weeks)
+  weeks 参数为空：null
+然后 $activatePostpartum$1 -> ld.j.b -> ld.i -> 同一 repository 方法。
+关闭入口 $deactivate$1 -> ld.r -> ld.q -> 同一 repository 方法。
+
+该方法通过 gd.F 调用 fd.b.c：
+  PATCH /v1/users/{userId}/pregnancy-mode
+请求对象 ActivatePregnancyModeRequest 的四个字段按以下方式构造：
+  activate：isActive=true，lastMenstrualDate=lmpDate，expectedDueDate=dueDate，deliveryDate=null。
+  activatePostpartum：isActive=true，lastMenstrualDate=上述反推日期，expectedDueDate=null，deliveryDate=deliveryDate。
+  deactivate：isActive=false，其余三个日期为 null。
+ld.g / ld.i / ld.q 的默认 mask 分别为8、4、14；请求构造函数确认这些 mask 只将对应日期参数置 null。
+这是请求对象层面的字段值；不据此断言序列化时所有 null 都会写出，或服务器如何解释缺省与 null。
+这些对象没有温度数值、睡眠阶段、HR/RR/HRV、原始压电样本或模型参数。关闭使用同一 PATCH，并非从方法名猜成 DELETE。
+fd.b 的 app-api 环境绑定沿用 APP_THERMAL_CONTROL_ZH.txt；国行编译环境对应 app-api-proxy.8slp.net.cn。没有实测服务器返回或实际执行时间。
+锚点：PregnancyActivationViewModel.smali:473–539；ld/g、ld/i、ld/q 的 invokeSuspend；请求构造/default；fd/b.c 的注解；Xq/W.smali:60–126。
+
+PGT2：推荐数值来自响应，缺字段如何处理
+DynamicHomeViewModel.fetchPregnancyRecommendation 启动实际协程，经 ld.z -> ld.y -> repository.fetchPregnancyRecommendation -> gd.N -> fd.b.f：
+  GET /v1/users/{userId}/pregnancy-mode/recommendation
+响应 PregnancyRecommendationResponse 有 nullable status、weekFromLmp、bedtime、night、morning。
+toDomain 要求 weekFromLmp、bedtime、night、morning 四个数值都非 null，缺任一项即返回 null。
+数值齐全时，三个温度整数直接包装成 Ga.b；这里未看到基于孕周再计算、缩放或补齐三档值的算式。
+status 按字符串查枚举 pending / accepted / active / expired；不匹配或 null 映射 UNKNOWN。状态未知不会单独使 domain 为空。
+gd.O 将该 domain 包装为成功结果；fetch 的消费者把 domain 写入 pregnancyRecommendationFlow。
+本地缺字段处理与服务器推荐生成是两个步骤。weekFromLmp 是响应提供的字段，不能凭字段名认为 App 本地推导了推荐温度。
+锚点：PregnancyRecommendationResponse.toDomain 的 Smali；jd/l.<clinit>；gd/N、gd/O；DynamicHomeViewModel$fetchPregnancyRecommendation$1及$1$1。
+
+PGT3：实际 UI gate，不能用错误 Java 条件推断
+DynamicHomeViewModel$observeInsights$1$3.smali:2214–2304 的有效条件为：
+  ObservedSources.pregnancyModeAvailable == true
+  pregnancyRecommendation != null
+  recommendation.status == PENDING
+满足才构造 Ff.O0("pregnancy_recommendation_section",...)。
+卡片收到当前三档值、响应里的三档推荐值、响应 weekFromLmp，以及已有 UI 状态；这里不是温度预测器。
+postpartum 标志是 pregnancyModeState 非 null 且其 stage 字符串为 postpartum；反编译 Java 中“jVar == null && jVar.b()”也是错误恢复，Smali 先判非空。
+availability 的账户/远程开关运行值未取得；这不是所有 Pod6 用户必然显示的卡片。
+Mf.g case7/case14 分别发 P3/S3；DynamicHomeViewModel.onUiAction 将它们分派给接受和撤销处理器。UI 生产者检索有分页未穷尽，本报告只断言已审阅的动作链，不声称列全所有入口。
+
+PGT4：接受和撤销不会在这些请求里回传三档温度
+接受链：P3 -> handlePregnancyRecommendationAccepted -> 协程 -> ld.L0 -> ld.K0 -> repository.submitPregnancyRecommendation -> gd.h0 -> fd.b.o。
+  POST /v1/users/{userId}/pregnancy-mode/recommendation
+gd.h0 构造 SubmitPregnancyRecommendationRequest(action)。该类只有一个 action 字段，调用端取 PregnancyRecommendationAction.ACCEPTED 的 apiValue，即 accepted。
+在这条构造链里没有传递三档推荐值、旧温度、weekFromLmp 或推荐 ID。不能因此断言服务端如何选择当前推荐、处理重复接受或并发更新。
+
+撤销链：S3 -> handlePregnancyRecommendationUndoUpdate -> 协程 -> ld.T0 -> ld.S0 -> repository.undoPregnancyRecommendation -> gd.j0 -> fd.b.d。
+  POST /v1/users/{userId}/pregnancy-mode/recommendation/undo
+这个 Retrofit 方法只有 userId 路径参数和 continuation，没有 @Body。它不使用普通温度撤销流程的 previousLevel，也不在此构造旧三档温度。
+因此此前 APP_TEMPERATURE_HISTORY_ZH.txt 的环境调温 previousLevel 写回，与这里的推荐 undo 是不同实现，不能合并为一个算法。
+
+请求的 Unit 成功结果经 ya.j.d（只对 ya.g 调用成功 lambda）进入成功处理：
+  pregnancyRecommendationFlow = null
+  从视图 section 列表移除 Ff.O0 推荐卡片
+接受、撤销各有独立的失败处理。清掉卡片是客户端对成功结果的处理，不能当作水温已达到目标的证据。
+这些成功 lambda 没有构造 TemperatureSettingsRequest 或直接调用本地加热/PID。另一条已恢复的 temp-dial 事件消费者会延后/刷新 temperature/all，见 APP_LIVE_SENSOR_EVENTS_ZH.txt；未证明每次推荐动作都会收到此事件。
+锚点：接受协程 Smali:194–230；gd/h0 invokeSuspend；SubmitPregnancyRecommendationRequest.smali:44–61；gd/j0 invokeSuspend；ya/j.smali:214–303；两条成功 lambda及移除 section 的 lambda。
+
+PGT5：状态刷新、基线与 auto-accept 的边界
+模式 PATCH 的成功 mapper gd.H 在 repository scope 启动 gd.G。后者将请求中的 lastMenstrualDate、expectedDueDate 送给本地 DAO 操作，然后 refreshPregnancyMode(userId)。
+产后启用的 ViewModel 成功回调另启动读取 pregnancy mode 的流程，取回状态后写 _pregnancyState、记录 analytics、调用 onComplete；不是用日期本地计算三档温度。
+activate 成功回调计算 max(0, integer(daysBetween(lmpDate, LocalDate.now()) / 7))，结果传给 analytics 事件。这个已追算式是周数统计，不是温控曲线。
+模式响应还携带 autoAcceptTemperatureRecommendations、温度 baseline、基线 HR/HRV/RR、产后基线 HR/HRV/RR、latitude 等。
+toDomain 对每组三个 baseline 字段要求同时存在，才构造相应 baseline 对象；缺一则整组为 null。它传递服务器字段，不从原始波形计算基线。
+本索引对 autoAcceptTemperatureRecommendations 对应 domain 字段的直接引用仅落在该数据类的构造、相等比较、hash/toString；已查直接引用中未得到本地自动接受或目标生成执行链。该结论不覆盖反射、服务端逻辑或未取得的代码。
+不能把字段存在、推荐响应、API 成功或 UI 更新当作恢复 Autopilot 的生产策略。
+
+仍未闭合
+服务器如何从压电/IMU、生理指标、阶段、个人偏好、环境和模式生成三档或瞬时温度目标；接受/撤销在服务端如何改变设备计划；实际运行值、推送时序和设备反馈均未知。
+多通道物理映射、滤波/融合、心搏与呼吸检测、生产睡眠分期网络和权重仍未取得。
+本轮完成的是这些具体客户端模式/推荐消费者的静态链与反编译纠正，没有把整体目标改成仅分析 App UI。

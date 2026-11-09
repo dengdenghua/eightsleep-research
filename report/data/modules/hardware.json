@@ -1,0 +1,41 @@
+{
+  "id": "hardware",
+  "title": "硬件平台与版本对应",
+  "layer": "hardware",
+  "status": "partial",
+  "order": 10,
+  "summary": "先确认分析的文件和你床上的机器是不是同一套版本。芯片相同，也不代表传感器小板、程序版本和所有行为都相同。",
+  "inputs": [
+    "官方 MTK SWU 与设备树",
+    "非唯一硬件标签及板级修订"
+  ],
+  "outputs": [
+    "组件版本命名空间",
+    "K60 条件通道图与 transport 边界"
+  ],
+  "findings": [
+    "SWU、Frank、DAC、Capybara、MCU 和 API 版本是独立来源。",
+    "K60 启动映射下，wire8..12 来自 ADC1 源3/2/1/0/4；仍受初始化与运行期改表条件限制。",
+    "USB/nonUSB 的 K60 窄范围映射均独立追到消费端，不能扩大为整程序等价。",
+    "已保存两侧32个协议槽的条件核对表；物理板卡、ADC封装和压电位置留空，不能按通道数推断板卡数量。"
+  ],
+  "unknowns": [
+    "当前部署镜像、MCU transport 与制造页对应",
+    "实体 BOM、床上坐标、模拟链和物理标定",
+    "实际时钟、DRDY 与运行期 map/PGA"
+  ],
+  "evidence": [
+    "analysis/system/MTK_COMPARISON.txt",
+    "analysis/account-readonly/current-firmware-match/namespace-trace/FINDINGS_ZH.txt",
+    "analysis/account-readonly/k60-binding/FINDINGS_ZH.txt",
+    "analysis/account-readonly/k60-binding/nonusb-flow/FINDINGS_ZH.txt",
+    "analysis/signal-host/SIGNAL_HOST_ANALYSIS.txt",
+    "analysis/system-deepening-20261108/channel-topology-matrix/FINDINGS_ZH.txt"
+  ],
+  "next": [
+    "HW-01",
+    "HW-02",
+    "HW-03"
+  ],
+  "plain_intro": "区分系统镜像、主控构建号、MCU版本与硬件修订，核对条件通道映射和实际部署。"
+}

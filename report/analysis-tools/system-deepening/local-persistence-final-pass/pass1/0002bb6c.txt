@@ -1,0 +1,69 @@
+FUNCTION 0002bb6c BODY [[0002bb6c, 0002bbbf]]
+REF_TO Entry Point EXTERNAL
+REF_TO 00035280 UNCONDITIONAL_CALL
+
+void vector_handler_17(void)
+
+{
+  int iVar1;
+  int iVar2;
+  code *UNRECOVERED_JUMPTABLE;
+  
+  iVar1 = DAT_0002bbc0;
+  if ((*(int *)(DAT_0002bbc0 + 0x100) != 0) && ((*(uint *)(DAT_0002bbc0 + 0x304) & 1) != 0)) {
+    *(undefined4 *)(DAT_0002bbc0 + 0x100) = 0;
+  }
+  iVar2 = DAT_0002bbc4;
+  if ((*(int *)(iVar1 + 0x10c) != 0) && (*(int *)(iVar1 + 0x304) << 0x1c < 0)) {
+    *(undefined4 *)(iVar1 + 0x10c) = 0;
+    UNRECOVERED_JUMPTABLE = *(code **)(iVar2 + 0x10);
+    if (UNRECOVERED_JUMPTABLE != (code *)0x0) {
+      (*UNRECOVERED_JUMPTABLE)();
+    }
+  }
+  if ((*(int *)(iVar1 + 0x110) != 0) && (*(int *)(iVar1 + 0x304) << 0x1b < 0)) {
+    *(undefined4 *)(iVar1 + 0x110) = 0;
+    UNRECOVERED_JUMPTABLE = *(code **)(iVar2 + 0xc);
+    if (UNRECOVERED_JUMPTABLE != (code *)0x0) {
+                    /* WARNING: Could not recover jumptable at 0x0002bbbc. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+      (*UNRECOVERED_JUMPTABLE)();
+      return;
+    }
+  }
+  return;
+}
+
+
+INSN 0002bb6c 70b5 push {r4,r5,r6,lr}
+INSN 0002bb6e 144c ldr r4,[0x0002bbc0] REF[READ:0002bbc0=40001000]
+INSN 0002bb70 d4f80001 ldr.w r0,[r4,#0x100] REF[READ:40001100]
+INSN 0002bb74 0026 movs r6,#0x0
+INSN 0002bb76 28b1 cbz r0,0x0002bb84 REF[CONDITIONAL_JUMP:0002bb84]
+INSN 0002bb78 d4f80403 ldr.w r0,[r4,#0x304] REF[READ:40001304]
+INSN 0002bb7c c007 lsls r0,r0,#0x1f
+INSN 0002bb7e 01d0 beq 0x0002bb84 REF[CONDITIONAL_JUMP:0002bb84]
+INSN 0002bb80 c4f80061 str.w r6,[r4,#0x100] REF[WRITE:40001100]
+INSN 0002bb84 d4f80c01 ldr.w r0,[r4,#0x10c] REF[READ:4000110c]
+INSN 0002bb88 0e4d ldr r5,[0x0002bbc4] REF[READ:0002bbc4=200035f4]
+INSN 0002bb8a 40b1 cbz r0,0x0002bb9e REF[CONDITIONAL_JUMP:0002bb9e]
+INSN 0002bb8c d4f80403 ldr.w r0,[r4,#0x304] REF[READ:40001304]
+INSN 0002bb90 0007 lsls r0,r0,#0x1c
+INSN 0002bb92 04d5 bpl 0x0002bb9e REF[CONDITIONAL_JUMP:0002bb9e]
+INSN 0002bb94 c4f80c61 str.w r6,[r4,#0x10c] REF[WRITE:4000110c]
+INSN 0002bb98 2869 ldr r0,[r5,#0x10] REF[READ:20003604]
+INSN 0002bb9a 00b1 cbz r0,0x0002bb9e REF[CONDITIONAL_JUMP:0002bb9e]
+INSN 0002bb9c 8047 blx r0
+INSN 0002bb9e d4f81001 ldr.w r0,[r4,#0x110] REF[READ:40001110]
+INSN 0002bba2 0028 cmp r0,#0x0
+INSN 0002bba4 0bd0 beq 0x0002bbbe REF[CONDITIONAL_JUMP:0002bbbe]
+INSN 0002bba6 d4f80403 ldr.w r0,[r4,#0x304] REF[READ:40001304]
+INSN 0002bbaa c006 lsls r0,r0,#0x1b
+INSN 0002bbac 07d5 bpl 0x0002bbbe REF[CONDITIONAL_JUMP:0002bbbe]
+INSN 0002bbae c4f81061 str.w r6,[r4,#0x110] REF[WRITE:40001110]
+INSN 0002bbb2 e868 ldr r0,[r5,#0xc] REF[READ:20003600]
+INSN 0002bbb4 0028 cmp r0,#0x0
+INSN 0002bbb6 02d0 beq 0x0002bbbe REF[CONDITIONAL_JUMP:0002bbbe]
+INSN 0002bbb8 bde87040 pop.w {r4,r5,r6,lr}
+INSN 0002bbbc 0047 bx r0
+INSN 0002bbbe 70bd pop {r4,r5,r6,pc}

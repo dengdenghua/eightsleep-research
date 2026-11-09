@@ -1,0 +1,156 @@
+nonUSB 时钟 writer / 配置入口 / 错误链闭合与双版本对照
+2026-11-08；只读静态复核。不执行固件、不连接设备/账号/网络，不修改历史证据文件，不改写 Ghidra 工程。
+
+结论（置顶）
+
+1. 上一轮 nonusb-timebase-crosscheck/COVERAGE_RESIDUAL.json 的 remaining_static 前三项
+   —— nonusb-clock-writers、nonusb-config-entries、error-helper-side-effects —— 本轮已闭合。
+   nonUSB 侧三个写 0x20000250 的函数、两个配置入口、以及错误辅助函数的全部静态副作用
+   都有独立原字节证据，不再需要拿 USB 侧结论投影过去。
+2. USB 侧历史缺口「08012430 副作用未追」同时补上：该辅助函数写 SCB->AIRCR
+   （0xE000ED00 + 0xC）为 0x05FA0004，即 VECTKEY | SYSRESETREQ，主动请求系统复位，
+   随后 dsb 并自循环。它不是「只等看门狗」。静态字节不能证明实机复位真的完成。
+3. 两版前段 SysTick/error region 是纯映像基址平移 0x8000，错误链 5 项逐字节相同；
+   但三个 clock writer 与两个配置入口所在区段实际差 0x8464，且数据表/后段代码无固定差。
+   因此「结构相同」是逐项比对得出的结论，不是靠地址差推出来的，也不能反过来用地址差
+   代替证据。三个 writer 首 16 字节里 writer 1 就与 USB 不同。
+4. 08008c04（USB 08010c04）是通用致命错误入口：本次导出记录 106 条 UNCONDITIONAL_CALL
+   引用，HardFault 处理器 080127c4 打印寄存器后也走同一复位辅助函数。不能写成
+   「仅时钟配置失败触发」。辅助函数末尾是无条件自跳转，所以它后面的 cpsid i 与尾循环
+   在正常控制流中不可达，只是复位未生效时的冗余兜底。
+5. 080108ac / 08010960 写入的 16000000 / 32000000 / 8000000 是软件输入变量
+   （nonUSB 0x20000474），不是解码后的 PLL 或实测核心时钟。USB 侧「三配置软件解码均得
+   64MHz」的结论没有在 nonUSB 侧复现，本轮明确不平移。
+6. 仍然没有闭合的是：全部上游配置选择（区间判断 0x20001cfc 绑到哪个板型/晶振）、
+   切频过渡与累计 tick 损失、物理 PLL 锁定与核心时钟、中断延迟、ADC CLKIN/DRDY 实测。
+   USB 0x2B 首次生产者、旧波形 RAW writer 两个旧缺口保持原状。
+
+一、证据来源与可复现性
+
+样本仍是冻结归档中的两份原件，本轮没有换样本、没有重烧、没有新增采集：
+
+  nonUSB  firmware-sensor-g0.bbin       132896B  SHA256 51531576…c6a891  基址 08008000
+  USB     firmware-sensor-g0-usb.bbin   140828B  SHA256 1a125674…f795563  基址 08010000
+
+沿用 sensor-nonusb-dispatch/scripts/ExportSensorDiff.java，以 -readOnly -noanalysis 打开既有
+NonUsbSensor.gpr 做两轮导出（pass1 八个目标、pass2 九个目标），导出内容包括
+INSN <addr> <hex> <asm> REF[...]、REF_TO、FUNCTION_BODY 与反编译伪代码；脚本内置
+EXECUTABLE_SHA256 守门，输入不符会直接抛错。复现命令见 EXPORT_COMMANDS.json / REPRODUCE.txt。
+
+scripts/verify_clock_bytes.py 不依赖 Ghidra，把导出的每一行再对回冻结 BBIN：
+逐 INSN 机器码、flash literal 原值、BL 由两个半字重算目标、直接分支目标重算。
+结果是 2151 条指令行 / 4640 指令字节 / 150 个 literal / 167 个 BL / 359 个直接分支，
+1174 个唯一地址、2542 个唯一地址字节，0 失败；两份文件 SHA 也重算核对。
+重复导出同一函数只计覆盖重叠，不计新发现函数。逐项结果见 BYTE_VALIDATION.json。
+
+二、三个写 0x20000250 的函数（nonUSB）
+
+  writer 1  0800c828  写点 0800c88c  USB 对应 08014c8c
+    RCC 等待循环（3 / 5001 / 3 tick 门限，均读 080099ec 软件 tick），成功后
+    DAT_20000250 = 16000000，再 FUN_0800995c(DAT_2000025c) 重配 SysTick；
+    超时返回 3，否则把配置结果转成 0/1。反编译标成 bool 掩盖了实际三态返回。
+  writer 2  0800c8dc  写点 0800ca00  USB 对应 08014d40
+    振荡器/PLL 路径；在 0800c95x 处把 16000000 >> ((RCC_CR & 0x3fff) >> 0xb)
+    写入 0x20000250，再重配 SysTick。返回非零不回滚已经改过的寄存器或变量。
+  writer 3  0800cdb4  写点 0800ce1a  USB 对应 08015218
+    源/分频与 Flash 等待；用 080241cc（USB 0802DFA0）分频表右移解码频率后写
+    0x20000250，再重配 SysTick。等待/报错发生在寄存器和变量都已改过之后。
+
+三个写点都紧接 bl 0800995c，与 sensor-nonusb-dispatch/pass3/20000250.txt 记录的
+三条 WRITE 引用（0800c88c / 0800ca00 / 0800ce1a）和三条 UNCONDITIONAL_CALL
+（0800c892 / 0800ca06 / 0800ce1e）一致。
+
+三、两个配置入口与失败行为
+
+  080108ac  USB 对应 08019fd0
+    以 0x20001cfc 的 16 位字段做区间判断（value - 0xA87 <= 0x78）：真分支写
+    16000000 与 uVar2=0x10，假分支写 32000000 与 uVar2=0x30，目标是 0x20000474。
+    随后 FUN_0800c828() 的返回值**没有被检查**；初始化两个局部结构后调用 writer 2、
+    writer 3，两次非零都进 FUN_08008c04()。
+  08010960  USB 对应 0801a084
+    0x20000474 = 8000000，uVar2 对应字段为 0；其余三步调用模式相同。
+
+所以失败路径不是「恢复旧时钟继续采样」：第一步失败被静默忽略，后两步失败进入
+致命错误处理。这个「首调用未检查返回值」的弱点在两版都存在，但本轮是从 nonUSB
+自己的字节读出来的，不是从 USB 抄来的。
+
+四、错误链：复位请求、不可达兜底、HardFault 共用
+
+0800a430（USB 08012430）七条指令，字节两版完全相同：
+
+  dsb #0xf
+  ldr r3,[0800a444]  ; = e000ed00  SCB 基址
+  ldr r2,[0800a448]  ; = 05fa0004  VECTKEY | SYSRESETREQ
+  str r2,[r3,#0xc]   ; 写 AIRCR
+  dsb #0xf
+  mov r8,r8
+  b 0800a43e         ; 自循环
+
+08008c04（USB 08010c04）先调该辅助函数，再 cpsid i + 死循环，字节也两版相同。
+Ghidra 的反编译把 0800a430 显示为「两个 dsb 之后空循环」，是因为它不吃 ldr/str
+的 MMIO 副作用；原 INSRef 明确保留了寄存器写入，故以指令字节为准。
+
+080127c4 是 HardFault 风格处理器：记录 r0..r3/r12/lr/pc/psr、打印 "[hf] %s"、
+用 32000000 次空循环做延时，然后调 0800a430。这解释了为何 SYSRESETREQ 辅助函数
+有 080170d8、080128bc、08008c06 等多个调用来源；它是全局复位出口，不是时钟专用。
+静态分析只证明发出了复位请求，不能证明复位完成、看门狗行为或恢复后的状态。
+
+五、地址差必须分区看
+
+  region                          nonUSB -> USB    说明
+  SysTick 配置 / 错误辅助函数     +0x8000          纯基址平移，5 项字节完全相同
+  三个 writer / 两个配置入口      +0x8464          三个写点及其 BL 调用者共用此差
+  数据表与后段代码                无固定差         分频表 080241cc vs 0802DFA0
+
+起初按 +0x8000 把 0800c828 对到 08014828，得到 DIFFER；这不是证据矛盾，而是把前段
+的差用到了后段。BYTE_VALIDATION.json 里 writer 2 / writer 3 的「首 16 字节相同」、
+writer 1 的「首 16 字节不同」也只是局部抽查，不能据此宣称整个 writer region 等价。
+完整并排地址与职责见 CLOCK_CHAIN.json 的 rows。
+
+六、整数算术模型与一处自纠错
+
+model/clock_cases.py 只重述已由 0800995c 与 NU-05 证明的公式：
+q = floor(1000/step)，N = floor(clock_variable/q)，LOAD = N-1，VAL=0，CTRL=7。
+6 组（三个软件输入 × step 1/10）得到 LOAD 15999/159999、31999/319999、
+7999/79999，7 条断言 0 失败，且所有 LOAD 都在 24 位字段内。
+
+首版把条件性名义单位写成 q/1000，step=10 会得出 0.1 ms，与 USB 侧已证的
+「64MHz / step10 / LOAD 639999 / 10 ms」矛盾。正确推导是：一次 SysTick 为 N 个
+核心周期，仅在「运行中核心时钟 == clock_variable 且中断正常服务」时等于
+N/clock = 1/q 秒 = 1000/q 毫秒。已改为 conditional_nominal_unit_ms = 1000/q，
+补上 unit_condition 说明和一条「step=1 -> 1ms、step=10 -> 10ms」防回归断言，
+并在 MODEL_RESULTS.json 的 corrections 中保留这次修正。整数 q/N/LOAD 从未出错，
+本次修正只涉及单位解释；它也不改变任何原字节证据。
+
+七、边界与不保证项
+
+  - 全部上游配置选择未穷尽：0x20001cfc 的区间判断没有绑到营销型号、板型或外部晶振；
+    两个入口之外是否还有调用者没有做全程序 CFG 覆盖。
+  - 切换过渡未验证：从 RCC 写寄存器到 SysTick 重配之间是否丢/慢 tick、重配失败时
+    reload 已写而旧 step 被恢复、等待循环本身依赖同一个软件 tick，都只是静态条件结论。
+  - 没有把 16/32/8MHz 软件输入解码为实际 PLL/核心频率；没有测 PLL lock、
+    中断延迟、屏蔽中断窗口、墙钟截止时延、ADC CLKIN/DRDY 与实际采样率。
+  - 0x3c 里的 frequency 字段、缓存 8 / 发送 500 等计数门限，都不是物理时间测量。
+  - 三层反编译（伪代码、Ghidra 引用、原始字节）不一致时以原始字节为准；伪代码
+    中的 bool 返回、空循环、自动命名变量都不作为最终语义。
+  - 本目录所有结论来自离线只读分析。没有执行固件、没有设备/账号/API 访问、
+    没有在线确认、没有异常帧或漏洞构造。
+
+八、对用户缺口表的处置
+
+「传感时钟」一行中：错误辅助函数副作用、nonUSB 频率 writer、nonUSB 配置入口可划掉；
+仍成立的是「全部上游配置选择」「切换过渡」以及两版共同的物理时序实测。
+「传感异常组合」与「nonUSB 独立时基」在上一轮已经闭合，本轮不重复计功。
+气囊与床架仍暂缓；核心生理算法、Autopilot、姿态分类、实机绑定、音箱 DSP 仍依赖
+新增材料。共享日志格式缓冲/重入专项此前被自动安全检查中止并标记未验收，本轮
+没有重试、没有改写措辞、没有引用其草稿结论。
+
+九、复跑
+
+  cd report/analysis-tools/system-deepening/nonusb-clock-writers
+  python3 scripts/verify_clock_bytes.py      # 逐 INSN / literal / 分支目标复核，写 BYTE_VALIDATION.json
+  python3 model/clock_cases.py               # 6 组整数算术，写 MODEL_RESULTS.json
+
+两轮 Ghidra 导出的完整命令、工程路径与参数见 EXPORT_COMMANDS.json / REPRODUCE.txt；
+输入文件 SHA256 清单见 SOURCE_MANIFEST.json；剩余缺口见 COVERAGE_RESIDUAL.json；
+双版本并排地址与结论见 CLOCK_CHAIN.json。

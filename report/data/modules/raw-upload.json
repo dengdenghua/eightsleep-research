@@ -1,0 +1,59 @@
+{
+  "id": "raw-upload",
+  "title": "缓存、发布与上传",
+  "layer": "device",
+  "status": "partial",
+  "order": 40,
+  "summary": "编码、Frank入队、本机发布和云端确认是不同边界。贯通模型现已把合成CBOR原字节送入队列，复现满拒新和失败保留重试；NATS与云端接收仍未实测。",
+  "inputs": [
+    "Frank 编码后的 raw CBOR 与进程内发送队列",
+    "NATS 流、运行期端点及容量配置"
+  ],
+  "outputs": [
+    "TLS raw session/batch",
+    "已确认 delivered 状态与有条件清理"
+  ],
+  "findings": [
+    "append 路径复制原 payload；按 subject/time 聚合不等于生理特征提取。",
+    "session version 为文本2；ACK 校验 proto/part/id，属于传输控制。",
+    "raw_mem 与6 GiB/24小时目标磁盘流分开，目标配置不保证实际完整保留。",
+    "正常停止 PubAck 连续前缀转存，RAM purge 先于 syncfs，故存在耐久性与重复边界。",
+    "RAM额度参数是jetstream.mem_max_mb；0选择按MemTotal自动计算。",
+    "本包新建raw_mem实际配置discard=old；同包NATS在超额时循环删除最早消息。已识别rawmem→rawdisk来自--dump停止钩子，不能保证断网全天波形保存。",
+    "Frank 环形队列满时拒绝新 body，调用方仍释放临时消息并推进本地 logger seq，不恢复已消费秒桶。",
+    "worker 在 js_Publish 返回0后才弹出队首；失败保留队首并重建连接。重试次数不等于服务端实际重复次数。",
+    "旧HOST-01的34场景止于body_candidate，RAW-02覆盖NATS流内回收；8场景将规范LSP到CBOR、Frank入队及模拟发布返回接成有限模型。",
+    "本样本raw发送队列可等待16条消息，多个raw生产者共享；log/events队列分别1024/32条。容量不能直接换成采样秒数。",
+    "同包libnats确认js_Publish同步等本机响应并解析JSON/API错误；Frank不另验stream/seq/duplicate，不能等同云端确认。",
+    "已审构造链默认请求等待参数5000ms；未找到逐消息MsgId设置，正文seq不会自动成为NATS去重header。超时仍不能判定是否已接收。",
+    "已闭合main正常停止、线程包装析构及main异常尾部；线程join不等于队列排空。",
+    "KV同key合并状态，reconcile不比较远端已有payload；失败5秒门控跳过KV而非阻塞所有raw。",
+    "贯通队满场景预载16条外部fixture，真实格式的合成CBOR仍被拒且没有该body发布尝试；预载消息不计作采样产物。",
+    "贯通重试场景保留同一body字节与SHA，只有一次入队和logger序号推进；发布结果是外部注入，不代表已观察到本机或云端ACK。",
+    "Capybara 附件遥测另走 C# 秒分组与1000条 DropOldest 队列；字段取整/取舍、尾桶等待和失败出队不回填，与Frank压电链分别核对。"
+  ],
+  "unknowns": [
+    "运行期endpoints、MemTotal、TOML与已有stream生效配置",
+    "压缩互通、断网和停止时实际遗漏与重复",
+    "真实发布尝试与NATS接收、超时及ACK记录的对应；超时后远端是否已存入",
+    "任意间接回调/库析构的完整递归行为，以及实机队列、KV竞争与停止时序"
+  ],
+  "evidence": [
+    "analysis/sleep-pipeline/UPLOADER_PROTOCOL.txt",
+    "analysis/sleep-pipeline/LOCAL_STORAGE_ZH.txt",
+    "analysis/finishable-20261107/raw-upload/RAW_02_FINDINGS_ZH.txt",
+    "analysis/prepublish-queue-20261108/code-audit/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/nats-library/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/frank-lifecycle/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/integrated-capture-model/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/integration-contract-review/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/local-managed-telemetry/FINDINGS_ZH.txt"
+  ],
+  "next": [
+    "RAW-01",
+    "RAW-03",
+    "RAW-04",
+    "RAW-05"
+  ],
+  "plain_intro": "CBOR 编码之后，消息先经过 Frank 发送队列，再进入 NATS 流和 uploader。不同层的拒绝、淘汰与确认规则决定数据保留。"
+}

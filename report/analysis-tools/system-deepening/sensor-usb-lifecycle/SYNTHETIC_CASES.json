@@ -1,0 +1,741 @@
+{
+  "kind": "hand_written_synthetic_branch_model",
+  "executes_firmware": false,
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "normal_completion_advances_queue",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "lowlevel_submit",
+          "name": "A",
+          "current": null,
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1
+          }
+        },
+        {
+          "event": "adapter_accept_current",
+          "name": "A",
+          "current": "A",
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0
+          }
+        },
+        {
+          "event": "adapter_enqueue",
+          "name": "B",
+          "current": "A",
+          "queue": [
+            "B"
+          ],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0,
+            "B": 0
+          }
+        },
+        {
+          "event": "class_done_callback_ignores_transfer_identity",
+          "actual_label": "A",
+          "current": "A",
+          "queue": [
+            "B"
+          ],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 0,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 0,
+            "B": 0
+          }
+        },
+        {
+          "event": "recycle_current_status1",
+          "released": "A",
+          "cause": "callback_for_A",
+          "current": null,
+          "queue": [
+            "B"
+          ],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 0,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        },
+        {
+          "event": "pop_descriptor_into_current",
+          "current": "B",
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 0,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        },
+        {
+          "event": "lowlevel_submit",
+          "name": "B",
+          "current": "B",
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "B",
+          "actual_transfer_label": "B",
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        },
+        {
+          "event": "class_done_callback_ignores_transfer_identity",
+          "actual_label": "B",
+          "current": "B",
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 0,
+          "class_TxBuffer": "B",
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        },
+        {
+          "event": "recycle_current_status1",
+          "released": "B",
+          "cause": "callback_for_B",
+          "current": null,
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 0,
+          "class_TxBuffer": "B",
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 1,
+            "B": 1
+          }
+        }
+      ],
+      "conclusion": "Callback recycles current and starts next descriptor.",
+      "assumptions": [],
+      "lowlevel_submitted_labels": [
+        "A",
+        "B"
+      ],
+      "host_receipt": "not_observed"
+    },
+    {
+      "case": "exact_packet_multiple_waits_for_ZLP_completion",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "lowlevel_submit",
+          "name": "A",
+          "current": null,
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1
+          }
+        },
+        {
+          "event": "adapter_accept_current",
+          "name": "A",
+          "current": "A",
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0
+          }
+        },
+        {
+          "event": "zero_length_packet_submitted_no_user_callback",
+          "actual_label": "A",
+          "current": "A",
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0
+          }
+        },
+        {
+          "event": "class_done_callback_ignores_transfer_identity",
+          "actual_label": "A",
+          "current": "A",
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 0,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 0
+          }
+        },
+        {
+          "event": "recycle_current_status1",
+          "released": "A",
+          "cause": "callback_for_A",
+          "current": null,
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 0,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 1
+          }
+        }
+      ],
+      "conclusion": "First DataIn does not release the slot.",
+      "assumptions": [
+        "384/64 are synthetic total-length/max-packet inputs, not a measured capture."
+      ],
+      "lowlevel_submitted_labels": [
+        "A"
+      ],
+      "host_receipt": "not_observed"
+    },
+    {
+      "case": "gate_loss_drops_queue_not_current",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "lowlevel_submit",
+          "name": "A",
+          "current": null,
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1
+          }
+        },
+        {
+          "event": "adapter_accept_current",
+          "name": "A",
+          "current": "A",
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0
+          }
+        },
+        {
+          "event": "adapter_enqueue",
+          "name": "B",
+          "current": "A",
+          "queue": [
+            "B"
+          ],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0,
+            "B": 0
+          }
+        },
+        {
+          "event": "adapter_gate_reject_status2",
+          "name": "C",
+          "current": "A",
+          "queue": [
+            "B"
+          ],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0,
+            "B": 0,
+            "C": 2
+          }
+        },
+        {
+          "event": "drain_queued_status2",
+          "name": "B",
+          "current": "A",
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0,
+            "B": 2,
+            "C": 2
+          }
+        }
+      ],
+      "conclusion": "Queued B and new C become reusable status2; current A remains owned.",
+      "assumptions": [],
+      "lowlevel_submitted_labels": [
+        "A"
+      ],
+      "host_receipt": "not_observed"
+    },
+    {
+      "case": "timeout_does_not_abort_lower_transfer",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "lowlevel_submit",
+          "name": "A",
+          "current": null,
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1
+          }
+        },
+        {
+          "event": "adapter_accept_current",
+          "name": "A",
+          "current": "A",
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0
+          }
+        },
+        {
+          "event": "adapter_enqueue",
+          "name": "B",
+          "current": "A",
+          "queue": [
+            "B"
+          ],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0,
+            "B": 0
+          }
+        },
+        {
+          "event": "main_timeout_no_TxState_clear_no_USB_abort",
+          "current": "A",
+          "queue": [
+            "B"
+          ],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0,
+            "B": 0
+          }
+        },
+        {
+          "event": "recycle_current_status1",
+          "released": "A",
+          "cause": "main_timeout",
+          "current": null,
+          "queue": [
+            "B"
+          ],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        },
+        {
+          "event": "pop_descriptor_into_current",
+          "current": "B",
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        },
+        {
+          "event": "start_rejected_class_state_after_SetTxBuffer",
+          "name": "B",
+          "current": "B",
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "B",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        }
+      ],
+      "conclusion": "A slot is reusable while lower transfer A remains pending; B pointer overwrites class buffer but B submission is rejected busy.",
+      "assumptions": [
+        "No A completion before tick51; class TxState still1; B already queued; gate remains valid."
+      ],
+      "lowlevel_submitted_labels": [
+        "A"
+      ],
+      "host_receipt": "not_observed"
+    },
+    {
+      "case": "late_A_callback_releases_pending_B",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "lowlevel_submit",
+          "name": "A",
+          "current": null,
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1
+          }
+        },
+        {
+          "event": "adapter_accept_current",
+          "name": "A",
+          "current": "A",
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0
+          }
+        },
+        {
+          "event": "adapter_enqueue",
+          "name": "B",
+          "current": "A",
+          "queue": [
+            "B"
+          ],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0,
+            "B": 0
+          }
+        },
+        {
+          "event": "main_timeout_no_TxState_clear_no_USB_abort",
+          "current": "A",
+          "queue": [
+            "B"
+          ],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0,
+            "B": 0
+          }
+        },
+        {
+          "event": "recycle_current_status1",
+          "released": "A",
+          "cause": "main_timeout",
+          "current": null,
+          "queue": [
+            "B"
+          ],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        },
+        {
+          "event": "pop_descriptor_into_current",
+          "current": "B",
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        },
+        {
+          "event": "start_rejected_class_state_after_SetTxBuffer",
+          "name": "B",
+          "current": "B",
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "B",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        },
+        {
+          "event": "class_done_callback_ignores_transfer_identity",
+          "actual_label": "A",
+          "current": "B",
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 0,
+          "class_TxBuffer": "B",
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 1,
+            "B": 0
+          }
+        },
+        {
+          "event": "recycle_current_status1",
+          "released": "B",
+          "cause": "callback_for_A",
+          "current": null,
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 0,
+          "class_TxBuffer": "B",
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 1,
+            "B": 1
+          }
+        }
+      ],
+      "conclusion": "The current global descriptor B is released although lowlevel submit list has only A.",
+      "assumptions": [
+        "Continue prior conditional schedule; A final DataIn arrives later; no reset, gate change, or unrelated event intervenes.",
+        "Demonstrates a possible local ownership mismatch, not a measured failure rate or physical corruption."
+      ],
+      "lowlevel_submitted_labels": [
+        "A"
+      ],
+      "host_receipt": "not_observed"
+    },
+    {
+      "case": "reset_retains_current_then_valid_frame_retries",
+      "status": "PASS",
+      "events": [
+        {
+          "event": "lowlevel_submit",
+          "name": "A",
+          "current": null,
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 1
+          }
+        },
+        {
+          "event": "adapter_accept_current",
+          "name": "A",
+          "current": "A",
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0
+          }
+        },
+        {
+          "event": "adapter_enqueue",
+          "name": "B",
+          "current": "A",
+          "queue": [
+            "B"
+          ],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0,
+            "B": 0
+          }
+        },
+        {
+          "event": "USB_reset_no_adapter_current_release",
+          "current": "A",
+          "queue": [
+            "B"
+          ],
+          "software_busy": 0,
+          "class_present": false,
+          "class_TxState": null,
+          "class_TxBuffer": null,
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 0,
+            "B": 0
+          }
+        },
+        {
+          "event": "drain_queued_status2",
+          "name": "B",
+          "current": "A",
+          "queue": [],
+          "software_busy": 0,
+          "class_present": false,
+          "class_TxState": null,
+          "class_TxBuffer": null,
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 0,
+            "B": 2
+          }
+        },
+        {
+          "event": "assumed_reconfiguration_and_control_bit_ready",
+          "current": "A",
+          "queue": [],
+          "software_busy": 0,
+          "class_present": true,
+          "class_TxState": 0,
+          "class_TxBuffer": null,
+          "actual_transfer_label": null,
+          "slot_status": {
+            "A": 0,
+            "B": 2
+          }
+        },
+        {
+          "event": "lowlevel_submit",
+          "name": "A",
+          "current": "A",
+          "queue": [],
+          "software_busy": 1,
+          "class_present": true,
+          "class_TxState": 1,
+          "class_TxBuffer": "A",
+          "actual_transfer_label": "A",
+          "slot_status": {
+            "A": 0,
+            "B": 2
+          }
+        }
+      ],
+      "conclusion": "Queued B is discarded; retained A can be submitted again after the assumed recovery trigger.",
+      "assumptions": [
+        "Reset occurs without prior completion callback; class reconfiguration succeeds and control bit becomes ready.",
+        "Destroyed class state/buffer are null in this model, not assertions about freed memory bytes; class Init supplies TxState0 only after successful reconfiguration.",
+        "Whether first A reached the host is unknown; duplicate delivery is not asserted."
+      ],
+      "lowlevel_submitted_labels": [
+        "A",
+        "A"
+      ],
+      "host_receipt": "not_observed"
+    }
+  ],
+  "limits": [
+    "No timing or hardware measurement",
+    "No claim all interrupts/interleavings are modeled",
+    "Pool allocation, 500 buffer wait, allocation exceptions, HAL peripheral progress and atomicity excluded",
+    "Synthetic descriptor labels are not wire sequence IDs"
+  ],
+  "source_map": "EVIDENCE_MAP.json"
+}

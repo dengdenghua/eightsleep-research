@@ -1,0 +1,159 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Eight Sleep MTK：服务器目标 → DAC → Frank Thermostat → Frozen MCU 温控链
+2026-11-07；静态分析；未发送任何设备/网络控制命令
+
+样本同 SIGNAL_HOST_ANALYSIS.txt：
+frankenfirmware SHA256 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+证据 thermal1..thermal11/*.c 为 Ghidra 伪代码，不是官方源代码。
+下文 JS 路径均相对 mediatek/rootfs-selected/home/dac/app/build/。
+已逐字节比较 device_api.js、loop_coordinator.js、utils.js、franken_server.js、vibration_proxy.js、
+dev_api/device_protocol.js：与此前 analysis/dac/app/build 中对应六文件相同。
+
+结论
+
+已经找到正向执行链：服务器发送函数名和参数 → DAC 转成命令编号和字符串 → Frank 的左右 heat/level 回调
+→ Thermostat 将内部 level 转为摄氏温度目标并保存启停/到期状态 → Frozen cmd0x40 设置 MCU thermostat。
+设备 PID 的 normal/pillow 模式来自独立的设备 specialization，和单次温度目标不是一个字段。
+这条链不需要本地睡眠分期算法才能执行；固件没有展示服务器如何根据睡眠状态计算目标。
+“可接收服务器目标”和“证明服务器全部算法/模型实现”是两回事。
+
+1. 云端函数下发到本地 IPC
+
+1) dev_api/device_protocol.js:67..88 持续 await stream.read()；非ACK/response进入handleRequest。
+   :98..107 用远端message的URI path找到handler，转换request后调用。
+2) device_api.js:91..93 注册 /d、/v、/f；:114..137 处理 /f/<funcName>，参数来自 request.query。
+   :128..129 调用funcHandler(funcName,funcArg)，将返回码编码成4-byteBE响应。
+3) loop_coordinator.js:263..271 建立 device-api 连接、注册 onFunc(this.onFuncRequest)。
+   :221..230 根据funcNameToFrankenCommand查表并调用Frank。
+4) utils.js:96..99、:118..121 映射：
+       leftHeat → HEAT_LEFT → 9
+       rightHeat → HEAT_RIGHT → 10
+       leftLevel → LEVEL_LEFT → 11
+       rightLevel → LEVEL_RIGHT → 12
+   specialization → SPECIALIZATION → 19（:106、:123）。
+5) vibration_proxy.js:19..20 对上述温控命令直接pass-through。
+6) franken_server.js:35..38 形成 commandNumber + newline + cleanedArg；
+   :18..22 写socket并等待回应；:59 每消息追加两个newline。
+   DAC是Unix socket服务端，Frank是连接进来的客户端；不能因为名为“server”就颠倒云端/本地角色。
+   socket路径与方向详见 analysis/dac/DAC_ANALYSIS.txt。
+
+同一条函数执行通路也可被Capybara本地代理调用：loop_coordinator.js:305..326的FunctionCall
+最终进入onFuncRequest。BLE温度请求是另外一个本地入口，不能把它当作云端模型调用证据。
+
+cavia分支例外：loop_coordinator.js:273..276 对云端函数回调返回0并记录ignored；
+这不意味着整个DAC失效，Capybara本地FunctionCall仍走上述执行链。
+
+2. Frank ID注册与回调语义
+
+FUN001db620明确注册：9→001dccb0，11→001dcde0，10→001dccd0，12→001dce00。
+这些wrapper分别将side设成0(left)/1(right)，调用公共heat或level函数。
+FUN00253590将编号与callback放入本地命令表，和JS的数字一致。
+证据：thermal4/001db620.c:22..86；thermal5/001dccb0.c、001dccd0.c、001dcde0.c、001dce00.c；
+  thermal8/00253590.c:22..33。
+
+heat(9/10)：字符串经strtol解析；0表示关闭，非零表示开启并作为持续时间秒数。
+setHeatingState先检查侧面peripheral是否存在；不存在抑制开启，返回上层-3。
+有效duration受配置上限86400秒限制，并用 system_clock 秒加duration记录到期时间。
+证据：thermal2/001dcbc4.c:11..28；thermal5/001db1a0.c:16..42；thermal10/00280484.c:7..8。
+  上限值来自FrozenTempLevels+0x20=86400，初始化见thermal3/00185920.c:48..65和literal0x4673a0。
+
+level(11/12)：字符串经strtol解析，调用setHeatingLevel(side,integer_level)。
+同样在没有peripheral时关闭对应侧、保存状态并返回-3。
+setHeatingLevel经FrozenTempLevels虚函数换算为float℃，保存左+0x120/右+0x130，并置dirty。
+证据：thermal2/001dccf0.c:12..36；thermal1/001db550.c:10..24。
+
+参数范围与单位必须分层说：IPC level是内部整数尺度；Thermostat保存的是℃；MCU wire是℃×100。
+不能把IPC level当作摄氏温度，也不能只按UI的-10..+10外观猜其内部取值。
+
+3. 内部level → 摄氏温度目标
+
+FrozenTempLevels虚表0058d9d0，+0x10指向FUN0018e8c0。
+初始化：maxTemp=42、minTemp=15、lowestTemp=10、maxLevel=100、minLevel=-100、neutralLevel=0，
+neutralTemp=27，middleLevel=50，middleTemp=36。specialization=pillow时minTemp改为10。
+level上限截为100；<=-100走独立10℃分支。
+
+普通pod的函数：
+  level <= -100      → 10℃
+  -100 < level < 0   → 15 + (level+100)*12/100 ℃
+  0 <= level < 50    → 27 + level*9/50 ℃
+  50 <= level <=100  → 36 + (level-50)*6/50 ℃
+  level >100        → 42℃
+pillow仅第二段变为10 + (level+100)*17/100 ℃。
+
+这些是固件内部控制目标，不是官方承诺的床表面温度范围。
+普通pod的最低level具有10℃特殊值，与略高于-100的连续段不一样；不要用单条直线替代真实逻辑。
+MCU agent另已确认target<11℃触发其max-performance分支；两端可以解释这一10℃特例的作用。
+这里不把该MCU行为归因于cmd0x44 bit3。
+
+证据：thermal6/0018e8c0.c:11..34；thermal3/00185920.c:48..65；
+  thermal5/0017a7b0.c:261..265；只读ELF literal0x467388..0x4673a3。
+  元数据和示例数值另存thermal-level-mapping.json。
+
+4. Thermostat → Frozen cmd0x40
+
+Thermostat的dirty更新函数FUN001db4f0先处理peripheral断开和超时，再通过Frozen接口调用发送。
+虚表关系已追实：
+  Thermostat+0x10 → Frozen子接口(原Frozen对象+0x20c0)
+  interface vtable0058f010+0x10 → thunk00244764
+  thunk减0x20c0回Frozen对象 → Frozen vtable0058efc0+0x10 → FUN0023dbf0。
+
+FUN0023dbf0取Thermostat当前snapshot，分别发送左右两条cmd0x40：
+  byte0 side：0=left，1=right
+  byte1 enabled：Thermostat状态==1
+  byte2..3 target：uint16 big-endian，(int)(float_target*100)
+长度4 bytes；同一更新会发左、右两侧。
+外层用已恢复的LSP封装，运行期2B长度；不能省略帧CRC/escaping而把裸payload当wire。
+
+证据：thermal6/001db4f0.c:6..12；thermal8/00244f50.c:34..35 设置两个虚表；
+  thermal9/00244764.c:8；thermal9/0023dbf0.c:19..31；
+  thermal10/001dac00.c:9..14 取+0x118..0x138四组状态；thermal10/0045f640.c:11..12编码BE16。
+
+状态持久化：saveState把左右target×100写入heat/state1.dat；启动loadState按/100恢复。
+另有本地tapAdjust调用同一个level转换，并且timer到期、peripheral断开会置dirty关闭。
+这些是本地执行/恢复/交互路径，不能把每次target变化都称作云端自动调温。
+证据：thermal4/001dc6c0.c:44..61；thermal4/001dbbf0.c:38..55、:69；
+  thermal6/001dc260.c；thermal7/001dad94.c；thermal6/001db3b0.c:25..33。
+
+5. PID mode：pod/pillow specialization，独立于target
+
+Frozen init FUN00243e70比较specialization字符串是否为"pillow"。
+相等存mode=1，否则mode=0，字段Frozen+0x2518。
+进入firmware state时stateChange→FUN00240584发送cmd0x44。
+payload为4-byteBE flags：
+  low3 bits = mode & 7
+  bit3 = cavia_enabled & 1
+
+mode0/1的MCU含义由thermal agent确认分别normal/pillow。
+主机此处没有根据心率、睡眠phase、温度误差切normal/pillow的代码。
+证据：thermal1/00243e70.c:307..313；thermal1/002407a4.c:17..39；
+  thermal1/00240584.c:27..38；thermal2/0045f670.c编码BE32。
+
+specialization来源：DeviceInfo从持久deviceinfo/specialization读值。
+setter只接受"pod"、"pillow"，写文件成功后main::setSpecialization请求systemd reboot。
+云端specialization函数通过IPC19可以到这个setter，但改变它不是温度目标的普通更新方式。
+证据：thermal4/00249d10.c:23..65；thermal4/00249fa4.c:45..46、:154..191；
+  thermal4/00189350.c:18..49；thermal5/00182690.c:13..17；
+  thermal3/00185920.c:210..213注册ID0x13；
+  thermal5/0017a7b0.c:108..128、pass5/0024baa0.c:116..145将/persistent与deviceinfo组合。
+
+6. cmd0x44 bit3：cavia，不能误标fast TEC ramp
+
+FUN00240c50打开/deviceinfo/capybara.run_info，读JSON字段mode，比较"cavia"，并读metaData。
+enabled布尔存Frozen+0x24d8，返回新旧值是否变化。
+stateFirmwareNext定时检查，变化则重新发送cmd0x44，仍保留原mode低3bits。
+证据：thermal2/00240c50.c:84、:101..120、:192..199；thermal1/002412a0.c:28..43。
+
+host命名是cavia；MCU agent更正后已确认该bit实际改变若干周期（10s→2s），侧setter为空函数。
+不要再把bit3等同于fast TEC ramp。MCU fast-ramp/max-performance实际由target<11℃等控制路径触发。
+
+Cavia也包含独立的USB测试计划：Eight.Cavia/CaviaService.cs读取USB上的TestPlanSteps，循环按duration和level
+调用dac.CallFunction。它是测试流程证据，不是睡眠分期或Autopilot证据。
+
+7. 边界与未验证项
+
+已经确认服务器可下发heat/level，host可将其转换为MCU目标；不能从device代码恢复云端如何计算睡眠phase或温度。
+设备有本地温度反馈PID（MCU报告），与云端目标生成算法是不同层级。
+未运行任何控温逻辑、未验证用户真实设备当前specialization/cavia/连接状态，也未量测实际温度。
+“normal/pillow模式和目标温度独立”“bit3 cavia与fast ramp分开”“内部℃与床表面温度分开”是本次必须保留的结论边界。

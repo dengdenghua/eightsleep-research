@@ -1,0 +1,47 @@
+TARGET 00029500 function=00029500
+REF_TO 000309ba UNCONDITIONAL_CALL owner=0003098c
+FUNCTION_BODY [[00029500, 00029529]]
+
+void FUN_00029500(void)
+
+{
+  int iVar1;
+  int iVar2;
+  int iVar3;
+  uint uVar4;
+  
+  uVar4 = 0;
+  do {
+    FUN_0002afdc(uVar4 & 0xff,2);
+    uVar4 = uVar4 + 1;
+  } while ((int)uVar4 < 4);
+  FUN_00029d00();
+  iVar1 = DAT_0002952c;
+  iVar2 = 0;
+  do {
+    iVar3 = iVar1 + iVar2;
+    iVar2 = iVar2 + 1;
+    *(undefined1 *)(iVar3 + 0x30) = 100;
+  } while (iVar2 < 4);
+  return;
+}
+
+
+INSN 00029500 10b5 push {r4,lr}
+INSN 00029502 0024 movs r4,#0x0
+INSN 00029504 e0b2 uxtb r0,r4
+INSN 00029506 0221 movs r1,#0x2
+INSN 00029508 01f068fd bl 0x0002afdc REF[UNCONDITIONAL_CALL:0002afdc]
+INSN 0002950c 641c adds r4,r4,#0x1
+INSN 0002950e 042c cmp r4,#0x4
+INSN 00029510 f8db blt 0x00029504 REF[CONDITIONAL_JUMP:00029504]
+INSN 00029512 00f0f5fb bl 0x00029d00 REF[UNCONDITIONAL_CALL:00029d00]
+INSN 00029516 0020 movs r0,#0x0
+INSN 00029518 0449 ldr r1,[0x0002952c] REF[READ:0002952c=20003f48]
+INSN 0002951a 6422 movs r2,#0x64
+INSN 0002951c 0b18 adds r3,r1,r0
+INSN 0002951e 401c adds r0,r0,#0x1
+INSN 00029520 83f83020 strb.w r2,[r3,#0x30] REF[WRITE:20003f78] REF[WRITE:20003f79]
+INSN 00029524 0428 cmp r0,#0x4
+INSN 00029526 f9db blt 0x0002951c REF[CONDITIONAL_JUMP:0002951c]
+INSN 00029528 10bd pop {r4,pc}

@@ -1,0 +1,1838 @@
+{
+  "schema": "eightsleep.nonusb.static-residual-config-slots.v1",
+  "date": "2026-11-08",
+  "source": "pass2 read-only setter exports + raw Thumb-1 halfwords + main dispatcher 0801d888",
+  "config_object": "param_1 in 0801d888 (r7 = param_1, r6 = param_2 report object)",
+  "slot_semantics": {
+    "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+    "0x4": "param_1[1]: callback installed into the report object",
+    "0xc": "param_1[3]: callback invoked after the first 1000ms timeout arm",
+    "0x10": "param_1[4]: periodic callback; report +0x3e08 = fn, +0x3e10 = 1000ms, +0x3e14 = 1",
+    "0x18": "param_1[6] -> DAT_200022e0",
+    "0x1c": "param_1[7] -> DAT_200022e4",
+    "0x20": "param_1[8] -> DAT_200022e8",
+    "0x24": "param_1[9] -> DAT_200022ec (also the USART divisor-table index)",
+    "0x28": "param_1[10] / param_1[0xb]: passed to FUN_08019c90 slot 1",
+    "0x30": "param_1[0xc] / param_1[0xd]: passed to FUN_08019c90 slot 2",
+    "0x38": "param_1[0xe] / param_1[0xf]: passed to FUN_08019c90 slot 3",
+    "0x40": "part of the 0x40..0x7c driver-handle block",
+    "0x114": "param_1[0x45]: start of a 0x50-byte callback/handle block copied to report +0x3e28",
+    "0xd4": "param_1[0x35]: callback invoked before the state block is built",
+    "0x164": "param_1[0x59]: saved function pointer",
+    "0x168": "param_1[0x5a]: saved function pointer",
+    "0x17c": "high callback slot written by the two full-default setters",
+    "0x188": "param_1[0x62] -> DAT_2000a4b4, clamped to <= 4 (a bounded count/limit)",
+    "0x18c": "BYTE status copied to report +0x3a80; 0xff is a sentinel; K90 clears it to 0",
+    "0x190": "param_1[100]: side callback; return 1 => \"right\", otherwise \"left\"",
+    "0x194": "param_1[0x65]: optional post-init callback(config_object)",
+    "0x19c": "param_1[0x67]: copied to report +0x3df4",
+    "0x1a0": "pointer to an 8-byte table; copied into the report when non-NULL",
+    "0x1a4": "pointer to an 8-byte 0..7 channel remap table; copied into the report when non-NULL"
+  },
+  "setters": [
+    {
+      "row": 0,
+      "threshold": "0x0",
+      "version": "I00",
+      "callee": "0x0800f58d",
+      "source": "pass2/0800f58d.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x4",
+        "0x8",
+        "0xc",
+        "0x10",
+        "0x14",
+        "0x18",
+        "0x1c",
+        "0x20",
+        "0x24",
+        "0x28",
+        "0x2c",
+        "0x38",
+        "0x3c",
+        "0x40",
+        "0x44",
+        "0x48",
+        "0x4c",
+        "0x50",
+        "0x54",
+        "0x58",
+        "0x5c",
+        "0x60",
+        "0x64",
+        "0x68",
+        "0x6c",
+        "0x70",
+        "0x74",
+        "0x78",
+        "0x7c",
+        "0xd0",
+        "0xd4",
+        "0xd8",
+        "0xdc",
+        "0xe0",
+        "0xe8",
+        "0xec",
+        "0xf0",
+        "0xf4",
+        "0xf8",
+        "0xfc",
+        "0x108",
+        "0x10c",
+        "0x110",
+        "0x114",
+        "0x118",
+        "0x11c",
+        "0x120",
+        "0x124",
+        "0x164",
+        "0x168",
+        "0x16c",
+        "0x170",
+        "0x174",
+        "0x178",
+        "0x17c",
+        "0x180",
+        "0x184",
+        "0x188",
+        "0x190",
+        "0x194",
+        "0x19c"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800f590",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:08024234=303049]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800f596",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x4] REF[DATA:08010bf5=d9f7f8b5]",
+          "offset": 4
+        },
+        {
+          "at": "0x0800f59c",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x8] REF[DATA:08010d01=94a094b]",
+          "offset": 8
+        },
+        {
+          "at": "0x0800f5a2",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x10] REF[DATA:08010571=10218022]",
+          "offset": 16
+        },
+        {
+          "at": "0x0800f5a8",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x14] REF[DATA:08010da1=fb4802b5]",
+          "offset": 20
+        },
+        {
+          "at": "0x0800f5ae",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x1c] REF[DATA:0800f431=bf8f4ff3]",
+          "offset": 28
+        },
+        {
+          "at": "0x0800f5b4",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x18] REF[DATA:0800f421=1b6fdb4b]",
+          "offset": 24
+        },
+        {
+          "at": "0x0800f5ba",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x24] REF[DATA:080109f5=8ab5104b]",
+          "offset": 36
+        },
+        {
+          "at": "0x0800f5c0",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x20] REF[DATA:0800f445=4388184b]",
+          "offset": 32
+        },
+        {
+          "at": "0x0800f5c4",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2]",
+          "offset": 400
+        },
+        {
+          "at": "0x0800f5c8",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2]",
+          "offset": 384
+        },
+        {
+          "at": "0x0800f5cc",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2]",
+          "offset": 388
+        },
+        {
+          "at": "0x0800f5d0",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r5,[r0,r2]",
+          "offset": 392
+        },
+        {
+          "at": "0x0800f5da",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0xc] REF[DATA:0800f489=c046c046]",
+          "offset": 12
+        },
+        {
+          "at": "0x0800f5e0",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0x2c] REF[DATA:08010b41=7000cb5]",
+          "offset": 44
+        },
+        {
+          "at": "0x0800f5e4",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0x28] REF[DATA:08010ac9=7000cb5]",
+          "offset": 40
+        },
+        {
+          "at": "0x0800f5e8",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0x3c] REF[DATA:08010b69=7000cb5]",
+          "offset": 60
+        },
+        {
+          "at": "0x0800f5ee",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0x38] REF[DATA:08010af1=7000cb5]",
+          "offset": 56
+        },
+        {
+          "at": "0x0800f5f4",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x0] REF[DATA:08010bc1=4b51021]",
+          "offset": 216
+        },
+        {
+          "at": "0x0800f5fa",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x4] REF[DATA:08010bdd=32104b5]",
+          "offset": 220
+        },
+        {
+          "at": "0x0800f5fe",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x8] REF[DATA:2000a4c0]",
+          "offset": 224
+        },
+        {
+          "at": "0x0800f600",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x30] REF[DATA:2000a4c0]",
+          "offset": 264
+        },
+        {
+          "at": "0x0800f602",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r1,[r4,#0x8] REF[DATA:2000a4c0]",
+          "offset": 240
+        },
+        {
+          "at": "0x0800f604",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r1,[r4,#0x10] REF[DATA:2000a4c0]",
+          "offset": 248
+        },
+        {
+          "at": "0x0800f606",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r1,[r4,#0x0] REF[DATA:2000a4c0]",
+          "offset": 232
+        },
+        {
+          "at": "0x0800f60c",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x10] REF[DATA:2000a798]",
+          "offset": 268
+        },
+        {
+          "at": "0x0800f60e",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r1,[r4,#0xc] REF[DATA:2000a798]",
+          "offset": 244
+        },
+        {
+          "at": "0x0800f612",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x0] REF[DATA:2000a798]",
+          "offset": 252
+        },
+        {
+          "at": "0x0800f614",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r1,[r4,#0x0] REF[DATA:2000a798]",
+          "offset": 236
+        },
+        {
+          "at": "0x0800f618",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r6,[r4,#0x0] REF[DATA:080105b1=d2580b5]",
+          "offset": 212
+        },
+        {
+          "at": "0x0800f622",
+          "kind": "str",
+          "base": "r6",
+          "asm": "str r4,[r6,#0x0] REF[DATA:08010137=ff2026b5]",
+          "offset": 208
+        },
+        {
+          "at": "0x0800f628",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r4,[r0,#0x40] REF[DATA:08010589=10000221]",
+          "offset": 64
+        },
+        {
+          "at": "0x0800f62c",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r4,[r0,#0x44] REF[DATA:08010a11=54b09b5]",
+          "offset": 68
+        },
+        {
+          "at": "0x0800f630",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r4,[r0,#0x48] REF[DATA:08010b91=32104b5]",
+          "offset": 72
+        },
+        {
+          "at": "0x0800f634",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r4,[r0,#0x4c] REF[DATA:0800f587=477020]",
+          "offset": 76
+        },
+        {
+          "at": "0x0800f636",
+          "kind": "strb",
+          "base": "r1",
+          "asm": "strb r5,[r1,#0x0]",
+          "offset": 84
+        },
+        {
+          "at": "0x0800f63a",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r1,[r0,#0x50]",
+          "offset": 80
+        },
+        {
+          "at": "0x0800f63e",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r1,[r0,#0x58] REF[DATA:0801059d=42218022]",
+          "offset": 88
+        },
+        {
+          "at": "0x0800f642",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r4,[r0,#0x64] REF[DATA:0800f587=477020]",
+          "offset": 100
+        },
+        {
+          "at": "0x0800f644",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r1,[r0,#0x5c] REF[DATA:08010a41=54b09b5]",
+          "offset": 92
+        },
+        {
+          "at": "0x0800f648",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r1,[r0,#0x60] REF[DATA:08010ba9=32101b5]",
+          "offset": 96
+        },
+        {
+          "at": "0x0800f64c",
+          "kind": "strb",
+          "base": "r7",
+          "asm": "strb r5,[r7,#0x0]",
+          "offset": 108
+        },
+        {
+          "at": "0x0800f64e",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r1,[r0,#0x68]",
+          "offset": 104
+        },
+        {
+          "at": "0x0800f654",
+          "kind": "str",
+          "base": "r1",
+          "asm": "str r3,[r1,#0x0]",
+          "offset": 112
+        },
+        {
+          "at": "0x0800f656",
+          "kind": "str",
+          "base": "r1",
+          "asm": "str r3,[r1,#0x4]",
+          "offset": 116
+        },
+        {
+          "at": "0x0800f658",
+          "kind": "str",
+          "base": "r1",
+          "asm": "str r3,[r1,#0x8]",
+          "offset": 120
+        },
+        {
+          "at": "0x0800f65a",
+          "kind": "str",
+          "base": "r1",
+          "asm": "str r4,[r1,#0xc] REF[DATA:0800f587=477020]",
+          "offset": 124
+        },
+        {
+          "at": "0x0800f664",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x20]",
+          "offset": 284
+        },
+        {
+          "at": "0x0800f666",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x18] REF[DATA:080105f1=b51000]",
+          "offset": 276
+        },
+        {
+          "at": "0x0800f66a",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x24]",
+          "offset": 288
+        },
+        {
+          "at": "0x0800f66c",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x1c]",
+          "offset": 280
+        },
+        {
+          "at": "0x0800f670",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x28]",
+          "offset": 292
+        },
+        {
+          "at": "0x0800f672",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x68] REF[DATA:08010d39=54c12b5]",
+          "offset": 356
+        },
+        {
+          "at": "0x0800f678",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x6c]",
+          "offset": 360
+        },
+        {
+          "at": "0x0800f67a",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x70]",
+          "offset": 364
+        },
+        {
+          "at": "0x0800f67c",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x74]",
+          "offset": 368
+        },
+        {
+          "at": "0x0800f67e",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x78]",
+          "offset": 372
+        },
+        {
+          "at": "0x0800f680",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r1]",
+          "offset": 380
+        },
+        {
+          "at": "0x0800f682",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x7c]",
+          "offset": 376
+        },
+        {
+          "at": "0x0800f684",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x14]",
+          "offset": 272
+        },
+        {
+          "at": "0x0800f68a",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2]",
+          "offset": 404
+        },
+        {
+          "at": "0x0800f68e",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2]",
+          "offset": 412
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x4": "param_1[1]: callback installed into the report object",
+        "0xc": "param_1[3]: callback invoked after the first 1000ms timeout arm",
+        "0x10": "param_1[4]: periodic callback; report +0x3e08 = fn, +0x3e10 = 1000ms, +0x3e14 = 1",
+        "0x18": "param_1[6] -> DAT_200022e0",
+        "0x1c": "param_1[7] -> DAT_200022e4",
+        "0x20": "param_1[8] -> DAT_200022e8",
+        "0x24": "param_1[9] -> DAT_200022ec (also the USART divisor-table index)",
+        "0x28": "param_1[10] / param_1[0xb]: passed to FUN_08019c90 slot 1",
+        "0x38": "param_1[0xe] / param_1[0xf]: passed to FUN_08019c90 slot 3",
+        "0x40": "part of the 0x40..0x7c driver-handle block",
+        "0xd4": "param_1[0x35]: callback invoked before the state block is built",
+        "0x114": "param_1[0x45]: start of a 0x50-byte callback/handle block copied to report +0x3e28",
+        "0x164": "param_1[0x59]: saved function pointer",
+        "0x168": "param_1[0x5a]: saved function pointer",
+        "0x17c": "high callback slot written by the two full-default setters",
+        "0x188": "param_1[0x62] -> DAT_2000a4b4, clamped to <= 4 (a bounded count/limit)",
+        "0x190": "param_1[100]: side callback; return 1 => \"right\", otherwise \"left\"",
+        "0x194": "param_1[0x65]: optional post-init callback(config_object)",
+        "0x19c": "param_1[0x67]: copied to report +0x3df4"
+      }
+    },
+    {
+      "row": 1,
+      "threshold": "0x805",
+      "version": "I05",
+      "callee": "0x0800f719",
+      "source": "pass2/0800f719.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x40",
+        "0x58",
+        "0x11c",
+        "0x120",
+        "0x124"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800f71a",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:08024238=353049]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800f71e",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x40] REF[DATA:0800f715=6000047]",
+          "offset": 64
+        },
+        {
+          "at": "0x0800f720",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x58] REF[DATA:0800f715=6000047]",
+          "offset": 88
+        },
+        {
+          "at": "0x0800f726",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x20] REF[DATA:08010619=b51000]",
+          "offset": 284
+        },
+        {
+          "at": "0x0800f72a",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x24]",
+          "offset": 288
+        },
+        {
+          "at": "0x0800f72e",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x28]",
+          "offset": 292
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x40": "part of the 0x40..0x7c driver-handle block"
+      }
+    },
+    {
+      "row": 2,
+      "threshold": "0x900",
+      "version": "J00",
+      "callee": "0x0800f761",
+      "source": "pass2/0800f761.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x4",
+        "0x30",
+        "0x34",
+        "0xe0",
+        "0x108",
+        "0x10c"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800f764",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:0802423c=30304a]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800f768",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x4] REF[DATA:08010c6d=9df7f8b5]",
+          "offset": 4
+        },
+        {
+          "at": "0x0800f76c",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x34] REF[DATA:08010b19=7000cb5]",
+          "offset": 52
+        },
+        {
+          "at": "0x0800f770",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x30] REF[DATA:08010aa1=7000cb5]",
+          "offset": 48
+        },
+        {
+          "at": "0x0800f776",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x0] REF[DATA:2000a62c]",
+          "offset": 224
+        },
+        {
+          "at": "0x0800f77c",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0xc] REF[DATA:2000a4c0]",
+          "offset": 264
+        },
+        {
+          "at": "0x0800f780",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x10] REF[DATA:2000a798]",
+          "offset": 268
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x4": "param_1[1]: callback installed into the report object",
+        "0x30": "param_1[0xc] / param_1[0xd]: passed to FUN_08019c90 slot 2"
+      }
+    },
+    {
+      "row": 3,
+      "threshold": "0xa00",
+      "version": "K00",
+      "callee": "0x0800f969",
+      "source": "pass2/0800f969.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x4",
+        "0x10",
+        "0x40",
+        "0x44",
+        "0x48",
+        "0x4c",
+        "0x50",
+        "0x58",
+        "0x5c",
+        "0x60",
+        "0x64",
+        "0x68",
+        "0x70",
+        "0x74",
+        "0x78",
+        "0x7c",
+        "0x88",
+        "0x90",
+        "0x94",
+        "0x98",
+        "0x9c",
+        "0xa0",
+        "0xa4",
+        "0xa8",
+        "0xac",
+        "0xb0",
+        "0xb4",
+        "0xb8",
+        "0xbc",
+        "0xc0",
+        "0xc4",
+        "0xc8",
+        "0xcc",
+        "0xd0",
+        "0xd4",
+        "0x110",
+        "0x114",
+        "0x118",
+        "0x168",
+        "0x16c",
+        "0x170",
+        "0x174",
+        "0x178",
+        "0x17c",
+        "0x180",
+        "0x188",
+        "0x190"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800f96e",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:08024240=30304b]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800f974",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x4] REF[DATA:080114bd=f8b08db5]",
+          "offset": 4
+        },
+        {
+          "at": "0x0800f97a",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2] REF[DATA:080110f7=e2000b5]",
+          "offset": 400
+        },
+        {
+          "at": "0x0800f980",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x10] REF[DATA:080101f9=41b51021]",
+          "offset": 16
+        },
+        {
+          "at": "0x0800f988",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,r3]",
+          "offset": 392
+        },
+        {
+          "at": "0x0800f990",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x6c] REF[DATA:0800f7a1=7060184b]",
+          "offset": 360
+        },
+        {
+          "at": "0x0800f996",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x70] REF[DATA:0800f8a1=10004b5]",
+          "offset": 364
+        },
+        {
+          "at": "0x0800f99c",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x78] REF[DATA:08010157=5a0001b5]",
+          "offset": 372
+        },
+        {
+          "at": "0x0800f9a0",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x74] REF[DATA:08010163=570001b5]",
+          "offset": 368
+        },
+        {
+          "at": "0x0800f9a4",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,r1] REF[DATA:0801016f=41b51021]",
+          "offset": 380
+        },
+        {
+          "at": "0x0800f9aa",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x7c] REF[DATA:080110a5=e2053b5]",
+          "offset": 376
+        },
+        {
+          "at": "0x0800f9ae",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,r1] REF[DATA:0801014b=3d0001b5]",
+          "offset": 384
+        },
+        {
+          "at": "0x0800f9b6",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x0] REF[DATA:08010db1=f2000b5]",
+          "offset": 208
+        },
+        {
+          "at": "0x0800f9ba",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x14] REF[DATA:2000a798]",
+          "offset": 272
+        },
+        {
+          "at": "0x0800f9be",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r4,[r0,#0x4c] REF[DATA:0800f951=a4b03b5]",
+          "offset": 76
+        },
+        {
+          "at": "0x0800f9c0",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0x48] REF[DATA:080110af=e2038b5]",
+          "offset": 72
+        },
+        {
+          "at": "0x0800f9c6",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0x40] REF[DATA:08010193=41b51021]",
+          "offset": 64
+        },
+        {
+          "at": "0x0800f9ca",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r1,[r0,#0x60] REF[DATA:080110bf=e203fb5]",
+          "offset": 96
+        },
+        {
+          "at": "0x0800f9cc",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0x50]",
+          "offset": 80
+        },
+        {
+          "at": "0x0800f9ce",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0x68]",
+          "offset": 104
+        },
+        {
+          "at": "0x0800f9d4",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0x70] REF[DATA:080101a9=41b51021]",
+          "offset": 112
+        },
+        {
+          "at": "0x0800f9d8",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r1,[r0,#0x58] REF[DATA:0801017d=41b51021]",
+          "offset": 88
+        },
+        {
+          "at": "0x0800f9e2",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r2,[r0,#0x78] REF[DATA:080110cf=e2045b5]",
+          "offset": 120
+        },
+        {
+          "at": "0x0800f9e6",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r5,[r0,#0x44] REF[DATA:08010a11=54b09b5]",
+          "offset": 68
+        },
+        {
+          "at": "0x0800f9e8",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r6,[r0,#0x64] REF[DATA:0800f93d=a4b03b5]",
+          "offset": 100
+        },
+        {
+          "at": "0x0800f9ea",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r7,[r0,#0x5c] REF[DATA:08010a41=54b09b5]",
+          "offset": 92
+        },
+        {
+          "at": "0x0800f9ec",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r7,[r0,#0x74] REF[DATA:08010a41=54b09b5]",
+          "offset": 116
+        },
+        {
+          "at": "0x0800f9ee",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r6,[r0,#0x7c] REF[DATA:0800f93d=a4b03b5]",
+          "offset": 124
+        },
+        {
+          "at": "0x0800fa0c",
+          "kind": "str",
+          "base": "r7",
+          "asm": "str r6,[r7,#0xc] REF[DATA:0800f93d=a4b03b5]",
+          "offset": 148
+        },
+        {
+          "at": "0x0800fa14",
+          "kind": "str",
+          "base": "r7",
+          "asm": "str r1,[r7,#0x0] REF[DATA:080101bf=41b51021]",
+          "offset": 136
+        },
+        {
+          "at": "0x0800fa18",
+          "kind": "str",
+          "base": "r7",
+          "asm": "str r1,[r7,#0x8] REF[DATA:080110d9=e2046b5]",
+          "offset": 144
+        },
+        {
+          "at": "0x0800fa1e",
+          "kind": "str",
+          "base": "r6",
+          "asm": "str r5,[r6,#0xc] REF[DATA:08010a11=54b09b5]",
+          "offset": 164
+        },
+        {
+          "at": "0x0800fa20",
+          "kind": "str",
+          "base": "r6",
+          "asm": "str r1,[r6,#0x0]",
+          "offset": 152
+        },
+        {
+          "at": "0x0800fa22",
+          "kind": "strb",
+          "base": "r6",
+          "asm": "strb r2,[r6,#0x4]",
+          "offset": 156
+        },
+        {
+          "at": "0x0800fa24",
+          "kind": "str",
+          "base": "r6",
+          "asm": "str r7,[r6,#0x8] REF[DATA:080101d5=41b51021]",
+          "offset": 160
+        },
+        {
+          "at": "0x0800fa26",
+          "kind": "str",
+          "base": "r6",
+          "asm": "str r5,[r6,#0x24] REF[DATA:08010a11=54b09b5]",
+          "offset": 188
+        },
+        {
+          "at": "0x0800fa2e",
+          "kind": "str",
+          "base": "r6",
+          "asm": "str r7,[r6,#0x10] REF[DATA:080110e3=e2027b5]",
+          "offset": 168
+        },
+        {
+          "at": "0x0800fa30",
+          "kind": "str",
+          "base": "r6",
+          "asm": "str r4,[r6,#0x14] REF[DATA:0800f951=a4b03b5]",
+          "offset": 172
+        },
+        {
+          "at": "0x0800fa32",
+          "kind": "str",
+          "base": "r6",
+          "asm": "str r1,[r6,#0x18]",
+          "offset": 176
+        },
+        {
+          "at": "0x0800fa34",
+          "kind": "strb",
+          "base": "r6",
+          "asm": "strb r2,[r6,#0x1c]",
+          "offset": 180
+        },
+        {
+          "at": "0x0800fa36",
+          "kind": "str",
+          "base": "r5",
+          "asm": "str r4,[r5,#0xc] REF[DATA:0800f951=a4b03b5]",
+          "offset": 196
+        },
+        {
+          "at": "0x0800fa40",
+          "kind": "str",
+          "base": "r5",
+          "asm": "str r6,[r5,#0x0] REF[DATA:080101e3=41b51021]",
+          "offset": 184
+        },
+        {
+          "at": "0x0800fa44",
+          "kind": "str",
+          "base": "r5",
+          "asm": "str r6,[r5,#0x8] REF[DATA:080110ed=e2028b5]",
+          "offset": 192
+        },
+        {
+          "at": "0x0800fa46",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r1,[r4,#0x0]",
+          "offset": 200
+        },
+        {
+          "at": "0x0800fa4c",
+          "kind": "strb",
+          "base": "r1",
+          "asm": "strb r2,[r1,#0x0]",
+          "offset": 204
+        },
+        {
+          "at": "0x0800fa52",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r1,[r0,#0x0] REF[DATA:0800f965=c8000047]",
+          "offset": 212
+        },
+        {
+          "at": "0x0800fa56",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x1c]",
+          "offset": 280
+        },
+        {
+          "at": "0x0800fa58",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r1,[r3,#0x18] REF[DATA:080128f9=8a000db5]",
+          "offset": 276
+        }
+      ],
+      "other_object_store_count": 3,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x4": "param_1[1]: callback installed into the report object",
+        "0x10": "param_1[4]: periodic callback; report +0x3e08 = fn, +0x3e10 = 1000ms, +0x3e14 = 1",
+        "0x40": "part of the 0x40..0x7c driver-handle block",
+        "0xd4": "param_1[0x35]: callback invoked before the state block is built",
+        "0x114": "param_1[0x45]: start of a 0x50-byte callback/handle block copied to report +0x3e28",
+        "0x168": "param_1[0x5a]: saved function pointer",
+        "0x17c": "high callback slot written by the two full-default setters",
+        "0x188": "param_1[0x62] -> DAT_2000a4b4, clamped to <= 4 (a bounded count/limit)",
+        "0x190": "param_1[100]: side callback; return 1 => \"right\", otherwise \"left\""
+      }
+    },
+    {
+      "row": 4,
+      "threshold": "0xa05",
+      "version": "K05",
+      "callee": "0x0800fafd",
+      "source": "pass2/0800fafd.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x4",
+        "0x40",
+        "0x44",
+        "0x48",
+        "0x4c",
+        "0x50",
+        "0x58",
+        "0x5c",
+        "0x64",
+        "0x70",
+        "0x74",
+        "0x7c",
+        "0x88",
+        "0x8c",
+        "0x94",
+        "0xa0",
+        "0xa4",
+        "0xac",
+        "0xb8",
+        "0xbc",
+        "0xc4",
+        "0x114",
+        "0x164",
+        "0x16c"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800fb02",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:08024248=35304b]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800fb08",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x4] REF[DATA:08011d91=804b80b5]",
+          "offset": 4
+        },
+        {
+          "at": "0x0800fb0e",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x68] REF[DATA:08012a61=44f15b5]",
+          "offset": 356
+        },
+        {
+          "at": "0x0800fb14",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x70] REF[DATA:0800fbb1=10004b5]",
+          "offset": 364
+        },
+        {
+          "at": "0x0800fb18",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x48]",
+          "offset": 72
+        },
+        {
+          "at": "0x0800fb1a",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x4c]",
+          "offset": 76
+        },
+        {
+          "at": "0x0800fb1c",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x40]",
+          "offset": 64
+        },
+        {
+          "at": "0x0800fb1e",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x44]",
+          "offset": 68
+        },
+        {
+          "at": "0x0800fb20",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x50]",
+          "offset": 80
+        },
+        {
+          "at": "0x0800fb26",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x64] REF[DATA:0800f951=a4b03b5]",
+          "offset": 100
+        },
+        {
+          "at": "0x0800fb2a",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r1,[r0,#0x7c] REF[DATA:0800f93d=a4b03b5]",
+          "offset": 124
+        },
+        {
+          "at": "0x0800fb2c",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x58] REF[DATA:080101b7=f6f7ffb5]",
+          "offset": 88
+        },
+        {
+          "at": "0x0800fb30",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x5c] REF[DATA:08010a11=54b09b5]",
+          "offset": 92
+        },
+        {
+          "at": "0x0800fb34",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x70] REF[DATA:08010207=41b51021]",
+          "offset": 112
+        },
+        {
+          "at": "0x0800fb38",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x74] REF[DATA:08010a41=54b09b5]",
+          "offset": 116
+        },
+        {
+          "at": "0x0800fb3a",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r1,[r4,#0x0] REF[DATA:0800f93d=a4b03b5]",
+          "offset": 148
+        },
+        {
+          "at": "0x0800fb40",
+          "kind": "str",
+          "base": "r1",
+          "asm": "str r3,[r1,#0x4] REF[DATA:08010a41=54b09b5]",
+          "offset": 140
+        },
+        {
+          "at": "0x0800fb48",
+          "kind": "str",
+          "base": "r1",
+          "asm": "str r4,[r1,#0x0] REF[DATA:080101cd=f6f7ffb5]",
+          "offset": 136
+        },
+        {
+          "at": "0x0800fb4e",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r1,[r3,#0xc] REF[DATA:0800fbd1=a4b03b5]",
+          "offset": 172
+        },
+        {
+          "at": "0x0800fb52",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r4,[r3,#0x0] REF[DATA:0801018b=f6f7ffb5]",
+          "offset": 160
+        },
+        {
+          "at": "0x0800fb58",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r1,[r4,#0x20] REF[DATA:0800fbd1=a4b03b5]",
+          "offset": 196
+        },
+        {
+          "at": "0x0800fb60",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r3,[r4,#0x0] REF[DATA:08010a71=54b09b5]",
+          "offset": 164
+        },
+        {
+          "at": "0x0800fb66",
+          "kind": "str",
+          "base": "r1",
+          "asm": "str r4,[r1,#0x0] REF[DATA:080101f1=f6f7ffb5]",
+          "offset": 184
+        },
+        {
+          "at": "0x0800fb68",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:08010a71=54b09b5]",
+          "offset": 188
+        },
+        {
+          "at": "0x0800fb6c",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r3,[r2,#0x18] REF[DATA:08012d51=c0005b5]",
+          "offset": 276
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x4": "param_1[1]: callback installed into the report object",
+        "0x40": "part of the 0x40..0x7c driver-handle block",
+        "0x114": "param_1[0x45]: start of a 0x50-byte callback/handle block copied to report +0x3e28",
+        "0x164": "param_1[0x59]: saved function pointer"
+      }
+    },
+    {
+      "row": 5,
+      "threshold": "0xa10",
+      "version": "K10",
+      "callee": "0x0800fae1",
+      "source": "pass2/0800fae1.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x164"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800faea",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r3,[r4,#0x0] REF[DATA:08024244=30314b]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800faf0",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r3,[r4,#0x68] REF[DATA:08010d39=54c12b5]",
+          "offset": 356
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x164": "param_1[0x59]: saved function pointer"
+      }
+    },
+    {
+      "row": 6,
+      "threshold": "0xa30",
+      "version": "K30",
+      "callee": "0x0800fc05",
+      "source": "pass2/0800fc05.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x4",
+        "0xd0",
+        "0x114",
+        "0x118",
+        "0x160",
+        "0x164",
+        "0x16c",
+        "0x194",
+        "0x19c"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800fc0a",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:0802424c=30334b]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800fc10",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x4] REF[DATA:08011915=b94bb9b5]",
+          "offset": 4
+        },
+        {
+          "at": "0x0800fc14",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2] REF[DATA:08012ad9=9f4b80b5]",
+          "offset": 404
+        },
+        {
+          "at": "0x0800fc1c",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x68] REF[DATA:08012a61=44f15b5]",
+          "offset": 356
+        },
+        {
+          "at": "0x0800fc22",
+          "kind": "str",
+          "base": "r2",
+          "asm": "str r1,[r2,#0x0] REF[DATA:08010141=ff2050b5]",
+          "offset": 208
+        },
+        {
+          "at": "0x0800fc26",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x70] REF[DATA:0800fbe5=10004b5]",
+          "offset": 364
+        },
+        {
+          "at": "0x0800fc2a",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x18] REF[DATA:080128f9=8a000db5]",
+          "offset": 276
+        },
+        {
+          "at": "0x0800fc2e",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x64]",
+          "offset": 352
+        },
+        {
+          "at": "0x0800fc32",
+          "kind": "str",
+          "base": "r3",
+          "asm": "str r2,[r3,#0x1c]",
+          "offset": 280
+        },
+        {
+          "at": "0x0800fc3a",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2] REF[DATA:2000a4c0]",
+          "offset": 412
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x4": "param_1[1]: callback installed into the report object",
+        "0x114": "param_1[0x45]: start of a 0x50-byte callback/handle block copied to report +0x3e28",
+        "0x164": "param_1[0x59]: saved function pointer",
+        "0x194": "param_1[0x65]: optional post-init callback(config_object)",
+        "0x19c": "param_1[0x67]: copied to report +0x3df4"
+      }
+    },
+    {
+      "row": 7,
+      "threshold": "0xa33",
+      "version": "K33",
+      "callee": "0x0800fc65",
+      "source": "pass2/0800fc65.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x4",
+        "0x58",
+        "0x114",
+        "0x118"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800fc6e",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r3,[r4,#0x0] REF[DATA:08024250=33334b]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800fc72",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r3,[r4,#0x4] REF[DATA:08012009=bb091b5]",
+          "offset": 4
+        },
+        {
+          "at": "0x0800fc76",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r3,[r4,#0x58] REF[DATA:080101a1=f6f7ffb5]",
+          "offset": 88
+        },
+        {
+          "at": "0x0800fc7c",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r3,[r4,#0x1c]",
+          "offset": 280
+        },
+        {
+          "at": "0x0800fc80",
+          "kind": "str",
+          "base": "r4",
+          "asm": "str r3,[r4,#0x18] REF[DATA:08012d51=c0005b5]",
+          "offset": 276
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x4": "param_1[1]: callback installed into the report object",
+        "0x114": "param_1[0x45]: start of a 0x50-byte callback/handle block copied to report +0x3e28"
+      }
+    },
+    {
+      "row": 8,
+      "threshold": "0xa34",
+      "version": "K34",
+      "callee": "0x0800fc99",
+      "source": "pass2/0800fc99.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x1a4"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800fc9a",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:08024254=34334b]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800fcac",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2] REF[DATA:08025f08=4000102] REF[DATA:08025f00=10203]",
+          "offset": 420
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x1a4": "pointer to an 8-byte 0..7 channel remap table; copied into the report when non-NULL"
+      }
+    },
+    {
+      "row": 9,
+      "threshold": "0xa35",
+      "version": "K35",
+      "callee": "0x0800fcc1",
+      "source": "pass2/0800fcc1.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x194"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800fcc8",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:08024258=35334b]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800fcd0",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2] REF[DATA:08011101=1bb5704b]",
+          "offset": 404
+        }
+      ],
+      "other_object_store_count": 1,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x194": "param_1[0x65]: optional post-init callback(config_object)"
+      }
+    },
+    {
+      "row": 10,
+      "threshold": "0xa36",
+      "version": "K36",
+      "callee": "0x0800fce1",
+      "source": "pass2/0800fce1.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x4",
+        "0x158",
+        "0x15c",
+        "0x160"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800fce2",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:0802425c=36334b]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800fce6",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x4] REF[DATA:08012275=8b2400b5]",
+          "offset": 4
+        },
+        {
+          "at": "0x0800fcec",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x5c] REF[DATA:08010215=480001b5]",
+          "offset": 344
+        },
+        {
+          "at": "0x0800fcf0",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x60] REF[DATA:08011165=e2047b5]",
+          "offset": 348
+        },
+        {
+          "at": "0x0800fcf4",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x64] REF[DATA:08013761=c2047b5]",
+          "offset": 352
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x4": "param_1[1]: callback installed into the report object"
+      }
+    },
+    {
+      "row": 11,
+      "threshold": "0xa37",
+      "version": "K37",
+      "callee": "0x0800fd0d",
+      "source": "pass2/0800fd0d.txt",
+      "config_object_slots": [
+        "0x0",
+        "0x1a4"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800fd12",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,#0x0] REF[DATA:08024260=37334b]",
+          "offset": 0
+        },
+        {
+          "at": "0x0800fd16",
+          "kind": "str",
+          "base": "r0",
+          "asm": "str r3,[r0,r2] REF[DATA:08025ee8=10203]",
+          "offset": 420
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x1a4": "pointer to an 8-byte 0..7 channel remap table; copied into the report when non-NULL"
+      }
+    },
+    {
+      "row": 12,
+      "threshold": "0xa87",
+      "version": "K87",
+      "callee": "0x0800fd25",
+      "source": "raw Thumb-1 halfwords (project has no decoded body)",
+      "config_object_slots": [
+        "0x0"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800fd26",
+          "offset": 0,
+          "kind": "str",
+          "base": "r0"
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)"
+      }
+    },
+    {
+      "row": 13,
+      "threshold": "0xa90",
+      "version": "K90",
+      "callee": "0x0800fd31",
+      "source": "raw Thumb-1 halfwords (project has no decoded body)",
+      "config_object_slots": [
+        "0x0",
+        "0x18c"
+      ],
+      "slot_details": [
+        {
+          "at": "0x0800fd34",
+          "offset": 0,
+          "kind": "str",
+          "base": "r0"
+        },
+        {
+          "at": "0x0800fd3a",
+          "offset": 396,
+          "kind": "strb",
+          "base": "r0"
+        }
+      ],
+      "other_object_store_count": 0,
+      "annotated_semantics": {
+        "0x0": "slot0: pointer to the 4-byte hwrev version string (all 14 setters write it)",
+        "0x18c": "BYTE status copied to report +0x3a80; 0xff is a sentinel; K90 clears it to 0"
+      }
+    }
+  ],
+  "high_slot_writers": {
+    "0x110": [
+      "0x0800f684 (I00)",
+      "0x0800f9ba (K00)"
+    ],
+    "0x114": [
+      "0x0800f666 (I00)",
+      "0x0800fa58 (K00)",
+      "0x0800fb6c (K05)",
+      "0x0800fc2a (K30)",
+      "0x0800fc80 (K33)"
+    ],
+    "0x118": [
+      "0x0800f66c (I00)",
+      "0x0800fa56 (K00)",
+      "0x0800fc32 (K30)",
+      "0x0800fc7c (K33)"
+    ],
+    "0x11c": [
+      "0x0800f664 (I00)",
+      "0x0800f726 (I05)"
+    ],
+    "0x120": [
+      "0x0800f66a (I00)",
+      "0x0800f72a (I05)"
+    ],
+    "0x124": [
+      "0x0800f670 (I00)",
+      "0x0800f72e (I05)"
+    ],
+    "0x158": [
+      "0x0800fcec (K36)"
+    ],
+    "0x15c": [
+      "0x0800fcf0 (K36)"
+    ],
+    "0x160": [
+      "0x0800fc2e (K30)",
+      "0x0800fcf4 (K36)"
+    ],
+    "0x164": [
+      "0x0800f672 (I00)",
+      "0x0800faf0 (K10)",
+      "0x0800fb0e (K05)",
+      "0x0800fc1c (K30)"
+    ],
+    "0x168": [
+      "0x0800f678 (I00)",
+      "0x0800f990 (K00)"
+    ],
+    "0x16c": [
+      "0x0800f67a (I00)",
+      "0x0800f996 (K00)",
+      "0x0800fb14 (K05)",
+      "0x0800fc26 (K30)"
+    ],
+    "0x170": [
+      "0x0800f67c (I00)",
+      "0x0800f9a0 (K00)"
+    ],
+    "0x174": [
+      "0x0800f67e (I00)",
+      "0x0800f99c (K00)"
+    ],
+    "0x178": [
+      "0x0800f682 (I00)",
+      "0x0800f9aa (K00)"
+    ],
+    "0x17c": [
+      "0x0800f680 (I00)",
+      "0x0800f9a4 (K00)"
+    ],
+    "0x180": [
+      "0x0800f5c8 (I00)",
+      "0x0800f9ae (K00)"
+    ],
+    "0x184": [
+      "0x0800f5cc (I00)"
+    ],
+    "0x188": [
+      "0x0800f5d0 (I00)",
+      "0x0800f988 (K00)"
+    ],
+    "0x18c": [
+      "0x0800fd3a (K90)",
+      "0x0800f74c (global 0x2000a4c0 object, writes 1)"
+    ],
+    "0x190": [
+      "0x0800f5c4 (I00)",
+      "0x0800f97a (K00)"
+    ],
+    "0x194": [
+      "0x0800f68a (I00)",
+      "0x0800fc14 (K30)",
+      "0x0800fcd0 (K35)"
+    ],
+    "0x19c": [
+      "0x0800f68e (I00)",
+      "0x0800fc3a (K30)"
+    ],
+    "0x1a4": [
+      "0x0800fcac (K34)",
+      "0x0800fd16 (K37)",
+      "0x08011130 (08011100 hwinfo callback)"
+    ],
+    "0x1a0": [
+      "read at 0x0801e666; no setter writes it in the 14 rows"
+    ]
+  },
+  "offset_note": "Several setters issue adds rN,#0xfc before storing; the reported offsets already include that delta, so K33 [r4+0x18] is correctly +0x114, the start of the 0x50-byte block copied to report +0x3e28.",
+  "limits": [
+    "Callback/purpose names come from the consumer call sites; no symbol names exist in the stripped image.",
+    "Stores through a register reloaded by ldr are listed as unattributed rather than being assigned a guessed offset.",
+    "K87 / K90 have no decoded function body in the Ghidra project; their slots come from raw Thumb-1 halfwords.",
+    "No firmware executed; no device, account, API or network access."
+  ],
+  "executes_firmware": false
+}

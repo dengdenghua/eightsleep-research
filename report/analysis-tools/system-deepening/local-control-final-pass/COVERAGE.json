@@ -1,0 +1,305 @@
+{
+  "scope": "A02 normal 0x53 sub1..19 plus 0x50/0x51 sub0..2",
+  "firmware_sha256": "0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a",
+  "vendor_executed": false,
+  "device_or_account_access": false,
+  "entries": [
+    {
+      "command": "0x53",
+      "subcommand": 1,
+      "entry": "08019796",
+      "status": "closed",
+      "normal_request": ">=5B; u32LE1..60000ms",
+      "writes_or_reads": "S+12C, S+124 timer",
+      "consumer": "08016FCE/08016FE0;08024530 IDLE/RUNNING",
+      "notes": "next timer check can be immediately due",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 2,
+      "entry": "080197EA",
+      "status": "closed-rejected",
+      "normal_request": ">=6B; bag<hwcount; finite multiplier (0,10]",
+      "writes_or_reads": "no parameter write",
+      "consumer": "response1",
+      "notes": "not implemented even after valid range; log0.01 differs from positive comparison",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 3,
+      "entry": "08019892",
+      "status": "closed",
+      "normal_request": ">=10B; bin0..9; finite arrival/departure0..13kPa",
+      "writes_or_reads": "D+1D0C tolerance table; refresh active nonnegative-target bags",
+      "consumer": "08021D58→08023EB8→08022034",
+      "notes": "",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 4,
+      "entry": "08019A88",
+      "status": "closed",
+      "normal_request": ">=9B; finite 0<=min<max<=13kPa",
+      "writes_or_reads": "range,width; refresh active nonnegative-target bags",
+      "consumer": "08021C28→08023EB8→08022034",
+      "notes": "",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 5,
+      "entry": "08019C1A",
+      "status": "closed",
+      "normal_request": ">=5B; u32LE1..300000ms",
+      "writes_or_reads": "S+F4/F8/FC",
+      "consumer": "08024530 copies into activeGrant on select/join",
+      "notes": "does not overwrite inflight activeGrant directly",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 6,
+      "entry": "08019C96",
+      "status": "closed",
+      "normal_request": ">=5B; u32LE1..6500ms",
+      "writes_or_reads": "0x2000025C",
+      "consumer": "0801B880",
+      "notes": "log60000 contradicted by literal6499 and value-1 comparison",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 7,
+      "entry": "08019CC2",
+      "status": "closed-rejected",
+      "normal_request": ">=1B",
+      "writes_or_reads": "none",
+      "consumer": "response2",
+      "notes": "deprecated priority operation",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 8,
+      "entry": "08019CCC",
+      "status": "closed",
+      "normal_request": ">=5B; u32LE1..3600seconds",
+      "writes_or_reads": "S+140",
+      "consumer": "08024530 sleep elapsed comparison",
+      "notes": "existing sleep origin retained",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 9,
+      "entry": "08019D0C",
+      "status": "closed-by-frozen-predecessor",
+      "normal_request": ">=10B a/b, >=14B optionalci",
+      "writes_or_reads": "live a/b/ci, al=a,cl=ci",
+      "consumer": "0801B7B8/0801B800/0801B824",
+      "notes": "local-parameter-resolution, no staging or flash",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 10,
+      "entry": "08019F68",
+      "status": "closed-readonly",
+      "normal_request": ">=1B",
+      "writes_or_reads": "live config v2 130+25*n bytes, BE numbers",
+      "consumer": "ControlLoopConfigParser",
+      "notes": "different from0x60 staging Get; parser exposes only subset of wire fields",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 11,
+      "entry": "0801A3D0",
+      "status": "closed-readonly",
+      "normal_request": ">=1B; no normal controller-init guard",
+      "writes_or_reads": "9B version1+boot-register snapshot+tick",
+      "consumer": "response output",
+      "notes": "underlying full reset-bit meanings outside this normal-control task",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 12,
+      "entry": "0801A428",
+      "status": "closed-readonly",
+      "normal_request": ">=1B; no normal controller-init guard",
+      "writes_or_reads": "18B version1+record marker+fouru32",
+      "consumer": "response output",
+      "notes": "full exceptional producer paths outside scope",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 13,
+      "entry": "0801A214",
+      "status": "closed",
+      "normal_request": ">=2B; byte0..2",
+      "writes_or_reads": "D+2360 telemetryprofile",
+      "consumer": "08024530 legacycontrol vs enhancedcontrol/valvestate gates",
+      "notes": "does not disable physical sampling/control",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 14,
+      "entry": "0801A280",
+      "status": "closed",
+      "normal_request": ">=5B; u32LE0..2000ms",
+      "writes_or_reads": "all hardware-active B+D4",
+      "consumer": "08022034 deflate velocity/stop gates",
+      "notes": "per-bag initialized guards",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 15,
+      "entry": "0801A50E",
+      "status": "closed-unsupported",
+      "normal_request": ">=1B",
+      "writes_or_reads": "none",
+      "consumer": "response2",
+      "notes": "",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 16,
+      "entry": "0801A50E",
+      "status": "closed-unsupported",
+      "normal_request": ">=1B",
+      "writes_or_reads": "none",
+      "consumer": "response2",
+      "notes": "",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 17,
+      "entry": "0801A50E",
+      "status": "closed-unsupported",
+      "normal_request": ">=1B",
+      "writes_or_reads": "none",
+      "consumer": "response2",
+      "notes": "",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 18,
+      "entry": "0801A50E",
+      "status": "closed-unsupported",
+      "normal_request": ">=1B",
+      "writes_or_reads": "none",
+      "consumer": "response2",
+      "notes": "",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x53",
+      "subcommand": 19,
+      "entry": "0801A2F6",
+      "status": "closed",
+      "normal_request": ">=10B; enable0/1; threshold10..1000mkPa; quiet0..30000ms; ceiling1000..600000ms",
+      "writes_or_reads": "M+0/+2/+4/+8 and state/quiet flag",
+      "consumer": "08024530 window/threshold/hold;080202D4 gate;080217A0 wake",
+      "notes": "normal parameter update retains pressure windows and existing timing origins",
+      "evidence": "commands-pass1/0801972c.txt"
+    },
+    {
+      "command": "0x50",
+      "subcommand": 0,
+      "entry": "08018C34",
+      "status": "closed",
+      "normal_request": ">=3B; id0..3 and configured/initialized; enable0/1",
+      "writes_or_reads": "P callback/state/ramp snapshot",
+      "consumer": "08021204→080210E0/08021162 or080211AC→08020FBC",
+      "notes": "request acceptance not physical rotation"
+    },
+    {
+      "command": "0x50",
+      "subcommand": 1,
+      "entry": "08018C34",
+      "status": "closed",
+      "normal_request": ">=3B; configured/initialized id; speed0..100",
+      "writes_or_reads": "P+10 target",
+      "consumer": "running immediate08020FBC; ramp-up next callback",
+      "notes": "mode policymax not the hardware min/max"
+    },
+    {
+      "command": "0x50",
+      "subcommand": 2,
+      "entry": "08018C34",
+      "status": "closed",
+      "normal_request": "exact1B read or5B set twoLEu16 in0..2000ms",
+      "writes_or_reads": "all pumps P+20/+24; reply first pump4B LE",
+      "consumer": "next080210E0/08021204 calculates captured step count",
+      "notes": "does not reschedule existing ramp steps"
+    },
+    {
+      "command": "0x51",
+      "subcommand": 0,
+      "entry": "08018DFC",
+      "status": "closed",
+      "normal_request": ">=4B; active/configured bag; direction0/1; state0/1",
+      "writes_or_reads": "selected deflate/inflate valve callback/state/output",
+      "consumer": "08021FE4/08021804→0801EDC8/0801EEAC/0801EF58/0801EF08→0801EC3C",
+      "notes": "does not implicitly close opposite valve or suspend feedback"
+    },
+    {
+      "command": "0x51",
+      "subcommand": 1,
+      "entry": "08018DFC",
+      "status": "closed",
+      "normal_request": ">=11B; opening interval1..1000,step1..100,hold0..10000,maintain1..100;16/21B add closing pairs",
+      "writes_or_reads": "all initialized valve-pair opening fields and accepted closing fields",
+      "consumer": "08021A14→open/hold/closing callbacks",
+      "notes": "omitted closing values from mode table; individual invalid close fields retained"
+    },
+    {
+      "command": "0x51",
+      "subcommand": 2,
+      "entry": "08018DFC",
+      "status": "closed",
+      "normal_request": ">=11B; close u8/u32LE/u8/u32LE",
+      "writes_or_reads": "all initialized valve-pair closing fields directly",
+      "consumer": "0801EF58/0801EF08→0801EC3C",
+      "notes": "handler does not apply sub1 closing validator; output still clamped"
+    }
+  ],
+  "summary": {
+    "control53_slots": 19,
+    "effective53_branches": 13,
+    "readonly53_branches": 3,
+    "not_implemented53": [
+      2
+    ],
+    "deprecated53": [
+      7
+    ],
+    "unsupported53": [
+      15,
+      16,
+      17,
+      18
+    ],
+    "direct_pump_branches": 3,
+    "direct_valve_branches": 3
+  },
+  "unclosed_within_normal_entry_scope": [],
+  "outside_scope": [
+    "all board-revision final GPIO/timer/channel physical bindings",
+    "all exceptional producers of0x53/11 and/12 diagnostic records",
+    "arbitrary asynchronous fault/IRQ/control interleavings and physical resulting state",
+    "global host configuration-provider precedence",
+    "same-device active firmware/config and measured physical timings"
+  ],
+  "model_scope": "61 finite synthetic cases; no target emulation or exhaustive numeric validation"
+}

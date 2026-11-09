@@ -1,0 +1,51 @@
+FUNCTION 0002ef24 BODY [[0002ef24, 0002ef61]]
+REF_TO 000348bc UNCONDITIONAL_CALL
+REF_TO 0003484a UNCONDITIONAL_CALL
+
+void FUN_0002ef24(void)
+
+{
+  int iVar1;
+  int iVar2;
+  
+  iVar2 = DAT_0002ef68;
+  iVar1 = DAT_0002ef64;
+  *(undefined4 *)(DAT_0002ef68 + 0x200) = *(undefined4 *)(DAT_0002ef64 + 8);
+  (**(code **)(iVar1 + 0x14))(*(undefined1 *)(DAT_0002ef6c + 0x13));
+  *DAT_0002ef74 = DAT_0002ef70;
+  *(undefined4 *)(iVar2 + 0x110) = 0;
+  *(undefined4 *)(iVar2 + 0x10) = 1;
+  do {
+  } while (*(int *)(iVar2 + 0x110) == 0);
+  *(undefined4 *)(iVar2 + 0x110) = 0;
+  *(uint *)(iVar2 + 0x200) = *(uint *)(iVar1 + 8) | 4;
+  *(undefined4 *)(iVar2 + 4) = 1;
+  return;
+}
+
+
+INSN 0002ef24 70b5 push {r4,r5,r6,lr}
+INSN 0002ef26 0f4d ldr r5,[0x0002ef64] REF[READ:0002ef64=200035f4]
+INSN 0002ef28 a868 ldr r0,[r5,#0x8] REF[READ:200035fc]
+INSN 0002ef2a 0f4c ldr r4,[0x0002ef68] REF[READ:0002ef68=40001000]
+INSN 0002ef2c c4f80002 str.w r0,[r4,#0x200] REF[WRITE:40001200]
+INSN 0002ef30 0e48 ldr r0,[0x0002ef6c] REF[READ:0002ef6c=20004fd0]
+INSN 0002ef32 6969 ldr r1,[r5,#0x14] REF[READ:20003608]
+INSN 0002ef34 c07c ldrb r0,[r0,#0x13] REF[READ:20004fe3]
+INSN 0002ef36 8847 blx r1
+INSN 0002ef38 0e49 ldr r1,[0x0002ef74] REF[READ:0002ef74=40001504]
+INSN 0002ef3a 0d48 ldr r0,[0x0002ef70] REF[READ:0002ef70=200052b2]
+INSN 0002ef3c 0860 str r0,[r1,#0x0] REF[WRITE:40001504] REF[DATA:200052b2]
+INSN 0002ef3e 0021 movs r1,#0x0
+INSN 0002ef40 c4f81011 str.w r1,[r4,#0x110] REF[WRITE:40001110]
+INSN 0002ef44 0120 movs r0,#0x1
+INSN 0002ef46 2061 str r0,[r4,#0x10] REF[WRITE:40001010]
+INSN 0002ef48 d4f81021 ldr.w r2,[r4,#0x110] REF[READ:40001110]
+INSN 0002ef4c 002a cmp r2,#0x0
+INSN 0002ef4e fbd0 beq 0x0002ef48 REF[CONDITIONAL_JUMP:0002ef48]
+INSN 0002ef50 c4f81011 str.w r1,[r4,#0x110] REF[WRITE:40001110]
+INSN 0002ef54 a968 ldr r1,[r5,#0x8] REF[READ:200035fc]
+INSN 0002ef56 41f00401 orr r1,r1,#0x4
+INSN 0002ef5a c4f80012 str.w r1,[r4,#0x200] REF[WRITE:40001200]
+INSN 0002ef5e 6060 str r0,[r4,#0x4] REF[WRITE:40001004]
+INSN 0002ef60 70bd pop {r4,r5,r6,pc}

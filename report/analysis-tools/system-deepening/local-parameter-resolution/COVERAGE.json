@@ -1,0 +1,136 @@
+{
+  "scope": "A02 0.2.71.0 normal parameter selection/override and selected matching Eight.Firmness host entry points",
+  "runtime_observed": false,
+  "vendor_program_executed": false,
+  "status": "bounded static closure",
+  "closed": [
+    {
+      "topic": "hardware layers and side selector",
+      "entry": [
+        "0801bcbc/0801bd72",
+        "0801598c",
+        "08015ac0",
+        "08015bc8",
+        "08015c30",
+        "08015c6c",
+        "08015aa4"
+      ],
+      "evidence": [
+        "RAW_TABLES.json",
+        "platform-pass1/",
+        "ranges/0801bcbc-0801cf00.asm.txt"
+      ],
+      "boundary": "No real hardware record at 0x0807F804 in application image; physical side not observed."
+    },
+    {
+      "topic": "SKU1/2 per-side per-bag default compensation and generic fallback",
+      "entry": [
+        "080179ac",
+        "08020fa8"
+      ],
+      "evidence": [
+        "platform-pass1/080179ac.txt",
+        "consumer-pass4/08020fa8.txt",
+        "RAW_TABLES.json"
+      ],
+      "boundary": "Only enumerated numeric SKU values; no marketing-name mapping."
+    },
+    {
+      "topic": "flash load vs platform exclusive boot branches",
+      "entry": [
+        "08018684",
+        "08018c18",
+        "0801cde2",
+        "0801de3a",
+        "0801de62"
+      ],
+      "evidence": [
+        "platform-pass1/08018684.txt",
+        "ranges/0801de3a-0801dec0.asm.txt"
+      ],
+      "boundary": "Normal/wellformed records; no malformed-CBOR or flash endurance/exhaustive failures."
+    },
+    {
+      "topic": "0x60 get/stage/save/clear and five-coefficient consumers",
+      "entry": [
+        "0801a5dc",
+        "0801a584",
+        "08021dfc",
+        "08018550",
+        "0801840c",
+        "0801b7b8",
+        "0801b800",
+        "0801b824"
+      ],
+      "evidence": [
+        "parameter-pass2/",
+        "parameter-pass3/08021dfc.txt",
+        "consumer-pass4/"
+      ],
+      "boundary": "Get reports staging; Calibrated marker is not live enabled; no live device confirmation."
+    },
+    {
+      "topic": "0x53/9 runtime-only write including al=a/cl=ci",
+      "entry": [
+        "0801972c",
+        "08019d0c",
+        "08019ece"
+      ],
+      "evidence": [
+        "parameter-pass3/08019d0c.txt",
+        "RAW_TABLES.json"
+      ],
+      "boundary": "Normal finite payloads; full 0x53 command set not audited here."
+    },
+    {
+      "topic": "mode0/mode1 package and independent parameter domains",
+      "entry": [
+        "08021ab0",
+        "08021a14",
+        "0801e3a4"
+      ],
+      "evidence": [
+        "parameter-pass2/08021ab0.txt",
+        "parameter-pass2/08021a14.txt",
+        "RAW_TABLES.json"
+      ],
+      "boundary": "Normal initialized objects and table values; not arbitrary partial setter failures/interleavings."
+    },
+    {
+      "topic": "selected host calibration/mode/tolerance restore chain",
+      "entry": [
+        "CalibrationController.Set",
+        "FirmnessReadyState.ApplyBagCalibrationAsync",
+        "FirmnessReadyState.Initialize",
+        "FirmnessReadyState.RunTick",
+        "CalibrationRunner.SendLandingAction",
+        "CalibrationRunner.SendLandingRestoreBestEffort"
+      ],
+      "evidence": [
+        "source/managed/",
+        "il/"
+      ],
+      "boundary": "Selected Eight.Firmness.dll types; not global Capybara config-source precedence or real account exposure."
+    }
+  ],
+  "required_real_device_evidence": [
+    "active firmware version/CRC",
+    "pn/sku/hwrev record",
+    "flash calibration and current runtime config from same device/time",
+    "saved host side mode/tolerance and timing of writes"
+  ],
+  "unexpanded_static_entrypoints": [
+    "other 0x53 control/scheduler/motion parameter setters",
+    "0x50/0x51 actuator configuration overlap and arbitrary interleavings",
+    "all board revisions final GPIO/PWM mappings",
+    "global Capybara configuration source merge"
+  ],
+  "correction": {
+    "prior": "local-balloon-control mathematical aliases",
+    "new": "host field binding b=inflate offset, ci=normal deflate intercept, cl=low deflate intercept",
+    "mapping": "old inflate_stop.offset->b, internal ci->b_eff; old deflate_stop.high_b->ci, low_b->cl",
+    "old_evidence_modified": false
+  },
+  "model": "34 synthetic finite state contracts; not target emulation",
+  "independent_project": "/Volumes/My Passport/eightsleep-analysis-work-20261108/parameter-resolution/BalloonParameters.gpr"
+}

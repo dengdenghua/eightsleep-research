@@ -1,0 +1,38 @@
+TARGET 0800ac48 function=0800ac48
+REF_TO 0800ac1c UNCONDITIONAL_CALL owner=0800ac10
+REF_TO 0800ac2a UNCONDITIONAL_CALL owner=0800ac10
+FUNCTION_BODY [[0800ac48, 0800ac67]]
+
+uint FUN_0800ac48(uint param_1,uint param_2)
+
+{
+  int iVar1;
+  uint uVar2;
+  
+  iVar1 = (param_2 >> 0x15) - 0x3ff;
+  if (iVar1 < 0) {
+    return 0;
+  }
+  uVar2 = 0x1f - iVar1;
+  if ((int)uVar2 < 0) {
+    uVar2 = (int)(param_1 | 0x80000000) >> 0x1f;
+  }
+  else {
+    uVar2 = (param_1 | 0x80000000) >> (uVar2 & 0xff);
+  }
+  return uVar2;
+}
+
+
+INSN 0800ac48 40f00040 orr r0,r0,#0x80000000
+INSN 0800ac4c 490d lsrs r1,r1,#0x15
+INSN 0800ac4e a1f58061 sub.w r1,r1,#0x400
+INSN 0800ac52 491c adds r1,r1,#0x1
+INSN 0800ac54 05d4 bmi 0x0800ac62 REF[CONDITIONAL_JUMP:0800ac62]
+INSN 0800ac56 d1f11f01 rsbs.w r1,r1,#0x1f
+INSN 0800ac5a 54bf ite pl
+INSN 0800ac5c c840 lsr.pl r0,r1
+INSN 0800ac5e c017 asr.mi r0,r0,#0x1f
+INSN 0800ac60 7047 bx lr
+INSN 0800ac62 4ff00000 mov.w r0,#0x0
+INSN 0800ac66 7047 bx lr

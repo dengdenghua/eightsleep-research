@@ -1,0 +1,113 @@
+nonUSB 第六轮 · 复跑说明
+2026-11-08
+
+一、不需要 Ghidra 的复核（推荐先跑）
+
+  cd report/analysis-tools/system-deepening/config-object-snapshot
+  python3 scripts/verify_snapshot_bytes.py     # 4886 项字节核验
+  python3 model/config_snapshot.py             # 16 边界 / 62 断言
+  python3 model/udiv_exhaustive.py             # 132 指令 / 26757 组 / 10 断言
+  python3 model/consumer_models.py             # 75 断言
+  python3 scripts/write_source_manifest.py     # 输入 SHA256 清单
+
+前提只有本目录 pass1 / pass2 / pass3 的导出文本，以及冻结归档里的原件：
+
+  materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/
+    lib/subsystem_updates/firmware-sensor-g0.bbin
+    132896B   SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+
+verify_snapshot_bytes.py：
+  · 校验 BBIN 尺寸与 SHA256、每个 pass 的 program.txt 里的 EXECUTABLE_SHA256；
+  · 把 38 个导出文件里 3811 条已解码 INSN 的机器码逐条对回原件；
+  · 把 827 条 REF 注解里的 flash literal 按 u32 对回原件；
+  · 核验 14 行分派表、14 个版本字符串、0801d8cc 的 `0e 2d`、
+    16 项 USART 除数表、8 项 APB + 16 项 AHB 预分频表、
+    5 张通道表、掩码表、尾部数组；
+  · 44 条关键指令锚点（0800cf10 / 0800e8b4 / 08008174 / setter 区）；
+  · 10 条原始 Thumb-1 半字：K87 / K90 在工程里没有函数体，
+    用脚本内置的最小解码器直接从冻结镜像解出助记符；
+  · 4 组 literal 槽负向核验（必须 function=none 且只被 READ）。
+
+config_snapshot.py：
+  · 逐条常量传播 14 个 setter 的 store 值（literal / 立即数 / 移位）；
+  · 展开 K10→K00、K33→K05 两次内联 BL；
+  · 16 个 hwrev 边界累加，产出每个槽位的最终写入值；
+  · sku==0 与 sku==4 两版快照；62 条断言。
+
+udiv_exhaustive.py：
+  · 从 132 条导出 INSN 逐条解码并精确模拟 Thumb 标志语义；
+  · 边界交叉 + 20000 组固定种子随机 + BRR 实参，共 26757 组；
+  · 132/132 指令地址全覆盖、最大 226 步、除零路径单列。
+
+consumer_models.py：
+  · 0800cf10 的 PCLK 公式与 8 档参数化结果；
+  · 0800e8b4 的 4 源 × 3 掩码矩阵、OVER8 四处构造、BRR 两路径；
+  · 末 4 项除数的合法性扫描与 5 处 literal 纠错；75 条断言。
+
+二、需要 Ghidra 的重导出（只在要重新生成 pass 时）
+
+  export JAVA_HOME="/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home"
+  export PATH="$JAVA_HOME/bin:$PATH"
+  HEADLESS="/opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless"
+  GH="/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra"
+  SD="report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts"
+  ROOT="report/analysis-tools/system-deepening/config-object-snapshot"
+
+  "$HEADLESS" "$GH" NonUsbSensor -process firmware-sensor-g0.bbin \
+    -readOnly -noanalysis -scriptPath "$SD" \
+    -postScript ExportSensorDiff.java "$ROOT/pass1" <pass1 targets>
+
+  pass2 / pass3 同理。完整 target 列表见 EXPORT_COMMANDS.json。
+  ExportSensorDiff.java 有 SHA256 守门，-readOnly -noanalysis 不改工程。
+
+三、产物对照
+
+  BYTE_VALIDATION.json     4886 项 / 0 失败
+  CONFIG_SNAPSHOT.json     14 setter + 16 边界 + sku 双版完整快照
+  MODEL_RESULTS.json       62 断言 / 0 失败
+  UDIV_RESULTS.json        132 指令 / 26757 组 / 10 断言 / 0 失败
+  CONSUMER_MODELS.json     12 消费者 + 4 源矩阵 + 5 处纠错 / 75 断言
+  COVERAGE_RESIDUAL.json   闭合项、纠错、剩余项
+  SOURCE_MANIFEST.json     输入 SHA256 清单
+  FINDINGS_ZH.txt          中文结论全文
+  EXPORT_COMMANDS.json     三轮导出参数
+  REPRODUCE.txt            本文件
+
+四、坑位（本轮实际踩到 / 已规避）
+
+  1. analyzeHeadless 不导出 JAVA_HOME 会报
+     `Unable to locate a Java Runtime` + `no TTY detected`。
+  2. `adds rN,#0xfc` 必须累加进配置对象偏移：K33 的 `str r3,[r4,#0x18]`
+     实际是 +0x114，不是 +0x18；`ldr` 重载基址才丢弃别名。
+  3. K10 / K33 的 slot0 用 `str r3,[r4,#0x0]`（r4 保存基址），
+     不是 `[r0,#0x0]`；核验脚本两种都要接受。
+  4. K87 / K90 无函数体。`014b03607047c046` 是字节串，
+     小端半字是 `4b01 6003 4770 46c0`；`bx lr` = 0x4770，不是 0x7047。
+     `strb r2,[r0,r3]` = 0x54c2，用 `(h>>9)&7 == 2` 判定 STRB(register)。
+  5. `movs r3,#0x80 / lsls r3,r3,#0x8` 在 0800e8b4 里有 **4 处**
+     （0800e916 / 0800e95a / 0800e966 / 0800e9b4），四个时钟源分支各一处；
+     首版断言写成 3 处而失败。
+  6. `bl 0x0800cf10` / `bl 0x0800cd24` 剥离 REF 后没有尾随空格，
+     计数必须精确相等，不能用 `startswith('... ')`。
+  7. 除法 helper 的 `adcs r2,r2` 依赖前一条指令留下的 C 标志；
+     模拟器必须精确实现 cmp/subs/lsrs/lsls 的进位语义，
+     `movs` 立即数只更新 N/Z、不动 C。
+  8. 除零路径 08008274 `push {r0,lr}` + 0800827c `pop {r1,pc}`
+     把原被除数弹进 r1，返回 (r0=0, r1=a)。
+  9. 0800fbcc / 0800fdc0 / 080125a4 / 08012cf0 / 0800fc00 都是 literal
+     pool 槽；把地址当 TARGET 导出只会得到 function=none + REF_TO READ。
+     要导读取者（0800fbc0 / 0800fdaa / 08012538 / 08012b5e / 0800fbf4）
+     或周围的范围。
+  10. 常数 0xc8 (200) 是 Thumb 8 位立即数（`movs r3,#0xc8` = `23 c8`），
+      不是 4B literal；按小端 u32 扫镜像会 0 命中。
+  11. 清单同步必须在 build.py + validate.py **之后**做：
+      build 会重写 index.html / data/compiled-index.json / wiki/roadmap.md，
+      validate 会重写 validation/structural-checks.json（上一轮踩到）。
+  12. SOURCE_MANIFEST.json 最后生成，且自身与所有派生 JSON 都 excluded，
+      避免自引用哈希失配。
+
+五、边界
+
+  本轮所有时钟、波特率、除数索引都是显式参数；16/32/8MHz HSE 是软件
+  字段，64MHz 是条件性计算值。外设寄存器一律不命名。配置对象快照是
+  「setter 写入值」，不是运行时最终值。没有执行固件、没有接触设备。

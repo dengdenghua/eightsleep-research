@@ -1,0 +1,126 @@
+{
+  "scope": "USB5.5.34.0 local descriptor/buffer lifecycle",
+  "rows": [
+    {
+      "id": "transport_binding",
+      "files": [
+        "pass5/08019320_080193d8.txt",
+        "pass3/08027834.txt"
+      ],
+      "observed": "19328 config busy1937c/start1ba8c → adapter+30/+34",
+      "boundary": "This config branch, not actual SKU verification"
+    },
+    {
+      "id": "pool_status",
+      "files": [
+        "pass8/0801c4c0.txt",
+        "pass8/0801c764.txt",
+        "pass3/08027834.txt"
+      ],
+      "observed": "32×(status1B+data1024B); state0 excluded, any nonzero reusable",
+      "boundary": "status1 and2 are local reusable states, never host ACK"
+    },
+    {
+      "id": "descriptor_ownership",
+      "files": [
+        "pass3/0801d6fc.txt",
+        "pass3/0801d6c8.txt"
+      ],
+      "observed": "current20002850/54/58; queue64×12B; failed start retains current",
+      "boundary": "pump ignores start return, no per-callback identity token"
+    },
+    {
+      "id": "successful_callback",
+      "files": [
+        "pass7/0801830c.txt",
+        "pass6/08017dbc_08017e38.txt",
+        "pass3/08019460_08019614.txt",
+        "pass2/08028e4c.txt"
+      ],
+      "observed": "DataIn→class TxState0→interface19578→softbusy0→currentstatus1→clear current→pump",
+      "boundary": "DataIn exact packet multiple first sends ZLP without this callback"
+    },
+    {
+      "id": "soft_timeout",
+      "files": [
+        "pass4/08020c00_08020c84.txt",
+        "pass2/08028e4c.txt"
+      ],
+      "observed": "softbusy!=0 and elapsed>50 calls same recycle, no lower TxState clear or abort here",
+      "boundary": "Only if main loop reaches check and tick advances; > not >="
+    },
+    {
+      "id": "busy_layers",
+      "files": [
+        "pass5/0801ba8c_0801bb20.txt",
+        "pass6/08018080.txt",
+        "pass6/080180be.txt",
+        "pass8/08014ae6.txt"
+      ],
+      "observed": "SetTxBuffer overwrites class ptr/len before TransmitPacket tests TxState; busy return1 causes software_busy0",
+      "boundary": "Class buffer and lower endpoint buffer are distinct"
+    },
+    {
+      "id": "late_completion_window",
+      "files": [
+        "pass3/0801d6c8.txt",
+        "pass3/08019460_08019614.txt",
+        "pass2/08028e4c.txt"
+      ],
+      "observed": "Failed B start leaves currentB; later callback uses current globally, not transfer identity",
+      "boundary": "Conditional synthetic schedule, no claim actual device failure"
+    },
+    {
+      "id": "gate_writers",
+      "files": [
+        "pass2/0801b900_0801ba40.txt",
+        "pass1/08020f70_08021060.txt",
+        "pass7/08012430.txt"
+      ],
+      "observed": "abfc=1 at1b9e0;0 at20f98/21054 before SYSRESETREQ",
+      "boundary": "No all-indirect-write exclusion; modeflag not online status"
+    },
+    {
+      "id": "control_gate",
+      "files": [
+        "pass5/0801942c_08019498.txt",
+        "pass2/080194a4.txt",
+        "pass8/08018468_08018968.txt",
+        "pass9/080181fc.txt",
+        "pass9/08018212.txt"
+      ],
+      "observed": "request22 bit0 and state3; request9 class Init success writesstate3, config0 sets2",
+      "boundary": "Control bit not account/cloud state"
+    },
+    {
+      "id": "gate_drain",
+      "files": [
+        "pass4/08020c00_08020c84.txt",
+        "pass3/0801d6fc.txt"
+      ],
+      "observed": "gatefalse rejects new status2 and drains queued status2 under IRQ8 mask",
+      "boundary": "Does not clear current"
+    },
+    {
+      "id": "USB_reset_and_retry",
+      "files": [
+        "pass7/0801c0d4_0801c0fc.txt",
+        "pass6/08017f2c_08018066.txt",
+        "pass7/08019428_0801942c.txt",
+        "pass2/08020de8_08020e80.txt"
+      ],
+      "observed": "USB reset clears softbusy/controlbit, DeInit class without releasing adaptercurrent; valid frame20e20 can repump retained current",
+      "boundary": "Requires successful reconfiguration/controlbit; first hostreceipt unknown"
+    },
+    {
+      "id": "nominal_tick",
+      "files": [
+        "../sensor-timebase/FINDINGS_ZH.txt"
+      ],
+      "observed": "Defaultstep1 and matching actual clock/SysTick delivery → nominalms",
+      "boundary": "No wall-clock deadline or measured USB delay"
+    }
+  ],
+  "synthetic_model": "SYNTHETIC_CASES.json",
+  "raw_bindings": "INITIALIZED_BINDINGS.json"
+}

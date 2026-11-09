@@ -1,0 +1,19 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方账号数据导出申请：已按用户授权提交一次
+
+用户明确回复“代为提交一次”后，先只读 GET 国行 /v1/users/me，核对响应 user.userId 与保留的认证身份、App userId 相同，再使用该同一账号响应中的 email 提交官方 APK 所配置的申请。
+实际发送时间：2026-11-07 16:37:30（Asia/Shanghai；UTC 08:37:30.450）。
+实际 POST 次数：1；禁止重定向与自动重试；未发送密码或 Eight Sleep bearer token 到导出服务。
+返回：HTTP 200、JSON status=success。脱敏回执见 RECEIPT.json。
+
+这证明导出入口已接收本次请求，不证明导出文件已生成或邮件已到达。APK 的成功提示称 7 天内邮件交付；后台工作流、实际交付时点、附件/链接及其内容尚未观测。是否含原始 ADC/IMU 波形、设备诊断文件或生产算法材料仍未知。
+
+提交前的编码核对
+DataPrivacyAction.DOWNLOAD 是代码中的枚举名，实际 JSON type 是小写 download。JADX 的枚举 Java 显示遗漏字段上的 @Json(name="download")，本次在 POST 前通过 Smali 和 Moshi EnumJsonAdapter 闭合序列化链并修正预览模板；没有发出错误的大写请求。
+timestamp 按 APK Instant.toString 语义发送 UTC ISO-8601 字符串。证据见 ../offline-continuation-03/app-export/WIRE_ENCODING_ADDENDUM.json。
+
+隐私与操作范围
+账号 ID、邮箱、完整用户资料、密码、令牌和 webhook 原始回执均未写入报告。记录仅保留身份相符布尔值、时间、协议、状态与次数。没有修改设备设置，也没有重试设备在线状态或实时流。
+后续的历史趋势查询是独立的只读操作，结果见 ../historical-version-probe/FINDINGS_ZH.txt；没有再次触发导出。

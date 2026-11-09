@@ -1,0 +1,79 @@
+TARGET 0802394c function=0802394c
+REF_TO 0800856a UNCONDITIONAL_CALL
+FUNCTION_BODY [[0802394c, 0802399b]]
+
+uint FUN_0802394c(uint param_1,uint param_2)
+
+{
+  uint uVar1;
+  uint uVar2;
+  uint uVar3;
+  uint uVar4;
+  
+  uVar4 = param_1 & 0x7fffff;
+  uVar2 = (param_1 & 0x7fffffff) >> 0x17;
+  uVar3 = (param_2 & 0x7fffffff) >> 0x17;
+  if (uVar2 == 0xff) {
+    uVar1 = 1;
+    if ((uVar3 == 0xff) && (uVar4 == 0 && (param_2 & 0x7fffff) == 0)) {
+      uVar1 = (param_1 ^ param_2) >> 0x1f;
+    }
+  }
+  else if (uVar3 == 0xff) {
+    uVar1 = 1;
+  }
+  else {
+    uVar1 = 1;
+    if ((uVar2 == uVar3) && (uVar4 == (param_2 & 0x7fffff))) {
+      if (-((int)param_1 >> 0x1f) == -((int)param_2 >> 0x1f)) {
+        uVar1 = 0;
+      }
+      else if (uVar2 == 0) {
+        uVar1 = (uint)(uVar4 != 0);
+      }
+    }
+  }
+  return uVar1;
+}
+
+
+INSN 0802394c 70b5 push {r4,r5,r6,lr}
+INSN 0802394e 4200 lsls r2,r0,#0x1
+INSN 08023950 4e02 lsls r6,r1,#0x9
+INSN 08023952 4c00 lsls r4,r1,#0x1
+INSN 08023954 4502 lsls r5,r0,#0x9
+INSN 08023956 6d0a lsrs r5,r5,#0x9
+INSN 08023958 120e lsrs r2,r2,#0x18
+INSN 0802395a c30f lsrs r3,r0,#0x1f
+INSN 0802395c 760a lsrs r6,r6,#0x9
+INSN 0802395e 240e lsrs r4,r4,#0x18
+INSN 08023960 c90f lsrs r1,r1,#0x1f
+INSN 08023962 ff2a cmp r2,#0xff
+INSN 08023964 10d0 beq 0x08023988 REF[CONDITIONAL_JUMP:08023988]
+INSN 08023966 ff2c cmp r4,#0xff
+INSN 08023968 0cd0 beq 0x08023984 REF[CONDITIONAL_JUMP:08023984]
+INSN 0802396a 0120 movs r0,#0x1
+INSN 0802396c a242 cmp r2,r4
+INSN 0802396e 0ad1 bne 0x08023986 REF[CONDITIONAL_JUMP:08023986]
+INSN 08023970 b542 cmp r5,r6
+INSN 08023972 08d1 bne 0x08023986 REF[CONDITIONAL_JUMP:08023986]
+INSN 08023974 8b42 cmp r3,r1
+INSN 08023976 0fd0 beq 0x08023998 REF[CONDITIONAL_JUMP:08023998]
+INSN 08023978 002a cmp r2,#0x0
+INSN 0802397a 04d1 bne 0x08023986 REF[CONDITIONAL_JUMP:08023986]
+INSN 0802397c 2800 movs r0,r5
+INSN 0802397e 431e subs r3,r0,#0x1
+INSN 08023980 9841 sbcs r0,r3
+INSN 08023982 00e0 b 0x08023986 REF[UNCONDITIONAL_JUMP:08023986]
+INSN 08023984 0120 movs r0,#0x1
+INSN 08023986 70bd pop {r4,r5,r6,pc}
+INSN 08023988 0120 movs r0,#0x1
+INSN 0802398a ff2c cmp r4,#0xff
+INSN 0802398c fbd1 bne 0x08023986 REF[CONDITIONAL_JUMP:08023986]
+INSN 0802398e 3543 orrs r5,r6
+INSN 08023990 f9d1 bne 0x08023986 REF[CONDITIONAL_JUMP:08023986]
+INSN 08023992 4b40 eors r3,r1
+INSN 08023994 1800 movs r0,r3
+INSN 08023996 f6e7 b 0x08023986 REF[UNCONDITIONAL_JUMP:08023986]
+INSN 08023998 0020 movs r0,#0x0
+INSN 0802399a f4e7 b 0x08023986 REF[UNCONDITIONAL_JUMP:08023986]

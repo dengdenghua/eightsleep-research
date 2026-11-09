@@ -1,0 +1,46 @@
+FUNCTION 08009efc FUN_08009efc BODY [[08009efc, 08009f2b]]
+INCOMING 0800c9a6 UNCONDITIONAL_CALL
+INCOMING 0800c9b0 UNCONDITIONAL_CALL
+INCOMING 0800da92 UNCONDITIONAL_CALL
+INCOMING 0800de4c UNCONDITIONAL_CALL
+
+void FUN_08009efc(uint *param_1,uint param_2,undefined4 param_3)
+
+{
+  undefined4 local_14;
+  undefined4 uStack_10;
+  
+  *(undefined2 *)(param_1 + 1) = 0x50;
+  *param_1 = param_2;
+  local_14 = param_2;
+  uStack_10 = param_3;
+  FUN_08009e98(param_1,0xfe,(int)&local_14 + 2);
+  FUN_08009e98(param_1,0xff,&local_14);
+  *(bool *)(param_1 + 2) = (local_14 & 0xffff) + DAT_08009f2c == 0;
+  return;
+}
+
+
+ASSEMBLY
+08009efc movs r3,#0x50 BYTES 5023
+08009efe push {r0,r1,r2,r4,r5,lr} BYTES 37b5
+08009f00 strh r3,[r0,#0x4] BYTES 8380
+08009f02 mov r3,sp BYTES 6b46
+08009f04 movs r4,r0 BYTES 0400
+08009f06 adds r2,r3,#0x6 BYTES 9a1d
+08009f08 add r5,sp,#0x4 BYTES 01ad
+08009f0a str r1,[r0,#0x0] BYTES 0160
+08009f0c movs r1,#0xfe BYTES fe21
+08009f0e bl 0x08009e98 BYTES fff7c3ff REF UNCONDITIONAL_CALL=08009e98
+08009f12 movs r2,r5 BYTES 2a00
+08009f14 movs r1,#0xff BYTES ff21
+08009f16 movs r0,r4 BYTES 2000
+08009f18 bl 0x08009e98 BYTES fff7beff REF UNCONDITIONAL_CALL=08009e98
+08009f1c ldrh r0,[r5,#0x0] BYTES 2888 REF READ=Stack[-0x14]
+08009f1e ldr r3,[0x08009f2c] BYTES 034b REF READ=08009f2c WORD=ffffeffc
+08009f20 adds r0,r0,r3 BYTES c018
+08009f22 rsbs r3,r0 BYTES 4342
+08009f24 adcs r0,r3 BYTES 5841
+08009f26 uxtb r0,r0 BYTES c0b2
+08009f28 strb r0,[r4,#0x8] BYTES 2072
+08009f2a pop {r1,r2,r3,r4,r5,pc} BYTES 3ebd

@@ -1,0 +1,34 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Eight Sleep MTK：本地音频播放处理闭合（2026-11-08）
+
+边界
+读取官方 MTK Eight.Capybara 单文件包的 Eight.Audio、Eight.PulseAudio、Eight.Capybara 三个 DLL；按原包偏移逐字节核对，见 SOURCE_LEDGER.json。144 个反编译源码副本用于上下文；语义审查范围为下列正常播放链，不等于逐方法审查全部副本。5 个关键类型重新导出 IL，命令与输出哈希在 il/COMMANDS.json；未执行原厂 DLL、音频工具、下载请求或设备控制。
+
+1. 实际入口和数据来源
+SpeakerController 的 speaker/play 入口以 StopCriteria 选择 SingleTrack、RepeatingTrack 或 RepeatForTrack；ReadyState 接受任务，经 LoadingTask、TrackFactory 创建音轨，Player/TrackPlayer/TrackConsumer 播放。
+TrackFactory 始终交给 WavTrack.Create。TrackDataManager 先取本地缓存或 URL；收到算法名恰为 MD5 的 hash 时比较内容，不匹配则删除重取一次。其他/缺省 hash 不在此校验。非 WAV 用 FFProbe/FFMpeg 转换并缓存，只显式指定输出格式 wav；不能由该调用推导统一采样率、双声道或降噪。
+循环音轨不超过 104857600 字节时复制临时文件；更大或单次播放直接使用持久文件。此为播放文件管理，不是压电波形上传。
+
+2. WAV → Pipe → PulseAudio
+WavTrack 校验 RIFF/WAVE、PCM format=1，头部允许 8/16/24/32 bit、至少一个声道。真正播放的下游更窄：PulseAudioFactory.GetFormat 仅实现 little-endian 16/24 bit，TrackConsumer.CreateChannelMap 仅接受双声道。因此“头部能解析”不等于“这条播放器能播放”。
+WavTrack.ProvideAudio 按最多4096字节读块，复制到 Pipe；AudioStreamWriter 按 PulseAudio writable_size 请求取块，Stream.TryPrepareBlock 复制原字节后 pa_stream_write。已审查的这段第一方链没有逐点滤波、心肺分离、鼾声分类或采样率重算。不能据此排除 FFmpeg、PulseAudio 服务、蓝牙或音箱内部的格式转换/DSP；那些是另一个实现范围。
+ChannelMap.SwappedStereo 把逻辑通道0标为 FRONT_RIGHT、1标为 FRONT_LEFT。它改变声道映射，不是双人信号分离。
+
+3. 时间、循环和跳转
+CalculationPosition = floor(seconds * sampleRate) * channels * bitsPerSample / 8。
+trueDuration 和 CurrentPosition 在整数除法后调用 Duration.FromSeconds(int64)，小于一秒的余数被截断。IL 的 div、conv.i8 已复核；不是反编译器省略小数。
+初次 ProvideAudio 从 DataStartingPosition + 起点字节读取；pendingSeek 分支却以 currentPosition 从文件起点 Seek，未加 DataStartingPosition。此差异在 IL_015e..016c 可见。它是静态定位差异，尚未测得实机播放效果。
+RepeatingTrack 首轮从音轨起点到 loopEnd，后续才 loopStart→loopEnd。RepeatForTrack 用首轮时长、完整循环数和剩余时长生成 PlayIteration。末段传入 (loopStart, remainder, remainder)，没有把 remainder 加到 loopStart；Seek 循环固定读取 iterations[0]，而非 iterations[i]。两点已由 IL 复核，仅列为实际代码行为，不能自动当成已观测的用户故障。未发送异常音轨或跳转请求。
+
+4. 音量与渐入
+TrackConsumer 的 userVolume→Pulse 值为 ushort(userVolume*655)，反向为 Round(pulse/655, AwayFromZero)。0..100正常范围内，100对应65500。Stream 设置两声道音量；底层 sink 单独设65535。
+PlayTask 的 SlowRampVolumeOnStart 使首次播放从0起，后续 TryComplete 在距上次增长严格大于2秒时加1，最大100；到请求的 StartVolume 时停止渐入。lastVolumeIncrease 初值 Instant.MinValue，首次增长并不一定先等完整2秒。没有在此根据声音能量、鼾声或睡眠阶段调整音量。RestoreVolumeOnCompletion 在任务结束后恢复原音量。
+
+5. 缓存刷新
+TrackDownloader 要求 SignalR 已连接且当前 speaker 不是 NullSpeaker，调用 getalltracks 后本地预取。成功至少1个或列表为空，下次12小时后；全部失败的退避从1分钟倍增、最高1小时。只是本地缓存刷新，不表示离线时能够下载缺失曲目。
+
+覆盖结论与未完成范围
+已闭合官方随包第一方音轨选择、下载/转换调用、WAV切片、循环/时间计算、音量渐入、声道映射及提交PulseAudio的正常路径。外部音轨实际编码、运行服务配置、蓝牙输出、B13内部音频DSP/loader和实机声音效果未由本链证明。没有在这条播放链找到鼾声检测输入，不能反推整机一定无任何本地音频推理。
+本目录模型只做有限、正常参数下的数值对照，不运行原厂实现，也不等于实机验证。

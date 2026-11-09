@@ -1,0 +1,69 @@
+{
+  "scope": "Independent narrow read of normal source paths by root; not execution, whole-program equivalence, or runtime observation.",
+  "sources": [
+    {
+      "path": "local-pillow-closure/pass2/08014298.txt",
+      "sha256": "ebb07fb80b76baa62c6586c78f9b6e1feef43dac7303437f09811645f2bd6697"
+    },
+    {
+      "path": "local-pillow-closure/pass3/08010a5e.txt",
+      "sha256": "e4657e6443cb6d6a03eb4f83258f104743ec227ca977ee92fa2df96d56543c0f"
+    },
+    {
+      "path": "local-tmag-closure/host-pass1/00212280.txt",
+      "sha256": "e27d780e44d59f956403585b4e57be94e8f89310e1d5ad4b86e84ca525e79f63"
+    },
+    {
+      "path": "local-tmag-closure/host-pass2/00211870.txt",
+      "sha256": "1e4b6212d3112913f8d8b3303378feb4f62d6c18a556dd3e1a5df9a8b4c80f1b"
+    },
+    {
+      "path": "local-tmag-closure/host-pass1/001e2420.txt",
+      "sha256": "5cdcb3111f69d21e26a76c0f025ae8e406821fbed1b965b62cf8989381c2439b"
+    },
+    {
+      "path": "local-tmag-closure/host-pass2/001e67b0.txt",
+      "sha256": "c9bd1c012b9493fbe1ebb7d9e8f55baebf504af1182e60496c7bbcac7c1c2f39"
+    },
+    {
+      "path": "local-tmag-closure/host-pass3/001e9e44.txt",
+      "sha256": "83d36105e37cf2d4069e2f81a910274a959dae4c6878056bb8b55f57797f5e78"
+    },
+    {
+      "path": "local-tmag-closure/host-pass4/001fe910.txt",
+      "sha256": "f5bf23be4936402b29db49f63bea31c828a7735e1c8ce34d0102a08411a79a92"
+    },
+    {
+      "path": "local-tmag-closure/host-pass3/001f5320.txt",
+      "sha256": "61b0b0315fbe8e7e86f167e30db035a17e8a455bfd9cf7a620643c00cc342533"
+    }
+  ],
+  "findings": [
+    {
+      "id": "pillow-pop",
+      "result": "supported",
+      "anchors": [
+        "08014cae..08014cb2",
+        "08014ce6",
+        "08014d20..08014d2c",
+        "08010a5e..08010a8e"
+      ],
+      "conclusion": "Initial pop followed by 10 loop-end pop attempts and 10 encoded rows. Queue pop copies and increments read only when nonempty. Report distinction for finite 10/11-entry normal inputs is supported."
+    },
+    {
+      "id": "tmag-map-copy",
+      "result": "supported_at_parser",
+      "anchors": [
+        "0021233c..00212368",
+        "002128b4..002128f4",
+        "00211870..00211977"
+      ],
+      "conclusion": "First map at sp+278 saved to sp+c0. Both final map-copy calls pass this source; copy allocates destination nodes and reads source list without consuming it. Downstream consumer to be separately checked."
+    },
+    {
+      "id": "tmag-consumer-scope",
+      "result": "supported_narrow_read",
+      "conclusion": "Read normal coroutine chain, first-map copy into side-specific deque, aggregate snapshots and blanketReadings encoder. Parser duplicate maps must not be generalized to equal final left/right; full pairing model remains agent evidence."
+    }
+  ]
+}

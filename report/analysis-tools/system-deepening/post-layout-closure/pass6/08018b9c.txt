@@ -1,0 +1,57 @@
+TARGET 08018b9c function=08018b9c
+REF_TO 08018be4 UNCONDITIONAL_CALL
+REF_TO 0801f71c UNCONDITIONAL_CALL
+FUNCTION_BODY [[08018b9c, 08018bdb]]
+
+uint FUN_08018b9c(int param_1,undefined1 param_2)
+
+{
+  int iVar1;
+  uint uVar2;
+  
+  *(int *)(param_1 + 0x18) = param_1 + 4;
+  *(undefined4 *)(param_1 + 0x14) = 1;
+  *(int *)(param_1 + 0x30) = param_1 + 8;
+  *(undefined1 *)(param_1 + 4) = param_2;
+  *(undefined4 *)(param_1 + 0x2c) = 2;
+  *(int *)(param_1 + 0x34) = param_1;
+  *(undefined1 **)(param_1 + 0x38) = &LAB_08018f68_1;
+  iVar1 = FUN_08013348(*(undefined4 *)(param_1 + 0x3c),param_1 + 0xc);
+  uVar2 = 0;
+  if (iVar1 != 0) {
+    uVar2 = FUN_08013348(*(undefined4 *)(param_1 + 0x3c),param_1 + 0x24);
+  }
+  return uVar2 & 1;
+}
+
+
+INSN 08018b9c 031d adds r3,r0,#0x4
+INSN 08018b9e 10b5 push {r4,lr}
+INSN 08018ba0 8361 str r3,[r0,#0x18]
+INSN 08018ba2 0123 movs r3,#0x1
+INSN 08018ba4 4361 str r3,[r0,#0x14]
+INSN 08018ba6 0300 movs r3,r0
+INSN 08018ba8 0833 adds r3,#0x8
+INSN 08018baa 0363 str r3,[r0,#0x30]
+INSN 08018bac 0223 movs r3,#0x2
+INSN 08018bae 0171 strb r1,[r0,#0x4]
+INSN 08018bb0 0100 movs r1,r0
+INSN 08018bb2 c362 str r3,[r0,#0x2c]
+INSN 08018bb4 094b ldr r3,[0x08018bdc] REF[READ:08018bdc=8018f69] REF[PARAM:08018f69=46983b5]
+INSN 08018bb6 4063 str r0,[r0,#0x34]
+INSN 08018bb8 0400 movs r4,r0
+INSN 08018bba 8363 str r3,[r0,#0x38] REF[DATA:08018f69=46983b5]
+INSN 08018bbc 0c31 adds r1,#0xc
+INSN 08018bbe c06b ldr r0,[r0,#0x3c]
+INSN 08018bc0 faf7c2fb bl 0x08013348 REF[UNCONDITIONAL_CALL:08013348]
+INSN 08018bc4 0023 movs r3,#0x0
+INSN 08018bc6 9842 cmp r0,r3
+INSN 08018bc8 05d0 beq 0x08018bd6 REF[CONDITIONAL_JUMP:08018bd6]
+INSN 08018bca 2100 movs r1,r4
+INSN 08018bcc e06b ldr r0,[r4,#0x3c]
+INSN 08018bce 2431 adds r1,#0x24
+INSN 08018bd0 faf7bafb bl 0x08013348 REF[UNCONDITIONAL_CALL:08013348]
+INSN 08018bd4 0300 movs r3,r0
+INSN 08018bd6 0120 movs r0,#0x1
+INSN 08018bd8 1840 ands r0,r3
+INSN 08018bda 10bd pop {r4,pc}

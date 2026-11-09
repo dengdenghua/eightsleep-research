@@ -1,0 +1,45 @@
+Frozen 1.7.7 冷却上限自适应：正常路径状态恢复
+2026-11-08；静态指令审阅与分析者模型，未执行原厂程序或访问设备。
+
+样本 SHA256 4d0522980c8a16d5659a5b188e4c58d12c51f9c2c923aa28f5cba0b252f613a6，映射0x0800A000。
+主函数0801BB28；启用重置0801BA7C；目标变化重置0801BA8C；调用方0801E0F8。
+来源导出、4段机器码原字节与5处常量保存在SOURCE_VERIFICATION.json。该记录验证样本身份和提取范围，不声称独立解码每条指令。
+
+一、状态与次序
++00 base；+04 error threshold；+08 disabled；+0C best absolute error；+10 progress_at；
++14 climbing；+15 seen；+16 suppressed；+18 adaptive ceiling；+1C raised_at；
++20 engaged；+21 actual cut；+22..24旧标志快照；+28旧百分比诊断。
+字段名为分析命名，不是原厂符号。
+
+每次先清actual cut。base<=0、disabled非零、或error>=-threshold时旁路：清engaged、best设正无穷、重设progress_at并清seen/suppressed，但保留climbing、adaptive ceiling、raised_at。
+正常Pod6 threshold为0.5，base为0.67；这两个值是配置，不是所有模式的通用常量。
+
+进展条件严格为 float32(best-0.1)>abs(error)。因此恰等于计算后的边界不算改善；改善时更新best/progress_at，并清seen/suppressed。best并非每步滚动误差。
+未climbing且没有改善时，uint32(now-progress_at)>=180000才检查seen。
+seen之前为真则进入climbing并将raised_at置now；否则置suppressed。
+随后才判断本步限幅，因此首次在180秒以后触发限幅的调用并不立即进入climbing：seen本步末尾置位，后续调用才可进入。
+
+climbing状态中，改善不会清climbing；且改善与上限递增可同一调用发生。
+uint32(now-raised_at)>=30000时只递增一次，并将raised_at设为当前now，不追补漏过的周期。
+每次以float32增加0.11，最大1.0。上限>=1时该层旁路；仍可能被后级环境/执行器限幅。
+
+二、显示限幅与实际裁剪不同
+engaged旧值为真时，判断边界用ceiling-0.05，否则用ceiling。
+demand严格小于负边界才置engaged，并将seen置真。seen为自上次进展/重置以来的粘滞标志，不是当前cut值。
+实际裁剪单独比较 demand < -ceiling，成立才将输出改为-ceiling并置actual cut。
+所以ceiling=.67，已经engaged时demand=-.64可保持engaged，却不实际裁剪、不触发调用方积分回退。
+
+三、启用、停用和目标变化
+0801BA7C只清best/计时/seen/suppressed，保留climbing和adaptive ceiling。
+0801BA8C还清climbing，将adaptive ceiling恢复base，并重置raised_at。
+0801E0F8在disabled→enabled时调用前者；请求目标与旧目标不相等时调用后者。
+停用分支把TEC请求和两处输出快照清零，但没有调用完整冷却状态重置；同目标再次启用可保留此前自适应上限。
+启用时若目标也变化，后续目标变化重置仍会运行，不能只看到enable reset就认定上限一定保留。
+跨水温且目标变化严格大于5°C时另有PID reset，与冷却状态reset是两条逻辑。
+没有证据将所有设备mode变化都等同此enable参数；本轮只恢复所列启停和目标调用路径。
+
+四、有限模型与限制
+model.py为正常有限值下的状态转写，run_cases.py输出25项具名对照：180秒和30秒边界、进展比较、迟到调用、0.11累加、达到/超过1、滞回、旁路、enable/target reset区别和uint32回绕。
+这些例子并非25项独立固件运行测试；预期由静态分支推导，不证明模型与全固件等价。
+未覆盖NaN、全部硬件模式、所有参数写入者、调度中断交错及真实热响应。计时单位依millis调用链，不将调用次数换算成真实必然发生时间。
+复跑：python3 run_cases.py。

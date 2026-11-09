@@ -1,0 +1,53 @@
+{
+  "id": "cloud-api",
+  "title": "云端接口与结果契约",
+  "layer": "cloud",
+  "status": "partial",
+  "order": 100,
+  "summary": "已经看到睡眠阶段、心肺指标和版本等返回字段。知道返回了什么，还不足以知道服务器内部怎样算出来。",
+  "inputs": [
+    "主控上传的传感数组与设备状态",
+    "账号授权后的读取和设置请求",
+    "用户编辑、反馈及导出申请"
+  ],
+  "outputs": [
+    "睡眠阶段与 HR/RR/HRV/RMSSD 结果",
+    "温控设置、事件和回顾结果",
+    "导出申请接收回执"
+  ],
+  "findings": [
+    "trends 走 client-api；指标聚合、温控和实时流走 app-api；auth-api 是独立入口。",
+    "历史结果实际出现 sleep 0.1.1、presence 3.2.1、HRV 1.2.0，不能反向当作代码或权重。",
+    "有限历史统计确认 hrv 与 rmssd 是不同返回序列；输出间隔不等于算法窗口。",
+    "live 的 samples/timestamp 合同已恢复，尚无当前设备实时包。",
+    "数据导出申请已按授权提交一次；成功回执不等于文件已交付。",
+    "设备侧functions.*经SignalR按请求串行处理；回包异常仅记日志。设备路由不等于手机可调用的HTTP API。",
+    "debugnats/get每页重读监控文本，没有跨页快照；它不返回stream原始传感消息。",
+    "同包SignalR确认两次Request注册均生效；正常路径两条队列入队、仅派生队列执行业务，基类队列存在未消费保留路径，未实测内存影响。"
+  ],
+  "unknowns": [
+    "云端服务内部队列、清洗、存储、推理和策略模块未取得。",
+    "live 的频率、通道、单位以及与 0x3c 的映射未确认。",
+    "temp-events 空响应无法说明历史调温是否发生或事件保留范围。",
+    "导出是否含原始 ADC/IMU 与生产材料仍未知。"
+  ],
+  "evidence": [
+    "analysis/android-findings/APP_RUNTIME_AND_HARDWARE_ZH.txt",
+    "analysis/android-findings/ANDROID_SLEEP_RESULTS_ZH.txt",
+    "analysis/android-findings/APP_LIVE_SENSOR_EVENTS_ZH.txt",
+    "analysis/android-findings/APP_CARDIORESPIRATORY_PIPELINE_ZH.txt",
+    "analysis/android-findings/APP_TEMPERATURE_HISTORY_ZH.txt",
+    "analysis/account-readonly/historical-version-probe/FINDINGS_ZH.txt",
+    "analysis/account-readonly/history-behavior-followup/FINDINGS_ZH.txt",
+    "analysis/account-readonly/data-export-request/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/diagnostics/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/signalr-dispatch/FINDINGS_ZH.txt"
+  ],
+  "next": [
+    "API-01",
+    "API-02",
+    "API-03",
+    "API-04"
+  ],
+  "plain_intro": "可以把接口看成一个窗口：我们知道怎样提问，也看到了部分回答；窗口后面的计算程序目前还没有拿到。"
+}

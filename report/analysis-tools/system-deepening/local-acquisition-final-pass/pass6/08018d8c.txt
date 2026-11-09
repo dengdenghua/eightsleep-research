@@ -1,0 +1,22 @@
+TARGET 08018d8c function=08018d8c
+FUNCTION_BODY [[08018d8c, 08018da1]]
+
+void analyst_normal_entry_08018d8c(void)
+
+{
+  DAT_2000ad8c = 1;
+  DataSynchronizationBarrier(0xf);
+  DataMemoryBarrier(0x1f);
+  return;
+}
+
+
+INSN 08018d8c c622 movs r2,#0xc6
+INSN 08018d8e 0121 movs r1,#0x1
+INSN 08018d90 044b ldr r3,[0x08018da4] REF[READ:08018da4=2000ac00]
+INSN 08018d92 5200 lsls r2,r2,#0x1
+INSN 08018d94 9954 strb r1,[r3,r2] REF[WRITE:2000ad8c]
+INSN 08018d96 bff34f8f dsb #0xf
+INSN 08018d9a bff35f8f dmb #0x1f
+INSN 08018d9e 40bf sev
+INSN 08018da0 7047 bx lr

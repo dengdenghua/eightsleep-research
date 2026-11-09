@@ -1,0 +1,68 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+中国版 APK：温度建议来源、选择、接受与反馈（有界静态审计）
+日期：2026-11-07
+
+结论
+当前 APK 的 level-suggestions 是服务器返回的多类型建议列表。App 已确认的工作包括缓存、显示单位转换、按类型/列表顺序选择建议、生成引导页或提示卡，以及用户接受后写入温控偏好。TapToControl 的接受/暂不链可闭合到实际温控 use case 与远端消息交互记录；没有从这些消费者恢复出生成推荐档位的模型、拟合、优化目标或训练参数。这里的 BEDTIME/NIGHT/DAWN 是温控时段，不能当作 AWAKE/LIGHT/DEEP/REM 生理睡眠分期。
+
+范围与定位约定
+样本：官方中国 Android 7.63.5-cn-tencent，versionCode 1007063005；APK SHA256 8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+W = analysis/android-volume/cn-7.63.5；索引 462a22f663ae482ea93bab3130b96eaf。
+J = W/java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/。
+S2/S3 = W/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2 或 smali_classes3/。
+以下 J/S 路径均相对上述根；Java 的 package 名可能与磁盘 pNNNxx 名不同。正文短 evidence tag 对应 temperature-suggestions/source-ledger.json 内完整 evidence_id、参数、查询副本、源文件 SHA256。查询及 Smali 来自同一当前索引。
+本次没有执行 APK、访问业务 API 或发送设备命令。JADX 有已知反编译错误，关键选择和写入分支以 Smali 核验。静态存在不代表特定账户/地区/SKU 当前启用，也不根据 MT8365 将共享代码绑定某代 Pod。
+
+TS1 请求、反序列化和缓存的真实入口
+J/p497ud/h.java:18–20 和 S2/ud/h.smali:177–199 定义 GET v1/users/{userId}/level-suggestions，返回 LevelSuggestionsResponseWrapper。J/p451sd/B0.java:45–48 实际调用 h.d。J/p061ce/C2685l.java:621–626 的 F2 用 X3 创建 ud.h；X3 的 CHINA app-api 绑定已由 APP_RUNTIME_AND_HARDWARE_ZH.txt/APP_THERMAL_CONTROL_ZH.txt 独立闭合，即 app-api-proxy.8slp.net.cn。本次没有把该接口混入 client-api。
+J/com/eightsleep/data_user/data/TemperatureRecommendationsRepository.java:34–41 的 getFirstTimeRecommendation → sd.D0；D0:44–94 检查 forceRefresh 与按 userId 的缓存/有效性，再调用 B0。sd.C0:38–47 遍历响应的 levelSuggestions、逐个 toDomain，缓存列表及 System.currentTimeMillis。它是客户端缓存，不是建议生成算法；本次不推断缓存时长或后端刷新周期。
+Fd.C0767c0 → C0764b0:40 → C0761a0:35–41 将所选用户与显示设置传入 Hd.c.a(displaySettings)。DTO→raw domain→display domain 是两层转换，未在这些层计算新推荐值。
+S2/ce/l.smali:10105–10193 明确以 JSON type 注册 tap-to-control/profile/cohort/cohort-v2/bedtime-level/first-night，未知类型落 UnknownLevelSuggestionResponse。枚举 rawName 见 J/com/eightsleep/data_user/enums/level_suggestions/LevelSuggestionType.java:5–12。
+证据：suggestion-api、suggestions-api-get-smali、suggestions-di、suggestions-fetch、suggestions-cache-fetch、suggestions-response-map、suggestions-display-map、suggestion-subtype-registry。
+
+TS2 六类建议不能按名字推定六套本地策略
+1. Profile：ProfileLevelSuggestionResponse:92–93 直接转入 id、三个推荐 levels、三个 previous levels、reason；zd.l:43–46 仅按显示设置包装这些整数。全索引 Lzd/f; 搜索仅命中 display data class 自身和 zd.l 构造，没有直接 UI/应用消费者。
+2. Bedtime：BedtimeLevelSuggestionResponse:100–114 映射服务端 personal/community 的 LevelLatencyCorrelation 列表及 cohort；并非在该方法中从睡眠潜伏期拟合最佳温度。全索引 Lzd/a; 只有该 class 自身和 raw zd.g 的构造引用，没有直接应用消费者。
+3. 旧 Cohort：CohortLevelSuggestionResponse:100–101 直接取 age/gender/temperatureGroup 和 bedTimeLevel/initialSleepLevel/finalSleepLevel。已有真实引导页写入消费者，见 TS3。
+4. CohortV2：zd.i:45–47 保留年龄、性别、地区/国家和三份 distribution；distribution 元素包含 level:int、percent:double、aggregate:boolean。全索引 Lzd/c;->f/g/h（这三份列表）的直接字段引用仅在 data class 自身，未找到 App 根据 percent 或 aggregate 重新求推荐值。Pillow 实际消费者用年龄和国家作标签，见 TS3。
+5. FirstNight：FirstNightLevelSuggestionResponse:99–106 返回 cohort、nullable pod/pillow 两组 SmartTemperatureNetworkModel；zd.j:27–32 转显示模型。三段值已在服务端响应里。
+6. TapToControl：响应 data 含 id/deviceId/phase/offset/currentLevel/recommendedLevel；zd.m.a 按显示设置包装三个整数，未执行 recommended=current+offset。实际提示卡和接受链见 TS4/TS5。
+上述负面结论限定当前 DEX 索引的直接类型/字段消费者，不排除反射、动态内容或后端逻辑；也不表示所有同名产品功能均不存在。
+证据：profile-dto-map、raw-profile-domain、profile-smali-uses、bedtime-dto-map、bedtime-smali-uses、cohort-dto-map、cohort-v2-distribution、raw-cohort-v2-domain、cohort-v2-distribution-use、first-night-dto-map、raw-first-night-domain、tap-wire-data、tap-wire-response、tap-suggestion-raw。
+
+TS3 引导/首页建议：选择顺序是本地规则，推荐三段值是服务端数据
+首页路径：DynamicHomeViewModel 的 firstNightLevelSuggestionsFlow 调 Fd.Y；FirstNightLevelSuggestionsSource 合并用户、新用户/功能门控等状态后发起读取。J/Ff/C0878v.java:82–127 将建议映射成 FirstNight UI，并合入当天已启用的 bedtime schedule/alarm 展示信息。所调用的 cj.l0.E(List) 有明确顺序（S3/cj/l0.smali:1359–1479）：先按列表顺序取首个 FirstNight 中非空 pod；若都没有，再取首个旧 Cohort 的三段值；否则 null。未按 createdAt 排序、未平均多建议、未用 CohortV2 百分比分布求解。这个规则只适用于该 helper，不能泛化到所有引导。
+旧 AutopilotProfile onboarding 的实际应用不同：J/p455sh/h.java:85–105，S3/sh/h.smali:225–310 过滤旧 Cohort，取首个，构造 Ga.n(bedtime,initial,final)，以 source="onboarding"、DeviceType.POD 调 SetTemperatureSettingsUseCase（ld.t0，经 b.z）。不能把它写成 FirstNight 优先。该实现与当前运行页面是否被功能门控启用是两回事。
+Pillow onboarding：S3/.../PillowTemperatureRecommendationsOnboardingViewModel$generateAutopilotProfile$1$1$1.smali:205–389 遍历完整列表，变量被后续命中覆盖，故取最后一个 CohortV2 和最后一个 FirstNight；其人口/国家/偏好信息组成说明标签，PILLOW 三段值取 FirstNight.pillow。不存在时构造 C8.H()，其默认三值均为 raw 0（J/C8/H.java:63–64），不能误报成“服务器建议为零”。这里也没有从 distribution 求均值或最大概率档位。
+Pillow 接受入口已闭合：实际 composable callback（S3/.../ComposableSingletons$PillowTemperatureRecommendationsOnboardingKt$lambda-3$1.smali:82–99）将 UI 的 C8.H 放进 xi.c；ViewModel:148–168 分派 xi.c 到 applyTemperatureSettingsRecommendation。S3/...$applyTemperatureSettingsRecommendation$1.smali:203–265 选择 PILLOW，按 C8.H 的 a,c,b 重排为 Ga.n(bedtime,night,morning)，写 source="onboarding" 的温控设置。结果为 Status.Success 才调用 onStepComplete；另一个 xi.d 路径只是完成步骤，不能当成也写入温控。
+本轮没有把首页所有 FirstNight 卡片操作、ChapterListViewModel 及所有旧 onboarding 页逐一追完；明确确认的是上述 helper/首页展示、旧 Cohort 写入，以及 Pillow 接受链。
+证据：first-night-source、first-night-home-fetch、home-suggestion-ui-map、suggestion-selector-smali、cohort-apply-smali、pillow-selector-smali、pillow-suggestion-default、pillow-ui-accept-callback、pillow-accept-action、pillow-apply-smali、pillow-accept-success、status-success-handler。
+
+TS4 TapToControl：服务端建议到可交互提示卡
+Kb.Y 依赖 Fd.C0767c0；S2/Kb/V.smali:2422–2486 调 Fd.Y 并取建议列表，后续与其他状态组合交给 Kb.C；J/Kb/C.java:164 形成 GetAlertsParams。C:281–293 将 zd.o 建议变成 Lb.S，保留 userId/id/phase/offset/recommendedLevel。原 data 的 currentLevel 和 deviceId 没有传入这个 banner；不能据它们推断这里按设备重新算推荐值。
+Lb.S:31–44 设置 messageKey="phaseTemperatureSuggestion-"+id、analytics 名 temperaturePhaseRecommendation、VERY_LOW 优先级和 NEVER 到期。S2/Lb/S.smali:339–467 可见本地 gate：先通过通用提示门控，消息 key 尚无远端交互记录，再在建议列表中寻找符合当前温控 active state 的 Tap 建议。SMART_INITIAL 对应寻找 DAWN，其余/空状态寻找 NIGHT（Lb.Q 只将 SMART_INITIAL 映射为 1）。注意这个搜索遍历的是整份列表，不是额外校验当前卡片 id/phase；不将它简化成每卡片独立的精确 eligibility 算法。
+J/p570xe/N.java:57–62 用 offset 符号选择“增加/降低”说明、格式化推荐值/phase 标签，并接 apply_to_all 和 not_now 资源；xe.M 把两个按钮分别转成 primary/negative 事件。静态显示字样不表示已运行该界面，也不能把 apply_to_all 解释为“改三段所有温度”：实际只替换建议所指时段。
+SleepPhaseSuggestionAlertViewModel 的 apply 方法先记录 analytics，然后启动写入。S2/.../SleepPhaseSuggestionAlertViewModel.smali:214–240 存在 recommended.c + offset.c 再包装的表达式，但其结果只进入 ed.N 日志事件；后续 coroutine 参数仍是原 recommendedLevel。Ga.b.c 是 raw/10 经舍入后的显示档位（J/Ga/b.java:25–29），不是 raw 整数本身。不能把这个日志表达式当作实际热目标计算公式，也不在未运行条件下断言其构造意图。
+证据：tap-banner-fetch-smali、banner-final-list-pass、tap-get-alerts-map、tap-suggestion-ui、tap-suggestion-banner、tap-gate-smali、suggestion-gate-enum、tap-alert-composable、tap-alert-ui-callbacks、tap-analytics-smali、tap-level-value。
+
+TS5 接受、暂不与持久反馈的闭环
+接受：S2/.../SleepPhaseSuggestionAlertViewModel$applySleepPhaseSuggestion$1.smali:282–359 先取当前 Status.Success 的 DeviceTemperatureSettings.smart；BEDTIME/NIGHT/DAWN 中匹配的一段改用 recommendedLevel，另外两段先沿用当前值，交给 UpdateSmartTemperatureSettingsUseCase（ld.Y0/c1）。这不是从体征推算档位。
+ld.b1 的后续行为（S2/ld/b1.smali:192–483）更具体：
+  - 若 phase=BEDTIME 且当前设置中存在关联 bedtime id，则 f5.k.j → X9.k → BedtimeUpdateRepository.updateBedtimeTemperature，同步该日程温度。
+  - 构造新的 override（jd.r），把当前被修改时段的 nullable override 设为 null，其余保留。
+  - 未修改时段若已有 override，则构造持久 smart 时取底层 q.e 的原值，避免把临时 override 固化；否则使用传入的当前值。
+  - 构造 jd.B(smart,override) 和 TemperatureBleCommand.Update(本次对应时段的值)，交给既有 ld.t0/b.z 温控写入链。这里仅证明提供了 BLE fallback 命令，不能称所有接受都通过 BLE，也不能把 use case 的成功等同于水温已经达到目标。普通云 PUT/BLE 分支已在 APP_THERMAL_CONTROL_ZH.txt 单独核验，本轮不重复。
+按钮/反馈次序：apply 的结果 collector 调 Status.d；J/p592ya/j.java:90–95 仅对 Success 执行回调。成功回调才调用父 AlertViewModel.handleCtaClick → PRIMARY 交互记录。Loading 和错误另行处理，不能写成“点按钮立即记录成功接受”。负按钮直接走父 handleNegativeCtaClick → SECONDARY；dismiss 走 DISMISS；这些本身不调用上述温控更新。
+远端消息记录：AlertViewModel:38–44/66–81/112–115 → recordInteractionAndDismissAlert → Fd.Z1/a2 → P2.AbstractC1566e.I:133–136，提交 {messageKey-action: Instant.now()}。P2.x.D:50–55 将 action 名转小写拼到 key；RemoteMessageStateRepository:191–235 先合并/更新本地 message cache，再 sd.K:49–51 调 ud.h.j。S2/ud/h.smali:354–385 与 Xq.W.java:580–581 确认为 PATCH v1/users/{userId}/app-state/messages，body 为 RemoteStateNetworkModel<Map<String,Instant>>。
+因此“接受／暂不”有服务端可收到的消息交互路径，但此次恢复的 payload 不是带生理特征/损失函数的训练样本，也没有独立 recommendation accept/reject 端点证据。PRIMARY/SECONDARY 的远端成功、后台如何使用它、是否作为模型反馈，均不能由此证明。提示缓存先更新，也不代表 PATCH 一定成功。
+证据：tap-apply-smali、smart-bridge-smali-a、smart-bridge-smali-b、bedtime-schedule-write、tap-apply-result、tap-success-callback、status-success-handler、alert-base、alert-interaction-write、interaction-helper、interaction-final-key、remote-message-repository、message-patch-call、suggestions-message-patch-smali、http-verb-mapping。
+
+TS6 recap.temperatureSettingsUpdate 与未闭合边界
+APP_AUTOPILOT_RESULTS_ZH.txt 已恢复 recap GET→缓存→domain→display 的 temperatureSettingsUpdate 元数据。本轮针对最终 display 路径 N9.f.i:N9.z 做完整 Smali 字段引用检索（recap-update-final-field-uses，has_more=false）：N9.f.i 仅见赋值和 data-class equals/hash/toString，N9.z 除自身外仅见 O9.j 构造。未发现直接展示、accept/reject 或温控写入消费者。不能把服务端返回的更新说明本身当成 App 已执行温度动作。
+本次有界结论：已追到的 recommendation 数值从服务器响应取得，客户端可证明的是类型选择、门控、显示转换、默认值、用户设置应用和交互记录。服务端是否用睡眠阶段、心率/呼吸、多传感融合、环境、个人历史或 cohort 训练模型，具体函数/权重/目标均未在上述消费者中公开。不会用类型名、reason 字段或 UI cohort 文案代替算法证据。
+未覆盖：recommendations/blanket 独立家族、全部首页/旧 onboarding CTA、未识别反射/动态加载、在线 feature flag 与真实响应、云端反馈消费及设备执行结果。Profile/Bedtime/recap 的缺口是消费者边界，不是“全 App/全固件不存在算法”的结论。TemperatureEvents/TemperatureAggregate 历史消费者由并行独立报告覆盖。
+
+复核与可重现材料
+temperature-suggestions/ 下保留逐次当前索引查询回包、claims.json、REA finding 写入回包、build_source_ledger.py、source-ledger.json 和 INTEGRITY.json。ledger 对报告 hash、每条 evidence 对当前 workspace canonical 回包、返回源文件 hash 及 claim 引用做核验。没有统一 deep report export，没有改动主报告/全局 manifest。

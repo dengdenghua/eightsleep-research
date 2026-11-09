@@ -1,0 +1,23 @@
+TARGET 0800dd40 function=0800dd40
+REF_TO 0800ddfe UNCONDITIONAL_CALL
+REF_TO 0800de16 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800dd40, 0800dd53]]
+
+void FUN_0800dd40(int param_1,uint param_2,uint param_3,int param_4)
+
+{
+  *(uint *)(param_1 + 8) = param_4 << 8 | param_3 | param_2 | *(uint *)(param_1 + 8) & 0xffff00ff;
+  return;
+}
+
+
+INSN 0800dd40 30b5 push {r4,r5,lr}
+INSN 0800dd42 8468 ldr r4,[r0,#0x8]
+INSN 0800dd44 034d ldr r5,[0x0800dd54] REF[READ:0800dd54=ffff00ff]
+INSN 0800dd46 0a43 orrs r2,r1
+INSN 0800dd48 1b02 lsls r3,r3,#0x8
+INSN 0800dd4a 2c40 ands r4,r5
+INSN 0800dd4c 1343 orrs r3,r2
+INSN 0800dd4e 2343 orrs r3,r4
+INSN 0800dd50 8360 str r3,[r0,#0x8]
+INSN 0800dd52 30bd pop {r4,r5,pc}

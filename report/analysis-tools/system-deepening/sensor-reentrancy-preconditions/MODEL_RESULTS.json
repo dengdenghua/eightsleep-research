@@ -1,0 +1,278 @@
+{
+  "status": "PASS",
+  "cases": {
+    "raw_full_then_pop5_one_callback": {
+      "status": "PASS",
+      "summary": "30 accepted from empty; pop5 =>25; next callback =>26, no overflow",
+      "callbacks": 31,
+      "accepted": 31,
+      "rejected": 0,
+      "adc_count": 26,
+      "imu_count": 5,
+      "adc_popped": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "overflow_logs": 0,
+      "trace": "traces/raw_full_then_pop5_one_callback.jsonl"
+    },
+    "raw_full_then_pop5_six_callbacks": {
+      "status": "PASS",
+      "summary": "first five refill; sixth rejects, under supplied six-callback framer interval",
+      "callbacks": 36,
+      "accepted": 35,
+      "rejected": 1,
+      "adc_count": 30,
+      "imu_count": 6,
+      "adc_popped": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "overflow_logs": 1,
+      "trace": "traces/raw_full_then_pop5_six_callbacks.jsonl"
+    },
+    "raw_refill_between_pops": {
+      "status": "PASS",
+      "summary": "four earlier gaps each refill; last pop =>29; first in-framer fills, second rejects",
+      "callbacks": 36,
+      "accepted": 35,
+      "rejected": 1,
+      "adc_count": 30,
+      "imu_count": 6,
+      "adc_popped": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "overflow_logs": 1,
+      "trace": "traces/raw_refill_between_pops.jsonl"
+    },
+    "raw_refill_before_framer": {
+      "status": "PASS",
+      "summary": "first in-framer rejection requires refill after final pop; total additional callbacks still six",
+      "callbacks": 36,
+      "accepted": 35,
+      "rejected": 1,
+      "adc_count": 30,
+      "imu_count": 6,
+      "adc_popped": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "overflow_logs": 1,
+      "trace": "traces/raw_refill_before_framer.jsonl"
+    },
+    "gain_dirty_full_before_flush": {
+      "status": "PASS",
+      "summary": "dirty setter and thirty accepted callbacks coexist before main gain log; next callback rejects",
+      "callbacks": 31,
+      "accepted": 30,
+      "rejected": 1,
+      "adc_count": 30,
+      "imu_count": 6,
+      "adc_popped": [],
+      "overflow_logs": 1,
+      "trace": "traces/gain_dirty_full_before_flush.jsonl"
+    },
+    "gain_dirty_one_free_slot": {
+      "status": "PASS",
+      "summary": "gain log does not itself imply overflow: count29 requires two callbacks",
+      "callbacks": 31,
+      "accepted": 30,
+      "rejected": 1,
+      "adc_count": 30,
+      "imu_count": 6,
+      "adc_popped": [],
+      "overflow_logs": 1,
+      "trace": "traces/gain_dirty_one_free_slot.jsonl"
+    },
+    "unchanged_or_small_gain_no_dirty": {
+      "status": "PASS",
+      "summary": "unchanged400 and <=99 do not set dirty from clean fixture; no gain-sync log branch",
+      "callbacks": 31,
+      "accepted": 31,
+      "rejected": 0,
+      "adc_count": 26,
+      "imu_count": 5,
+      "adc_popped": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "overflow_logs": 0,
+      "trace": "traces/unchanged_or_small_gain_no_dirty.jsonl"
+    },
+    "gain_log_returns_then_flush_control": {
+      "status": "PASS",
+      "summary": "same entry count does not imply failure if no callback overlaps; later no-IRQ flush removes queued records",
+      "callbacks": 31,
+      "accepted": 31,
+      "rejected": 0,
+      "adc_count": 1,
+      "imu_count": 0,
+      "adc_popped": [],
+      "overflow_logs": 0,
+      "trace": "traces/gain_log_returns_then_flush_control.jsonl"
+    }
+  },
+  "finite_checks": {
+    "no_interleaving_formulas": [
+      {
+        "initial_count": 5,
+        "after_pop5": 0,
+        "callbacks_until_first_rejection": 31
+      },
+      {
+        "initial_count": 6,
+        "after_pop5": 1,
+        "callbacks_until_first_rejection": 30
+      },
+      {
+        "initial_count": 7,
+        "after_pop5": 2,
+        "callbacks_until_first_rejection": 29
+      },
+      {
+        "initial_count": 8,
+        "after_pop5": 3,
+        "callbacks_until_first_rejection": 28
+      },
+      {
+        "initial_count": 9,
+        "after_pop5": 4,
+        "callbacks_until_first_rejection": 27
+      },
+      {
+        "initial_count": 10,
+        "after_pop5": 5,
+        "callbacks_until_first_rejection": 26
+      },
+      {
+        "initial_count": 11,
+        "after_pop5": 6,
+        "callbacks_until_first_rejection": 25
+      },
+      {
+        "initial_count": 12,
+        "after_pop5": 7,
+        "callbacks_until_first_rejection": 24
+      },
+      {
+        "initial_count": 13,
+        "after_pop5": 8,
+        "callbacks_until_first_rejection": 23
+      },
+      {
+        "initial_count": 14,
+        "after_pop5": 9,
+        "callbacks_until_first_rejection": 22
+      },
+      {
+        "initial_count": 15,
+        "after_pop5": 10,
+        "callbacks_until_first_rejection": 21
+      },
+      {
+        "initial_count": 16,
+        "after_pop5": 11,
+        "callbacks_until_first_rejection": 20
+      },
+      {
+        "initial_count": 17,
+        "after_pop5": 12,
+        "callbacks_until_first_rejection": 19
+      },
+      {
+        "initial_count": 18,
+        "after_pop5": 13,
+        "callbacks_until_first_rejection": 18
+      },
+      {
+        "initial_count": 19,
+        "after_pop5": 14,
+        "callbacks_until_first_rejection": 17
+      },
+      {
+        "initial_count": 20,
+        "after_pop5": 15,
+        "callbacks_until_first_rejection": 16
+      },
+      {
+        "initial_count": 21,
+        "after_pop5": 16,
+        "callbacks_until_first_rejection": 15
+      },
+      {
+        "initial_count": 22,
+        "after_pop5": 17,
+        "callbacks_until_first_rejection": 14
+      },
+      {
+        "initial_count": 23,
+        "after_pop5": 18,
+        "callbacks_until_first_rejection": 13
+      },
+      {
+        "initial_count": 24,
+        "after_pop5": 19,
+        "callbacks_until_first_rejection": 12
+      },
+      {
+        "initial_count": 25,
+        "after_pop5": 20,
+        "callbacks_until_first_rejection": 11
+      },
+      {
+        "initial_count": 26,
+        "after_pop5": 21,
+        "callbacks_until_first_rejection": 10
+      },
+      {
+        "initial_count": 27,
+        "after_pop5": 22,
+        "callbacks_until_first_rejection": 9
+      },
+      {
+        "initial_count": 28,
+        "after_pop5": 23,
+        "callbacks_until_first_rejection": 8
+      },
+      {
+        "initial_count": 29,
+        "after_pop5": 24,
+        "callbacks_until_first_rejection": 7
+      },
+      {
+        "initial_count": 30,
+        "after_pop5": 25,
+        "callbacks_until_first_rejection": 6
+      }
+    ],
+    "pop_gap_schedules_checked": 256,
+    "gap_values": "0..3 callbacks after each of first four ADC pops; none after fifth before checked callback"
+  },
+  "scope": "queue identities/order and dirty gate only; no firmware/CPU/USB/framer/printf execution",
+  "assumptions": [
+    "valid capacity30 ADC and capacity12 IMU; no counter wrap, reset or RAM corruption",
+    "callback is sole selected ADC producer, main selected pop is sole consumer; no concurrent flush",
+    "callback enabled; monotonic tick selected so time-travel log is excluded",
+    "callback and pop modeled at completed-operation boundaries; not proof of all instruction-level races",
+    "initial gain400 is a synthetic valid value, not a RAM observation; queue starts empty in every trace",
+    "producer-only prefix and IRQ placement are supplied schedules; no CPU duration or field probability inferred",
+    "main gain branch is entered before flush; earlier setter log/command response and unrelated loop work are not replayed",
+    "no serialized packet bytes or CRC claims; prior framer/formatter models require their own conditions"
+  ]
+}

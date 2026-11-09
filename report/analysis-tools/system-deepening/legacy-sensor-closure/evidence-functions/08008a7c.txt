@@ -1,0 +1,43 @@
+FUNCTION 08008a7c FUN_08008a7c BODY [[08008a7c, 08008aad]]
+INCOMING 0800ac2c UNCONDITIONAL_CALL
+INCOMING 0800ac34 UNCONDITIONAL_CALL
+
+undefined8 __stdcall_softfp FUN_08008a7c(int param_1,undefined4 param_2)
+
+{
+  ushort uVar1;
+  undefined4 uVar2;
+  
+  param_1 = param_1 * 8;
+  uVar2 = *(undefined4 *)(&DAT_0800e59c + param_1);
+  FUN_08008450(uVar2,*(undefined2 *)(&DAT_0800e5a2 + param_1),param_2);
+  uVar1 = *(ushort *)(&DAT_0800e5a0 + param_1);
+  FUN_08008472(uVar2);
+  return CONCAT17(1,(uint7)CONCAT15(1,CONCAT14(2,(uint)uVar1)));
+}
+
+
+ASSEMBLY
+08008a7c push {r0,r1,r2,r4,r5,lr} BYTES 37b5
+08008a7e ldr r4,[0x08008ab0] BYTES 0c4c REF READ=08008ab0 WORD=800e59c
+08008a80 lsls r0,r0,#0x3 BYTES c000
+08008a82 ldr r5,[r0,r4] BYTES 0559 REF DATA=0800e59c WORD=48000000
+08008a84 adds r4,r4,r0 BYTES 2418
+08008a86 movs r2,r1 BYTES 0a00
+08008a88 movs r0,r5 BYTES 2800
+08008a8a ldrh r1,[r4,#0x6] BYTES e188 REF DATA=0800e5a2 WORD=0
+08008a8c bl 0x08008450 BYTES fff7e0fc REF UNCONDITIONAL_CALL=08008450
+08008a90 movs r3,#0x1 BYTES 0123
+08008a92 mov r2,sp BYTES 6a46
+08008a94 mov r1,sp BYTES 6946
+08008a96 strb r3,[r2,#0x5] BYTES 5371 REF WRITE=Stack[-0x13]
+08008a98 movs r2,#0x0 BYTES 0022
+08008a9a strb r2,[r1,#0x6] BYTES 8a71 REF WRITE=Stack[-0x12]
+08008a9c ldrh r2,[r4,#0x4] BYTES a288 REF DATA=0800e5a0 WORD=1
+08008a9e movs r0,r5 BYTES 2800
+08008aa0 str r2,[sp,#0x0] BYTES 0092 REF WRITE=Stack[-0x18]
+08008aa2 movs r2,#0x2 BYTES 0222
+08008aa4 strb r3,[r1,#0x7] BYTES cb71 REF WRITE=Stack[-0x11]
+08008aa6 strb r2,[r1,#0x4] BYTES 0a71 REF WRITE=Stack[-0x14]
+08008aa8 bl 0x08008472 BYTES fff7e3fc REF UNCONDITIONAL_CALL=08008472
+08008aac pop {r0,r1,r2,r4,r5,pc} BYTES 37bd

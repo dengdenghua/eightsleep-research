@@ -1,0 +1,64 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Stealth 上传前处理：仅依据现存代码与原始指令
+2026-11-07；只读静态分析；未运行固件、连接设备或访问服务器。
+对象：frankenfirmware，SHA256 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+本文地址为 Ghidra VA；原 ELF VA = 本文地址 - 0x100000。S=analysis/signal-host/。
+引用均为实际反编译 C/汇编/原 ELF 常量；旧报告只用于定位，不作为本文结论的证据。
+
+代码限定结论
+在本次检查的 0x3C Stealth → 5 路 buzzer / 4 组 IMU → CBOR → 本机 NATS 出口中，主机没有将有效幅值作均值/方差归一化、带通、波形质量打分或跨通道加权。实际样本搬运可逐项追到 load/store 和 memcpy。
+但主机绝非“什么都不处理”：它替换禁用组为缺失哨兵、复制一个缺失时间位置、选取 IMU 槽、覆盖重复槽、丢弃迟到记录，并可能在中间缺槽处提前结束。它们会改变最终上传的序列/可见样本集；不能全部简化成纯序列化，也不能自动称为生理去噪。
+MCU 另有确定的数值处理，见同目录 MCU_PREUPLOAD_CODE_ZH.txt 的原指令审计。因此，代码支持“本地有前处理；这条 host 出口未显示所问生产清洗/融合算法”，不支持“全部清洗必定云端”。本报告没有服务器实现，不能确定未知清洗的执行地。
+
+1. 准确的路径和限定
+0x0027E7B0(0x3C) → 0x001E20D0 → coroutine 0x001E6AA0 → 0x001EA774 → 0x001FDEC0；flush 时 0x00200960 调 0x001FEE40(single)或0x001FFA70(double)，随后 0x001F1730(buzzer)、0x001F10B0(IMU)，最后0x001E9390 → 0x001F49B0 → 0x001AFE00/js_Publish。
+中转协程只转交 sample 指针和 side：S/pass3/001e20d0.c:59–103，S/pass4/001e6aa0.c:49–76。入队/flush 条件见 S/pass5/001ea774.c:25–64、98–115；编码器选择与连续调用见 S/pass2/00200960.c:129–152。
+本次以 all-types=false 的5路+4组路线为中心。启动代码0x0027A980对rev>=0xA00启用模式，参数为rev<0xA30；0x001F6920保存到sync+0xA8。rev>=0xA30走false，不追加兼容extADC/multi2。这里不将revision比较当商品代次/某台国行机实测状态。[H00]
+
+2. 输入解码：改变表示，及用缺失值替代禁用组
+[H01,H02] S/pass1/0027e7b0.c:181–253、383–418：最小payload 120 bytes；读tick/flags/frequency；frequency=0拒绝；IMU尾部48 bytes先有默认值，flags bit12..15控制逐组是否读取；ADC内部record先复制默认124 bytes，bit8/9控制前/后8槽是否读BE32。禁用组跳过对应wire字节，保留sentinel。
+0x0045F6E0逐字节拼出32位，0x0045F6B4拼16位：S/pass2/0045f6e0.c:8–16、0045f6b4.c:8–12。没有乘除gain、取绝对值或幅值阈值；只是保留位型的端序解码。
+本轮从原 ELF 直接读取00472F20/0046BE48各124 bytes：epoch=relative=0，16×ADC=0x7FFFFFFF，24×IMU=0x7FFF，frequency=500、flags=1；另读0046BDB0的48-byte全IMU哨兵及0046BEC8的20-byte五路ADC哨兵。记录在 host-evidence/RAW_CONSTANTS.json，不以反编译DAT名字猜数值。[R01]
+同一个尾部IMU block被复制到包内各ADC record（0027e7b0.c:412–418）。这不是每个ADC frame独立采到一次IMU。
+
+3. 双/单侧 loader：实际幅值赋值是什么
+内部record偏移+8为ADC0；+40为ADC8。single在 S/timing/001fee40.c:121–164取5个值，另一侧放五个默认哨兵；double在 S/timing/001ffa70.c:194–267取主/次侧ADC8..12，按side摆到左右。没有在五路之间求和、平均、比较幅值或选择“最佳”通道。[H03,H04]
+buzzer写槽：j=floor((relative_ms%1000)/2)，每侧5条固定500×int32数组。single:001fee40.c:200–213；double:001ffa70.c:299–311。汇编001FFF50/54/58/5C/60/64是一组LDR/STR与指针步进；前面的乘法/除法用于计算时间索引，不作用于ADC幅值。[H05]
+gain change分支只memcmp并复制5个u16元数据；version change分支只更新状态字段并日志。它们没有将样本乘除gain。single:001fee40.c:168–199；double:001ffa70.c:270–298。不能把名义gain标签视为这条host链做过物理单位转换。[H03,H04]
+IMU只在遍历索引i%5==0时处理，输出j=floor((relative_ms%1000)/10)，每轴100×int16。没有把五条记录求平均；只是选一条并搬运24个halfword/侧。single:001fee40.c:215–310；double:001ffa70.c:313–415。汇编001FFF70..001FFF88算i%5；00200780..0020079C为LDRH/STRH及步进，没有幅值算术。[H06]
+这些数值在host路径中不再次按sentinel进行插值、归一化或“异常大值”剔除。是否把0x7FFF留作缺失必须结合MCU编码限制；不能将哨兵当真实峰值。
+
+4. 真正改变上传序列的本地连续性处理
+[H07] 0x0021A5C0：last_tick非零且delta恰好等于2*expected_step才返回补点标志；其他较大间隙只记录计数，不生成一串值。S/pass3/0021a5c0.c:8–30。当前USB启动设置500，对应step=1000/500=2；0x0021A6D0只设时间参数。[H00,H08]
+caller先给当前sample算epoch，再只把relative_ms减step，提交同一sample，恢复relative后再提交当前点：S/pass1/0027e7b0.c:419–465；汇编 S/timing/caller/0027e7b0.asm.txt:625–669。故它复制的是当前ADC和IMU值，不是恢复真实丢失点，不是前后线性插值。[H09]
+跨秒限制同样直接存在于指令：0027F1E4/1F4先写epoch；0027F20C/210仅减relative。若relative=1000、step=2，复制点仍有当前秒epoch却落槽499。没有在该分支同步回退epoch。本结论是静态条件边界，未执行原程序或测触发率。
+[H10] 0x001FDEC0按sample.epoch建秒桶，以floor((relative%1000)/2)定位，memcpy整条124 bytes；重复同秒同槽直接覆盖。S/timing/001fdec0.c:117–156及.asm.txt:68–99。未填槽保持上节默认record，时间字段仍0。
+同函数:30–88对epoch<=已消费水位通常直接跳过；落后>30秒累计超过499次时清两侧队列并重建；:107–127还限制早于当前最早桶/新建桶容量。它们依据时间/队列状态，不依据波形质量。
+[H11,H12] single已接受非零epoch后，遇默认epoch0可early-break并删除整桶。double按桶数选主侧，配对同秒键后以主侧record提供两侧输出时标；次侧缺槽通常写哨兵，主侧中间缺槽可early-break并删除两桶。前导主侧缺槽的relative=0可反复覆盖次侧output槽0。这些边界由原loader控制流和默认常量推导；不是“每个坏点都被智能修复”。
+具体源：single.c:319–345、465–478；double.c:131–190、194–267、443–461、607–621；single.asm:143–147、519–529；double.asm:617–625。没有在这些分支计算峰值、方差或信噪比。
+时钟映射自身仅重建秒级anchor和做整数位置运算：S/pass4/0021a370.c:13–24、43–90，S/pass5/00252b10.c:8–9为system_clock/1e9。这里没有通过波形相关性调整双侧或改变数值采样斜率。[H13]
+
+5. 编码出口：固定数组直拷，缺样计数不会触发质量筛除
+[H14,H15] 0x001F1730分别给左右5条数组调用byte-string writer，长度每条2000 bytes，freq=500；0x001F10B0左右各4组×6轴，每轴200 bytes，freq=100。见S/pass1/001f1730.c:91–176，S/pass3/001f10b0.c:65–207。
+两个encoder在接受计数<500/<100时只打印“flushing … samples”，不据此缩短数组、拒绝该秒或计算有效率；随后清epoch/count并把全部数组重置为0x7FFFFFFF/0x7FFF。S/pass1/001f1730.c:192–224；S/pass3/001f10b0.c:208–235。计数也不等于非哨兵/不同槽数量。不能从日志计数声称已经过波形质量筛选。
+
+本轮补正一个反编译证据缺口：[R02]
+旧S/pass3/001d6860.c的memcpy源变量__src显示未初始化；不能单独照抄它证明源地址。现从原ELF新增仅3个小区间反汇编：001D78D0..001D78E8、001D6860..001D693C、001D66C0..001D678C，保留在host-evidence/，未重新开Ghidra。
+  001D78D4..E8：把(writer,src,len)重排为(0x40,writer,src,len)，跳001D6860。
+  001D6868：MOV X10,X2保存src；001D6874/78保存len和writer。
+  001D68E8..F4：X2=len，X1=writer，调用001D66C0写CBOR长度头。该具体callee没有写X10/X2、没有进一步调用；可沿全部指令验证，不假定caller-saved寄存器跨任意函数稳定。
+  001D6900..10：目的=writer.buffer+used，X1=X10(src)，X2仍len，然后BL memcpy@plt；001D6914..24只推进used。
+因此此byte-string编码器原样复制数组字节，不逐样本运算。旧伪代码问题是寄存器数据流恢复失真，不是新找到的隐藏滤波器。新汇编输出的最近符号标题不作为函数名，实际入口按上述地址识别。
+这也解释BE wire→host LE数组→CBOR bstr的表示变化；CBOR header编码与数组内部字节序必须分开看。
+
+6. 发到哪里、还能证明什么
+[H16] 0x001E9390为Stealth分配0x80000编码空间，00200960失败则不排队；成功后选raw.x.sens.stealth，把已编码字节memmove进消息并调001F49B0。S/pass1/001e9390.c:34–75、181–185、210–238。
+[H17,H18] 001F49B0复制消息字节入队；001AFE00把指针和长度交js_Publish。S/pass2/001f49b0.c:80–107；S/pass5/001afe00.c:194–223。此处没有解码样本再清洗。队列满/编码失败/发布失败是交付边界，不能冒充生理伪迹识别。
+本轮未发现这些已展开函数里还留有明确未跟进的滤波或质量分支。通用日志、容器、内存分配、CBOR长度和协程调度不是凭名称推断出的算法；对相关实际写值路径已给代码。边界仍止于该版本这条选定数据路线及本机NATS出口，不覆盖全部进程/动态消费者、其他模式、服务器或另一版固件。
+
+复核文件
+host-evidence/SOURCE_LEDGER.json、SOURCE_EXCERPTS.txt：代码/指令行号和哈希；没有用旧结论报告替代代码。
+host-evidence/RAW_CONSTANTS.json、RAW_CODE_RANGES.json：从原ELF限定区间读取的原始字节、文件偏移、解释。
+host-evidence/VERIFICATION.json：源、摘录、限定原字节及当前产物完整性；不等于执行目标后的功能测试。

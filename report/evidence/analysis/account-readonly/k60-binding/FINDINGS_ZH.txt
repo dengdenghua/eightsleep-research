@@ -1,0 +1,66 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+I35 主机与 K60 床罩：实机元数据到现有固件条件的对应
+2026-11-07；原固件静态分析与本人账号API元数据分开记录。
+
+本轮的实质增量
+账号给出了具体硬件修订，现可把此前宽泛的revision范围缩小到一组明确条件。
+不能因字符串搜索没有“K60”就断言固件未覆盖它：原MCU使用数字修订阈值和区间，不为每个修订保留独立文本。
+下述结果是“已取得样本在这些制造字段条件下会怎样配置”，不是“用户实机当前必然如此运行”。精确运行镜像、制造页和USB transport未取得。
+
+1. 分开观察值与代码推导
+API报告的两个床罩条目：partNumber=20600/20601、sku=0006、hwRevision=K60、model=Pod6、generation/version=6。
+hubInfo在内存中符合原厂Label格式，仅提取非唯一部分20500 / 0007 / I35；原始标签、序列号没有输出或保存。
+原设备端代码已追到HardwareInfo.Label.RawLabel→device-label文件→DAC的hubInfo变量，详见../current-firmware-match/namespace-trace/FINDINGS_ZH.txt；服务器对移动API同名字段的转发仍缺实现。
+原LSP DeviceSession.cs:121的ParseRevision将高字节加'A'、低字节按X2格式输出。因此K60的对应数值为0x0A60；这里不是把十进制60随意代入。
+API制造字段与实机MCU制造页是否完全一致尚无直接读取；generation=6不是MCU固件版本。
+
+2. K60条件下的ADC通道顺序
+固定样本firmware-sensor-g0-usb.bbin，SHA256：
+1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563。
+表0x0802FBC8共14项，0x08027834逐项应用threshold<=hwrev的回调。
+代入0xA60后最后一项为0xA37→0x08019388；0xA87和0xA90尚不生效。
+K33累计回调先禁用ADC0接口描述符；K37无条件把ADC1 map指针改为0x0802FD0C。
+该表原字节为03 02 01 00 04 05 06 07，表示源通道→目的槽。
+K35后置hook要求hwrev恰好为0xA35，所以在K60不覆盖该map；K32 IMU SKU重排同样因要求恰好0xA32而不触发。
+初始化尾部复制这个最终map；如果没有后续opcode0x47重映射，则：
+  host wire8、9、10、11、12 ← ADC1源通道3、2、1、0、4。
+每个有效源样本是signed24值乘软件倍率4。配置请求PGA=1x；ADC1接口为SPI2、CS PD0、低有效ready PE2。
+ADC0描述符禁用不等于wire结构删除前8槽，也不证明ADC1初始化成功或实体压电片的床上位置。
+这里不沿用K32的identity通道顺序、SPI1/CS PA15结论。
+
+3. K60与PN条件选择gm时钟表
+原指令0x0801CD24..0x0801CD4E先判断pn==0x507A，再判断hwrev-0xA60是否无符号<=0x1F。
+若制造pn确实为API报告的20600/20601（0x5078/0x5079），两者均不等于0x507A；K60落入0xA60..0xA7F，因此选择index1，名称gm。
+这条路径还要求早先GPIO0的“跳过clockgen”谓词不成立；实际GPIO值未读到。
+gm表配置为启用输出索引2、3，分别明确写入R-divider=1；只有写入成功才实际生效。以配置所假定的32MHz CLKIN计算，两路名义输出均为8.192MHz；此前gm1输出7的R-divider缺值问题不能机械套在这个条件分支上。
+仍未实测CLKIN、PCB连接、写寄存器是否成功、丢样或采样同步，因此不是“实机稳定500SPS”的证明。
+
+4. I35在现有主机配置中的选择
+MachineConfig.ResolveSectionKey选择格式为字母+两数字、且按ordinal不大于HwRev的最大配置键。
+原machine.json只有A00、I00、I21；代入I35选择I21。
+Program.Main实际调用这个选择器并读取相应端口；I21配置的leftA32SensorPort=1-1.4，rightA32SensorPort=1-1.3。
+Label.Generation将首字母>=I归入H11类别。这个内部类别不是销售“Pod代次”，也不独立证明SoC型号。
+这里证明原样本配置规则兼容该修订值；不是实机USB拓扑测量。
+
+5. 新闭合：g0-usb镜像由transport选择，不由“K60”文本选择
+复用原SignalHost Ghidra项目，只读、noanalysis导出FUN_002766B0。
+其AArch64汇编读取对象+0x3C00；值为1返回firmware-sensor-g0-usb.bbin，否则返回firmware-sensor-g0.bbin。
+原UsbSensor::init（0027D5D4）及重连路径把FUN_00279B50的结果写入此字段。
+本轮再导出00279B50：从传入路径取得末段，长度至少6且前6字节等于ttyACM时返回1，否则0；汇编的0x41797474和0x4D43合为小端ASCII ttyACM。
+002779A0的同字段分支日志分别为openTty(cdc/...)和openTty(ftdi/...)，与上述选择一致。
+因此，只有K60标签不足以断言实机使用USB版BBIN。当前API没有提供这个transport、MCU固件版本或二进制哈希。本报告保留USB样本的条件推导，不把同包non-USB镜像当逐字节等价。
+
+6. 复核与当前缺口
+evaluate_binding.py从实际BBIN重新读取阈值表和map，校验样本SHA256，并复核既有完整callback/hook链的42份来源引用及摘录哈希。
+STATIC_PROJECTION.json记录输入、选择结果及前提；VERIFIED_PRIOR_SOURCES.json保留复核来源。
+新主机导出包含原伪代码和汇编，原Ghidra数据库只读打开；没有执行ARM固件、刷写或更改设备设置。
+本人账号的新只读状态查询显示online=false、两个sensor.connected=true；后者可能是缓存状态。这个观测发生在此前live404之后，不证明404由离线导致。等待实机恢复在线后才能重新验证流。
+仍缺：精确部署镜像与MCU版本、制造页/当前map与时钟状态、实机波形、物理BOM/布线/位置、云端清洗融合与分期/温控生产实现。
+
+7. 同包non-USB版本的后续有限比较
+nonusb-comparison/FINDINGS_ZH.txt进一步核验了8个唯一匹配窗口与4份相同的时钟寄存器表，包括K37 map指针和K35精确修订条件。两份整包不同；当时只做局部窗口比较，未闭合最终复制与控制流。该历史缺口现由下节的独立nonUSB分析部分解决，实机部署限制继续保留。
+8. 用户暂不能联网后的独立nonUSB初始化与采样链
+nonusb-flow/FINDINGS_ZH.txt已闭合配置清零、12个累计回调、后置hook、两个可选8字节复制及ADC对象+0xC4 map消费。K60条件下ADC1启动表同为[3,2,1,0,4,5,6,7]。1829节点静态CFG、8个支配关系和4处直接栈写来源检查通过，保留调用正常返回及别名/中断边界。两种样本仅这项关系一致，不证明全程序等价、实机当前版本或物理位置。
+用户已明确现在无法让设备联网；本轮没有新增上游API请求，不重试实时流。只读导出入口审计没有建立新的账号HTTP可用路径；RPC诊断原始信息不等于睡眠波形导出。

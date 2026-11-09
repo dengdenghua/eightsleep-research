@@ -1,0 +1,296 @@
+// IL code: Eight.Nats
+.class public auto ansi sealed beforefieldinit Eight.Nats.SecondBuffer`3<(Eight.Nats.ITelemetryPacket) TTelemetry, class TData, valuetype .ctor (class Eight.Nats.ISampleAccumulator`2<!TTelemetry, !TData>, [System.Runtime]System.ValueType) TAccumulator>
+	extends [System.Runtime]System.Object
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.param type TTelemetry
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+	.param type TAccumulator
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+	// Fields
+	.field private initonly class Eight.Nats.SensorTiming timing
+	.field private int64 ts
+	.field private uint16 frequency
+	.field private bool hasData
+	.field private !TAccumulator accumulator
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [NodaTime]NodaTime.IClock clock
+		) cil managed 
+	{
+		// Method begins at RVA 0x295f
+		// Header size: 1
+		// Code size: 19 (0x13)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: newobj instance void Eight.Nats.SensorTiming::.ctor(class [NodaTime]NodaTime.IClock)
+		IL_0007: stfld class Eight.Nats.SensorTiming class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::timing
+		IL_000c: ldarg.0
+		IL_000d: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0012: ret
+	} // end of method SecondBuffer`3::.ctor
+
+	.method public hidebysig 
+		instance int32 TryEnqueue (
+			!TTelemetry telemetry,
+			[opt] int32 offset
+		) cil managed 
+	{
+		.param [2] = int32(0)
+		// Method begins at RVA 0x2974
+		// Header size: 12
+		// Code size: 235 (0xeb)
+		.maxstack 5
+		.locals init (
+			[0] int32,
+			[1] uint16,
+			[2] uint32,
+			[3] int32,
+			[4] uint32,
+			[5] int64,
+			[6] int32
+		)
+
+		IL_0000: ldarga.s telemetry
+		IL_0002: constrained. !TTelemetry
+		IL_0008: callvirt instance int32 Eight.Nats.ITelemetryPacket::get_SampleCount()
+		IL_000d: stloc.0
+		IL_000e: ldarg.2
+		IL_000f: ldloc.0
+		IL_0010: blt.s IL_0014
+
+		IL_0012: ldc.i4.0
+		IL_0013: ret
+
+		IL_0014: ldarga.s telemetry
+		IL_0016: constrained. !TTelemetry
+		IL_001c: callvirt instance uint16 Eight.Nats.ITelemetryPacket::get_Frequency()
+		IL_0021: stloc.1
+		IL_0022: ldloc.1
+		IL_0023: brtrue.s IL_0027
+
+		IL_0025: ldc.i4.0
+		IL_0026: ret
+
+		IL_0027: ldc.i4 1000
+		IL_002c: ldloc.1
+		IL_002d: div.un
+		IL_002e: stloc.2
+		IL_002f: ldarg.0
+		IL_0030: ldfld bool class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::hasData
+		IL_0035: brtrue.s IL_0043
+
+		IL_0037: ldarg.0
+		IL_0038: ldfld class Eight.Nats.SensorTiming class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::timing
+		IL_003d: ldloc.1
+		IL_003e: callvirt instance void Eight.Nats.SensorTiming::SelectSamplingRate(uint16)
+
+		IL_0043: ldarg.2
+		IL_0044: stloc.3
+		IL_0045: br IL_00ca
+		// loop start (head: IL_00ca)
+			IL_004a: ldarga.s telemetry
+			IL_004c: constrained. !TTelemetry
+			IL_0052: callvirt instance uint32 Eight.Nats.ITelemetryPacket::get_DeviceTimestampMs()
+			IL_0057: ldloc.3
+			IL_0058: conv.i8
+			IL_0059: ldloc.2
+			IL_005a: conv.u8
+			IL_005b: mul
+			IL_005c: conv.u4
+			IL_005d: add
+			IL_005e: stloc.s 4
+			IL_0060: ldarg.0
+			IL_0061: ldfld class Eight.Nats.SensorTiming class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::timing
+			IL_0066: ldloc.s 4
+			IL_0068: callvirt instance valuetype [System.Runtime]System.ValueTuple`2<int64, uint32> Eight.Nats.SensorTiming::GetRefMillis(uint32)
+			IL_006d: ldfld !0 valuetype [System.Runtime]System.ValueTuple`2<int64, uint32>::Item1
+			IL_0072: stloc.s 5
+			IL_0074: ldarg.0
+			IL_0075: ldfld bool class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::hasData
+			IL_007a: brfalse.s IL_00a8
+
+			IL_007c: ldloc.s 5
+			IL_007e: ldarg.0
+			IL_007f: ldfld int64 class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::ts
+			IL_0084: beq.s IL_00a8
+
+			IL_0086: ldloc.3
+			IL_0087: ldarg.2
+			IL_0088: sub
+			IL_0089: stloc.s 6
+			IL_008b: ldloc.s 6
+			IL_008d: ldc.i4.0
+			IL_008e: ble.s IL_00a5
+
+			IL_0090: ldarg.0
+			IL_0091: ldflda !2 class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::accumulator
+			IL_0096: ldarg.1
+			IL_0097: ldarg.2
+			IL_0098: ldloc.s 6
+			IL_009a: constrained. !TAccumulator
+			IL_00a0: callvirt instance void class Eight.Nats.ISampleAccumulator`2<!TTelemetry, !TData>::AccumulateRange(!0, int32, int32)
+
+			IL_00a5: ldloc.s 6
+			IL_00a7: ret
+
+			IL_00a8: ldarg.0
+			IL_00a9: ldfld bool class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::hasData
+			IL_00ae: brtrue.s IL_00c6
+
+			IL_00b0: ldarg.0
+			IL_00b1: ldloc.s 5
+			IL_00b3: stfld int64 class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::ts
+			IL_00b8: ldarg.0
+			IL_00b9: ldloc.1
+			IL_00ba: stfld uint16 class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::frequency
+			IL_00bf: ldarg.0
+			IL_00c0: ldc.i4.1
+			IL_00c1: stfld bool class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::hasData
+
+			IL_00c6: ldloc.3
+			IL_00c7: ldc.i4.1
+			IL_00c8: add
+			IL_00c9: stloc.3
+
+			IL_00ca: ldloc.3
+			IL_00cb: ldloc.0
+			IL_00cc: blt IL_004a
+		// end loop
+
+		IL_00d1: ldarg.0
+		IL_00d2: ldflda !2 class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::accumulator
+		IL_00d7: ldarg.1
+		IL_00d8: ldarg.2
+		IL_00d9: ldloc.0
+		IL_00da: ldarg.2
+		IL_00db: sub
+		IL_00dc: constrained. !TAccumulator
+		IL_00e2: callvirt instance void class Eight.Nats.ISampleAccumulator`2<!TTelemetry, !TData>::AccumulateRange(!0, int32, int32)
+		IL_00e7: ldloc.0
+		IL_00e8: ldarg.2
+		IL_00e9: sub
+		IL_00ea: ret
+	} // end of method SecondBuffer`3::TryEnqueue
+
+	.method public hidebysig specialname 
+		instance bool get_HasData () cil managed 
+	{
+		// Method begins at RVA 0x2a6b
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld bool class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::hasData
+		IL_0006: ret
+	} // end of method SecondBuffer`3::get_HasData
+
+	.method public hidebysig 
+		instance valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Nats.BufferedData`1<!TData>> Flush () cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 02 00 00 00 00 01 00 00
+			)
+		// Method begins at RVA 0x2a74
+		// Header size: 12
+		// Code size: 84 (0x54)
+		.maxstack 3
+		.locals init (
+			[0] !TData,
+			[1] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Nats.BufferedData`1<!TData>>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld bool class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::hasData
+		IL_0006: brtrue.s IL_0012
+
+		IL_0008: ldloca.s 1
+		IL_000a: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Nats.BufferedData`1<!TData>>
+		IL_0010: ldloc.1
+		IL_0011: ret
+
+		IL_0012: ldarg.0
+		IL_0013: ldflda !2 class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::accumulator
+		IL_0018: constrained. !TAccumulator
+		IL_001e: callvirt instance !1 class Eight.Nats.ISampleAccumulator`2<!TTelemetry, !TData>::Build()
+		IL_0023: stloc.0
+		IL_0024: ldloc.0
+		IL_0025: box !TData
+		IL_002a: brtrue.s IL_0036
+
+		IL_002c: ldloca.s 1
+		IL_002e: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Nats.BufferedData`1<!TData>>
+		IL_0034: ldloc.1
+		IL_0035: ret
+
+		IL_0036: ldarg.0
+		IL_0037: ldfld int64 class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::ts
+		IL_003c: ldarg.0
+		IL_003d: ldfld uint16 class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::frequency
+		IL_0042: ldloc.0
+		IL_0043: newobj instance void valuetype Eight.Nats.BufferedData`1<!TData>::.ctor(int64, uint16, !0)
+		IL_0048: ldarg.0
+		IL_0049: call instance void class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::Reset()
+		IL_004e: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Nats.BufferedData`1<!TData>>::.ctor(!0)
+		IL_0053: ret
+	} // end of method SecondBuffer`3::Flush
+
+	.method public hidebysig 
+		instance void Reset () cil managed 
+	{
+		// Method begins at RVA 0x2ad4
+		// Header size: 1
+		// Code size: 25 (0x19)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldc.i4.0
+		IL_0002: stfld bool class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::hasData
+		IL_0007: ldarg.0
+		IL_0008: ldflda !2 class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::accumulator
+		IL_000d: constrained. !TAccumulator
+		IL_0013: callvirt instance void class Eight.Nats.ISampleAccumulator`2<!TTelemetry, !TData>::Reset()
+		IL_0018: ret
+	} // end of method SecondBuffer`3::Reset
+
+	.method public hidebysig 
+		instance void ResetAll () cil managed 
+	{
+		// Method begins at RVA 0x2aee
+		// Header size: 1
+		// Code size: 18 (0x12)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::Reset()
+		IL_0006: ldarg.0
+		IL_0007: ldfld class Eight.Nats.SensorTiming class Eight.Nats.SecondBuffer`3<!TTelemetry, !TData, !TAccumulator>::timing
+		IL_000c: callvirt instance void Eight.Nats.SensorTiming::Reset()
+		IL_0011: ret
+	} // end of method SecondBuffer`3::ResetAll
+
+	// Properties
+	.property instance bool HasData()
+	{
+		.get instance bool Eight.Nats.SecondBuffer`3::get_HasData()
+	}
+
+} // end of class Eight.Nats.SecondBuffer`3

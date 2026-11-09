@@ -1,0 +1,65 @@
+TARGET 080094a0 function=080094a0
+REF_TO 0800a2d6 UNCONDITIONAL_CALL owner=0800a238
+REF_TO 0800a360 UNCONDITIONAL_CALL owner=0800a350
+FUNCTION_BODY [[080094a0, 080094df]]
+
+void FUN_080094a0(int param_1)
+
+{
+  char *pcVar1;
+  char cVar2;
+  undefined4 uVar3;
+  
+  cVar2 = *(char *)((uint)*(byte *)(param_1 + 4) * 8 + 0x800e367 + (uint)*(byte *)(param_1 + 1));
+  pcVar1 = *(char **)(param_1 + 0x10);
+  if (cVar2 == '\x01') {
+    cVar2 = pcVar1[1];
+  }
+  else if (cVar2 == '\0') {
+    cVar2 = *pcVar1;
+  }
+  else {
+    if (cVar2 != '\x02') {
+      return;
+    }
+    cVar2 = pcVar1[2];
+  }
+  if (cVar2 != -1) {
+    uVar3 = *(undefined4 *)(param_1 + 0xc);
+    FUN_08009434(uVar3);
+    FUN_08009394(uVar3,cVar2,0);
+  }
+  return;
+}
+
+
+INSN 080094a0 70b5 push {r4,r5,r6,lr}
+INSN 080094a2 0179 ldrb r1,[r0,#0x4]
+INSN 080094a4 0e4a ldr r2,[0x080094e0] REF[READ:080094e0=800e367]
+INSN 080094a6 4478 ldrb r4,[r0,#0x1]
+INSN 080094a8 c900 lsls r1,r1,#0x3
+INSN 080094aa 5218 adds r2,r2,r1
+INSN 080094ac 125d ldrb r2,[r2,r4]
+INSN 080094ae 0369 ldr r3,[r0,#0x10]
+INSN 080094b0 012a cmp r2,#0x1
+INSN 080094b2 11d0 beq 0x080094d8 REF[CONDITIONAL_JUMP:080094d8]
+INSN 080094b4 002a cmp r2,#0x0
+INSN 080094b6 02d0 beq 0x080094be REF[CONDITIONAL_JUMP:080094be]
+INSN 080094b8 022a cmp r2,#0x2
+INSN 080094ba 0fd0 beq 0x080094dc REF[CONDITIONAL_JUMP:080094dc]
+INSN 080094bc 70bd pop {r4,r5,r6,pc}
+INSN 080094be 1c78 ldrb r4,[r3,#0x0]
+INSN 080094c0 ff2c cmp r4,#0xff
+INSN 080094c2 fbd0 beq 0x080094bc REF[CONDITIONAL_JUMP:080094bc]
+INSN 080094c4 c568 ldr r5,[r0,#0xc]
+INSN 080094c6 2800 movs r0,r5
+INSN 080094c8 fff7b4ff bl 0x08009434 REF[UNCONDITIONAL_CALL:08009434]
+INSN 080094cc 0022 movs r2,#0x0
+INSN 080094ce 2100 movs r1,r4
+INSN 080094d0 2800 movs r0,r5
+INSN 080094d2 fff75fff bl 0x08009394 REF[UNCONDITIONAL_CALL:08009394]
+INSN 080094d6 f1e7 b 0x080094bc REF[UNCONDITIONAL_JUMP:080094bc]
+INSN 080094d8 5c78 ldrb r4,[r3,#0x1]
+INSN 080094da f1e7 b 0x080094c0 REF[UNCONDITIONAL_JUMP:080094c0]
+INSN 080094dc 9c78 ldrb r4,[r3,#0x2]
+INSN 080094de efe7 b 0x080094c0 REF[UNCONDITIONAL_JUMP:080094c0]

@@ -1,0 +1,139 @@
+{
+ "calling_convention": "r0 = dividend, r1 = divisor; returns r0 = quotient, r1 = remainder; b == 0 returns r0 = 0, r1 = a via 08008272 -> 08008274 -> 0800845c",
+ "checks": [
+  {
+   "expected": "132",
+   "got": "132",
+   "name": "exported_instruction_rows",
+   "status": "PASS"
+  },
+  {
+   "expected": "0",
+   "got": "0",
+   "name": "no_interpreter_failures",
+   "status": "PASS"
+  },
+  {
+   "expected": "0",
+   "got": "0",
+   "name": "edge_cross_all_cases_match_integer_division",
+   "status": "PASS"
+  },
+  {
+   "expected": "0",
+   "got": "0",
+   "name": "seeded_random_all_cases_match_integer_division",
+   "status": "PASS"
+  },
+  {
+   "expected": "0",
+   "got": "0",
+   "name": "brr_call_sites_all_cases_match_integer_division",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "divide_by_zero_returns_zero_quotient",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "covered_distinct_instruction_addresses_ge_100",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "max_instruction_steps_under_1000",
+   "status": "PASS"
+  },
+  {
+   "expected": "True",
+   "got": "True",
+   "name": "entry_and_exit_instructions_covered",
+   "status": "PASS"
+  },
+  {
+   "expected": "False",
+   "got": "False",
+   "name": "counterfactual_division_is_not_multiplication",
+   "status": "PASS"
+  }
+ ],
+ "date": "2026-11-08",
+ "divide_by_zero": [
+  {
+   "a": "0x00000000",
+   "quotient": 0,
+   "remainder": 0,
+   "status": "PASS",
+   "steps": 30
+  },
+  {
+   "a": "0x00000001",
+   "quotient": 0,
+   "remainder": 1,
+   "status": "PASS",
+   "steps": 30
+  },
+  {
+   "a": "0x7fffffff",
+   "quotient": 0,
+   "remainder": 2147483647,
+   "status": "PASS",
+   "steps": 30
+  },
+  {
+   "a": "0x80000000",
+   "quotient": 0,
+   "remainder": 2147483648,
+   "status": "PASS",
+   "steps": 30
+  },
+  {
+   "a": "0xffffffff",
+   "quotient": 0,
+   "remainder": 4294967295,
+   "status": "PASS",
+   "steps": 30
+  }
+ ],
+ "executes_firmware_as_program": false,
+ "failures": [],
+ "function": "08008174 (ARM Thumb unsigned 32-bit division helper)",
+ "groups": {
+  "brr_call_sites": {
+   "cases": 1152,
+   "failed": 0,
+   "passed": 1152
+  },
+  "edge_cross": {
+   "cases": 5605,
+   "failed": 0,
+   "passed": 5605
+  },
+  "seeded_random": {
+   "cases": 20000,
+   "failed": 0,
+   "passed": 20000
+  }
+ },
+ "limits": [
+  "The interpreter models only the exported arithmetic subset; it does not emulate the whole firmware or any peripheral.",
+  "b == 0 behaviour is a static conclusion from the exported instruction path, not a runtime observation on hardware."
+ ],
+ "method": "exact Thumb instruction interpreter over the 132 exported INSN rows; every result compared with Python integer division",
+ "schema": "eightsleep.nonusb.udiv-exhaustive-results.v1",
+ "status": "PASS",
+ "totals": {
+  "assertion_count": 10,
+  "distinct_instructions_executed": 132,
+  "failures": 0,
+  "instruction_rows": 132,
+  "max_instruction_steps": 226,
+  "total_cases": 26757,
+  "uncovered_instruction_addresses": []
+ }
+}

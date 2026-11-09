@@ -1,0 +1,59 @@
+TARGET 0003221c function=0003221c
+REF_TO 00029660 UNCONDITIONAL_CALL owner=00029658
+FUNCTION_BODY [[0003221c, 00032265]]
+
+undefined4 FUN_0003221c(int *param_1,undefined4 *param_2,undefined4 param_3)
+
+{
+  undefined4 uVar1;
+  char *pcVar2;
+  
+  if (param_1 == (int *)0x0) {
+    pcVar2 = "p_fs";
+  }
+  else {
+    if (param_2 != (undefined4 *)0x0) {
+      *param_1 = (int)param_2;
+                    /* WARNING: Could not recover jumptable at 0x0003224c. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+      uVar1 = (*(code *)*param_2)(param_1,param_3);
+      return uVar1;
+    }
+    pcVar2 = "p_api";
+  }
+  FUN_00032c5a(((uint)(DAT_00032268 - DAT_0003226c) >> 3) * 0x10000 + 1,
+               "%s check failed in %s() with value 0x%x.",pcVar2,DAT_00032270,0xe);
+  return 0xe;
+}
+
+
+INSN 0003221c 38b5 push {r3,r4,r5,lr}
+INSN 0003221e 0300 movs r3,r0
+INSN 00032220 1148 ldr r0,[0x00032268] REF[READ:00032268=37c30]
+INSN 00032222 124d ldr r5,[0x0003226c] REF[READ:0003226c=37b98]
+INSN 00032224 4ff00e04 mov.w r4,#0xe
+INSN 00032228 a0eb0500 sub.w r0,r0,r5
+INSN 0003222c 4fead000 lsr.w r0,r0,#0x3
+INSN 00032230 4ff00105 mov.w r5,#0x1
+INSN 00032234 05eb0040 add.w r0,r5,r0, lsl #0x10
+INSN 00032238 09d0 beq 0x0003224e REF[CONDITIONAL_JUMP:0003224e]
+INSN 0003223a 61b1 cbz r1,0x00032256 REF[CONDITIONAL_JUMP:00032256]
+INSN 0003223c 1960 str r1,[r3,#0x0]
+INSN 0003223e 0c68 ldr r4,[r1,#0x0]
+INSN 00032240 01b0 add sp,#0x4
+INSN 00032242 a446 mov r12,r4
+INSN 00032244 bde83040 pop.w {r4,r5,lr}
+INSN 00032248 1146 mov r1,r2
+INSN 0003224a 1846 mov r0,r3
+INSN 0003224c 6047 bx r12
+INSN 0003224e 084b ldr r3,[0x00032270] REF[READ:00032270=36f28] REF[PARAM:00036f28=5f66726e]
+INSN 00032250 08a2 adr r2,[0x32274] REF[PARAM:00032274=73665f70]
+INSN 00032252 0094 str r4,[sp,#0x0] REF[WRITE:Stack[-0x10]]
+INSN 00032254 02e0 b 0x0003225c REF[UNCONDITIONAL_JUMP:0003225c]
+INSN 00032256 064b ldr r3,[0x00032270] REF[READ:00032270=36f28] REF[PARAM:00036f28=5f66726e]
+INSN 00032258 08a2 adr r2,[0x3227c] REF[PARAM:0003227c=70615f70]
+INSN 0003225a 0094 str r4,[sp,#0x0] REF[WRITE:Stack[-0x10]]
+INSN 0003225c 09a1 adr r1,[0x32284] REF[PARAM:00032284=63207325]
+INSN 0003225e 00f0fcfc bl 0x00032c5a REF[UNCONDITIONAL_CALL:00032c5a]
+INSN 00032262 0e20 movs r0,#0xe
+INSN 00032264 38bd pop {r3,r4,r5,pc}

@@ -1,0 +1,52 @@
+{
+  "id": "offline-state",
+  "title": "离线控制与状态恢复",
+  "layer": "device",
+  "status": "partial",
+  "summary": "备用BLE控制受缓存密钥、设备能力、权限与系统状态门控限制。冷启动和退出清理静态链已闭合，当前设备断网与重启效果仍需运行验证。",
+  "inputs": [
+    "App 缓存密钥与 BLE 请求",
+    "本地 heat/state1.dat 和 alarm.cbr",
+    "Unix 时间、设备连接和后续命令"
+  ],
+  "outputs": [
+    "Heat / Level 操作及到期关闭",
+    "振动闹钟触发、抑制和延后",
+    "当前状态持久化与灯状态展示"
+  ],
+  "findings": [
+    "已有过期缓存可继续被提交给 BLE 操作；首次取钥与解密失败恢复仍依赖云端。",
+    "手动热控请求时长为 36000 秒，再受固件与外围条件限制。",
+    "TemperatureScheduler 的日历 helper 是 stub；独立 Unix expiry 和闹钟不因此一并失效。",
+    "热控状态原地覆盖，正常成功值只对应打开成功；短读/短写缺少整份事务语义。",
+    "BLE Dismiss 会附加关热；原生 ALARM_CLEAR 与实体按钮链不能混同。",
+    "退出清理先删包括offline_mode_data的Room表，再清理BLE外设；依赖认证观察链活跃及步骤正常返回。",
+    "C06限定离线模型验收已完成：12组样例及170个截短检查，不含实机掉电。",
+    "C04限定静态验收已完成：本地consent通过后，用户与引导状态先读缓存，随后家庭/订阅/功能开关决定路由。",
+    "canRunOfflineCommandFlow核对功能开关与设备能力；直接BLE和云请求失败fallback使用不同系统状态条件。",
+    "普通断网不触发空token清库结论；正常onPause/onCleared直接入口未见同样清库，退出链未直接删除room_encryption_key。"
+  ],
+  "unknowns": [
+    "当前账号冷启动的真实路由、权限/flags、缓存与BLE成功率；系统清缓存/清数据/卸载和清理中断效果。",
+    "当前设备持久文件和重启后的实际控制状态。",
+    "完整每周预热与云端闹钟温控策略。"
+  ],
+  "evidence": [
+    "analysis/device-side-followup/offline-boundary/FINDINGS_ZH.txt",
+    "analysis/device-side-followup/recovery-round/persistence/FINDINGS_ZH.txt",
+    "analysis/sleep-pipeline/LOCAL_BACKUP_ZH.txt",
+    "analysis/sleep-pipeline/THERMAL_MODE_ROUTING_ZH.txt",
+    "analysis/signal-host/ALARM_THERMAL_INTERACTION_ZH.txt",
+    "analysis/next-round-20261107/app-lifecycle/FINDINGS_ZH.txt",
+    "analysis/next-round-20261107/persistence-model/FINDINGS_ZH.txt",
+    "analysis/finishable-20261107/app/c04/FINDINGS_ZH.txt"
+  ],
+  "next": [
+    "C05",
+    "C07",
+    "C16",
+    "AUTO-01"
+  ],
+  "order": 60,
+  "plain_intro": "本页区分备用BLE控制、闹钟、日历调度与状态恢复，记录各自的凭据、时间和持久化条件。"
+}

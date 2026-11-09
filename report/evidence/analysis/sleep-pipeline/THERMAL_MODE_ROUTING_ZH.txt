@@ -1,0 +1,127 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+温控目标入口：Cavia 测试模式、正常 Capybara 与有限仲裁
+2026-11-07；官方 MTK SWU 4b7552d5a9aed31997ff22cf193240800056ef6a 静态审计。
+未运行目标程序集/原生固件，未打开 Ghidra 项目，未访问设备或云端控制接口。
+M: = analysis/sleep-pipeline/decompiled/；J: = mediatek/rootfs-selected/home/dac/app/build/；N: = analysis/signal-host/。
+S: = analysis/system/mtk-rootfs/lib/systemd/system/。所有路径以研究根目录为基准。
+
+1. 已闭合的模式选择与服务启动
+
+S:capybara.service 的 ExecStart 是同一个 /opt/eight/bin/Eight.Capybara；Cavia 不是此包另一个独立 systemd 服务。
+托管入口 M:Eight.Capybara/Eight.Capybara/Program.cs:70–71 先 InitializeHardware、构造 RunInfoManager，再写 /deviceinfo/capybara.run_info。
+InitializeHardware 的实际分支（Program.cs:143–150）：
+  已有 capybara.run_info 文件 → 直接 LaunchType.Capybara；
+  没有该文件 → LoopbackTest.Run 检测结果决定启动模式。
+这里检查的是文件存在，不是读取旧 mode 后恢复 Cavia。不能把写有 cavia 的 run_info 当作下次初始化必然继续 Cavia 的配置开关。
+同包 reset-capybara-cache.sh 只清 DOTNET bundle 解压缓存，未见删除 run_info；本报告不推断完整重启时 /deviceinfo 的生命周期。
+
+M:Eight.Cavia/Eight.Cavia/LoopbackTest.cs:43–58、75–97 的先决条件：
+  NoPod3Hardware → 正常 Capybara；否则先检查 sensor/USB loopback；未检测到 loopback → 正常 Capybara；
+  loopback 检测通过后，存在对应 Cavia USB 端口且 CheckForCavia 成功 → Cavia；
+  loopback 检测通过但无 Cavia 配置 → 执行完整硬件自检，返回 LoopbackTest 后在 Run 内等待，不进入普通 Host 配置。
+CheckForCavia（同文件:307–336）找到 USB 存储、挂载到临时目录，检查其中 cavia.json 是否存在；这一阶段只检查存在，不验证整个计划内容。
+端口由硬件 PortSet 决定：Legacy/A17B 的 CaviaPort 为 UsbAPort，H11 的为 TopRightPort；H11 的 LoopbackPort 为 TopLeftPort。
+证据：M:Eight.Capybara.Pod3Hardware/Eight.Capybara/PortSet.cs:5–23；具体硬件代号不在此处改写成消费市场代数。
+
+M:Eight.Capybara/Eight.Capybara/HostExtensions.cs:105–123 按 LaunchType 选择服务组合：
+  Capybara：ConfigureCapybara(:34–85) 注册 CapybaraWorker、按钮、FrankMonitor、BLE、附件等服务，并 RegisterHandlers(fullFeatures:true)。
+  Cavia：ConfigureCavia(:88–102) 注册 CaviaService、USB读取/Wi-Fi/DAC 依赖，并 RegisterHandlers(fullFeatures:false)。
+两个分支都 AddDeviceAPIService，因此“Cavia 完全断开云服务”不成立；Cavia 只是不同的服务/控制入口集合。
+fullFeatures=false 仍保留配对与远程连接维护控制器，未注册正常 BLE/按钮 hosted service；见 HandlerExtensions.cs:54–67。
+
+RunInfoManager.cs:21–24、40–50 将 Mode 和 MetaData 以 camelCase 写 JSON；CaviaService:116 写 testDeviceId，:78 写循环 cycle。
+S:dac.service:18 和 frank.service:11 都等 run_info 非空再启动；DAC 配置中的 capybaraRunInfo 指向该文件。
+DAC main.js:31–32、55 在启动时读取一次 mode，再把 EnableDacFuncCalls() 结果传给 coordinator；capybara_run_info.js:10–16 仅对 "cavia" 返回 false。
+本轮没有看到 DAC 热重载 mode 的实现，不能假定写文件立即改变已运行 DAC 的该布尔值。
+Frank 的独立消费者会周期检查 mode，并更新 Frozen cmd0x44 bit3；已在 N:FROZEN_HOST_CONTROL.txt:138–149 证明，属于另一路消费者。
+
+2. Cavia TestPlan → heat/level → MCU target
+
+M:Eight.Cavia/Eight.Cavia/CaviaService.cs:31–70：设紫色LED，取得并挂载指定 USB，解析 cavia.json，连接配置的 Wi-Fi，写 testDeviceId，等待30秒后 RunTestPlan。
+没有真实 USB 配置样本，不能给出设备实际正在执行的温度、时长或周期；该测试流程也不能称为无条件离线运行，因为入口先 await Wi-Fi Connect。
+CaviaSettings.cs:11、25–42 声明 TestDeviceId、WifiSettings、TestPlanSteps；JSON 使用 camelCase、字符串枚举及 NodaTime Duration 解析。
+TestPlanStep.cs:5 是 (TestPlanSide Side, int? Temperature, Duration Duration)；TestPlanSide 为 Left/Right/Solo。
+
+RunTestPlan（CaviaService.cs:73–111）循环逐项执行：
+  duration = (int)Duration.TotalSeconds；level = Temperature.GetValueOrDefault().ToString()；
+  非 Left：rightHeat(duration) → 等100ms → rightLevel(level) → 等100ms；
+  非 Right：leftHeat(duration) → 等100ms → leftLevel(level) → 等100ms；
+  再等待原始 Duration，记录完成并进入下一项；整个列表循环执行并更新 cycle。
+因此 Solo 在代码中操作双侧；对单侧步骤没有自动关闭另一侧的附加命令，另一侧是否仍开取决于它已有的 expiration/状态。
+nullable Temperature 没有“null 表示关闭”的分支：缺省值被转换成 Level="0"；关闭由 heat 的 duration/后续到期控制，不能把该字段名当作完整动作语义。
+等待总时长包含每条命令之间的100ms；热控 duration 用截断后的整秒数，而步骤等待使用原始 Duration，不能把二者说成严格相同的计时区间。
+
+本地执行链：M:Eight.DAC/Eight.DeviceApiClient/Dac.cs:118–140 发 type=callFunction/name/arg → J:capybara.js:47–51 → loop_coordinator.js:319–326 → onFuncRequest:221–230 → Frank heat/level 命令。
+J:loop_coordinator.js:263–277 的 cavia 门控只替换云端 /f 回调；:304–326 的本地 Capybara 请求仍执行，所以测试计划的本地调用不受该门控阻断。
+N:thermal2/001dcbc4.c、001dccf0.c 与 thermal6/001db1a0.c、001db550.c 证明最终是同一 Thermostat 状态与目标 setter，随后 Frozen cmd0x40；完整下游映射引用 FROZEN_HOST_CONTROL，不另重复协议。
+
+重要单位更正：虽然 CaviaService:85 日志写 degrees，Temperature 整数实际作为内部 level 原样下发，并未先转成℃。
+普通 pod 下 Level=0 → 内部目标27℃；若计划填 Temperature=35，按已恢复 level 转换得到33.3℃，而不是35℃。
+证据：N:thermal6/0018e8c0.c 与 FROZEN_HOST_CONTROL.txt:64–88。这里只示范代码变换，不提供实机控制建议或床表面温度承诺。
+来源选择、TestDeviceId、loopback 门控、USB TestPlan、重复 cycle 一起构成“硬件/循环测试启动模式”的证据，不能将 Cavia 当作正常 Pod 6 的替代 Autopilot 路由。
+
+3. 独立的 FrozenUtils 直接温控 helper 尚未证明处于实际启动链
+
+M:Eight.Cavia/Eight.Cavia/FrozenUtils.cs:121–172 包含 StartFrozen：打开固定 /dev/ttymxc2、检查状态/启动固件、以 cmd64 分别发送左35℃和右15℃，随后读取温度。
+EncodeSetThermostat(:41–49) 的目标确是℃×100的BE16，与上节 TestPlan 的 Level 参数不是同一层级。
+但对现有24个 Eight DLL重建源的 StartFrozen 调用搜索只找到定义；LoopbackTest.TestFrozenComm 使用 GetStatePacket，CaviaService 调用 DAC，而不调用该 helper。
+因此该 helper 是存在的直接串口代码，尚不能作为普通 Capybara 或 Cavia TestPlan 真正使用的第二条温控链，更不能把固定值当作常规目标。
+
+4. 正常 SignalR/Capybara 是否还有遗漏的直接温度入口
+
+本轮核对了正向注册与分发，不只做温度字符串搜索：
+M:Eight.Capybara.DeviceApi/Eight.Capybara.DeviceApi/DeviceApiExtensions.cs:23–34 安装 DeviceAPIService 和 ScopedRouter。
+DeviceAPIService.cs:19–37 接收 SignalR "Request"；M:Eight.DeviceApiClient/Eight.DeviceApiClient/Client.cs:48–73 消费请求并调用 router.ExecuteRequest。
+Helpers.cs:11–34 只为实际 AddScopedController/AddTransientController 的类型发现路由；FunctionRoute.cs:71–79 只接收带 FunctionHandler 的方法，并生成 functions.<name>。
+ScopedRouter.cs:22–40 根据 Request.Type 查已注册路由；找不到则返回 Unknown function，没有通用 name/arg → DAC 的兜底分支。
+正常 Host 的实际注册集合及其方法中，本轮没有发现 heat/level/target 透传动作；温控已成立的服务器入口仍为另一个 DAC /f 通路。
+全部已重建源中的 Dac.CallFunction 使用者落在 CaviaService、BLE WriteTemperature、BLE Dismiss/SnoozeAlarm；不把这些本地方法错归为 SignalR 控制器。
+这一结论限于本包的已恢复默认注册链，不排除后续OTA、外部维护或未提供的持久内容；也不等于 Capybara 没有任何云端RPC。
+
+新增对旧 AlarmController 的限制：
+M:Eight.Capybara/Eight.Capybara.Extensions/HandlerExtensions.cs:15–18 的 RegisterAlarmsController 实际只 return serviceCollection。
+即使 fullFeatures=true 调用它，仍没有 AddScopedController<AlarmController>；因此旧 SetAlarmSettings 默认没有注册进上述路由集合。
+这比 LOCAL_BACKUP_ZH.txt 中已记录的 JS 不支持 setAlarmLSettings/setAlarmRSettings 还早一层阻断；不能把反编译中存在的 FunctionHandler 属性当作活跃入口。
+旧 LOCAL_BACKUP 未被修改，本文件补足其调用可达性边界。
+
+5. 已证实的有限仲裁；未证实全局温度优先级
+
+5.1 云端与本地 heat/level 汇入同一队列和同一状态字段
+J:loop_coordinator.js:221–230、319–326 中两种来源最终共用 onFuncRequest；传给 Frank 的字段只有 command/name/arg，没有保留 cloud/BLE/TestPlan 来源优先级。
+J:franken_server.js:18–25、35–38 通过一个 SequentialQueue 发送每条命令并等待回应；sequential_queue.js:8–16 顺接前一个 Promise。
+这证明单条 IPC 被串行化，不能升级成“云端总优先于本地”或“手动操作锁定目标一段时间”。一组 Heat+Level 是两次调用，没有在此队列层封装成不可插入的事务。
+N:thermal6/001db550.c:10–24 直接改对应侧目标字段并置dirty，没有来源身份判断；同文件夹001dc260.c的tapAdjust也写同一左0x120/右0x130字段。
+在这些已恢复 setter 内，后续成功写入会改变当前字段；没有证据支持一个适用于云、BLE、闹钟、敲击全部来源的固定优先级表。
+附件存在检查、启停expiration和目标范围仍生效；“后一次写入”不能绕过它们，也不保证覆盖中间值已经发到MCU。
+
+5.2 敲击事件的闹钟分支优先于普通温调分支，但仅限此事件入口
+N:timing/caller/0027e7b0.asm.txt 的0027EA60取得0020dcd0返回值；tap>1后0027F0A8分支：
+  返回非零 → 0027F0AC调用0027b5b0（handleVibrationAlarm）；
+  返回零 → 0027F0C0调用00277cb0（handleGesture）。
+N:pass1/00277cb0.c:25–40、101–120 将2次敲击转down、3次转up，调用Thermostat tapAdjust；tapAdjust还要求对应侧已开启并有peripheral。
+N:pass1/0027b5b0.c:104–112 可因posture pattern拒绝dismiss；:405–445处理无有效闹钟/发dismiss通知，不回落为普通温调。
+因此该alarm guard生效的敲击不同时执行温度调整；0020dcd0自身完整语义未在本轮现有导出中恢复，不能扩大为所有闹钟类别、所有侧或全部控制入口的仲裁规则。
+
+5.3 DAC 震动试用对闹钟配置有30秒门控，heat/level不受它影响
+J:vibration_proxy.js:14–41：VIBRATE 设置 disableAlarmUntil=now+30s，然后直接生成并下发testdrive闹钟；在该时间内 ALARM_LEFT/RIGHT/SOLO 请求返回0而不转发。
+这同时作用于通过 onFuncRequest 进入的云端与本地闹钟设置；非VIBRATE的普通heat/level直接pass-through(:19–20)。
+门控是闹钟命令层，不是温度目标层；也不能由“返回0”断言闹钟设置实际执行成功。
+
+5.4 BLE dismiss确实写关热；实体按钮路径不要混同
+M:Eight.Capybara/Eight.Capybara.Ble.Characteristics/DismissAlarmCharacteristic.cs:43–63 先发对应alarm，再发Heat="0"、Level="0"；正常执行后是关闭启停并将目标重设中性Level，而非下发0℃。
+其后是否被新heat/level再打开取决于后续命令，不存在本函数内的持续锁定。
+同包 Hardware.Service/ButtonService.cs:34–49 名为Snooze的按钮事件只调用 Dac.DismissAlarm；J:loop_coordinator.js:245–248、309–311 转ALARM_CLEAR。
+因此不能把BLE dismiss中的关热动作直接套到实体按钮ALARM_CLEAR，后者的完整原生效果需另外追踪。
+
+5.5 与请求来源无关的温控门控已明确
+N:thermal6/001dc174.c:11–17 在发送dirty前依次检查日程、peripheral、expiration；001db3b0.c:24–32会对断开的侧关闭；thermal7/001dad94.c按expiration更新启停状态。
+这些是本地状态约束，不是睡眠阶段算法，也不是基于来源的Autopilot/用户命令优先级。
+原生完整alarm调度/温度目标仲裁没有在本轮既有导出中闭环；本报告不把振动/音频闹钟操作等同于定时温度唤醒策略。
+
+6. 覆盖边界与交付
+
+已完成：模式选择→hosted service集合→USB TestPlan参数→本地DAC→既有Thermostat/MCU链；正常SignalR默认注册范围；三条有限门控/操作差异。
+未完成或不能由此回答：用户设备的当前模式/USB计划、云端目标计算、完整alarm目标仲裁、模式改变的实机重启行为、网络/硬件故障时的所有竞态。
+本轮只新增此报告及 thermal-mode-evidence.json；没有修改 LOCAL_BACKUP_ZH.txt、FROZEN_HOST_CONTROL.txt、REPORT.txt 或总览/交付manifest。

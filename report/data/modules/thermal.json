@@ -1,0 +1,48 @@
+{
+  "id": "thermal",
+  "title": "热控反馈、限幅与保护",
+  "layer": "device",
+  "status": "recovered",
+  "summary": "目标温度定下来后，设备根据水温调节加热、制冷、水泵和风扇。这部分本地控制代码已经能解释，但不能据此知道自动调温为何选这个目标。",
+  "inputs": [
+    "Frank 下发侧别、启停与摄氏目标",
+    "水温、环境、散热器、水块、PSU 测温",
+    "水位、盖子、泵健康与电流反馈"
+  ],
+  "outputs": [
+    "TEC 方向、归一化请求与 PWM",
+    "泵和风扇控制",
+    "温度、保护原因、注水状态"
+  ],
+  "findings": [
+    "Frozen 1.7.7 的 normal Pod6 分支 PID 为 0.3 / 0.005 / 0.2，2 秒周期；当前设备板型未绑定。",
+    "PID 主反馈为 water，附加限幅测点为 ambient；水温失效分支可能保留此前 TEC 请求。",
+    "普通缺水门限精确为 18.75；注水使用独立水位与状态规则。",
+    "目标截断、露点观察、冷却限幅、换向保护均可从代码区分。",
+    "73项局部模型检查覆盖水温5000ms有效期、ambient限幅、目标跨越、TEC换向及注水门限；不预测实机温升。",
+    "水温过期分支保留此前请求；最终输出另受TEC保护判断。WAIT_CAP与FLUSH的水位门限及计数器语义不同。",
+    "核对：仅冷却层实际裁剪触发积分回退；后置环境限幅不回退，既有误差及本步P/I/D缓存也不恢复。",
+    "冷却自适应正常状态已补：180秒无改善依此前限幅记录决定放宽，随后每次至少30秒加0.11；启用与目标变化的重置范围不同。"
+  ],
+  "unknowns": [
+    "用户实机 Frozen 版本与热控板 revision",
+    "测点物理安装位置、真实流量和热响应",
+    "生产 Autopilot 的目标温度生成"
+  ],
+  "evidence": [
+    "analysis/thermal-deep/THERMAL_REPORT_ZH.txt",
+    "analysis/thermal-deep/FEEDBACK_SENSOR_MAP_ZH.txt",
+    "analysis/signal-host/FROZEN_HOST_CONTROL.txt",
+    "analysis/finishable-20261107/thermal-model/FINDINGS_ZH.txt",
+    "analysis/algorithm-followup-20261108/thermal/FINDINGS_ZH.txt",
+    "analysis/algorithm-followup-20261108/cooling-state/FINDINGS_ZH.txt"
+  ],
+  "next": [
+    "C17",
+    "C01",
+    "C02",
+    "AUTO-01"
+  ],
+  "order": 50,
+  "plain_intro": "先分清两个问题：今晚该设多少度，以及怎样把水温调到这个目标。这一页主要解释后一个问题，也就是设备在本地如何执行。"
+}

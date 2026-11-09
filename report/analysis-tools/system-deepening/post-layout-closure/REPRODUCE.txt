@@ -1,0 +1,161 @@
+nonUSB 第九轮复现说明：描述表全表 / 0x10f0 块台账 / 调用图与格式串
+2026-11-09
+只读静态逆向。不执行固件、不改 Ghidra 工程、不访问设备/账号/网络。
+
+============================================================
+一、不依赖 Ghidra 的复核（交付包内自包含）
+============================================================
+
+  cd report/analysis-tools/system-deepening/post-layout-closure
+
+  python3 scripts/build_round9.py            -> FIELD_LEDGER.json
+                                                DESCRIPTOR_TABLE.json
+                                                CALLEE_GRAPH.json
+                                                FORMAT_STRINGS.json
+                                                MODEL_RESULTS.json
+                                                COVERAGE_RESIDUAL.json
+                                                (279 条断言, 0 失败)
+  python3 scripts/verify_round9.py           -> BYTE_VALIDATION.json
+                                                (448 项, 0 失败)
+  python3 scripts/write_export_targets.py    -> EXPORT_TARGETS.json
+  python3 scripts/write_export_commands.py   -> EXPORT_COMMANDS.json
+  python3 scripts/write_source_manifest.py   -> SOURCE_MANIFEST.json
+
+两个主脚本互不依赖，可以任何顺序跑：build_round9.py 产出结构化台账并自带
+断言，verify_round9.py 独立重算字节级事实并自带断言。两者在 92 行描述表、
+11 个字段、81 条空洞写入、709 份导出、156 个字面量这五个数字上独立吻合，
+这是本轮交叉校验的主证据。
+
+write_export_targets.py / write_export_commands.py 都从 pass*-export.log 的
+COMMAND 行重建 argv。交付根路径含空格（/Volumes/My Passport/...），因此两者
+都用固定 marker '/post-layout-closure/<pass> ' 切分，而不是对整行做 split。
+
+============================================================
+二、输入清单
+============================================================
+
+  1. 冻结镜像
+     materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/
+     opt/eight/lib/subsystem_updates/firmware-sensor-g0.bbin
+     132896B
+     SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+     VA -> 文件偏移：offset = VA - 0x08008000
+
+  2. 本目录 pass1/ (18 txt) 与 pass2..pass7/ (117 txt each)
+     全部是 Ghidra 12.1.4 analyzeHeadless -readOnly -noanalysis 的只读导出。
+     精确 argv 见 pass*-export.log 与 EXPORT_COMMANDS.json。
+
+     pass1  17 个目标：28 段未解码区间的代表段 + 描述表 08027f10..08028360
+            + 三个描述表访问器 0801fdf0 / 0801fdd0 / 08010020
+     pass2..pass7  692 个目标：上一轮统计出的、从未作为 TARGET 导出过的
+            flash 内 bl 目标，按 116 个一批分 6 批
+
+     709 个目标 = 17 个区间 + 692 个单函数。每个目标对应一个 txt，
+     program.txt 不计入。对应关系逐条可查 EXPORT_TARGETS.json。
+
+  3. 上游输入（前几轮已交付，本轮只读）
+     report/analysis-tools/system-deepening/report-object-layout/LAYOUT_MAP.json
+        第八轮布局图，提供 14 个空洞区间与 15880B 主域
+     .../callback-implementations/pass2/0801d888.txt
+        第七轮主分派导出，提供空洞内写语句与 0x10f0 块别名
+     .../report-object-layout/pass1/0801c864.txt
+        0x10f0 块的消费者
+     .../report-object-layout/pass1/08019bac.txt
+        0x250 嵌套构造者
+     .../sensor-frame-bounds/pass2/08027834.txt
+        0x10f0 块的第二个生产者（姊妹分派）
+
+  4. 导出器
+     report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts/
+     ExportSensorDiff.java
+     内含 SHA256 守门：镜像 SHA 不等于 51531576...a891 时直接抛异常退出。
+
+============================================================
+三、复核各条结论的最短路径
+============================================================
+
+  描述表 92 行 / mask 编码 / port 规则
+    -> DESCRIPTOR_TABLE.json 的 table 段与 rows（92 条）
+       verify_round9.py 的 descriptor_mask / descriptor_port 两组共 184 项
+       逐行验证 mask = (pin<<16)|(1<<pin) 和 port = index + (pin==15)
+
+  pin==15 特例
+    -> DESCRIPTOR_TABLE.json table.pin15_rows = [13,29,44,60,76]
+       这 5 行的 port_index 比同端口其它行大 1
+
+  缺针
+    -> DESCRIPTOR_TABLE.json table.missing_pins
+       0x50000000:{13,14}  0x50000800:{6}  0x50001400:{15}
+
+  0x10f0 块 11 个字段
+    -> FIELD_LEDGER.json block_10f0.fields（含 offset/width/role/access/语句）
+       逐字段的原始语句都在 statement 里，可在 0801c864.txt 里 grep 到
+
+  0x10f0 块两个生产者
+    -> FIELD_LEDGER.json block_10f0.producer 与 second_producer
+       验证语句：
+         grep 'FUN_080086a4(puVar38,0,0x10f0)' .../callback-implementations/pass2/0801d888.txt
+         grep 'FUN_080106a4(puVar38,0,0x10f0)' .../sensor-frame-bounds/pass2/08027834.txt
+
+  0x250 嵌套零缝隙
+    -> FIELD_LEDGER.json nested_08019bac.blocks（4 段 + 游标）
+       verify_round9.py 的 nested 组 14 项
+
+  81 条空洞写入
+    -> FIELD_LEDGER.json hole_writes（每条含 hole/offset/statement/line）
+       COVERAGE_RESIDUAL.json residual_holes（每个空洞的写入条数与偏移）
+
+  调用图 2213 目标
+    -> CALLEE_GRAPH.json totals 与 top_targets、residual_targets
+       round9 段给出 692 函数的出边数、函数体可得性与仍未导出的 96 个目标
+
+  日志 909 站点 / 156 字面量
+    -> FORMAT_STRINGS.json literals（每条含 literal/text/sites/callers/format_ops）
+
+============================================================
+四、本轮特有的两个坑
+============================================================
+
+  1. 路径含空格
+     交付根是 /Volumes/My Passport/...，COMMAND 行无法 split。
+     所有从日志重建 argv 的脚本都用 marker '/post-layout-closure/<pass> '
+     定位目标起点，输出目录单独从 '-postScript ExportSensorDiff.java '
+     之后切到 marker 之前。
+
+  2. 目标地址 ≠ 所属函数
+     `TARGET 0801d940 function=0801d888` 表示 0801d940 这个地址属于函数
+     0801d888。统计「谁在写 0x10f0 块」时必须用 function= 字段去重
+     （得到 2 个函数），用 TARGET 地址去重会得到 16 个，给读者错误印象。
+     FIELD_LEDGER.json 里两个数都记：writer_functions 与
+     writer_target_addresses。
+
+============================================================
+五、产物清单与自校验
+============================================================
+
+  BYTE_VALIDATION.json     448 项字节核验结果（verify_round9.py 写）
+  MODEL_RESULTS.json       279 条模型断言 + headline 数字（build_round9.py 写）
+  FIELD_LEDGER.json        0x10f0 块字段 / 嵌套子块 / 81 条空洞写入
+  DESCRIPTOR_TABLE.json    92 行描述表 / 27 个被引用 ID / 65 个未引用行
+  CALLEE_GRAPH.json        bl/blx 全图 + 本轮 692 函数的出边
+  FORMAT_STRINGS.json      909 站点 / 156 字面量 / 调用者
+  COVERAGE_RESIDUAL.json   14 个空洞 + 写入见证 + 83B 无见证残余
+  EXPORT_TARGETS.json      709 目标 <-> 709 txt 的一一对应
+  EXPORT_COMMANDS.json     7 次只读分析的完整 argv
+  SOURCE_MANIFEST.json     735 个输入文件的 SHA256
+  FINDINGS_ZH.txt          本轮结论（中文）
+  REPRODUCE.txt            本文件
+
+SOURCE_MANIFEST.json 排除自身与全部派生 JSON，因此不产生自引用环；
+路径均相对交付根，换挂载点后仍可用。Ghidra 工程本身不在交付包内，
+只在需要重新生成 pass 目录时才需要。
+
+============================================================
+六、本轮明确不做
+============================================================
+
+  1. 不重新反汇编。169 个无函数体的目标在 Ghidra 镜像里没有任何已解码
+     指令，补齐它们必须重新分析，属于修改工程。
+  2. 不做动态验证。不执行固件、不接设备、不抓总线。
+  3. 不把描述表的引用次数推断成引脚功能。
+  4. 不把空洞写入当成覆盖提升。覆盖率仍是 11297/15880 = 71.14%。

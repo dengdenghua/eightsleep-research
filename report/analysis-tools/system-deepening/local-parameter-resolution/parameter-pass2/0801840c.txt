@@ -1,0 +1,207 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+/* WARNING: Type propagation algorithm not settling */
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+undefined4 FUN_0801840c(void)
+
+{
+  int iVar1;
+  uint uVar2;
+  uint uVar3;
+  int local_1c [3];
+  uint local_10;
+  undefined4 local_c;
+  
+  iVar1 = FUN_08012480();
+  if (iVar1 != 0) {
+    FUN_08017634("[cal] unlock failed");
+    return 0;
+  }
+  iVar1 = FUN_080124bc(100);
+  if (iVar1 != 0) goto LAB_0801842e;
+  _DAT_40022010 = 0x800000;
+  local_1c[1] = 2;
+  if (((_DAT_1fff7500 & 0x3000000) == 0) ||
+     (((_DAT_1fff7500 & 0x3000000) == 0x1000000 && (-1 < _DAT_40022020 << 10)))) {
+    uVar2 = 0xffc00;
+    uVar3 = _DAT_1fff75e0 << 10;
+  }
+  else {
+    uVar2 = 0x7fe00;
+    uVar3 = _DAT_1fff75e0 << 9;
+  }
+  local_1c[2] = (-(uint)(&DAT_0807f000 < (undefined1 *)((uVar3 & uVar2) + 0x8000000)) & 0xffff8004)
+                + 0x8000;
+  if (((_DAT_1fff7500 & 0x3000000) == 0) ||
+     (((_DAT_1fff7500 & 0x3000000) == 0x1000000 && (-1 < _DAT_40022020 << 10)))) {
+    local_10 = 0xfe;
+    if ((_DAT_1fff75e0 & 0x3ff) * 0x400 + 0x8000000 < 0x807f001) {
+      uVar2 = 0xffc00;
+      uVar3 = _DAT_1fff75e0 << 10;
+      goto LAB_08018506;
+    }
+  }
+  else {
+    local_10 = 0xfe;
+    if ((_DAT_1fff75e0 & 0x3ff) * 0x200 + 0x8000000 < 0x807f001) {
+      uVar2 = 0x7fe00;
+      uVar3 = (_DAT_1fff75e0 & 0x3fffff) << 9;
+LAB_08018506:
+      local_10 = (int)&DAT_0807f000 - ((uVar3 & uVar2) + 0x8000000) >> 0xb;
+    }
+  }
+  local_c = 1;
+  local_1c[0] = -1;
+  iVar1 = FUN_080125c0(local_1c + 1,local_1c);
+  if ((iVar1 == 0) && (local_1c[0] == -1)) {
+    iVar1 = FUN_080124bc(100);
+    if (iVar1 == 0) {
+      FUN_080124a4();
+      return 1;
+    }
+  }
+  else {
+    FUN_08017634("[cal] erase error (status=%d, page_err=0x%08X)",iVar1,local_1c[0]);
+  }
+LAB_0801842e:
+  FUN_080124a4();
+  return 0;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+0801840c 10b5 push {r4,lr}
+0801840e 86b0 sub sp,#0x18
+08018410 faf736f8 bl 0x08012480
+08018414 0028 cmp r0,#0x0
+08018416 05d0 beq 0x08018424
+08018418 4348 ldr r0,[0x08018528]
+0801841a fff70bf9 bl 0x08017634
+0801841e 0020 movs r0,#0x0
+08018420 06b0 add sp,#0x18
+08018422 10bd pop {r4,pc}
+08018424 6420 movs r0,#0x64
+08018426 faf749f8 bl 0x080124bc
+0801842a 0028 cmp r0,#0x0
+0801842c 02d0 beq 0x08018434
+0801842e faf739f8 bl 0x080124a4
+08018432 f4e7 b 0x0801841e
+08018434 8022 movs r2,#0x80
+08018436 3d4b ldr r3,[0x0801852c]
+08018438 1204 lsls r2,r2,#0x10
+0801843a 1a61 str r2,[r3,#0x10]
+0801843c 0223 movs r3,#0x2
+0801843e 3c49 ldr r1,[0x08018530]
+08018440 0293 str r3,[sp,#0x8]
+08018442 0868 ldr r0,[r1,#0x0]
+08018444 c023 movs r3,#0xc0
+08018446 0400 movs r4,r0
+08018448 9b04 lsls r3,r3,#0x12
+0801844a 3a4a ldr r2,[0x08018534]
+0801844c 1c40 ands r4,r3
+0801844e 1842 tst r0,r3
+08018450 07d0 beq 0x08018462
+08018452 8023 movs r3,#0x80
+08018454 5b04 lsls r3,r3,#0x11
+08018456 9c42 cmp r4,r3
+08018458 38d1 bne 0x080184cc
+0801845a 374b ldr r3,[0x08018538]
+0801845c 1b68 ldr r3,[r3,#0x0]
+0801845e 9b02 lsls r3,r3,#0xa
+08018460 34d4 bmi 0x080184cc
+08018462 1368 ldr r3,[r2,#0x0]
+08018464 3548 ldr r0,[0x0801853c]
+08018466 9b02 lsls r3,r3,#0xa
+08018468 0340 ands r3,r0
+0801846a 8020 movs r0,#0x80
+0801846c 0005 lsls r0,r0,#0x14
+0801846e 1b18 adds r3,r3,r0
+08018470 3348 ldr r0,[0x08018540]
+08018472 344c ldr r4,[0x08018544]
+08018474 9842 cmp r0,r3
+08018476 9b41 sbcs r3,r3
+08018478 2340 ands r3,r4
+0801847a 8024 movs r4,#0x80
+0801847c 2402 lsls r4,r4,#0x8
+0801847e 1b19 adds r3,r3,r4
+08018480 0393 str r3,[sp,#0xc]
+08018482 0968 ldr r1,[r1,#0x0]
+08018484 c023 movs r3,#0xc0
+08018486 0c00 movs r4,r1
+08018488 9b04 lsls r3,r3,#0x12
+0801848a 1c40 ands r4,r3
+0801848c 1942 tst r1,r3
+0801848e 21d1 bne 0x080184d4
+08018490 1368 ldr r3,[r2,#0x0]
+08018492 9b02 lsls r3,r3,#0xa
+08018494 2949 ldr r1,[0x0801853c]
+08018496 0b40 ands r3,r1
+08018498 8021 movs r1,#0x80
+0801849a 0905 lsls r1,r1,#0x14
+0801849c 5b18 adds r3,r3,r1
+0801849e fe21 movs r1,#0xfe
+080184a0 8342 cmp r3,r0
+080184a2 2dd9 bls 0x08018500
+080184a4 0123 movs r3,#0x1
+080184a6 0124 movs r4,#0x1
+080184a8 0491 str r1,[sp,#0x10]
+080184aa 5b42 rsbs r3,r3
+080184ac 01a9 add r1,sp,#0x4
+080184ae 02a8 add r0,sp,#0x8
+080184b0 0594 str r4,[sp,#0x14]
+080184b2 0193 str r3,[sp,#0x4]
+080184b4 faf784f8 bl 0x080125c0
+080184b8 011e subs r1,r0,#0x0
+080184ba 02d1 bne 0x080184c2
+080184bc 019b ldr r3,[sp,#0x4]
+080184be 0133 adds r3,#0x1
+080184c0 28d0 beq 0x08018514
+080184c2 2148 ldr r0,[0x08018548]
+080184c4 019a ldr r2,[sp,#0x4]
+080184c6 fff7b5f8 bl 0x08017634
+080184ca b0e7 b 0x0801842e
+080184cc 1368 ldr r3,[r2,#0x0]
+080184ce 1f48 ldr r0,[0x0801854c]
+080184d0 5b02 lsls r3,r3,#0x9
+080184d2 c9e7 b 0x08018468
+080184d4 8021 movs r1,#0x80
+080184d6 1368 ldr r3,[r2,#0x0]
+080184d8 4904 lsls r1,r1,#0x11
+080184da 9b02 lsls r3,r3,#0xa
+080184dc 8c42 cmp r4,r1
+080184de 03d1 bne 0x080184e8
+080184e0 1549 ldr r1,[0x08018538]
+080184e2 0968 ldr r1,[r1,#0x0]
+080184e4 8902 lsls r1,r1,#0xa
+080184e6 d5d5 bpl 0x08018494
+080184e8 1849 ldr r1,[0x0801854c]
+080184ea 5a08 lsrs r2,r3,#0x1
+080184ec 0a40 ands r2,r1
+080184ee 8021 movs r1,#0x80
+080184f0 0905 lsls r1,r1,#0x14
+080184f2 5218 adds r2,r2,r1
+080184f4 fe21 movs r1,#0xfe
+080184f6 8242 cmp r2,r0
+080184f8 d4d8 bhi 0x080184a4
+080184fa 144a ldr r2,[0x0801854c]
+080184fc 5b08 lsrs r3,r3,#0x1
+080184fe 02e0 b 0x08018506
+08018500 1368 ldr r3,[r2,#0x0]
+08018502 0e4a ldr r2,[0x0801853c]
+08018504 9b02 lsls r3,r3,#0xa
+08018506 1340 ands r3,r2
+08018508 8022 movs r2,#0x80
+0801850a 1205 lsls r2,r2,#0x14
+0801850c 9b18 adds r3,r3,r2
+0801850e c01a subs r0,r0,r3
+08018510 c10a lsrs r1,r0,#0xb
+08018512 c7e7 b 0x080184a4
+08018514 6420 movs r0,#0x64
+08018516 f9f7d1ff bl 0x080124bc
+0801851a 0028 cmp r0,#0x0
+0801851c 87d1 bne 0x0801842e
+0801851e f9f7c1ff bl 0x080124a4
+08018522 2000 movs r0,r4
+08018524 7ce7 b 0x08018420

@@ -1,0 +1,125 @@
+TARGET 080231f0 function=080231f0
+FUNCTION_BODY [[080231f0, 08023289]]
+
+undefined8 analyst_normal_entry_080231f0(undefined4 *param_1)
+
+{
+  short sVar1;
+  byte *pbVar2;
+  byte bVar3;
+  byte *pbVar4;
+  byte bVar5;
+  
+  pbVar2 = (byte *)param_1[0xb];
+  bVar5 = 0xff;
+  pbVar4 = pbVar2;
+  do {
+    sVar1 = 8;
+    bVar3 = bVar5 ^ *pbVar4;
+    do {
+      bVar5 = bVar3 << 1;
+      if ((char)bVar3 < '\0') {
+        bVar5 = bVar5 ^ 7;
+      }
+      sVar1 = sVar1 + -1;
+      bVar3 = bVar5;
+    } while (sVar1 != 0);
+    pbVar4 = pbVar4 + 1;
+  } while (pbVar4 != pbVar2 + 6);
+  bVar3 = *(byte *)param_1[5];
+  if (pbVar2[6] == bVar5) {
+    if (param_1[0x1c] != 0) {
+      param_1[0x1c] = param_1[0x1c] + -1;
+    }
+    FUN_0802ad68((int)param_1 + (bVar3 & 0x7f) + 0xa2,pbVar2,6);
+  }
+  else {
+    FUN_0801c8f8("[tmag5273%s] crc: calc: 0x%02x rx: 0x%02x",*param_1);
+    param_1[0x1c] = param_1[0x1c] + 1;
+    param_1[0x1b] = param_1[0x1b] + 1;
+    *(undefined1 *)((int)param_1 + 0x69) = 1;
+  }
+  if ((bVar3 & 0x7f) == 0x10) {
+    FUN_08022908(param_1,0x16);
+  }
+  else {
+    *(undefined1 *)(param_1 + 0x18) = 1;
+    FUN_0801c520(param_1 + 0x12);
+  }
+  return CONCAT44(pbVar2 + 6,param_1);
+}
+
+
+INSN 080231f0 f7b5 push {r0,r1,r2,r4,r5,r6,r7,lr}
+INSN 080231f2 c16a ldr r1,[r0,#0x2c]
+INSN 080231f4 0400 movs r4,r0
+INSN 080231f6 8a1d adds r2,r1,#0x6
+INSN 080231f8 0192 str r2,[sp,#0x4]
+INSN 080231fa 0d00 movs r5,r1
+INSN 080231fc ff22 movs r2,#0xff
+INSN 080231fe 8b79 ldrb r3,[r1,#0x6]
+INSN 08023200 2878 ldrb r0,[r5,#0x0]
+INSN 08023202 4240 eors r2,r0
+INSN 08023204 0820 movs r0,#0x8
+INSN 08023206 56b2 sxtb r6,r2
+INSN 08023208 b446 mov r12,r6
+INSN 0802320a 6746 mov r7,r12
+INSN 0802320c 5600 lsls r6,r2,#0x1
+INSN 0802320e f2b2 uxtb r2,r6
+INSN 08023210 002f cmp r7,#0x0
+INSN 08023212 02da bge 0x0802321a REF[CONDITIONAL_JUMP:0802321a]
+INSN 08023214 0722 movs r2,#0x7
+INSN 08023216 5640 eors r6,r2
+INSN 08023218 f2b2 uxtb r2,r6
+INSN 0802321a 0138 subs r0,#0x1
+INSN 0802321c 80b2 uxth r0,r0
+INSN 0802321e 0028 cmp r0,#0x0
+INSN 08023220 f1d1 bne 0x08023206 REF[CONDITIONAL_JUMP:08023206]
+INSN 08023222 0198 ldr r0,[sp,#0x4]
+INSN 08023224 0135 adds r5,#0x1
+INSN 08023226 8542 cmp r5,r0
+INSN 08023228 ead1 bne 0x08023200 REF[CONDITIONAL_JUMP:08023200]
+INSN 0802322a 6069 ldr r0,[r4,#0x14]
+INSN 0802322c 0578 ldrb r5,[r0,#0x0]
+INSN 0802322e 7f20 movs r0,#0x7f
+INSN 08023230 0540 ands r5,r0
+INSN 08023232 9342 cmp r3,r2
+INSN 08023234 14d0 beq 0x08023260 REF[CONDITIONAL_JUMP:08023260]
+INSN 08023236 1548 ldr r0,[0x0802328c] REF[READ:0802328c=803006b] REF[PARAM:0803006b=616d745b]
+INSN 08023238 2168 ldr r1,[r4,#0x0]
+INSN 0802323a f9f75dfb bl 0x0801c8f8 REF[UNCONDITIONAL_CALL:0801c8f8]
+INSN 0802323e 236f ldr r3,[r4,#0x70]
+INSN 08023240 0122 movs r2,#0x1
+INSN 08023242 0133 adds r3,#0x1
+INSN 08023244 2367 str r3,[r4,#0x70]
+INSN 08023246 e36e ldr r3,[r4,#0x6c]
+INSN 08023248 0133 adds r3,#0x1
+INSN 0802324a e366 str r3,[r4,#0x6c]
+INSN 0802324c 2300 movs r3,r4
+INSN 0802324e 6933 adds r3,#0x69
+INSN 08023250 1a70 strb r2,[r3,#0x0]
+INSN 08023252 102d cmp r5,#0x10
+INSN 08023254 10d1 bne 0x08023278 REF[CONDITIONAL_JUMP:08023278]
+INSN 08023256 1621 movs r1,#0x16
+INSN 08023258 2000 movs r0,r4
+INSN 0802325a fff755fb bl 0x08022908 REF[UNCONDITIONAL_CALL:08022908]
+INSN 0802325e f7bd pop {r0,r1,r2,r4,r5,r6,r7,pc}
+INSN 08023260 236f ldr r3,[r4,#0x70]
+INSN 08023262 002b cmp r3,#0x0
+INSN 08023264 01d0 beq 0x0802326a REF[CONDITIONAL_JUMP:0802326a]
+INSN 08023266 013b subs r3,#0x1
+INSN 08023268 2367 str r3,[r4,#0x70]
+INSN 0802326a 2800 movs r0,r5
+INSN 0802326c a230 adds r0,#0xa2
+INSN 0802326e 0622 movs r2,#0x6
+INSN 08023270 2018 adds r0,r4,r0
+INSN 08023272 07f079fd bl 0x0802ad68 REF[UNCONDITIONAL_CALL:0802ad68]
+INSN 08023276 ece7 b 0x08023252 REF[UNCONDITIONAL_JUMP:08023252]
+INSN 08023278 2300 movs r3,r4
+INSN 0802327a 0122 movs r2,#0x1
+INSN 0802327c 2000 movs r0,r4
+INSN 0802327e 6033 adds r3,#0x60
+INSN 08023280 1a70 strb r2,[r3,#0x0]
+INSN 08023282 4830 adds r0,#0x48
+INSN 08023284 f9f74cf9 bl 0x0801c520 REF[UNCONDITIONAL_CALL:0801c520]
+INSN 08023288 e9e7 b 0x0802325e REF[UNCONDITIONAL_JUMP:0802325e]

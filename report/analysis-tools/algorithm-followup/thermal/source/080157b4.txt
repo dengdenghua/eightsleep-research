@@ -1,0 +1,155 @@
+ENTRY 080157b4 pid_step body=[[080157b4, 080158a1]]
+CALLER/REF 0800fc78 UNCONDITIONAL_CALL
+CALLER/REF 0800fd24 UNCONDITIONAL_CALL
+CALLER/REF 0800fd58 UNCONDITIONAL_CALL
+CALLER/REF 08013b48 UNCONDITIONAL_CALL
+CALLER/REF 0801e456 UNCONDITIONAL_CALL
+CALLER/REF 0801ed08 UNCONDITIONAL_CALL
+
+float __stdcall_softfp pid_step(void *state,float measured)
+
+{
+  float fVar1;
+  float a;
+  int iVar2;
+  float fVar3;
+  float fVar4;
+  float *pfVar5;
+  undefined1 auStack_60 [68];
+  
+  fVar1 = fp_sub(*(float *)((int)state + 4),measured);
+  pfVar5 = *(float **)state;
+  a = fp_mul(fVar1,*pfVar5);
+  fVar4 = *(float *)((int)state + 8);
+  iVar2 = fp_gt(ABS(fVar1),pfVar5[3]);
+  if (iVar2 != 0) {
+    fVar4 = fp_add(fVar1,fVar4);
+    fVar4 = clamp_bounds(pfVar5 + 4,fVar4);
+    *(float *)((int)state + 8) = fVar4;
+  }
+  fVar4 = fp_mul(fVar4,pfVar5[1]);
+  fVar3 = fp_sub(fVar1,*(float *)((int)state + 0xc));
+  fVar3 = fp_mul(fVar3,pfVar5[2]);
+  *(float *)((int)state + 0xc) = fVar1;
+  fVar1 = fp_add(a,fVar4);
+  fVar1 = fp_add(fVar1,fVar3);
+  *(float *)((int)state + 0x24) = fVar1;
+  *(float *)((int)state + 0x1c) = fVar4;
+  *(float *)((int)state + 0x18) = a;
+  *(float *)((int)state + 0x20) = fVar3;
+  *(int *)((int)state + 0x28) = *(int *)((int)state + 0x28) + 1;
+  iVar2 = FUN_08021dac((int)state + 0x10);
+  if ((iVar2 != 0) && (iVar2 = *(int *)(*(int *)state + 0x18), iVar2 != 0)) {
+    fp_to_double(fVar3);
+    fp_to_double(fVar4);
+    fp_to_double(a);
+    fp_to_double(fVar1);
+    fp_to_double(measured);
+    FUN_08025078(auStack_60,0x40,"%f %f %f %f %f");
+    fw_log("pid[%s] %s",iVar2,auStack_60);
+  }
+  return fVar1;
+}
+
+
+080157b4  push {r4,r5,r6,r7,lr}
+080157b6  mov lr,r9
+080157b8  mov r7,r8
+080157ba  push {r7,lr}
+080157bc  movs r4,r0
+080157be  sub sp,#0x6c
+080157c0  ldr r0,[r0,#0x4]
+080157c2  mov r8,r1
+080157c4  bl 0x0800aed8
+080157c8  ldr r6,[r4,#0x0]
+080157ca  adds r5,r0,#0x0
+080157cc  ldr r1,[r6,#0x0]
+080157ce  bl 0x0800ac74
+080157d2  ldr r3,[r4,#0x8]
+080157d4  adds r7,r0,#0x0
+080157d6  lsls r0,r5,#0x1
+080157d8  lsrs r0,r0,#0x1
+080157da  ldr r1,[r6,#0xc]
+080157dc  mov r9,r3
+080157de  bl 0x0800a4fc
+080157e2  cmp r0,#0x0
+080157e4  bne 0x0801588a
+080157e6  ldr r1,[r6,#0x4]
+080157e8  mov r0,r9
+080157ea  bl 0x0800ac74
+080157ee  ldr r1,[r4,#0xc]
+080157f0  mov r9,r0
+080157f2  adds r0,r5,#0x0
+080157f4  bl 0x0800aed8
+080157f8  ldr r1,[r6,#0x8]
+080157fa  bl 0x0800ac74
+080157fe  str r5,[r4,#0xc]
+08015800  adds r6,r0,#0x0
+08015802  mov r1,r9
+08015804  adds r0,r7,#0x0
+08015806  bl 0x0800a590
+0801580a  adds r1,r6,#0x0
+0801580c  bl 0x0800a590
+08015810  mov r3,r9
+08015812  adds r5,r0,#0x0
+08015814  str r0,[r4,#0x24]
+08015816  movs r0,r4
+08015818  str r3,[r4,#0x1c]
+0801581a  ldr r3,[r4,#0x28]
+0801581c  str r7,[r4,#0x18]
+0801581e  adds r3,#0x1
+08015820  str r6,[r4,#0x20]
+08015822  str r3,[r4,#0x28]
+08015824  adds r0,#0x10
+08015826  bl 0x08021dac
+0801582a  cmp r0,#0x0
+0801582c  bne 0x0801583a
+0801582e  adds r0,r5,#0x0
+08015830  add sp,#0x6c
+08015832  pop {r2,r3}
+08015834  mov r8,r2
+08015836  mov r9,r3
+08015838  pop {r4,r5,r6,r7,pc}
+0801583a  ldr r3,[r4,#0x0]
+0801583c  ldr r4,[r3,#0x18]
+0801583e  cmp r4,#0x0
+08015840  beq 0x0801582e
+08015842  adds r0,r6,#0x0
+08015844  bl 0x0800ce54
+08015848  str r0,[sp,#0x20]
+0801584a  str r1,[sp,#0x24]
+0801584c  mov r0,r9
+0801584e  bl 0x0800ce54
+08015852  str r0,[sp,#0x18]
+08015854  str r1,[sp,#0x1c]
+08015856  adds r0,r7,#0x0
+08015858  bl 0x0800ce54
+0801585c  str r0,[sp,#0x10]
+0801585e  str r1,[sp,#0x14]
+08015860  adds r0,r5,#0x0
+08015862  bl 0x0800ce54
+08015866  str r0,[sp,#0x8]
+08015868  str r1,[sp,#0xc]
+0801586a  mov r0,r8
+0801586c  bl 0x0800ce54
+08015870  ldr r2,[0x080158a4] [080158a4=8029f6c] [08029f6c=25206625]
+08015872  str r0,[sp,#0x0]
+08015874  str r1,[sp,#0x4]
+08015876  movs r1,#0x40
+08015878  add r0,sp,#0x28
+0801587a  bl 0x08025078
+0801587e  add r2,sp,#0x28
+08015880  movs r1,r4
+08015882  ldr r0,[0x080158a8] [080158a8=8029f7c] [08029f7c=5b646970]
+08015884  bl 0x08021be0
+08015888  b 0x0801582e
+0801588a  mov r1,r9
+0801588c  adds r0,r5,#0x0
+0801588e  bl 0x0800a590
+08015892  adds r1,r0,#0x0
+08015894  movs r0,r6
+08015896  adds r0,#0x10
+08015898  bl 0x08021dd4
+0801589c  mov r9,r0
+0801589e  str r0,[r4,#0x8]
+080158a0  b 0x080157e6

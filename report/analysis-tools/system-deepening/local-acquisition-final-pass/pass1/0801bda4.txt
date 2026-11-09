@@ -1,0 +1,43 @@
+TARGET 0801bda4 function=0801bda4
+REF_TO Entry Point EXTERNAL owner=none
+FUNCTION_BODY [[0801bda4, 0801bdd3]]
+
+void vector_handler_40(void)
+
+{
+  if ((*(uint *)(DAT_20000acc + 0x18) & 0x700) == 0) {
+    FUN_08013c68();
+  }
+  else {
+    FUN_08013c7a();
+  }
+  if ((*(uint *)(DAT_20000a48 + 0x18) & 0x700) == 0) {
+    FUN_08013c68();
+  }
+  else {
+    FUN_08013c7a();
+  }
+  return;
+}
+
+
+INSN 0801bda4 10b5 push {r4,lr}
+INSN 0801bda6 e024 movs r4,#0xe0
+INSN 0801bda8 0a48 ldr r0,[0x0801bdd4] REF[READ:0801bdd4=20000acc] REF[PARAM:20000acc]
+INSN 0801bdaa e400 lsls r4,r4,#0x3
+INSN 0801bdac 0368 ldr r3,[r0,#0x0] REF[READ:20000acc]
+INSN 0801bdae 9b69 ldr r3,[r3,#0x18]
+INSN 0801bdb0 2342 tst r3,r4
+INSN 0801bdb2 09d0 beq 0x0801bdc8 REF[CONDITIONAL_JUMP:0801bdc8]
+INSN 0801bdb4 f7f761ff bl 0x08013c7a REF[UNCONDITIONAL_CALL:08013c7a]
+INSN 0801bdb8 0748 ldr r0,[0x0801bdd8] REF[READ:0801bdd8=20000a48] REF[PARAM:20000a48]
+INSN 0801bdba 0368 ldr r3,[r0,#0x0] REF[READ:20000a48]
+INSN 0801bdbc 9b69 ldr r3,[r3,#0x18]
+INSN 0801bdbe 2342 tst r3,r4
+INSN 0801bdc0 05d0 beq 0x0801bdce REF[CONDITIONAL_JUMP:0801bdce]
+INSN 0801bdc2 f7f75aff bl 0x08013c7a REF[UNCONDITIONAL_CALL:08013c7a]
+INSN 0801bdc6 10bd pop {r4,pc}
+INSN 0801bdc8 f7f74eff bl 0x08013c68 REF[UNCONDITIONAL_CALL:08013c68]
+INSN 0801bdcc f4e7 b 0x0801bdb8 REF[UNCONDITIONAL_JUMP:0801bdb8]
+INSN 0801bdce f7f74bff bl 0x08013c68 REF[UNCONDITIONAL_CALL:08013c68]
+INSN 0801bdd2 f8e7 b 0x0801bdc6 REF[UNCONDITIONAL_JUMP:0801bdc6]

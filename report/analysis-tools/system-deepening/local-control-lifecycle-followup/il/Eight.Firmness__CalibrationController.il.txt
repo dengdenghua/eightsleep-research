@@ -1,0 +1,1537 @@
+// IL code: Eight.Firmness
+.class public auto ansi beforefieldinit Eight.Firmness.DeviceAPI.CalibrationController
+	extends [Eight.DeviceApiClient]Eight.DeviceApiClient.RequestController
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit '<Get>d__10'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> '<>t__builder'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.DeviceAPI.CalibrationController '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.DeviceAPI.CalibrationSideArgs args
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<uint8[]> '<>u__1'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x37268
+			// Header size: 12
+			// Code size: 415 (0x19f)
+			.maxstack 7
+			.locals init (
+				[0] int32,
+				[1] class Eight.Firmness.DeviceAPI.CalibrationController,
+				[2] class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response,
+				[3] class Eight.Firmness.StateMachine.States.FirmnessReadyState,
+				[4] uint8[],
+				[5] class Eight.Firmness.StateMachine.States.FirmnessReadyState,
+				[6] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+				[7] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+				[8] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<uint8[]>,
+				[9] class [System.Runtime]System.Exception,
+				[10] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Firmness.DeviceAPI.CalibrationController Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse IL_00ac
+
+				IL_0014: ldloc.1
+				IL_0015: ldfld class Eight.Firmness.StateMachine.IFirmnessProvider Eight.Firmness.DeviceAPI.CalibrationController::provider
+				IL_001a: ldarg.0
+				IL_001b: ldfld class Eight.Firmness.DeviceAPI.CalibrationSideArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::args
+				IL_0020: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+				IL_0025: callvirt instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Firmness.StateMachine.IFirmnessProvider::GetCurrentState(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+				IL_002a: stloc.s 6
+				IL_002c: ldloc.s 6
+				IL_002e: isinst Eight.Firmness.StateMachine.States.FirmnessReadyState
+				IL_0033: stloc.s 5
+				IL_0035: ldloc.s 5
+				IL_0037: brtrue.s IL_0044
+
+				IL_0039: ldloc.s 6
+				IL_003b: isinst Eight.Firmness.StateMachine.States.CalibratingState
+				IL_0040: brtrue.s IL_0049
+
+				IL_0042: br.s IL_0094
+
+				IL_0044: ldloc.s 5
+				IL_0046: stloc.3
+				IL_0047: br.s IL_00ac
+
+				IL_0049: ldc.i4.s 88
+				IL_004b: ldc.i4.1
+				IL_004c: newobj instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+				IL_0051: stloc.s 7
+				IL_0053: ldloca.s 7
+				IL_0055: ldstr "Calibration is running on "
+				IL_005a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+				IL_005f: ldloca.s 7
+				IL_0061: ldarg.0
+				IL_0062: ldfld class Eight.Firmness.DeviceAPI.CalibrationSideArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::args
+				IL_0067: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+				IL_006c: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>(!!0)
+				IL_0071: ldloca.s 7
+				IL_0073: ldstr "; on-device coefficients cannot be read until the run finishes"
+				IL_0078: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+				IL_007d: ldloca.s 7
+				IL_007f: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+				IL_0084: ldstr "BadRequest"
+				IL_0089: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+				IL_008e: stloc.2
+				IL_008f: leave IL_018a
+
+				IL_0094: ldarg.0
+				IL_0095: ldfld class Eight.Firmness.DeviceAPI.CalibrationSideArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::args
+				IL_009a: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+				IL_009f: ldloc.s 6
+				IL_00a1: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.CalibrationController::NotOperational(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState)
+				IL_00a6: stloc.2
+				IL_00a7: leave IL_018a
+
+				IL_00ac: nop
+				.try
+				{
+					IL_00ad: ldloc.0
+					IL_00ae: brfalse.s IL_00ef
+
+					IL_00b0: ldloc.3
+					IL_00b1: call valuetype [System.Runtime]System.Threading.CancellationToken [System.Runtime]System.Threading.CancellationToken::get_None()
+					IL_00b6: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<uint8[]> Eight.Firmness.StateMachine.States.FirmnessReadyState::GetDeviceCalibrationAsync(valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_00bb: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<!0> class [System.Runtime]System.Threading.Tasks.Task`1<uint8[]>::GetAwaiter()
+					IL_00c0: stloc.s 8
+					IL_00c2: ldloca.s 8
+					IL_00c4: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<uint8[]>::get_IsCompleted()
+					IL_00c9: brtrue.s IL_010c
+
+					IL_00cb: ldarg.0
+					IL_00cc: ldc.i4.0
+					IL_00cd: dup
+					IL_00ce: stloc.0
+					IL_00cf: stfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>1__state'
+					IL_00d4: ldarg.0
+					IL_00d5: ldloc.s 8
+					IL_00d7: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<uint8[]> Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>u__1'
+					IL_00dc: ldarg.0
+					IL_00dd: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>t__builder'
+					IL_00e2: ldloca.s 8
+					IL_00e4: ldarg.0
+					IL_00e5: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<uint8[]>, valuetype Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'>(!!0&, !!1&)
+					IL_00ea: leave IL_019e
+
+					IL_00ef: ldarg.0
+					IL_00f0: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<uint8[]> Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>u__1'
+					IL_00f5: stloc.s 8
+					IL_00f7: ldarg.0
+					IL_00f8: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<uint8[]> Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>u__1'
+					IL_00fd: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<uint8[]>
+					IL_0103: ldarg.0
+					IL_0104: ldc.i4.m1
+					IL_0105: dup
+					IL_0106: stloc.0
+					IL_0107: stfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>1__state'
+
+					IL_010c: ldloca.s 8
+					IL_010e: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<uint8[]>::GetResult()
+					IL_0113: stloc.s 4
+					IL_0115: leave.s IL_0162
+				} // end .try
+				catch [System.Runtime]System.Exception
+				{
+					IL_0117: stloc.s 9
+					IL_0119: ldloc.1
+					IL_011a: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.CalibrationController> Eight.Firmness.DeviceAPI.CalibrationController::logger
+					IL_011f: ldloc.s 9
+					IL_0121: ldstr "[calibration] Failed to read calibration from {Side}"
+					IL_0126: ldc.i4.1
+					IL_0127: newarr [System.Runtime]System.Object
+					IL_012c: dup
+					IL_012d: ldc.i4.0
+					IL_012e: ldarg.0
+					IL_012f: ldfld class Eight.Firmness.DeviceAPI.CalibrationSideArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::args
+					IL_0134: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+					IL_0139: box [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side
+					IL_013e: stelem.ref
+					IL_013f: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogError(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+					IL_0144: ldstr "Failed to read calibration from device: "
+					IL_0149: ldloc.s 9
+					IL_014b: callvirt instance string [System.Runtime]System.Exception::get_Message()
+					IL_0150: call string [System.Runtime]System.String::Concat(string, string)
+					IL_0155: ldstr "AccessoryInitialization"
+					IL_015a: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+					IL_015f: stloc.2
+					IL_0160: leave.s IL_018a
+				} // end handler
+
+				IL_0162: ldloc.s 4
+				IL_0164: call class Eight.Firmness.DeviceAPI.CalibrationDeviceState Eight.Firmness.DeviceAPI.CalibrationController::DecodeCalibration(uint8[])
+				IL_0169: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateResponse<class Eight.Firmness.DeviceAPI.CalibrationDeviceState>(!!0)
+				IL_016e: stloc.2
+				IL_016f: leave.s IL_018a
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_0171: stloc.s 10
+				IL_0173: ldarg.0
+				IL_0174: ldc.i4.s -2
+				IL_0176: stfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>1__state'
+				IL_017b: ldarg.0
+				IL_017c: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>t__builder'
+				IL_0181: ldloc.s 10
+				IL_0183: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetException(class [System.Runtime]System.Exception)
+				IL_0188: leave.s IL_019e
+			} // end handler
+
+			IL_018a: ldarg.0
+			IL_018b: ldc.i4.s -2
+			IL_018d: stfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>1__state'
+			IL_0192: ldarg.0
+			IL_0193: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>t__builder'
+			IL_0198: ldloc.2
+			IL_0199: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetResult(!0)
+
+			IL_019e: ret
+		} // end of method '<Get>d__10'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x37448
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<Get>d__10'::SetStateMachine
+
+	} // end of class <Get>d__10
+
+	.class nested private auto ansi sealed beforefieldinit '<Set>d__12'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> '<>t__builder'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.DeviceAPI.CalibrationController '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.DeviceAPI.CalibrationSetArgs args
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private class Eight.Firmness.Models.BagCalibrationWrite '<write>5__2'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x37458
+			// Header size: 12
+			// Code size: 876 (0x36c)
+			.maxstack 7
+			.locals init (
+				[0] int32,
+				[1] class Eight.Firmness.DeviceAPI.CalibrationController,
+				[2] class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response,
+				[3] class Eight.Firmness.StateMachine.States.FirmnessReadyState,
+				[4] string,
+				[5] valuetype [System.Runtime]System.Nullable`1<uint32>,
+				[6] class Eight.Firmness.StateMachine.States.FirmnessReadyState,
+				[7] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+				[8] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+				[9] valuetype [System.Runtime]System.Nullable`1<uint32>,
+				[10] valuetype [NodaTime]NodaTime.Instant,
+				[11] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[12] class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Exceptions.DeviceCommunicationException,
+				[13] valuetype [System.Runtime]System.Nullable`1<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ResponseCode>,
+				[14] valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ResponseCode,
+				[15] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Firmness.DeviceAPI.CalibrationController Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse IL_012c
+
+				IL_0014: ldloc.1
+				IL_0015: ldfld class Eight.Firmness.StateMachine.IFirmnessProvider Eight.Firmness.DeviceAPI.CalibrationController::provider
+				IL_001a: ldarg.0
+				IL_001b: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+				IL_0020: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Side()
+				IL_0025: callvirt instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Firmness.StateMachine.IFirmnessProvider::GetCurrentState(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+				IL_002a: stloc.s 7
+				IL_002c: ldloc.s 7
+				IL_002e: isinst Eight.Firmness.StateMachine.States.CalibratingState
+				IL_0033: brtrue.s IL_004b
+
+				IL_0035: ldloc.s 7
+				IL_0037: isinst Eight.Firmness.StateMachine.States.FirmnessReadyState
+				IL_003c: stloc.s 6
+				IL_003e: ldloc.s 6
+				IL_0040: brfalse.s IL_009b
+
+				IL_0042: ldloc.s 6
+				IL_0044: callvirt instance bool Eight.Firmness.StateMachine.States.FirmnessReadyState::get_CalibrationHandoffPending()
+				IL_0049: brfalse.s IL_0096
+
+				IL_004b: ldc.i4.s 81
+				IL_004d: ldc.i4.1
+				IL_004e: newobj instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+				IL_0053: stloc.s 8
+				IL_0055: ldloca.s 8
+				IL_0057: ldstr "Calibration is running on "
+				IL_005c: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+				IL_0061: ldloca.s 8
+				IL_0063: ldarg.0
+				IL_0064: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+				IL_0069: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Side()
+				IL_006e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>(!!0)
+				IL_0073: ldloca.s 8
+				IL_0075: ldstr "; coefficients cannot be written until the run finishes"
+				IL_007a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+				IL_007f: ldloca.s 8
+				IL_0081: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+				IL_0086: ldstr "BadRequest"
+				IL_008b: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+				IL_0090: stloc.2
+				IL_0091: leave IL_0350
+
+				IL_0096: ldloc.s 6
+				IL_0098: stloc.3
+				IL_0099: br.s IL_00b3
+
+				IL_009b: ldarg.0
+				IL_009c: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+				IL_00a1: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Side()
+				IL_00a6: ldloc.s 7
+				IL_00a8: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.CalibrationController::NotOperational(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState)
+				IL_00ad: stloc.2
+				IL_00ae: leave IL_0350
+
+				IL_00b3: ldarg.0
+				IL_00b4: ldarg.0
+				IL_00b5: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+				IL_00ba: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.BagCalibrationSetting> Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Bags()
+				IL_00bf: ldarg.0
+				IL_00c0: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+				IL_00c5: callvirt instance bool Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Persist()
+				IL_00ca: newobj instance void Eight.Firmness.Models.BagCalibrationWrite::.ctor(class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.BagCalibrationSetting>, bool)
+				IL_00cf: stfld class Eight.Firmness.Models.BagCalibrationWrite Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<write>5__2'
+				IL_00d4: ldarg.0
+				IL_00d5: ldfld class Eight.Firmness.Models.BagCalibrationWrite Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<write>5__2'
+				IL_00da: callvirt instance string Eight.Firmness.Models.BagCalibrationWrite::Validate()
+				IL_00df: stloc.s 4
+				IL_00e1: ldloc.s 4
+				IL_00e3: brfalse.s IL_00f7
+
+				IL_00e5: ldloc.s 4
+				IL_00e7: ldstr "BadRequest"
+				IL_00ec: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+				IL_00f1: stloc.2
+				IL_00f2: leave IL_0350
+
+				IL_00f7: ldarg.0
+				IL_00f8: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+				IL_00fd: callvirt instance bool Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Persist()
+				IL_0102: brtrue.s IL_0110
+
+				IL_0104: ldloca.s 9
+				IL_0106: initobj valuetype [System.Runtime]System.Nullable`1<uint32>
+				IL_010c: ldloc.s 9
+				IL_010e: br.s IL_012a
+
+				IL_0110: ldloc.1
+				IL_0111: ldfld class [NodaTime]NodaTime.IClock Eight.Firmness.DeviceAPI.CalibrationController::clock
+				IL_0116: callvirt instance valuetype [NodaTime]NodaTime.Instant [NodaTime]NodaTime.IClock::GetCurrentInstant()
+				IL_011b: stloc.s 10
+				IL_011d: ldloca.s 10
+				IL_011f: call instance int64 [NodaTime]NodaTime.Instant::ToUnixTimeSeconds()
+				IL_0124: conv.u4
+				IL_0125: newobj instance void valuetype [System.Runtime]System.Nullable`1<uint32>::.ctor(!0)
+
+				IL_012a: stloc.s 5
+
+				IL_012c: nop
+				.try
+				{
+					IL_012d: ldloc.0
+					IL_012e: brfalse.s IL_017c
+
+					IL_0130: ldloc.3
+					IL_0131: ldarg.0
+					IL_0132: ldfld class Eight.Firmness.Models.BagCalibrationWrite Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<write>5__2'
+					IL_0137: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.BagCalibrationSetting> Eight.Firmness.Models.BagCalibrationWrite::get_Bags()
+					IL_013c: ldloc.s 5
+					IL_013e: call valuetype [System.Runtime]System.Threading.CancellationToken [System.Runtime]System.Threading.CancellationToken::get_None()
+					IL_0143: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Firmness.StateMachine.States.FirmnessReadyState::ApplyBagCalibrationAsync(class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Models.BagCalibrationSetting>, valuetype [System.Runtime]System.Nullable`1<uint32>, valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_0148: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+					IL_014d: stloc.s 11
+					IL_014f: ldloca.s 11
+					IL_0151: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+					IL_0156: brtrue.s IL_0199
+
+					IL_0158: ldarg.0
+					IL_0159: ldc.i4.0
+					IL_015a: dup
+					IL_015b: stloc.0
+					IL_015c: stfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>1__state'
+					IL_0161: ldarg.0
+					IL_0162: ldloc.s 11
+					IL_0164: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>u__1'
+					IL_0169: ldarg.0
+					IL_016a: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>t__builder'
+					IL_016f: ldloca.s 11
+					IL_0171: ldarg.0
+					IL_0172: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'>(!!0&, !!1&)
+					IL_0177: leave IL_036b
+
+					IL_017c: ldarg.0
+					IL_017d: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>u__1'
+					IL_0182: stloc.s 11
+					IL_0184: ldarg.0
+					IL_0185: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>u__1'
+					IL_018a: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+					IL_0190: ldarg.0
+					IL_0191: ldc.i4.m1
+					IL_0192: dup
+					IL_0193: stloc.0
+					IL_0194: stfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>1__state'
+
+					IL_0199: ldloca.s 11
+					IL_019b: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+					IL_01a0: leave IL_02a9
+				} // end .try
+				catch Eight.Firmness.StateMachine.States.CalibrationRunningException
+				{
+					IL_01a5: pop
+					IL_01a6: ldc.i4.s 81
+					IL_01a8: ldc.i4.1
+					IL_01a9: newobj instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+					IL_01ae: stloc.s 8
+					IL_01b0: ldloca.s 8
+					IL_01b2: ldstr "Calibration is running on "
+					IL_01b7: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+					IL_01bc: ldloca.s 8
+					IL_01be: ldarg.0
+					IL_01bf: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+					IL_01c4: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Side()
+					IL_01c9: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>(!!0)
+					IL_01ce: ldloca.s 8
+					IL_01d0: ldstr "; coefficients cannot be written until the run finishes"
+					IL_01d5: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+					IL_01da: ldloca.s 8
+					IL_01dc: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+					IL_01e1: ldstr "BadRequest"
+					IL_01e6: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+					IL_01eb: stloc.2
+					IL_01ec: leave IL_0350
+				} // end handler
+				catch [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Exceptions.DeviceCommunicationException
+				{
+					IL_01f1: stloc.s 12
+					IL_01f3: ldloc.1
+					IL_01f4: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.CalibrationController> Eight.Firmness.DeviceAPI.CalibrationController::logger
+					IL_01f9: ldloc.s 12
+					IL_01fb: ldstr "[calibration] {Side} refused a coefficient write"
+					IL_0200: ldc.i4.1
+					IL_0201: newarr [System.Runtime]System.Object
+					IL_0206: dup
+					IL_0207: ldc.i4.0
+					IL_0208: ldarg.0
+					IL_0209: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+					IL_020e: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Side()
+					IL_0213: box [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side
+					IL_0218: stelem.ref
+					IL_0219: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+					IL_021e: ldc.i4.s 44
+					IL_0220: ldc.i4.2
+					IL_0221: newobj instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+					IL_0226: stloc.s 8
+					IL_0228: ldloca.s 8
+					IL_022a: ldarg.0
+					IL_022b: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+					IL_0230: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Side()
+					IL_0235: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>(!!0)
+					IL_023a: ldloca.s 8
+					IL_023c: ldstr " balloon board rejected the coefficients: "
+					IL_0241: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+					IL_0246: ldloca.s 8
+					IL_0248: ldloc.s 12
+					IL_024a: callvirt instance string [System.Runtime]System.Exception::get_Message()
+					IL_024f: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted(string)
+					IL_0254: ldloca.s 8
+					IL_0256: ldstr ". "
+					IL_025b: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+					IL_0260: ldloca.s 8
+					IL_0262: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+					IL_0267: ldstr "Any bag written before the refusal is staged but not saved, and a power cycle clears it."
+					IL_026c: call string [System.Runtime]System.String::Concat(string, string)
+					IL_0271: ldloc.s 12
+					IL_0273: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ResponseCode> [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Exceptions.DeviceCommunicationException::get_ResponseCode()
+					IL_0278: stloc.s 13
+					IL_027a: ldc.i4.2
+					IL_027b: stloc.s 14
+					IL_027d: ldloca.s 13
+					IL_027f: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ResponseCode>::GetValueOrDefault()
+					IL_0284: ldloc.s 14
+					IL_0286: ceq
+					IL_0288: ldloca.s 13
+					IL_028a: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ResponseCode>::get_HasValue()
+					IL_028f: and
+					IL_0290: brtrue.s IL_0299
+
+					IL_0292: ldstr "BadRequest"
+					IL_0297: br.s IL_029e
+
+					IL_0299: ldstr "AccessoryInitialization"
+
+					IL_029e: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+					IL_02a3: stloc.2
+					IL_02a4: leave IL_0350
+				} // end handler
+
+				IL_02a9: ldloc.1
+				IL_02aa: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.CalibrationController> Eight.Firmness.DeviceAPI.CalibrationController::logger
+				IL_02af: ldstr "[calibration] {Side} wrote {BagCount} bag(s), persisted={Persisted}"
+				IL_02b4: ldc.i4.3
+				IL_02b5: newarr [System.Runtime]System.Object
+				IL_02ba: dup
+				IL_02bb: ldc.i4.0
+				IL_02bc: ldarg.0
+				IL_02bd: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+				IL_02c2: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Side()
+				IL_02c7: box [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side
+				IL_02cc: stelem.ref
+				IL_02cd: dup
+				IL_02ce: ldc.i4.1
+				IL_02cf: ldarg.0
+				IL_02d0: ldfld class Eight.Firmness.Models.BagCalibrationWrite Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<write>5__2'
+				IL_02d5: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.BagCalibrationSetting> Eight.Firmness.Models.BagCalibrationWrite::get_Bags()
+				IL_02da: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.BagCalibrationSetting>::get_Count()
+				IL_02df: box [System.Runtime]System.Int32
+				IL_02e4: stelem.ref
+				IL_02e5: dup
+				IL_02e6: ldc.i4.2
+				IL_02e7: ldarg.0
+				IL_02e8: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+				IL_02ed: callvirt instance bool Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Persist()
+				IL_02f2: box [System.Runtime]System.Boolean
+				IL_02f7: stelem.ref
+				IL_02f8: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+				IL_02fd: ldarg.0
+				IL_02fe: ldfld class Eight.Firmness.Models.BagCalibrationWrite Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<write>5__2'
+				IL_0303: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.BagCalibrationSetting> Eight.Firmness.Models.BagCalibrationWrite::get_Bags()
+				IL_0308: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.BagCalibrationSetting>::get_Count()
+				IL_030d: ldarg.0
+				IL_030e: ldfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+				IL_0313: callvirt instance bool Eight.Firmness.DeviceAPI.CalibrationSetArgs::get_Persist()
+				IL_0318: ldarg.0
+				IL_0319: ldfld class Eight.Firmness.Models.BagCalibrationWrite Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<write>5__2'
+				IL_031e: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.BagCalibrationSetting> Eight.Firmness.Models.BagCalibrationWrite::get_Bags()
+				IL_0323: newobj instance void Eight.Firmness.DeviceAPI.CalibrationSetResponse::.ctor(int32, bool, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.Models.BagCalibrationSetting>)
+				IL_0328: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateResponse<class Eight.Firmness.DeviceAPI.CalibrationSetResponse>(!!0)
+				IL_032d: stloc.2
+				IL_032e: leave.s IL_0350
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_0330: stloc.s 15
+				IL_0332: ldarg.0
+				IL_0333: ldc.i4.s -2
+				IL_0335: stfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>1__state'
+				IL_033a: ldarg.0
+				IL_033b: ldnull
+				IL_033c: stfld class Eight.Firmness.Models.BagCalibrationWrite Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<write>5__2'
+				IL_0341: ldarg.0
+				IL_0342: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>t__builder'
+				IL_0347: ldloc.s 15
+				IL_0349: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetException(class [System.Runtime]System.Exception)
+				IL_034e: leave.s IL_036b
+			} // end handler
+
+			IL_0350: ldarg.0
+			IL_0351: ldc.i4.s -2
+			IL_0353: stfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>1__state'
+			IL_0358: ldarg.0
+			IL_0359: ldnull
+			IL_035a: stfld class Eight.Firmness.Models.BagCalibrationWrite Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<write>5__2'
+			IL_035f: ldarg.0
+			IL_0360: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>t__builder'
+			IL_0365: ldloc.2
+			IL_0366: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetResult(!0)
+
+			IL_036b: ret
+		} // end of method '<Set>d__12'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x3781c
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<Set>d__12'::SetStateMachine
+
+	} // end of class <Set>d__12
+
+
+	// Fields
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.CalibrationController> logger
+	.field private initonly class Eight.Firmness.StateMachine.IFirmnessProvider provider
+	.field private initonly class Eight.Firmness.Services.Calibration.ICalibrationRunStore runStore
+	.field private initonly class [NodaTime]NodaTime.IClock clock
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.CalibrationController> logger,
+			class Eight.Firmness.StateMachine.IFirmnessProvider provider,
+			class Eight.Firmness.Services.Calibration.ICalibrationRunStore runStore,
+			class [NodaTime]NodaTime.IClock clock
+		) cil managed 
+	{
+		// Method begins at RVA 0x2372f
+		// Header size: 1
+		// Code size: 36 (0x24)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.CalibrationController> Eight.Firmness.DeviceAPI.CalibrationController::logger
+		IL_0007: ldarg.0
+		IL_0008: ldarg.2
+		IL_0009: stfld class Eight.Firmness.StateMachine.IFirmnessProvider Eight.Firmness.DeviceAPI.CalibrationController::provider
+		IL_000e: ldarg.0
+		IL_000f: ldarg.3
+		IL_0010: stfld class Eight.Firmness.Services.Calibration.ICalibrationRunStore Eight.Firmness.DeviceAPI.CalibrationController::runStore
+		IL_0015: ldarg.0
+		IL_0016: ldarg.s clock
+		IL_0018: stfld class [NodaTime]NodaTime.IClock Eight.Firmness.DeviceAPI.CalibrationController::clock
+		IL_001d: ldarg.0
+		IL_001e: call instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.RequestController::.ctor()
+		IL_0023: ret
+	} // end of method CalibrationController::.ctor
+
+	.method private hidebysig static 
+		class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response NotOperational (
+			valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side side,
+			class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState state
+		) cil managed 
+	{
+		.param [2]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x23754
+		// Header size: 1
+		// Code size: 19 (0x13)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: ldnull
+		IL_0003: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.FirmnessDeviceStatus::Classify(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState, class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response)
+		IL_0008: dup
+		IL_0009: brtrue.s IL_0012
+
+		IL_000b: pop
+		IL_000c: ldarg.0
+		IL_000d: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.FirmnessDeviceStatus::NotReady(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+
+		IL_0012: ret
+	} // end of method CalibrationController::NotOperational
+
+	.method public hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Start (
+			class Eight.Firmness.DeviceAPI.CalibrationStartArgs args
+		) cil managed 
+	{
+		.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.FunctionHandlerAttribute::.ctor(string) = (
+			01 00 11 63 61 6c 69 62 72 61 74 69 6f 6e 2f 73
+			74 61 72 74 00 00
+		)
+		.param [1]
+			.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.SerializedRequestArgAttribute::.ctor() = (
+				01 00 00 00
+			)
+		// Method begins at RVA 0x23768
+		// Header size: 12
+		// Code size: 352 (0x160)
+		.maxstack 7
+		.locals init (
+			[0] string,
+			[1] class Eight.Firmness.StateMachine.States.FirmnessReadyState,
+			[2] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+			[3] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>,
+			[4] valuetype Eight.Firmness.Models.CalibrationDeflateMethod,
+			[5] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: call string Eight.Firmness.DeviceAPI.CalibrationController::StartArgumentError(class Eight.Firmness.DeviceAPI.CalibrationStartArgs)
+		IL_0006: stloc.0
+		IL_0007: ldloc.0
+		IL_0008: brfalse.s IL_001b
+
+		IL_000a: ldloc.0
+		IL_000b: ldstr "BadRequest"
+		IL_0010: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+		IL_0015: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>(!!0)
+		IL_001a: ret
+
+		IL_001b: ldarg.0
+		IL_001c: ldfld class Eight.Firmness.StateMachine.IFirmnessProvider Eight.Firmness.DeviceAPI.CalibrationController::provider
+		IL_0021: ldarg.1
+		IL_0022: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Side()
+		IL_0027: callvirt instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Firmness.StateMachine.IFirmnessProvider::GetCurrentState(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+		IL_002c: stloc.2
+		IL_002d: ldloc.2
+		IL_002e: isinst Eight.Firmness.StateMachine.States.FirmnessReadyState
+		IL_0033: stloc.1
+		IL_0034: ldloc.1
+		IL_0035: brtrue.s IL_0047
+
+		IL_0037: ldloc.2
+		IL_0038: isinst Eight.Firmness.StateMachine.States.CalibratingState
+		IL_003d: brtrue IL_0114
+
+		IL_0042: br IL_014e
+
+		IL_0047: ldarg.0
+		IL_0048: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.CalibrationController> Eight.Firmness.DeviceAPI.CalibrationController::logger
+		IL_004d: ldstr "[calibration] Start requested for {Side}, bags [{Bags}], method {Method}"
+		IL_0052: ldc.i4.3
+		IL_0053: newarr [System.Runtime]System.Object
+		IL_0058: dup
+		IL_0059: ldc.i4.0
+		IL_005a: ldarg.1
+		IL_005b: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Side()
+		IL_0060: box [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side
+		IL_0065: stelem.ref
+		IL_0066: dup
+		IL_0067: ldc.i4.1
+		IL_0068: ldarg.1
+		IL_0069: callvirt instance int32[] Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Bags()
+		IL_006e: brfalse.s IL_007f
+
+		IL_0070: ldc.i4.s 44
+		IL_0072: ldarg.1
+		IL_0073: callvirt instance int32[] Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Bags()
+		IL_0078: call string [System.Runtime]System.String::Join<int32>(char, class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>)
+		IL_007d: br.s IL_0084
+
+		IL_007f: ldstr "default"
+
+		IL_0084: stelem.ref
+		IL_0085: dup
+		IL_0086: ldc.i4.2
+		IL_0087: ldarg.1
+		IL_0088: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod> Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Method()
+		IL_008d: stloc.3
+		IL_008e: ldloca.s 3
+		IL_0090: dup
+		IL_0091: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>::get_HasValue()
+		IL_0096: brtrue.s IL_009c
+
+		IL_0098: pop
+		IL_0099: ldnull
+		IL_009a: br.s IL_00b0
+
+		IL_009c: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>::GetValueOrDefault()
+		IL_00a1: stloc.s 4
+		IL_00a3: ldloca.s 4
+		IL_00a5: constrained. Eight.Firmness.Models.CalibrationDeflateMethod
+		IL_00ab: callvirt instance string [System.Runtime]System.Object::ToString()
+
+		IL_00b0: dup
+		IL_00b1: brtrue.s IL_00b9
+
+		IL_00b3: pop
+		IL_00b4: ldstr "default"
+
+		IL_00b9: stelem.ref
+		IL_00ba: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_00bf: ldloc.1
+		IL_00c0: ldarg.1
+		IL_00c1: callvirt instance int32[] Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Bags()
+		IL_00c6: ldarg.1
+		IL_00c7: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod> Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Method()
+		IL_00cc: callvirt instance void Eight.Firmness.StateMachine.States.FirmnessReadyState::RequestCalibration(class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>)
+		IL_00d1: ldc.i4.1
+		IL_00d2: ldarg.1
+		IL_00d3: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod> Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Method()
+		IL_00d8: stloc.3
+		IL_00d9: ldloca.s 3
+		IL_00db: dup
+		IL_00dc: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>::get_HasValue()
+		IL_00e1: brtrue.s IL_00e7
+
+		IL_00e3: pop
+		IL_00e4: ldnull
+		IL_00e5: br.s IL_00fb
+
+		IL_00e7: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>::GetValueOrDefault()
+		IL_00ec: stloc.s 4
+		IL_00ee: ldloca.s 4
+		IL_00f0: constrained. Eight.Firmness.Models.CalibrationDeflateMethod
+		IL_00f6: callvirt instance string [System.Runtime]System.Object::ToString()
+
+		IL_00fb: dup
+		IL_00fc: brtrue.s IL_0104
+
+		IL_00fe: pop
+		IL_00ff: ldstr "default"
+
+		IL_0104: newobj instance void class '<>f__AnonymousType0`2'<bool, string>::.ctor(!0, !1)
+		IL_0109: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateResponse<class '<>f__AnonymousType0`2'<bool, string>>(!!0)
+		IL_010e: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>(!!0)
+		IL_0113: ret
+
+		IL_0114: ldloca.s 5
+		IL_0116: ldc.i4.s 34
+		IL_0118: ldc.i4.1
+		IL_0119: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_011e: ldloca.s 5
+		IL_0120: ldstr "Calibration is already running on "
+		IL_0125: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_012a: ldloca.s 5
+		IL_012c: ldarg.1
+		IL_012d: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Side()
+		IL_0132: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>(!!0)
+		IL_0137: ldloca.s 5
+		IL_0139: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_013e: ldstr "BadRequest"
+		IL_0143: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+		IL_0148: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>(!!0)
+		IL_014d: ret
+
+		IL_014e: ldarg.1
+		IL_014f: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Side()
+		IL_0154: ldloc.2
+		IL_0155: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.CalibrationController::NotOperational(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState)
+		IL_015a: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>(!!0)
+		IL_015f: ret
+	} // end of method CalibrationController::Start
+
+	.method assembly hidebysig static 
+		string StartArgumentError (
+			class Eight.Firmness.DeviceAPI.CalibrationStartArgs args
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x238d4
+		// Header size: 12
+		// Code size: 197 (0xc5)
+		.maxstack 3
+		.locals init (
+			[0] valuetype Eight.Firmness.Models.CalibrationDeflateMethod,
+			[1] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>,
+			[2] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[3] int32[],
+			[4] int32,
+			[5] int32,
+			[6] bool
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod> Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Method()
+		IL_0006: stloc.1
+		IL_0007: ldloca.s 1
+		IL_0009: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>::get_HasValue()
+		IL_000e: brfalse.s IL_0052
+
+		IL_0010: ldloca.s 1
+		IL_0012: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>::GetValueOrDefault()
+		IL_0017: stloc.0
+		IL_0018: ldloc.0
+		IL_0019: call bool [System.Runtime]System.Enum::IsDefined<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>(!!0)
+		IL_001e: brtrue.s IL_0052
+
+		IL_0020: ldloca.s 2
+		IL_0022: ldc.i4.s 49
+		IL_0024: ldc.i4.1
+		IL_0025: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_002a: ldloca.s 2
+		IL_002c: ldstr "method "
+		IL_0031: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0036: ldloca.s 2
+		IL_0038: ldloc.0
+		IL_0039: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_003e: ldloca.s 2
+		IL_0040: ldstr " is not one of pulse, landing, landingOnly"
+		IL_0045: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_004a: ldloca.s 2
+		IL_004c: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_0051: ret
+
+		IL_0052: ldarg.0
+		IL_0053: callvirt instance int32[] Eight.Firmness.DeviceAPI.CalibrationStartArgs::get_Bags()
+		IL_0058: dup
+		IL_0059: brtrue.s IL_0061
+
+		IL_005b: pop
+		IL_005c: call !!0[] [System.Runtime]System.Array::Empty<int32>()
+
+		IL_0061: stloc.3
+		IL_0062: ldc.i4.0
+		IL_0063: stloc.s 4
+		IL_0065: br.s IL_00bc
+		// loop start (head: IL_00bc)
+			IL_0067: ldloc.3
+			IL_0068: ldloc.s 4
+			IL_006a: ldelem.i4
+			IL_006b: stloc.s 5
+			IL_006d: ldloc.s 5
+			IL_006f: ldc.i4.0
+			IL_0070: blt.s IL_0077
+
+			IL_0072: ldloc.s 5
+			IL_0074: ldc.i4.4
+			IL_0075: ble.s IL_007c
+
+			IL_0077: ldc.i4.1
+			IL_0078: stloc.s 6
+			IL_007a: br.s IL_007f
+
+			IL_007c: ldc.i4.0
+			IL_007d: stloc.s 6
+
+			IL_007f: ldloc.s 6
+			IL_0081: brfalse.s IL_00b6
+
+			IL_0083: ldloca.s 2
+			IL_0085: ldc.i4.s 22
+			IL_0087: ldc.i4.1
+			IL_0088: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+			IL_008d: ldloca.s 2
+			IL_008f: ldstr "bagId "
+			IL_0094: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+			IL_0099: ldloca.s 2
+			IL_009b: ldloc.s 5
+			IL_009d: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+			IL_00a2: ldloca.s 2
+			IL_00a4: ldstr " is outside 0..4"
+			IL_00a9: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+			IL_00ae: ldloca.s 2
+			IL_00b0: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+			IL_00b5: ret
+
+			IL_00b6: ldloc.s 4
+			IL_00b8: ldc.i4.1
+			IL_00b9: add
+			IL_00ba: stloc.s 4
+
+			IL_00bc: ldloc.s 4
+			IL_00be: ldloc.3
+			IL_00bf: ldlen
+			IL_00c0: conv.i4
+			IL_00c1: blt.s IL_0067
+		// end loop
+
+		IL_00c3: ldnull
+		IL_00c4: ret
+	} // end of method CalibrationController::StartArgumentError
+
+	.method public hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Status (
+			class Eight.Firmness.DeviceAPI.CalibrationSideArgs args
+		) cil managed 
+	{
+		.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.FunctionHandlerAttribute::.ctor(string) = (
+			01 00 12 63 61 6c 69 62 72 61 74 69 6f 6e 2f 73
+			74 61 74 75 73 00 00
+		)
+		.param [1]
+			.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.SerializedRequestArgAttribute::.ctor() = (
+				01 00 00 00
+			)
+		// Method begins at RVA 0x239a8
+		// Header size: 12
+		// Code size: 109 (0x6d)
+		.maxstack 3
+		.locals init (
+			[0] class Eight.Firmness.StateMachine.States.CalibratingState,
+			[1] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+			[2] class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Firmness.StateMachine.IFirmnessProvider Eight.Firmness.DeviceAPI.CalibrationController::provider
+		IL_0006: ldarg.1
+		IL_0007: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+		IL_000c: callvirt instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Firmness.StateMachine.IFirmnessProvider::GetCurrentState(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+		IL_0011: stloc.1
+		IL_0012: ldloc.1
+		IL_0013: isinst Eight.Firmness.StateMachine.States.CalibratingState
+		IL_0018: stloc.0
+		IL_0019: ldloc.0
+		IL_001a: brtrue.s IL_0026
+
+		IL_001c: ldloc.1
+		IL_001d: isinst Eight.Firmness.StateMachine.States.FirmnessReadyState
+		IL_0022: brtrue.s IL_003a
+
+		IL_0024: br.s IL_0059
+
+		IL_0026: ldloc.0
+		IL_0027: callvirt instance class Eight.Firmness.Services.Calibration.CalibrationRunStatus Eight.Firmness.StateMachine.States.CalibratingState::GetStatus()
+		IL_002c: ldnull
+		IL_002d: newobj instance void Eight.Firmness.DeviceAPI.CalibrationStatusResponse::.ctor(class Eight.Firmness.Services.Calibration.CalibrationRunStatus, class Eight.Firmness.Services.Calibration.CalibrationRunRecord)
+		IL_0032: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateResponse<class Eight.Firmness.DeviceAPI.CalibrationStatusResponse>(!!0)
+		IL_0037: stloc.2
+		IL_0038: br.s IL_0066
+
+		IL_003a: ldnull
+		IL_003b: ldarg.0
+		IL_003c: ldfld class Eight.Firmness.Services.Calibration.ICalibrationRunStore Eight.Firmness.DeviceAPI.CalibrationController::runStore
+		IL_0041: ldarg.1
+		IL_0042: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+		IL_0047: callvirt instance class Eight.Firmness.Services.Calibration.CalibrationRunRecord Eight.Firmness.Services.Calibration.ICalibrationRunStore::GetLatestRecord(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+		IL_004c: newobj instance void Eight.Firmness.DeviceAPI.CalibrationStatusResponse::.ctor(class Eight.Firmness.Services.Calibration.CalibrationRunStatus, class Eight.Firmness.Services.Calibration.CalibrationRunRecord)
+		IL_0051: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateResponse<class Eight.Firmness.DeviceAPI.CalibrationStatusResponse>(!!0)
+		IL_0056: stloc.2
+		IL_0057: br.s IL_0066
+
+		IL_0059: ldarg.1
+		IL_005a: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+		IL_005f: ldloc.1
+		IL_0060: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.CalibrationController::NotOperational(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState)
+		IL_0065: stloc.2
+
+		IL_0066: ldloc.2
+		IL_0067: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>(!!0)
+		IL_006c: ret
+	} // end of method CalibrationController::Status
+
+	.method public hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Cancel (
+			class Eight.Firmness.DeviceAPI.CalibrationSideArgs args
+		) cil managed 
+	{
+		.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.FunctionHandlerAttribute::.ctor(string) = (
+			01 00 12 63 61 6c 69 62 72 61 74 69 6f 6e 2f 63
+			61 6e 63 65 6c 00 00
+		)
+		.param [1]
+			.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.SerializedRequestArgAttribute::.ctor() = (
+				01 00 00 00
+			)
+		// Method begins at RVA 0x23a24
+		// Header size: 12
+		// Code size: 188 (0xbc)
+		.maxstack 6
+		.locals init (
+			[0] class Eight.Firmness.StateMachine.States.CalibratingState,
+			[1] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+			[2] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Firmness.StateMachine.IFirmnessProvider Eight.Firmness.DeviceAPI.CalibrationController::provider
+		IL_0006: ldarg.1
+		IL_0007: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+		IL_000c: callvirt instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Firmness.StateMachine.IFirmnessProvider::GetCurrentState(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+		IL_0011: stloc.1
+		IL_0012: ldloc.1
+		IL_0013: isinst Eight.Firmness.StateMachine.States.CalibratingState
+		IL_0018: stloc.0
+		IL_0019: ldloc.0
+		IL_001a: brtrue.s IL_0029
+
+		IL_001c: ldloc.1
+		IL_001d: isinst Eight.Firmness.StateMachine.States.FirmnessReadyState
+		IL_0022: brtrue.s IL_0064
+
+		IL_0024: br IL_00aa
+
+		IL_0029: ldarg.0
+		IL_002a: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.DeviceAPI.CalibrationController> Eight.Firmness.DeviceAPI.CalibrationController::logger
+		IL_002f: ldstr "[calibration] Cancel requested for {Side}"
+		IL_0034: ldc.i4.1
+		IL_0035: newarr [System.Runtime]System.Object
+		IL_003a: dup
+		IL_003b: ldc.i4.0
+		IL_003c: ldarg.1
+		IL_003d: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+		IL_0042: box [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side
+		IL_0047: stelem.ref
+		IL_0048: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_004d: ldloc.0
+		IL_004e: callvirt instance class Eight.Firmness.Services.Calibration.CalibrationRunStatus Eight.Firmness.StateMachine.States.CalibratingState::Cancel()
+		IL_0053: ldnull
+		IL_0054: newobj instance void Eight.Firmness.DeviceAPI.CalibrationStatusResponse::.ctor(class Eight.Firmness.Services.Calibration.CalibrationRunStatus, class Eight.Firmness.Services.Calibration.CalibrationRunRecord)
+		IL_0059: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateResponse<class Eight.Firmness.DeviceAPI.CalibrationStatusResponse>(!!0)
+		IL_005e: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>(!!0)
+		IL_0063: ret
+
+		IL_0064: ldloca.s 2
+		IL_0066: ldc.i4.s 45
+		IL_0068: ldc.i4.1
+		IL_0069: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_006e: ldloca.s 2
+		IL_0070: ldstr "Firmness device "
+		IL_0075: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_007a: ldloca.s 2
+		IL_007c: ldarg.1
+		IL_007d: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+		IL_0082: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>(!!0)
+		IL_0087: ldloca.s 2
+		IL_0089: ldstr " is not currently calibrating"
+		IL_008e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0093: ldloca.s 2
+		IL_0095: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_009a: ldstr "BadRequest"
+		IL_009f: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response [Eight.Capybara.DeviceApi]Eight.Capybara.DeviceApi.Utils::CreateFailure(string, string)
+		IL_00a4: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>(!!0)
+		IL_00a9: ret
+
+		IL_00aa: ldarg.1
+		IL_00ab: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side Eight.Firmness.DeviceAPI.CalibrationSideArgs::get_Side()
+		IL_00b0: ldloc.1
+		IL_00b1: call class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response Eight.Firmness.DeviceAPI.CalibrationController::NotOperational(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState)
+		IL_00b6: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromResult<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>(!!0)
+		IL_00bb: ret
+	} // end of method CalibrationController::Cancel
+
+	.method public hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Get (
+			class Eight.Firmness.DeviceAPI.CalibrationSideArgs args
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 39 45 69 67 68 74 2e 46 69 72 6d 6e 65 73
+			73 2e 44 65 76 69 63 65 41 50 49 2e 43 61 6c 69
+			62 72 61 74 69 6f 6e 43 6f 6e 74 72 6f 6c 6c 65
+			72 2b 3c 47 65 74 3e 64 5f 5f 31 30 00 00
+		)
+		.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.FunctionHandlerAttribute::.ctor(string) = (
+			01 00 0f 63 61 6c 69 62 72 61 74 69 6f 6e 2f 67
+			65 74 00 00
+		)
+		.param [1]
+			.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.SerializedRequestArgAttribute::.ctor() = (
+				01 00 00 00
+			)
+		// Method begins at RVA 0x23aec
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Firmness.DeviceAPI.CalibrationController Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class Eight.Firmness.DeviceAPI.CalibrationSideArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::args
+		IL_001c: ldloca.s 0
+		IL_001e: ldc.i4.m1
+		IL_001f: stfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>1__state'
+		IL_0024: ldloca.s 0
+		IL_0026: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>t__builder'
+		IL_002b: ldloca.s 0
+		IL_002d: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::Start<valuetype Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'>(!!0&)
+		IL_0032: ldloca.s 0
+		IL_0034: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Get>d__10'::'<>t__builder'
+		IL_0039: call instance class [System.Runtime]System.Threading.Tasks.Task`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::get_Task()
+		IL_003e: ret
+	} // end of method CalibrationController::Get
+
+	.method private hidebysig static 
+		class Eight.Firmness.DeviceAPI.CalibrationDeviceState DecodeCalibration (
+			uint8[] raw
+		) cil managed 
+	{
+		// Method begins at RVA 0x23b38
+		// Header size: 12
+		// Code size: 590 (0x24e)
+		.maxstack 9
+		.locals init (
+			[0] string,
+			[1] valuetype [System.Runtime]System.Nullable`1<int32>,
+			[2] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>,
+			[3] class [CBOR]PeterO.Cbor.CBORObject,
+			[4] valuetype [System.Runtime]System.Nullable`1<int32>,
+			[5] valuetype [System.Runtime]System.Nullable`1<int32>,
+			[6] valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>,
+			[7] class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.DeviceAPI.CalibrationBagCoefficients>,
+			[8] class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [CBOR]PeterO.Cbor.CBORObject>,
+			[9] class [CBOR]PeterO.Cbor.CBORObject,
+			[10] class Eight.Firmness.DeviceAPI.CalibrationDeviceState
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: call string [System.Runtime]System.Convert::ToHexString(uint8[])
+		IL_0006: stloc.0
+		IL_0007: ldarg.0
+		IL_0008: ldlen
+		IL_0009: brtrue.s IL_002e
+
+		IL_000b: ldloca.s 1
+		IL_000d: initobj valuetype [System.Runtime]System.Nullable`1<int32>
+		IL_0013: ldloc.1
+		IL_0014: ldloca.s 1
+		IL_0016: initobj valuetype [System.Runtime]System.Nullable`1<int32>
+		IL_001c: ldloc.1
+		IL_001d: ldloca.s 2
+		IL_001f: initobj valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>
+		IL_0025: ldloc.2
+		IL_0026: ldnull
+		IL_0027: ldloc.0
+		IL_0028: newobj instance void Eight.Firmness.DeviceAPI.CalibrationDeviceState::.ctor(valuetype [System.Runtime]System.Nullable`1<int32>, valuetype [System.Runtime]System.Nullable`1<int32>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.DeviceAPI.CalibrationBagCoefficients>, string)
+		IL_002d: ret
+
+		IL_002e: nop
+		.try
+		{
+			IL_002f: ldarg.0
+			IL_0030: call class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::DecodeFromBytes(uint8[])
+			IL_0035: stloc.3
+			IL_0036: ldloc.3
+			IL_0037: ldstr "v"
+			IL_003c: callvirt instance bool [CBOR]PeterO.Cbor.CBORObject::ContainsKey(string)
+			IL_0041: brtrue.s IL_004e
+
+			IL_0043: ldloca.s 1
+			IL_0045: initobj valuetype [System.Runtime]System.Nullable`1<int32>
+			IL_004b: ldloc.1
+			IL_004c: br.s IL_0063
+
+			IL_004e: ldloc.3
+			IL_004f: ldstr "v"
+			IL_0054: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+			IL_0059: callvirt instance int32 [CBOR]PeterO.Cbor.CBORObject::AsInt32Value()
+			IL_005e: newobj instance void valuetype [System.Runtime]System.Nullable`1<int32>::.ctor(!0)
+
+			IL_0063: stloc.s 4
+			IL_0065: ldloc.3
+			IL_0066: ldstr "n"
+			IL_006b: callvirt instance bool [CBOR]PeterO.Cbor.CBORObject::ContainsKey(string)
+			IL_0070: brtrue.s IL_007d
+
+			IL_0072: ldloca.s 1
+			IL_0074: initobj valuetype [System.Runtime]System.Nullable`1<int32>
+			IL_007a: ldloc.1
+			IL_007b: br.s IL_0092
+
+			IL_007d: ldloc.3
+			IL_007e: ldstr "n"
+			IL_0083: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+			IL_0088: callvirt instance int32 [CBOR]PeterO.Cbor.CBORObject::AsInt32Value()
+			IL_008d: newobj instance void valuetype [System.Runtime]System.Nullable`1<int32>::.ctor(!0)
+
+			IL_0092: stloc.s 5
+			IL_0094: ldloc.3
+			IL_0095: ldstr "ts"
+			IL_009a: callvirt instance bool [CBOR]PeterO.Cbor.CBORObject::ContainsKey(string)
+			IL_009f: brtrue.s IL_00ac
+
+			IL_00a1: ldloca.s 2
+			IL_00a3: initobj valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>
+			IL_00a9: ldloc.2
+			IL_00aa: br.s IL_00c6
+
+			IL_00ac: ldloc.3
+			IL_00ad: ldstr "ts"
+			IL_00b2: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+			IL_00b7: callvirt instance int64 [CBOR]PeterO.Cbor.CBORObject::AsInt64Value()
+			IL_00bc: call valuetype [System.Runtime]System.DateTimeOffset [System.Runtime]System.DateTimeOffset::FromUnixTimeSeconds(int64)
+			IL_00c1: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>::.ctor(!0)
+
+			IL_00c6: stloc.s 6
+			IL_00c8: ldnull
+			IL_00c9: stloc.s 7
+			IL_00cb: ldloc.3
+			IL_00cc: ldstr "bags"
+			IL_00d1: callvirt instance bool [CBOR]PeterO.Cbor.CBORObject::ContainsKey(string)
+			IL_00d6: brfalse IL_0212
+
+			IL_00db: ldloc.3
+			IL_00dc: ldstr "bags"
+			IL_00e1: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+			IL_00e6: callvirt instance valuetype [CBOR]PeterO.Cbor.CBORType [CBOR]PeterO.Cbor.CBORObject::get_Type()
+			IL_00eb: ldc.i4.5
+			IL_00ec: bne.un IL_0212
+
+			IL_00f1: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.DeviceAPI.CalibrationBagCoefficients>::.ctor()
+			IL_00f6: stloc.s 7
+			IL_00f8: ldloc.3
+			IL_00f9: ldstr "bags"
+			IL_00fe: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+			IL_0103: callvirt instance class [System.Runtime]System.Collections.Generic.ICollection`1<class [CBOR]PeterO.Cbor.CBORObject> [CBOR]PeterO.Cbor.CBORObject::get_Values()
+			IL_0108: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [CBOR]PeterO.Cbor.CBORObject>::GetEnumerator()
+			IL_010d: stloc.s 8
+			.try
+			{
+				IL_010f: br IL_01f8
+				// loop start (head: IL_01f8)
+					IL_0114: ldloc.s 8
+					IL_0116: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [CBOR]PeterO.Cbor.CBORObject>::get_Current()
+					IL_011b: stloc.s 9
+					IL_011d: ldloc.s 7
+					IL_011f: ldloc.s 7
+					IL_0121: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.DeviceAPI.CalibrationBagCoefficients>::get_Count()
+					IL_0126: ldloc.s 9
+					IL_0128: ldstr "a"
+					IL_012d: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+					IL_0132: callvirt instance float64 [CBOR]PeterO.Cbor.CBORObject::AsDouble()
+					IL_0137: conv.r4
+					IL_0138: ldloc.s 9
+					IL_013a: ldstr "b"
+					IL_013f: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+					IL_0144: callvirt instance float64 [CBOR]PeterO.Cbor.CBORObject::AsDouble()
+					IL_0149: conv.r4
+					IL_014a: ldloc.s 9
+					IL_014c: ldstr "ci"
+					IL_0151: callvirt instance bool [CBOR]PeterO.Cbor.CBORObject::ContainsKey(string)
+					IL_0156: brtrue.s IL_015f
+
+					IL_0158: ldc.r4 0.0
+					IL_015d: br.s IL_0171
+
+					IL_015f: ldloc.s 9
+					IL_0161: ldstr "ci"
+					IL_0166: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+					IL_016b: callvirt instance float64 [CBOR]PeterO.Cbor.CBORObject::AsDouble()
+					IL_0170: conv.r4
+
+					IL_0171: ldloc.s 9
+					IL_0173: ldstr "al"
+					IL_0178: callvirt instance bool [CBOR]PeterO.Cbor.CBORObject::ContainsKey(string)
+					IL_017d: brtrue.s IL_0193
+
+					IL_017f: ldloc.s 9
+					IL_0181: ldstr "a"
+					IL_0186: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+					IL_018b: callvirt instance float64 [CBOR]PeterO.Cbor.CBORObject::AsDouble()
+					IL_0190: conv.r4
+					IL_0191: br.s IL_01a5
+
+					IL_0193: ldloc.s 9
+					IL_0195: ldstr "al"
+					IL_019a: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+					IL_019f: callvirt instance float64 [CBOR]PeterO.Cbor.CBORObject::AsDouble()
+					IL_01a4: conv.r4
+
+					IL_01a5: ldloc.s 9
+					IL_01a7: ldstr "cl"
+					IL_01ac: callvirt instance bool [CBOR]PeterO.Cbor.CBORObject::ContainsKey(string)
+					IL_01b1: brtrue.s IL_01ba
+
+					IL_01b3: ldc.r4 0.0
+					IL_01b8: br.s IL_01cc
+
+					IL_01ba: ldloc.s 9
+					IL_01bc: ldstr "cl"
+					IL_01c1: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+					IL_01c6: callvirt instance float64 [CBOR]PeterO.Cbor.CBORObject::AsDouble()
+					IL_01cb: conv.r4
+
+					IL_01cc: ldloc.s 9
+					IL_01ce: ldstr "c"
+					IL_01d3: callvirt instance bool [CBOR]PeterO.Cbor.CBORObject::ContainsKey(string)
+					IL_01d8: brfalse.s IL_01ed
+
+					IL_01da: ldloc.s 9
+					IL_01dc: ldstr "c"
+					IL_01e1: callvirt instance class [CBOR]PeterO.Cbor.CBORObject [CBOR]PeterO.Cbor.CBORObject::get_Item(string)
+					IL_01e6: callvirt instance bool [CBOR]PeterO.Cbor.CBORObject::AsBoolean()
+					IL_01eb: br.s IL_01ee
+
+					IL_01ed: ldc.i4.0
+
+					IL_01ee: newobj instance void Eight.Firmness.DeviceAPI.CalibrationBagCoefficients::.ctor(int32, float32, float32, float32, float32, float32, bool)
+					IL_01f3: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.DeviceAPI.CalibrationBagCoefficients>::Add(!0)
+
+					IL_01f8: ldloc.s 8
+					IL_01fa: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+					IL_01ff: brtrue IL_0114
+				// end loop
+
+				IL_0204: leave.s IL_0212
+			} // end .try
+			finally
+			{
+				IL_0206: ldloc.s 8
+				IL_0208: brfalse.s IL_0211
+
+				IL_020a: ldloc.s 8
+				IL_020c: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+				IL_0211: endfinally
+			} // end handler
+
+			IL_0212: ldloc.s 4
+			IL_0214: ldloc.s 5
+			IL_0216: ldloc.s 6
+			IL_0218: ldloc.s 7
+			IL_021a: ldloc.0
+			IL_021b: newobj instance void Eight.Firmness.DeviceAPI.CalibrationDeviceState::.ctor(valuetype [System.Runtime]System.Nullable`1<int32>, valuetype [System.Runtime]System.Nullable`1<int32>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.DeviceAPI.CalibrationBagCoefficients>, string)
+			IL_0220: stloc.s 10
+			IL_0222: leave.s IL_024b
+		} // end .try
+		catch [System.Runtime]System.Object
+		{
+			IL_0224: pop
+			IL_0225: ldloca.s 1
+			IL_0227: initobj valuetype [System.Runtime]System.Nullable`1<int32>
+			IL_022d: ldloc.1
+			IL_022e: ldloca.s 1
+			IL_0230: initobj valuetype [System.Runtime]System.Nullable`1<int32>
+			IL_0236: ldloc.1
+			IL_0237: ldloca.s 2
+			IL_0239: initobj valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>
+			IL_023f: ldloc.2
+			IL_0240: ldnull
+			IL_0241: ldloc.0
+			IL_0242: newobj instance void Eight.Firmness.DeviceAPI.CalibrationDeviceState::.ctor(valuetype [System.Runtime]System.Nullable`1<int32>, valuetype [System.Runtime]System.Nullable`1<int32>, valuetype [System.Runtime]System.Nullable`1<valuetype [System.Runtime]System.DateTimeOffset>, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<class Eight.Firmness.DeviceAPI.CalibrationBagCoefficients>, string)
+			IL_0247: stloc.s 10
+			IL_0249: leave.s IL_024b
+		} // end handler
+
+		IL_024b: ldloc.s 10
+		IL_024d: ret
+	} // end of method CalibrationController::DecodeCalibration
+
+	.method public hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Set (
+			class Eight.Firmness.DeviceAPI.CalibrationSetArgs args
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 39 45 69 67 68 74 2e 46 69 72 6d 6e 65 73
+			73 2e 44 65 76 69 63 65 41 50 49 2e 43 61 6c 69
+			62 72 61 74 69 6f 6e 43 6f 6e 74 72 6f 6c 6c 65
+			72 2b 3c 53 65 74 3e 64 5f 5f 31 32 00 00
+		)
+		.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.FunctionHandlerAttribute::.ctor(string) = (
+			01 00 0f 63 61 6c 69 62 72 61 74 69 6f 6e 2f 73
+			65 74 00 00
+		)
+		.param [1]
+			.custom instance void [Eight.DeviceApiClient]Eight.DeviceApiClient.SerializedRequestArgAttribute::.ctor() = (
+				01 00 00 00
+			)
+		// Method begins at RVA 0x23dc8
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Firmness.DeviceAPI.CalibrationController Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class Eight.Firmness.DeviceAPI.CalibrationSetArgs Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::args
+		IL_001c: ldloca.s 0
+		IL_001e: ldc.i4.m1
+		IL_001f: stfld int32 Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>1__state'
+		IL_0024: ldloca.s 0
+		IL_0026: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>t__builder'
+		IL_002b: ldloca.s 0
+		IL_002d: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::Start<valuetype Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'>(!!0&)
+		IL_0032: ldloca.s 0
+		IL_0034: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response> Eight.Firmness.DeviceAPI.CalibrationController/'<Set>d__12'::'<>t__builder'
+		IL_0039: call instance class [System.Runtime]System.Threading.Tasks.Task`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.DeviceProtocol]Eight.DeviceProtocol.Response>::get_Task()
+		IL_003e: ret
+	} // end of method CalibrationController::Set
+
+} // end of class Eight.Firmness.DeviceAPI.CalibrationController

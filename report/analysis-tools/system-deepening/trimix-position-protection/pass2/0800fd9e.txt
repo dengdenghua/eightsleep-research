@@ -1,0 +1,60 @@
+TARGET 0800fd9e function=0800fd9e
+REF_TO 0800fc90 UNCONDITIONAL_CALL owner=0800fc76
+REF_TO 0800fdb4 CONDITIONAL_JUMP owner=0800fd9e
+REF_TO 0800fd6e UNCONDITIONAL_CALL owner=0800fd54
+FUNCTION_BODY [[0800fd9e, 0800fdbd]]
+
+/* WARNING: Removing unreachable block (ram,0x0800eb9e) */
+
+undefined4 FUN_0800fd9e(undefined4 param_1,int param_2)
+
+{
+  undefined2 uVar1;
+  int iVar2;
+  ushort extraout_r2;
+  ushort uVar3;
+  int extraout_r3;
+  int iVar4;
+  int unaff_r4;
+  char cVar5;
+  undefined8 uVar6;
+  
+  do {
+    uVar1 = *(undefined2 *)(unaff_r4 + param_2 * 2);
+    (&stack0x00000000)[param_2 * 2] = (char)((ushort)uVar1 >> 8);
+    iVar4 = param_2 * 2;
+    param_2 = param_2 + 1;
+    (&stack0x00000001)[iVar4] = (char)uVar1;
+  } while (param_2 < 6);
+  do {
+    iVar4 = 8;
+    cVar5 = false;
+    do {
+      uVar6 = FUN_0800ec74();
+      iVar2 = (int)((ulonglong)uVar6 >> 0x20);
+      uVar3 = extraout_r2;
+      if (cVar5 != '\0') {
+        uVar3 = extraout_r2 ^ 0xa001;
+      }
+      iVar4 = iVar4 + -1;
+      cVar5 = iVar4 < 0;
+    } while (iVar4 != 0);
+  } while (extraout_r3 + 1 < iVar2);
+  *(char *)((int)uVar6 + iVar2) = (char)uVar3;
+  *(char *)((int)uVar6 + iVar2 + 1) = (char)(uVar3 >> 8);
+  return 1;
+}
+
+
+INSN 0800fd9e 34f81120 ldrh.w r2,[r4,r1,lsl #0x1]
+INSN 0800fda2 100a lsrs r0,r2,#0x8
+INSN 0800fda4 0df81100 strb.w r0,[sp,r1,lsl #0x1]
+INSN 0800fda8 6846 mov r0,sp
+INSN 0800fdaa 00eb4100 add.w r0,r0,r1, lsl #0x1
+INSN 0800fdae 491c adds r1,r1,#0x1
+INSN 0800fdb0 0629 cmp r1,#0x6
+INSN 0800fdb2 4270 strb r2,[r0,#0x1]
+INSN 0800fdb4 f3db blt 0x0800fd9e REF[CONDITIONAL_JUMP:0800fd9e]
+INSN 0800fdb6 0c21 movs r1,#0xc
+INSN 0800fdb8 6846 mov r0,sp
+INSN 0800fdba fef7ebbe b.w 0x0800eb94 REF[UNCONDITIONAL_JUMP:0800eb94]

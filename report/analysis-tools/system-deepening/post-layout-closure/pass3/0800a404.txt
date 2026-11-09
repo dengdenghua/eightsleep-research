@@ -1,0 +1,24 @@
+TARGET 0800a404 function=0800a3f8
+FUNCTION_BODY [[0800a3f8, 0800a409]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_0800a3f8(uint param_1)
+
+{
+  if (-1 < (int)param_1) {
+    _DAT_e000e100 = 1 << (param_1 & 0x1f);
+  }
+  return;
+}
+
+
+INSN 0800a3f8 0028 cmp r0,#0x0
+INSN 0800a3fa 05db blt 0x0800a408 REF[CONDITIONAL_JUMP:0800a408]
+INSN 0800a3fc 1f23 movs r3,#0x1f
+INSN 0800a3fe 1840 ands r0,r3
+INSN 0800a400 1e3b subs r3,#0x1e
+INSN 0800a402 8340 lsls r3,r0
+INSN 0800a404 014a ldr r2,[0x0800a40c] REF[READ:0800a40c=e000e100]
+INSN 0800a406 1360 str r3,[r2,#0x0] REF[WRITE:e000e100]
+INSN 0800a408 7047 bx lr

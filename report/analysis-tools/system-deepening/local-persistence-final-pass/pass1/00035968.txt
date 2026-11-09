@@ -1,0 +1,46 @@
+FUNCTION 00035968 BODY [[00035968, 00035975] [00035978, 00035993]]
+REF_TO 000334ec UNCONDITIONAL_CALL
+REF_TO 00033546 UNCONDITIONAL_CALL
+
+longlong FUN_00035968(undefined4 param_1,uint param_2,undefined4 param_3,undefined4 *param_4)
+
+{
+  int iVar1;
+  uint uStack_18;
+  undefined4 uStack_14;
+  undefined4 *local_10;
+  
+  uStack_18 = param_2;
+  uStack_14 = param_3;
+  local_10 = param_4;
+  FUN_00033674(&uStack_18,DAT_00035994);
+  while( true ) {
+    if (local_10 == (undefined4 *)0x0) {
+      return (ulonglong)uStack_18 << 0x20;
+    }
+    iVar1 = (*(code *)*local_10)(param_1,local_10[1]);
+    if (iVar1 == 0) break;
+    FUN_000336a2(&uStack_18);
+  }
+  return CONCAT44(uStack_18,0x11);
+}
+
+
+INSN 00035968 3eb5 push {r1,r2,r3,r4,r5,lr}
+INSN 0003596a 0446 mov r4,r0
+INSN 0003596c 0949 ldr r1,[0x00035994] REF[READ:00035994=37008] REF[PARAM:00037008=36ff4]
+INSN 0003596e 6846 mov r0,sp
+INSN 00035970 fdf780fe bl 0x00033674 REF[UNCONDITIONAL_CALL:00033674]
+INSN 00035974 08e0 b 0x00035988 REF[UNCONDITIONAL_JUMP:00035988]
+INSN 00035978 d0e90021 ldrd r2,r1,[r0,#0x0]
+INSN 0003597c 2046 mov r0,r4
+INSN 0003597e 9047 blx r2
+INSN 00035980 30b1 cbz r0,0x00035990 REF[CONDITIONAL_JUMP:00035990]
+INSN 00035982 6846 mov r0,sp
+INSN 00035984 fdf78dfe bl 0x000336a2 REF[UNCONDITIONAL_CALL:000336a2]
+INSN 00035988 0298 ldr r0,[sp,#0x8] REF[READ:Stack[-0x10]]
+INSN 0003598a 0028 cmp r0,#0x0
+INSN 0003598c f4d1 bne 0x00035978 REF[CONDITIONAL_JUMP:00035978]
+INSN 0003598e 3ebd pop {r1,r2,r3,r4,r5,pc}
+INSN 00035990 1120 movs r0,#0x11
+INSN 00035992 3ebd pop {r1,r2,r3,r4,r5,pc}

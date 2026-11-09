@@ -1,0 +1,66 @@
+TARGET 0801ef2e function=0801eefc
+FUNCTION_BODY [[0801eefc, 0801ef41]]
+
+undefined8 FUN_0801eefc(undefined4 *param_1,undefined4 param_2,undefined4 param_3)
+
+{
+  int iVar1;
+  uint uVar2;
+  undefined4 *local_20;
+  undefined4 local_1c;
+  undefined4 uStack_18;
+  
+  local_20 = param_1;
+  local_1c = param_2;
+  uStack_18 = param_3;
+  iVar1 = (*(code *)param_1[3])(*(undefined1 *)(param_1 + 5),param_1[4]);
+  uVar2 = 0;
+  if (iVar1 != 0) {
+    local_20 = (undefined4 *)0x0;
+    local_1c = 0;
+    (*(code *)*param_1)(1);
+    iVar1 = (*(code *)param_1[1])(param_2,&local_20,2);
+    (*(code *)*param_1)(0);
+    if (iVar1 == 0) {
+      FUN_08020f94(param_2,&local_20,2);
+    }
+    uVar2 = (uint)(iVar1 == 0);
+  }
+  return CONCAT44(local_20,uVar2);
+}
+
+
+INSN 0801eefc f7b5 push {r0,r1,r2,r4,r5,r6,r7,lr}
+INSN 0801eefe 0500 movs r5,r0
+INSN 0801ef00 0e00 movs r6,r1
+INSN 0801ef02 007d ldrb r0,[r0,#0x14]
+INSN 0801ef04 eb68 ldr r3,[r5,#0xc]
+INSN 0801ef06 2969 ldr r1,[r5,#0x10]
+INSN 0801ef08 9847 blx r3
+INSN 0801ef0a 0028 cmp r0,#0x0
+INSN 0801ef0c 18d0 beq 0x0801ef40 REF[CONDITIONAL_JUMP:0801ef40]
+INSN 0801ef0e 0027 movs r7,#0x0
+INSN 0801ef10 0120 movs r0,#0x1
+INSN 0801ef12 2b68 ldr r3,[r5,#0x0]
+INSN 0801ef14 0097 str r7,[sp,#0x0] REF[WRITE:Stack[-0x20]]
+INSN 0801ef16 0197 str r7,[sp,#0x4] REF[WRITE:Stack[-0x1c]]
+INSN 0801ef18 9847 blx r3
+INSN 0801ef1a 6b68 ldr r3,[r5,#0x4]
+INSN 0801ef1c 0222 movs r2,#0x2
+INSN 0801ef1e 6946 mov r1,sp
+INSN 0801ef20 3000 movs r0,r6
+INSN 0801ef22 9847 blx r3
+INSN 0801ef24 2b68 ldr r3,[r5,#0x0]
+INSN 0801ef26 0400 movs r4,r0
+INSN 0801ef28 3800 movs r0,r7
+INSN 0801ef2a 9847 blx r3
+INSN 0801ef2c bc42 cmp r4,r7
+INSN 0801ef2e 04d1 bne 0x0801ef3a REF[CONDITIONAL_JUMP:0801ef3a]
+INSN 0801ef30 0222 movs r2,#0x2
+INSN 0801ef32 6946 mov r1,sp
+INSN 0801ef34 3000 movs r0,r6
+INSN 0801ef36 02f02df8 bl 0x08020f94 REF[UNCONDITIONAL_CALL:08020f94]
+INSN 0801ef3a 6342 rsbs r3,r4
+INSN 0801ef3c 5c41 adcs r4,r3
+INSN 0801ef3e e0b2 uxtb r0,r4
+INSN 0801ef40 febd pop {r1,r2,r3,r4,r5,r6,r7,pc}

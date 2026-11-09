@@ -1,0 +1,30 @@
+TARGET 0800a800 function=0800a800
+REF_TO 0800a860 UNCONDITIONAL_CALL owner=0800a81a
+REF_TO 0800a8ea UNCONDITIONAL_CALL owner=0800a8e2
+REF_TO 0800fc8a UNCONDITIONAL_CALL owner=0800fc76
+FUNCTION_BODY [[0800a800, 0800a819]]
+
+void FUN_0800a800(undefined2 *param_1,int param_2,uint param_3)
+
+{
+  uint uVar1;
+  
+  for (uVar1 = 0; (uVar1 & 0xffff) < param_3; uVar1 = (uVar1 & 0xffff) + 1) {
+    *(undefined2 *)(param_2 + (uVar1 & 0xffff) * 2) = *param_1;
+    param_1 = param_1 + 1;
+  }
+  return;
+}
+
+
+INSN 0800a800 10b5 push {r4,lr}
+INSN 0800a802 0023 movs r3,#0x0
+INSN 0800a804 05e0 b 0x0800a812 REF[UNCONDITIONAL_JUMP:0800a812]
+INSN 0800a806 30f8024b ldrh.w r4,[r0],#0x2
+INSN 0800a80a 9bb2 uxth r3,r3
+INSN 0800a80c 21f81340 strh.w r4,[r1,r3,lsl #0x1]
+INSN 0800a810 5b1c adds r3,r3,#0x1
+INSN 0800a812 9cb2 uxth r4,r3
+INSN 0800a814 9442 cmp r4,r2
+INSN 0800a816 f6d3 bcc 0x0800a806 REF[CONDITIONAL_JUMP:0800a806]
+INSN 0800a818 10bd pop {r4,pc}

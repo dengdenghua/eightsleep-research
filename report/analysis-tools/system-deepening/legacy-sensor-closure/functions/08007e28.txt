@@ -1,0 +1,90 @@
+FUNCTION 08007e28 FUN_08007e28 BODY [[08007e28, 08007e93]]
+INCOMING 0800dd92 UNCONDITIONAL_CALL
+INCOMING 0800b48e UNCONDITIONAL_CALL
+
+undefined8 FUN_08007e28(uint param_1)
+
+{
+  int iVar1;
+  int iVar2;
+  uint uVar3;
+  uint uVar4;
+  
+  if (param_1 == 0) {
+    param_1 = 0;
+    uVar3 = 0;
+    uVar4 = 0;
+    iVar2 = 0;
+  }
+  else {
+    uVar4 = param_1 + ((int)param_1 >> 0x1f) ^ (int)param_1 >> 0x1f;
+    param_1 = param_1 >> 0x1f;
+    iVar1 = FUN_080080ac(uVar4);
+    uVar3 = DAT_08007e94 - iVar1 & 0x7ff;
+    if (iVar1 < 0xb) {
+      iVar2 = uVar4 << (iVar1 + 0x15U & 0xff);
+      uVar4 = uVar4 >> (0xbU - iVar1 & 0xff) & 0xfffff;
+    }
+    else {
+      iVar2 = 0;
+      uVar4 = uVar4 << (iVar1 - 0xbU & 0xff) & 0xfffff;
+    }
+  }
+  return CONCAT44(uVar3 << 0x14 | uVar4 & DAT_08007e98 | param_1 << 0x1f,iVar2);
+}
+
+
+ASSEMBLY
+08007e28 push {r4,r5,r6,lr} BYTES 70b5
+08007e2a cmp r0,#0x0 BYTES 0028
+08007e2c beq 0x08007e8a BYTES 2dd0 REF CONDITIONAL_JUMP=08007e8a
+08007e2e asrs r3,r0,#0x1f BYTES c317
+08007e30 adds r5,r0,r3 BYTES c518
+08007e32 eors r5,r3 BYTES 5d40
+08007e34 lsrs r4,r0,#0x1f BYTES c40f
+08007e36 movs r0,r5 BYTES 2800
+08007e38 bl 0x080080ac BYTES 00f038f9 REF UNCONDITIONAL_CALL=080080ac
+08007e3c ldr r3,[0x08007e94] BYTES 154b REF READ=08007e94 WORD=41e
+08007e3e subs r3,r3,r0 BYTES 1b1a
+08007e40 lsls r3,r3,#0x15 BYTES 5b05
+08007e42 lsrs r3,r3,#0x15 BYTES 5b0d
+08007e44 cmp r0,#0xa BYTES 0a28
+08007e46 ble 0x08007e74 BYTES 15dd REF CONDITIONAL_JUMP=08007e74
+08007e48 subs r0,#0xb BYTES 0b38
+08007e4a lsls r5,r0 BYTES 8540
+08007e4c movs r2,#0x0 BYTES 0022
+08007e4e lsls r5,r5,#0xc BYTES 2d03
+08007e50 lsrs r5,r5,#0xc BYTES 2d0b
+08007e52 movs r1,#0x0 BYTES 0021
+08007e54 movs r0,r2 BYTES 1000
+08007e56 lsls r5,r5,#0xc BYTES 2d03
+08007e58 lsrs r2,r1,#0x14 BYTES 0a0d
+08007e5a lsrs r5,r5,#0xc BYTES 2d0b
+08007e5c lsls r2,r2,#0x14 BYTES 1205
+08007e5e orrs r2,r5 BYTES 2a43
+08007e60 ldr r5,[0x08007e98] BYTES 0d4d REF READ=08007e98 WORD=800fffff
+08007e62 lsls r3,r3,#0x14 BYTES 1b05
+08007e64 ands r2,r5 BYTES 2a40
+08007e66 orrs r3,r2 BYTES 1343
+08007e68 lsls r3,r3,#0x1 BYTES 5b00
+08007e6a lsls r4,r4,#0x1f BYTES e407
+08007e6c lsrs r3,r3,#0x1 BYTES 5b08
+08007e6e orrs r3,r4 BYTES 2343
+08007e70 movs r1,r3 BYTES 1900
+08007e72 pop {r4,r5,r6,pc} BYTES 70bd
+08007e74 movs r2,r0 BYTES 0200
+08007e76 movs r1,r5 BYTES 2900
+08007e78 adds r2,#0x15 BYTES 1532
+08007e7a lsls r1,r2 BYTES 9140
+08007e7c movs r2,r1 BYTES 0a00
+08007e7e movs r1,#0xb BYTES 0b21
+08007e80 subs r0,r1,r0 BYTES 081a
+08007e82 lsrs r5,r0 BYTES c540
+08007e84 lsls r5,r5,#0xc BYTES 2d03
+08007e86 lsrs r5,r5,#0xc BYTES 2d0b
+08007e88 b 0x08007e52 BYTES e3e7 REF UNCONDITIONAL_JUMP=08007e52
+08007e8a movs r4,#0x0 BYTES 0024
+08007e8c movs r3,#0x0 BYTES 0023
+08007e8e movs r5,#0x0 BYTES 0025
+08007e90 movs r2,#0x0 BYTES 0022
+08007e92 b 0x08007e52 BYTES dee7 REF UNCONDITIONAL_JUMP=08007e52

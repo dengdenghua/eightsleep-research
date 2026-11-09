@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "scope": "official CN APK 7.63.5 listed sleep/thermal/live features and normal main chains; not whole APK all methods",
+  "sample_sha256": "8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04",
+  "workspace": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-volume/cn-7.63.5",
+  "method": "retained fullworkspace + readonly index + complete critical Smali method tracing; no APK or account execution",
+  "features": [
+    {
+      "id": "cardiorespiratory",
+      "feature": "心率/呼吸/HRV",
+      "input": "trends 六条已计算时间序列 + SQS 摘要 + aggregate 基准",
+      "local_operations": "时间包装、数值转换、会话选择；HRV 日图取 rmssd；图表范围与基准比较",
+      "storage_and_output": "daily_trends / aggregate_period Room → 日图/摘要",
+      "status": "carried_closed",
+      "runtime_verified": false,
+      "prior_report": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/APP_CARDIORESPIRATORY_PIPELINE_ZH.txt",
+      "prior_evidence": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/hr-metrics/SOURCE_LEDGER.json",
+      "supplements": [
+        "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/finishable-20261107/app/charts/FINDINGS_ZH.txt"
+      ]
+    },
+    {
+      "id": "sleep_staging",
+      "feature": "睡眠分期/会话",
+      "input": "服务器 stages、presence、processing/incomplete 与会话列表",
+      "local_operations": "选择会话、累计阶段时间、显示裁剪；不是从原始信号生成标签",
+      "storage_and_output": "Room → SleepStages/首页",
+      "status": "carried_closed",
+      "runtime_verified": false,
+      "prior_report": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/APP_SLEEP_EDIT_AND_SELECTION_ZH.txt",
+      "prior_evidence": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/sleep-edit/EVIDENCE_LEDGER.json",
+      "supplements": [
+        "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/finishable-20261107/app/charts/FINDINGS_ZH.txt"
+      ]
+    },
+    {
+      "id": "baseline_health",
+      "feature": "基线/健康评分/异常",
+      "input": "服务器 rating/value/ranges/abnormalities 与 WELLBEING_* aggregate",
+      "local_operations": "既有图表与缓存；新增范围消费者界定、异常计数汇总、周内最大样本选择、空 periods 抛异常",
+      "storage_and_output": "缓存→HealthCheckHome/wg.k0",
+      "status": "extended_static_main_chain_closed",
+      "runtime_verified": false,
+      "prior_report": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/APP_SLEEP_HEALTH_RESULTS_ZH.txt",
+      "prior_evidence": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/health-results/SOURCE_LEDGER.json",
+      "supplements": [
+        "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/finishable-20261107/app/metrics-aggregate/FINDINGS_ZH.txt",
+        "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-app-closure/FINDINGS_ZH.txt",
+        "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/finishable-20261107/app/charts/FINDINGS_ZH.txt"
+      ]
+    },
+    {
+      "id": "manual_edit",
+      "feature": "睡眠时间编辑",
+      "input": "用户四时间点与会话时区",
+      "local_operations": "顺序/未来/离床至少5分钟校验；生成 awake/asleep/awake 三段秒数",
+      "storage_and_output": "PUT intervals → trends/aggregate 刷新 → 显示",
+      "status": "carried_closed",
+      "runtime_verified": false,
+      "prior_report": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/APP_SLEEP_EDIT_AND_SELECTION_ZH.txt",
+      "prior_evidence": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/sleep-edit/EVIDENCE_LEDGER.json"
+    },
+    {
+      "id": "offline_thermal",
+      "feature": "调温/离线控制",
+      "input": "用户档位/阶段、设备能力、flags、连接状态",
+      "local_operations": "Ga.b 映射；普通温控 API/BLE 路由；gzip/加密封装；缓存和刷新",
+      "storage_and_output": "温控 API 或 Backup BLE → UI/Room",
+      "status": "carried_closed",
+      "runtime_verified": false,
+      "prior_report": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/APP_THERMAL_CONTROL_ZH.txt",
+      "supplements": [
+        "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/finishable-20261107/app/c04/FINDINGS_ZH.txt"
+      ]
+    },
+    {
+      "id": "alarms",
+      "feature": "闹钟",
+      "input": "用户配置、云返回时间与 WS SNOOZE/DISMISS",
+      "local_operations": "序列化、active/upcoming 判断、事件缓存修改和请求刷新",
+      "storage_and_output": "Alarm Room → UI；实际床垫动作需设备",
+      "status": "carried_closed",
+      "runtime_verified": false,
+      "prior_report": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/APP_THERMAL_CONTROL_ZH.txt",
+      "supplements": [
+        "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/finishable-20261107/app/app02/FINDINGS_ZH.txt"
+      ]
+    },
+    {
+      "id": "installation_live",
+      "feature": "安装检测/实时",
+      "input": "官方 live DTO samples/timestamp + 手机计时",
+      "local_operations": "每次 combine 输出累加 max(samples)；timer 可重放最新值；阈值与成功/退出路径",
+      "storage_and_output": "校准进度/步骤状态；不是 ADC 增益标定",
+      "status": "carried_closed",
+      "runtime_verified": false,
+      "prior_report": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/APP_GENERIC_TEST_DRIVE_ZH.txt",
+      "prior_evidence": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/android-findings/generic-test-drive/SOURCE_LEDGER.json"
+    },
+    {
+      "id": "hotflash",
+      "feature": "HotFlash",
+      "input": "服务器 summary/session/count + 用户 enabled/duration/delta",
+      "local_operations": "周窗口/去重/补0/取整与全样本 total；设置与乐观目标/结束时间；独立 activate/deactivate",
+      "storage_and_output": "hot_flash_mode_settings Room + 温控 StateFlow → UI / API",
+      "status": "new_static_main_chain_closed",
+      "runtime_verified": false
+    },
+    {
+      "id": "nap",
+      "feature": "Nap",
+      "input": "用户温度/小时分钟/闹钟配置；服务器 start/end/status",
+      "local_operations": "2h选项分钟归零、顺序请求、10min延长、格式化、每秒重算倒计时/百分比",
+      "storage_and_output": "nap_mode_settings / alarm Room + 状态 StateFlow → UI / API",
+      "status": "new_static_main_chain_closed",
+      "runtime_verified": false
+    },
+    {
+      "id": "jetlag",
+      "feature": "Jetlag",
+      "input": "行程输入与服务端计划",
+      "local_operations": "独立分支补查，不能提前填已完成",
+      "storage_and_output": "见 jetlag/FINDINGS_ZH.txt、COVERAGE.json",
+      "status": "delegated_separate_artifact",
+      "runtime_verified": false
+    }
+  ],
+  "new_findings": [
+    "wellbeing_ranges_calibration_bounded_direct_consumer_search",
+    "health_outlier_max_day_and_empty_periods",
+    "hotflash_window_vs_total_and_optimistic_control",
+    "nap_request_cache_and_countdown_is_display"
+  ],
+  "uncovered_methods_or_scope": [
+    {
+      "scope": "NapModeSettingsViewModel.previewTrack / audio-player repository and media decoding",
+      "reason": "ancillary media preview; normal nap configuration/start/extend/stop and countdown are traced; not claimed as audio-engine audit"
+    },
+    {
+      "scope": "all Compose branches and event scheduling/cancellation combinations",
+      "reason": "only relevant state consumers and selected business reducers covered; runtime rendering/order not observed"
+    },
+    {
+      "scope": "reflection, JNI/native libraries, server implementation",
+      "reason": "direct indexed field/invoke searches do not prove absence in these paths"
+    }
+  ],
+  "runtime_gaps": [
+    "feature flags and actual machine capabilities",
+    "real API response shape/order/duplicates/empty success and server constraints",
+    "physical execution/offline behavior/reconnect consistency",
+    "device-clock vs phone-clock skew and lifecycle/cancellation races"
+  ],
+  "evidence": [
+    "SOURCE_LEDGER.json",
+    "DIRECT_CALLS.json",
+    "PRIOR_EVIDENCE_RECHECK.json",
+    "SEARCH_e3e9f4272f.json",
+    "SEARCH_497eacbc60.json",
+    "SEARCH_5905b5e4b2.json"
+  ],
+  "all_apk_methods_claimed_reviewed": false,
+  "cloud_algorithm_recovered": false
+}

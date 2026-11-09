@@ -1,0 +1,32 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+旧传感固件：普通硬件信息与命令路由闭合（离线静态）
+
+范围
+39704B firmware-sensor-legacy.bbin（2.2.12）及42292B firmware-sensor.bbin（3.3.1），均按完整 BBIN 基址08005000核验。新增正常命令作用与回复表，不是全程序等价或全部间接调用证明。没有执行原厂程序、发出设备命令或读取账号。原件及既有冻结证据未修改。
+
+1. 请求怎样到达处理器
+CRC有效帧的高位区分请求与回复；请求先准备 response opcode=opcode|0x80，再由主循环处理0x02..0x05，或调用普通handler（39704:0800b448；42292:0800b884）。收到对端回复时handler只记日志，不执行对应请求作用。39704主循环的旧Ghidra函数边界存在碎片，新增对0800cd64/cf20/cf48/cfd8的临时只读反汇编，保留命令与原字节；不可用c9d0等跨边界伪代码单独推断。
+
+2. 硬件配置：读取格式已经闭合，真实值未取得
+读取u16@1ffff7cc；值<0x81时配置基址0800fc00，否则0803f800。启动reader使用512B窗口，按CBOR map/text key/unsigned integer读取devicesn、pn、sku、hwrev、factoryline、datecode。前四个32位字段的结构偏移为devicesn+4、pn+8、sku+c、datecode+14；hwrev+10、factoryline+12为16位，单位是十六进制字节偏移。39704结构基址200001d4，42292为20000218。单字段查找返回值未逐项检查，不能把valid标志当作每个字段均成功或配置认证成功。
+0x02回复status0后复制128B；两版调用append前r1=0x80明确可核，回复body含opcode/status共130B。启动512B窗口不等于查询512B。39704表0800cf44原字节02 16 16 4a，对应02→cf48、03/04→cf70、05→cfd8。两份BBIN都在0800fc00之前结束，因此没有真实设备序列号/sku等值；模型只使用人工字节。
+
+3. 18个正常入口，细表见COMMAND_ROUTES.json
+0x01静态身份字节46；0x02配置前128B；0x03/04返回04；0x05先回复0再延时/复位（仅描述，未执行）。
+0x20/21读取/设置采样rate字段。hwrev<0x700才改rate；正在采样时stop/start且恢复原start tick；>=0x700仍返回0但不改rate。
+0x25正常模式0/1，6B含两个unsigned BE16温度目标/100，float32目标封顶40；8B附两路power，各封顶100，6B默认100；关闭清状态/功率，开启进入本地温控。回复状态和当前读数，不等于硬件达到目标。
+0x26/27读写旧硬件两路gain code；>=0x700为零查询/无操作成功。0x28/29采样start/stop。
+0x2a/2f查询逻辑温度0..10或ff全部。正常float32读数乘100、向零整数转换、取低16位BE；-100缺失值在id10编码00ff，其他id为8000，不能统一当作-10000。
+0x2b两路BE16请求gain：hw<0x700各自>=100才更新，code=floor((floor(3209600/request)-48)/125)，256改255后取byte；recorded=floor(3209600/(125*code+48))。hw>=0x700只用第一路选择共享MCP gain，正常成功回复第一路请求重复两次，不能解释成两个独立ADC增益。真实SPI正常成功是前提；未执行。
+0x2c正常7B alarm配置（side,power,pattern,BE32 seconds）；0秒停止，空闲且非零power才启动，duration*1000以u32存储。42292有更大的上下文、额外计时器/计数器；命令仅将>2改0；本轮完整正常模式只支持0/1，索引2不认定为有效模式（见local-legacy-control的表核验）。具体正常PWM/报警模式由local-legacy-control补齐，不在这里重做。
+0x2d转交逻辑output/power setter。0x2e两版均先追加00再落到默认追加02，回复为ae 00 02；39704始终调用GPIO helper，42292只在hwrev<0x720时调用。这里如实记录正常控制流，不把双状态解释成已验证协议设计意图。
+
+所有硬件分支阈值0x700/0x720都是十六进制比较。逻辑side/温度ID/输出号不凭名称映射到床面物理位置。
+
+4. 证据和验证
+SOURCE_INDEX记录16份既有导出原件路径/副本SHA；新增legacy-hw及legacy-routes为Ghidra readOnly/noanalysis导出；每次命令/日志均保留。BYTE_VALIDATION逐指令对照两份原BBIN，不以伪代码替代原指令。MODEL_RESULTS共24个有限正常合成case，涵盖target/gain/温度回复/rate/base/128B回复，不计入真实事件或现场正确率。
+
+5. 完成范围与实际残余
+本轮正常18个直接分支的输入→配置作用→回复已可复核，未穷尽全程序间接入口。采样/温度计算另见local-legacy-sensor-closure和legacy-sensor-closure；正常输出与报警最终作用另见local-legacy-control。要绑定某台机器的真实hwrev、序列号与物理板位，需要该机配置区或正规设备信息记录，现有BBIN不含；这不妨碍当前静态普通命令表已完成。

@@ -1,0 +1,407 @@
+// IL code: Eight.Lsp.Protocol
+.class public auto ansi abstract sealed beforefieldinit Eight.Lsp.Protocol.PacketParser
+	extends [System.Runtime]System.Object
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Methods
+	.method public hidebysig static 
+		class Eight.Lsp.Protocol.Packet ParsePacket (
+			uint8[] data
+		) cil managed 
+	{
+		// Method begins at RVA 0x37e0
+		// Header size: 12
+		// Code size: 79 (0x4f)
+		.maxstack 3
+		.locals init (
+			[0] uint8,
+			[1] uint8[]
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldlen
+		IL_0002: conv.i4
+		IL_0003: ldc.i4.1
+		IL_0004: bge.s IL_0011
+
+		IL_0006: ldstr "Invalid packet: too short"
+		IL_000b: newobj instance void [System.Runtime]System.ArgumentException::.ctor(string)
+		IL_0010: throw
+
+		IL_0011: ldarg.0
+		IL_0012: ldc.i4.0
+		IL_0013: ldelem.u1
+		IL_0014: ldc.i4 128
+		IL_0019: and
+		IL_001a: ldc.i4.0
+		IL_001b: cgt.un
+		IL_001d: ldarg.0
+		IL_001e: ldc.i4.0
+		IL_001f: ldelem.u1
+		IL_0020: ldc.i4 -129 // 0xffffff7f
+		IL_0025: and
+		IL_0026: conv.u1
+		IL_0027: stloc.0
+		IL_0028: ldarg.0
+		IL_0029: ldlen
+		IL_002a: conv.i4
+		IL_002b: ldc.i4.1
+		IL_002c: bgt.s IL_0035
+
+		IL_002e: call !!0[] [System.Runtime]System.Array::Empty<uint8>()
+		IL_0033: br.s IL_0046
+
+		IL_0035: ldarg.0
+		IL_0036: ldc.i4.1
+		IL_0037: call valuetype [System.Runtime]System.Index [System.Runtime]System.Index::op_Implicit(int32)
+		IL_003c: call valuetype [System.Runtime]System.Range [System.Runtime]System.Range::StartAt(valuetype [System.Runtime]System.Index)
+		IL_0041: call !!0[] [System.Runtime]System.Runtime.CompilerServices.RuntimeHelpers::GetSubArray<uint8>(!!0[], valuetype [System.Runtime]System.Range)
+
+		IL_0046: stloc.1
+		IL_0047: ldloc.0
+		IL_0048: ldloc.1
+		IL_0049: newobj instance void Eight.Lsp.Protocol.Packet::.ctor(bool, uint8, uint8[])
+		IL_004e: ret
+	} // end of method PacketParser::ParsePacket
+
+	.method public hidebysig static 
+		uint8[] FormatPacketPayload (
+			object[] args
+		) cil managed 
+	{
+		.param [1]
+			.custom instance void [System.Runtime]System.ParamArrayAttribute::.ctor() = (
+				01 00 00 00
+			)
+		// Method begins at RVA 0x383c
+		// Header size: 12
+		// Code size: 641 (0x281)
+		.maxstack 4
+		.locals init (
+			[0] class [System.Runtime]System.IO.MemoryStream,
+			[1] object[],
+			[2] int32,
+			[3] object,
+			[4] int32,
+			[5] bool,
+			[6] bool[],
+			[7] uint8[],
+			[8] string,
+			[9] class Eight.Lsp.Protocol.SizedInt,
+			[10] int32,
+			[11] object,
+			[12] uint8,
+			[13] int32,
+			[14] uint8[],
+			[15] valuetype [System.Runtime]System.Span`1<uint8>,
+			[16] string,
+			[17] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[18] uint8[]
+		)
+
+		IL_0000: newobj instance void [System.Runtime]System.IO.MemoryStream::.ctor()
+		IL_0005: stloc.0
+		.try
+		{
+			IL_0006: ldarg.0
+			IL_0007: stloc.1
+			IL_0008: ldc.i4.0
+			IL_0009: stloc.2
+			IL_000a: br IL_0261
+			// loop start (head: IL_0261)
+				IL_000f: ldloc.1
+				IL_0010: ldloc.2
+				IL_0011: ldelem.ref
+				IL_0012: stloc.3
+				IL_0013: ldloc.3
+				IL_0014: stloc.s 11
+				IL_0016: ldloc.s 11
+				IL_0018: isinst [System.Runtime]System.Int32
+				IL_001d: brfalse.s IL_002a
+
+				IL_001f: ldloc.s 11
+				IL_0021: unbox.any [System.Runtime]System.Int32
+				IL_0026: stloc.s 4
+				IL_0028: br.s IL_0080
+
+				IL_002a: ldloc.s 11
+				IL_002c: isinst [System.Runtime]System.Boolean
+				IL_0031: brfalse.s IL_003e
+
+				IL_0033: ldloc.s 11
+				IL_0035: unbox.any [System.Runtime]System.Boolean
+				IL_003a: stloc.s 5
+				IL_003c: br.s IL_00a2
+
+				IL_003e: ldloc.s 11
+				IL_0040: isinst bool[]
+				IL_0045: stloc.s 6
+				IL_0047: ldloc.s 6
+				IL_0049: brtrue.s IL_00b3
+
+				IL_004b: ldloc.s 11
+				IL_004d: isinst uint8[]
+				IL_0052: stloc.s 7
+				IL_0054: ldloc.s 7
+				IL_0056: brtrue IL_00fd
+
+				IL_005b: ldloc.s 11
+				IL_005d: isinst [System.Runtime]System.String
+				IL_0062: stloc.s 8
+				IL_0064: ldloc.s 8
+				IL_0066: brtrue IL_010f
+
+				IL_006b: ldloc.s 11
+				IL_006d: isinst Eight.Lsp.Protocol.SizedInt
+				IL_0072: stloc.s 9
+				IL_0074: ldloc.s 9
+				IL_0076: brtrue IL_0150
+
+				IL_007b: br IL_023c
+
+				IL_0080: ldloc.s 4
+				IL_0082: ldc.i4.0
+				IL_0083: blt IL_0200
+
+				IL_0088: ldloc.s 4
+				IL_008a: ldc.i4 255
+				IL_008f: bgt IL_0200
+
+				IL_0094: ldloc.0
+				IL_0095: ldloc.s 4
+				IL_0097: conv.u1
+				IL_0098: callvirt instance void [System.Runtime]System.IO.Stream::WriteByte(uint8)
+				IL_009d: br IL_025d
+
+				IL_00a2: ldloc.0
+				IL_00a3: ldloc.s 5
+				IL_00a5: ldc.i4.0
+				IL_00a6: cgt.un
+				IL_00a8: conv.u1
+				IL_00a9: callvirt instance void [System.Runtime]System.IO.Stream::WriteByte(uint8)
+				IL_00ae: br IL_025d
+
+				IL_00b3: ldloc.s 6
+				IL_00b5: ldlen
+				IL_00b6: conv.i4
+				IL_00b7: ldc.i4.8
+				IL_00b8: bgt.s IL_00f2
+
+				IL_00ba: ldc.i4.0
+				IL_00bb: stloc.s 12
+				IL_00bd: ldc.i4.0
+				IL_00be: stloc.s 13
+				IL_00c0: br.s IL_00dd
+				// loop start (head: IL_00dd)
+					IL_00c2: ldloc.s 6
+					IL_00c4: ldloc.s 13
+					IL_00c6: ldelem.u1
+					IL_00c7: brfalse.s IL_00d7
+
+					IL_00c9: ldloc.s 12
+					IL_00cb: ldc.i4.1
+					IL_00cc: ldloc.s 13
+					IL_00ce: ldc.i4.s 31
+					IL_00d0: and
+					IL_00d1: shl
+					IL_00d2: conv.u1
+					IL_00d3: or
+					IL_00d4: conv.u1
+					IL_00d5: stloc.s 12
+
+					IL_00d7: ldloc.s 13
+					IL_00d9: ldc.i4.1
+					IL_00da: add
+					IL_00db: stloc.s 13
+
+					IL_00dd: ldloc.s 13
+					IL_00df: ldloc.s 6
+					IL_00e1: ldlen
+					IL_00e2: conv.i4
+					IL_00e3: blt.s IL_00c2
+				// end loop
+
+				IL_00e5: ldloc.0
+				IL_00e6: ldloc.s 12
+				IL_00e8: callvirt instance void [System.Runtime]System.IO.Stream::WriteByte(uint8)
+				IL_00ed: br IL_025d
+
+				IL_00f2: ldstr "Too many boolean flags (max 8)"
+				IL_00f7: newobj instance void [System.Runtime]System.ArgumentException::.ctor(string)
+				IL_00fc: throw
+
+				IL_00fd: ldloc.0
+				IL_00fe: ldloc.s 7
+				IL_0100: ldc.i4.0
+				IL_0101: ldloc.s 7
+				IL_0103: ldlen
+				IL_0104: conv.i4
+				IL_0105: callvirt instance void [System.Runtime]System.IO.Stream::Write(uint8[], int32, int32)
+				IL_010a: br IL_025d
+
+				IL_010f: call class [System.Runtime]System.Text.Encoding [System.Runtime]System.Text.Encoding::get_ASCII()
+				IL_0114: ldloc.s 8
+				IL_0116: callvirt instance uint8[] [System.Runtime]System.Text.Encoding::GetBytes(string)
+				IL_011b: stloc.s 14
+				IL_011d: ldloc.s 14
+				IL_011f: ldlen
+				IL_0120: conv.i4
+				IL_0121: ldc.i4 254
+				IL_0126: ble.s IL_0133
+
+				IL_0128: ldstr "String too long"
+				IL_012d: newobj instance void [System.Runtime]System.ArgumentException::.ctor(string)
+				IL_0132: throw
+
+				IL_0133: ldloc.0
+				IL_0134: ldloc.s 14
+				IL_0136: ldlen
+				IL_0137: conv.i4
+				IL_0138: conv.u1
+				IL_0139: callvirt instance void [System.Runtime]System.IO.Stream::WriteByte(uint8)
+				IL_013e: ldloc.0
+				IL_013f: ldloc.s 14
+				IL_0141: ldc.i4.0
+				IL_0142: ldloc.s 14
+				IL_0144: ldlen
+				IL_0145: conv.i4
+				IL_0146: callvirt instance void [System.Runtime]System.IO.Stream::Write(uint8[], int32, int32)
+				IL_014b: br IL_025d
+
+				IL_0150: ldc.i4.4
+				IL_0151: conv.u
+				IL_0152: localloc
+				IL_0154: ldc.i4.4
+				IL_0155: newobj instance void valuetype [System.Runtime]System.Span`1<uint8>::.ctor(void*, int32)
+				IL_015a: stloc.s 15
+				IL_015c: ldloc.s 9
+				IL_015e: callvirt instance string Eight.Lsp.Protocol.SizedInt::get_Type()
+				IL_0163: stloc.s 16
+				IL_0165: ldloc.s 16
+				IL_0167: ldstr "uint8"
+				IL_016c: call bool [System.Runtime]System.String::op_Equality(string, string)
+				IL_0171: brtrue.s IL_0191
+
+				IL_0173: ldloc.s 16
+				IL_0175: ldstr "uint16"
+				IL_017a: call bool [System.Runtime]System.String::op_Equality(string, string)
+				IL_017f: brtrue.s IL_01a4
+
+				IL_0181: ldloc.s 16
+				IL_0183: ldstr "uint32"
+				IL_0188: call bool [System.Runtime]System.String::op_Equality(string, string)
+				IL_018d: brtrue.s IL_01cc
+
+				IL_018f: br.s IL_01e9
+
+				IL_0191: ldloc.0
+				IL_0192: ldloc.s 9
+				IL_0194: callvirt instance int32 Eight.Lsp.Protocol.SizedInt::get_Value()
+				IL_0199: conv.u1
+				IL_019a: callvirt instance void [System.Runtime]System.IO.Stream::WriteByte(uint8)
+				IL_019f: br IL_025d
+
+				IL_01a4: ldloc.s 15
+				IL_01a6: ldloc.s 9
+				IL_01a8: callvirt instance int32 Eight.Lsp.Protocol.SizedInt::get_Value()
+				IL_01ad: conv.u2
+				IL_01ae: call void [System.Memory]System.Buffers.Binary.BinaryPrimitives::WriteUInt16BigEndian(valuetype [System.Runtime]System.Span`1<uint8>, uint16)
+				IL_01b3: ldloc.0
+				IL_01b4: ldloca.s 15
+				IL_01b6: ldc.i4.0
+				IL_01b7: ldc.i4.2
+				IL_01b8: call instance valuetype [System.Runtime]System.Span`1<!0> valuetype [System.Runtime]System.Span`1<uint8>::Slice(int32, int32)
+				IL_01bd: call valuetype [System.Runtime]System.ReadOnlySpan`1<!0> valuetype [System.Runtime]System.Span`1<uint8>::op_Implicit(valuetype [System.Runtime]System.Span`1<!0>)
+				IL_01c2: callvirt instance void [System.Runtime]System.IO.Stream::Write(valuetype [System.Runtime]System.ReadOnlySpan`1<uint8>)
+				IL_01c7: br IL_025d
+
+				IL_01cc: ldloc.s 15
+				IL_01ce: ldloc.s 9
+				IL_01d0: callvirt instance int32 Eight.Lsp.Protocol.SizedInt::get_Value()
+				IL_01d5: call void [System.Memory]System.Buffers.Binary.BinaryPrimitives::WriteUInt32BigEndian(valuetype [System.Runtime]System.Span`1<uint8>, uint32)
+				IL_01da: ldloc.0
+				IL_01db: ldloc.s 15
+				IL_01dd: call valuetype [System.Runtime]System.ReadOnlySpan`1<!0> valuetype [System.Runtime]System.Span`1<uint8>::op_Implicit(valuetype [System.Runtime]System.Span`1<!0>)
+				IL_01e2: callvirt instance void [System.Runtime]System.IO.Stream::Write(valuetype [System.Runtime]System.ReadOnlySpan`1<uint8>)
+				IL_01e7: br.s IL_025d
+
+				IL_01e9: ldstr "Unknown SizedInt type: "
+				IL_01ee: ldloc.s 9
+				IL_01f0: callvirt instance string Eight.Lsp.Protocol.SizedInt::get_Type()
+				IL_01f5: call string [System.Runtime]System.String::Concat(string, string)
+				IL_01fa: newobj instance void [System.Runtime]System.ArgumentException::.ctor(string)
+				IL_01ff: throw
+
+				IL_0200: ldloc.s 4
+				IL_0202: stloc.s 10
+				IL_0204: ldc.i4.s 31
+				IL_0206: ldc.i4.1
+				IL_0207: newobj instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+				IL_020c: stloc.s 17
+				IL_020e: ldloca.s 17
+				IL_0210: ldstr "Integer "
+				IL_0215: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+				IL_021a: ldloca.s 17
+				IL_021c: ldloc.s 10
+				IL_021e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+				IL_0223: ldloca.s 17
+				IL_0225: ldstr " out of range for uint8"
+				IL_022a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+				IL_022f: ldloca.s 17
+				IL_0231: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+				IL_0236: newobj instance void [System.Runtime]System.ArgumentException::.ctor(string)
+				IL_023b: throw
+
+				IL_023c: ldstr "Unsupported argument type: "
+				IL_0241: ldloc.3
+				IL_0242: brtrue.s IL_0247
+
+				IL_0244: ldnull
+				IL_0245: br.s IL_0252
+
+				IL_0247: ldloc.3
+				IL_0248: call instance class [System.Runtime]System.Type [System.Runtime]System.Object::GetType()
+				IL_024d: callvirt instance string [System.Runtime]System.Reflection.MemberInfo::get_Name()
+
+				IL_0252: call string [System.Runtime]System.String::Concat(string, string)
+				IL_0257: newobj instance void [System.Runtime]System.ArgumentException::.ctor(string)
+				IL_025c: throw
+
+				IL_025d: ldloc.2
+				IL_025e: ldc.i4.1
+				IL_025f: add
+				IL_0260: stloc.2
+
+				IL_0261: ldloc.2
+				IL_0262: ldloc.1
+				IL_0263: ldlen
+				IL_0264: conv.i4
+				IL_0265: blt IL_000f
+			// end loop
+
+			IL_026a: ldloc.0
+			IL_026b: callvirt instance uint8[] [System.Runtime]System.IO.MemoryStream::ToArray()
+			IL_0270: stloc.s 18
+			IL_0272: leave.s IL_027e
+		} // end .try
+		finally
+		{
+			IL_0274: ldloc.0
+			IL_0275: brfalse.s IL_027d
+
+			IL_0277: ldloc.0
+			IL_0278: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_027d: endfinally
+		} // end handler
+
+		IL_027e: ldloc.s 18
+		IL_0280: ret
+	} // end of method PacketParser::FormatPacketPayload
+
+} // end of class Eight.Lsp.Protocol.PacketParser

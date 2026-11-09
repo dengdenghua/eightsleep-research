@@ -1,0 +1,46 @@
+blanketReadings 聚合版本：构造、启动覆盖与编码闭合
+日期：2026-11-08。仅官方 MTK 样本 Frank 静态分析；未运行原厂程序，未访问设备、账号或云端。
+
+结论
+此前 local-tmag-closure 留下的 version 构造缺口已补齐：聚合对象初值为 0；进入已识别的 UsbSensor 固件启动分支、sinfo.rev >= 0x0a00 时，主控把共享聚合 version 写成 0x82（十进制 130）。收到 0x39 后的当前队列记录不携带 wire version；成功编码时输出读取的是这个主控字段。
+这不是睡眠算法、MCU 固件或原始 0x39 wire version 的透传字段。没有实机记录，不声称已观察到真实云端 version=130，也不声称构造后的 0 一定会被实际发布。
+
+输入身份与定位
+输入：mediatek/rootfs-selected/opt/eight/bin/frankenfirmware，5,060,488 B。
+SHA256：84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+文中地址是 Ghidra 地址；减 0x100000 后按 ELF PT_LOAD 映射文件偏移。
+raw logger 全局地址为 005e40b0；内嵌聚合对象为 +0x15c0 = 005e5670；聚合当前快照为 +0x1a60，version 为 +0x1a64 = 005e5b14，亦即内嵌对象 +0x4a4。
+
+1. 构造初值不是 0x82
+host-pass1/0017bdd0.txt：全局构造调用 001fe650(&DAT_005e5670)，调用指令 0017c254。
+host-pass1/001fe650.txt：001fe708 先清快照 version；001fe76c/770 建立 ts=0、version=0 临时对象；001fe7c8 读该零字节，001fe7dc 再写回聚合快照。两份 map 经各自构造/复制；不是从任何传感报文初始化 version。
+memset 和显式字段清零属于构造阶段；不能据此推断每次断线、超时或软件重试都会重走构造。
+
+2. 主控正常固件启动分支把字段覆盖为 130
+host-pass1/0027a980.txt 的原厂字符串定位函数为 UsbSensor.cpp:stateBootloaderStartFirmware。
+取 sinfo.rev、pn 后，仅当 rev > 0x09ff，取 USB 对象 +0x3bfc 的 side，调用 001e2bb0(side, rev < 0x0a30)。第二参数用于后续其他数据布局处理，不用于选择这个 version 值。
+001e2bb0 在 001e2bc4 调用 001f6920(&DAT_005e40b0, side, mode)。
+001f6920 先清所选 side 的 64B-record deque；001f6a48/4c 形成 logger+0x15c0；001f6a50 mov w1,#0xffffff82，001f6a54 strb 只保留低字节 0x82 到 +0x4a4。
+这里写的是共享聚合 version，不是 side 独立字段。不依赖当次 0x39 的首字节，也不依赖 rev<0x0a30 的真假。该函数还有别的缓冲初始化，不把“清某侧队列”扩大成“所有最新 map 或所有采样缓存一并清空”。
+同一启动函数再次走到这条分支时会再次写 130；是否以及何时由实机重连触发，仍需对应生命周期记录。
+
+3. 入队、快照和 CBOR 的来源保持一致
+host-pass2/001fe910.txt、001f74c0.txt：当前 64B 入队记录携带主控时间与被选 map，不复制 wire version。聚合更新 map 和时间，沿当前已审路径不从这些记录重写聚合 version。
+host-pass2/001e9e44.txt：读 logger+0x1a64，复制至待发布快照 logger+0x1adc；本轮重新导出原指令，与上一轮保存的原字节一致。
+host-pass2/001f5320.txt：001f53d0 ldrb、001f53e4 and #0xff，再经 001d7390→001d66c0 编码为无符号整数。因此 0x82 是数值 130，而不是 −126、字符串“82”或 CBOR 的两元素数组标志。该数值自身的 CBOR 编码为 18 82；这只是 version 值，不是完整消息。
+消息类型、mask 和 topic 路由沿用 local-tmag-closure 已核的 blanketReadings / 0x100000 / raw.sens.blanket。
+
+4. 额外 writer 搜索范围
+scripts/AuditVersionOffsets.java 只读扫描 690,386 条已解码指令，查标量 0x4a4、0x1a64、0x1adc 与全局地址 005e5b14 的直接引用，共 6 个候选。
+001f6a54 是本字段 writer；001e0f70、0033b024 是函数地址组成；其余 00359c4c、003a0798、003cccf4 为 OpenSSL 源码行号。全部候选所在函数另存 host-pass3/ 并校验原字节。
+构造以派生指针+4写入，所以并不依靠这个常量筛选发现。这个例子也说明筛选不是全别名穷举：未知间接写、未识别函数、不同官方版本和实机变更仍不能用“6个命中”排除。
+
+验证与可复跑材料
+scripts/check_version.py：输入 SHA256、3,070 条原指令/12,280 B、336 个直接分支目标全部通过；11 个有限状态算例通过，详见 BYTE_VALIDATION.json 和 MODEL_RESULTS.json。
+算例覆盖构造零值、rev门限、两种mode、wire02/82不复制、所选侧清队列、共享version和CBOR无符号表示。它们是分析者按已识别代码建立的状态片段，不是原厂程序执行、完整生命周期仿真或实机采集。
+SOURCE_MANIFEST.json 保存本目录文件大小/SHA256及输入身份；Ghidra三次只读导出日志、完整函数指令、候选清单与脚本均保留。既有 SignalHost 工程未修改。
+
+当前关闭与残余
+已关闭：当前 Frank 聚合 version 的构造初值、已识别正常启动覆盖、当前记录不透传 wire version、快照到 CBOR 的数值类型。
+仍未知：本机实际启用的 USB 对象、sinfo.rev、启动/重连时序、实际输出；未经别名证明的其他写入和其他版本不在本限定验收范围。
+下一步：有同次启动的只读记录后，将 sinfo.rev/side、0x39 输入和 raw.sens.blanket 输出按时间对应；既有材料内不再把初值作为待办。

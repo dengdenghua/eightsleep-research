@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-08",
+  "scope": "Bounded normal fault/recovery chain; synthetic finite model, no target execution",
+  "closed_this_round": [
+    "Joined the MCU fault/recovery state machine to the Frank payload boundary and prepublish queue",
+    "Per-row provenance ledger: new_this_callback / retained_current / backup_copy / initial_unset",
+    "Quantified stale values being assigned continuous new Frank ticks (484 row/channel pairs, 2..20 ticks)",
+    "stop with a complete residual batch still consumed and published after active=0",
+    "start clears software queues but not shared current; first post-start packet can be wholly stale",
+    "whole-device reinit retains current in both prior-active branches",
+    "queue-full rejects all recovered packets while preloaded fixtures keep occupying the queue",
+    "publish failure retains the identical head for later retry; frequency=0 emits no per-row output",
+    "126 contract assertions across 14 scenarios, 0 failures"
+  ],
+  "static_work_still_available": [
+    {
+      "id": "nonusb-clock-writers",
+      "detail": "Bind nonUSB clock_frequency_variable writers and their callers; see nonusb-timebase-crosscheck/COVERAGE_RESIDUAL.json",
+      "kind": "available-static"
+    },
+    {
+      "id": "error-helper-and-config-selection",
+      "detail": "USB 0x08012430 side effects, all upstream config selections and RCC/PLL switch transition for both images",
+      "kind": "available-static"
+    },
+    {
+      "id": "legacy-and-other-versions",
+      "detail": "The chain here is USB 5.5.34.0 normal 0x3c only; 132896B nonUSB, legacy and other command/aux paths have separate reports and must not be merged",
+      "kind": "available-static"
+    },
+    {
+      "id": "libnats-ack-and-core-scheduling",
+      "detail": "core priority, KV coordination, per-message MsgId, ACK loss and dedup semantics inside the bundled libnats",
+      "kind": "available-static"
+    },
+    {
+      "id": "aux-0x39-and-0x33-producers",
+      "detail": "MCU 0x39 auxiliary drivers and the producer/enable conditions for the Frank 0x33 CapSense branch",
+      "kind": "available-static"
+    }
+  ],
+  "needs_device_or_paired_records": [
+    "Same-boot device version, board type and installed firmware/config",
+    "Paired raw LSP input and NATS output with source sequence numbers, plus DRDY/IRQ/diagnostic timing",
+    "Observed CRC/timeout frequencies, callback freshness, queue occupancy and recovery duration",
+    "Physical core clock, interrupt latency, ADC CLKIN/DRDY and achieved sample rate",
+    "Cloud ACK semantics, batch/session wrapper and what an ACK actually confirms"
+  ],
+  "not_in_scope": [
+    "shared-log formatting/reentrancy (separate task stopped by an automatic safety check; not retried or rephrased)",
+    "malformed payloads, corruption, exploit development or vendor binary execution",
+    "device/account/API requests, online confirmation, clinical or personal sensor data"
+  ],
+  "model_limitations": [
+    "Abstract body objects instead of 30,128-byte CBOR; byte-level reproduction belongs to integrated-capture-model",
+    "No core queue, KV, libnats, NATS raw_mem, uploader, TLS or cloud receiver",
+    "Events and publish return codes are explicit fixtures, not observed device behaviour",
+    "Software ticks are not wall-clock time; no preemption, concurrency or allocation-failure modelling"
+  ]
+}

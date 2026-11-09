@@ -1,0 +1,36 @@
+{
+  "date": "2026-11-08",
+  "status": "CHANGES_REQUESTED",
+  "scope": "New local sensor fault/timebase/dispatch/PLL/BRR increments only; read-only authoritative files; audit output separate.",
+  "findings": [
+    {
+      "priority": "P2",
+      "title": "8x USART range validation checks encoded BRR instead of raw N",
+      "file": "/Volumes/My Passport/EightSleep/report/analysis-tools/system-deepening/static-residual-closure/model/residual_models.py",
+      "line": 333,
+      "observed_instruction_guard": "0800e9f6..0800e9fe validates unsigned (N-16)<=65519 before 0800ea00..0800ea10 encodes BRR",
+      "counterexample": {
+        "clock": 64000000,
+        "divisor": 1,
+        "baud": 1000,
+        "N": 128000,
+        "encoded_BRR": 62464,
+        "firmware_guard": false,
+        "peer_model_guard": true
+      },
+      "impact": "Some out-of-range hypothetical configurations classified as valid; does not invalidate known 115200 examples or demonstrate actual device malfunction.",
+      "fix": "Validate N in path B; add N=15/16/65535/65536 and N=128000 counterexamples; update prose/JSON range definition, regenerate results and manifests."
+    }
+  ],
+  "validated": {
+    "instruction_records": 18081,
+    "instruction_mismatches": 0,
+    "latest_byte_checks": 5269,
+    "latest_model_assertions": 60,
+    "fault_model_cases": 14,
+    "fault_model_contract_assertions": 126,
+    "small_file_manifest_mismatches": 0,
+    "large_files": "Files >100MB not rehashed in this audit"
+  },
+  "limitations": "Model replay reuses peer logic; independent range counterexample is separate. No hardware/account execution. Active colleague files may change after audit snapshot."
+}

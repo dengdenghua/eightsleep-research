@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-08",
+  "purpose": "Exact read-only Ghidra invocations used for the two export passes, plus the Ghidra-independent verification path. Recorded so the retained exports can be regenerated or audited without guessing flags.",
+  "toolchain": {
+    "ghidra_analyzeHeadless": "/opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless",
+    "java": "/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home/bin/java",
+    "project_directory": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra",
+    "project_file": "NonUsbSensor.gpr",
+    "program_name_in_project": "firmware-sensor-g0.bbin",
+    "script_directory": "report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts",
+    "post_script": "ExportSensorDiff.java"
+  },
+  "safety_flags": {
+    "readOnly": "opens the existing project read-only; no changes are written back",
+    "noanalysis": "does not run auto-analysis; exports instruction rows already present in the project",
+    "script_sha_gate": "ExportSensorDiff.java refuses to run unless currentProgram.getExecutableSHA256() == 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+    "no_execution": "no firmware is executed; no device, account, API or network access"
+  },
+  "passes": [
+    {
+      "name": "pass1",
+      "output_directory": "report/analysis-tools/system-deepening/nonusb-clock-writers/pass1",
+      "targets": ["0800c828", "0800c8dc", "0800cdb4", "0800c88c", "0800ca00", "0800ce1a", "0800a430", "0800995c"],
+      "command": "analyzeHeadless \"$GHIDRA_PROJECT_DIR\" NonUsbSensor -process firmware-sensor-g0.bbin -readOnly -noanalysis -scriptPath \"$SCRIPT_DIR\" -postScript ExportSensorDiff.java \"$OUT_DIR\" 0800c828 0800c8dc 0800cdb4 0800c88c 0800ca00 0800ce1a 0800a430 0800995c"
+    },
+    {
+      "name": "pass2",
+      "output_directory": "report/analysis-tools/system-deepening/nonusb-clock-writers/pass2",
+      "targets": ["080108c4", "08010914", "08010934", "0801096a", "080109bc", "080109dc", "08008c04", "080170d8", "080128bc"],
+      "command": "analyzeHeadless \"$GHIDRA_PROJECT_DIR\" NonUsbSensor -process firmware-sensor-g0.bbin -readOnly -noanalysis -scriptPath \"$SCRIPT_DIR\" -postScript ExportSensorDiff.java \"$OUT_DIR\" 080108c4 08010914 08010934 0801096a 080109bc 080109dc 08008c04 080170d8 080128bc",
+      "note": "Several targets are addresses inside a function, not function entry points; ExportSensorDiff.java resolves the containing function and emits REF_TO, FUNCTION_BODY, pseudo-code and the INSN rows. That is why 080108c4 produces FUN_080108ac and 0801096a produces FUN_08010960."
+    }
+  ],
+  "export_record_format": [
+    "TARGET <addr> function=<entry>",
+    "REF_TO <addr> <UNCONDITIONAL_CALL|READ|WRITE|...>",
+    "FUNCTION_BODY [[start, end]]",
+    "decompiled pseudo-code",
+    "INSN <addr> <raw_hex> <asm> REF[...]"
+  ],
+  "ghidra_independent_path": {
+    "commands": [
+      "cd report/analysis-tools/system-deepening/nonusb-clock-writers",
+      "python3 scripts/verify_clock_bytes.py",
+      "python3 model/clock_cases.py"
+    ],
+    "statement": "All published byte-level claims can be re-verified from the retained pass1/pass2 exports plus the two frozen BBIN files. The Ghidra project lives in a local research directory outside this delivery and is NOT required to audit the published conclusions; it is only needed to regenerate the exports."
+  },
+  "inputs_not_in_delivery": [
+    "The NonUsbSensor.gpr project in ~/Downloads (working artifact, not part of the frozen evidence bundle)",
+    "Ghidra 12.1.4 and OpenJDK 21 installed on the analysis host"
+  ]
+}

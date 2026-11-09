@@ -1,0 +1,254 @@
+{
+  "synthetic": true,
+  "case": "copy_ownership_sizes_and_index_wrap",
+  "scope": "fixture record to caller/queue/publish-return states, not server state",
+  "records": {
+    "copy": [
+      {
+        "step": 2,
+        "action": "enqueue_copied",
+        "source_claims": [
+          "ring_copy"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "state": {
+          "queue": "raw",
+          "slots": 4,
+          "usable_capacity": 3,
+          "write": 1,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [
+            "copy"
+          ],
+          "owned_body_bytes": 13
+        },
+        "record_id": "copy",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 13,
+        "body_sha256": "094c192c3043754df16c9e02b917a191d80d75d1dd7c235bef249ea698711a51",
+        "caller_sequence_at_flush": 0
+      },
+      {
+        "step": 7,
+        "action": "js_publish_attempt",
+        "source_claims": [
+          "publish",
+          "observation_boundary"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "submitted_to_js_publish": true,
+        "publish_return_code": 0,
+        "publish_return_ok": true,
+        "ack_observed": null,
+        "possible_remote_accept": "unknown",
+        "remote_acceptance_is_fixture_assumption": true,
+        "cursor_before": 0,
+        "record_id": "copy",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 13,
+        "body_sha256": "094c192c3043754df16c9e02b917a191d80d75d1dd7c235bef249ea698711a51",
+        "caller_sequence_at_flush": 0
+      },
+      {
+        "step": 8,
+        "action": "publish_return_ok_pop",
+        "source_claims": [
+          "publish"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "state": {
+          "queue": "raw",
+          "slots": 4,
+          "usable_capacity": 3,
+          "write": 3,
+          "read": 1,
+          "cached_read": 0,
+          "cached_write": 1,
+          "record_ids": [
+            "tiny",
+            "large"
+          ],
+          "owned_body_bytes": 4097
+        },
+        "record_id": "copy",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 13,
+        "body_sha256": "094c192c3043754df16c9e02b917a191d80d75d1dd7c235bef249ea698711a51",
+        "caller_sequence_at_flush": 0
+      },
+      {
+        "step": 9,
+        "action": "js_cursor_advanced",
+        "source_claims": [
+          "round_robin"
+        ],
+        "synthetic": true,
+        "cursor": 1,
+        "record_id": "copy",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 13,
+        "body_sha256": "094c192c3043754df16c9e02b917a191d80d75d1dd7c235bef249ea698711a51",
+        "caller_sequence_at_flush": 0
+      }
+    ],
+    "tiny": [
+      {
+        "step": 3,
+        "action": "enqueue_copied",
+        "source_claims": [
+          "ring_copy"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "state": {
+          "queue": "raw",
+          "slots": 4,
+          "usable_capacity": 3,
+          "write": 2,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 1,
+          "record_ids": [
+            "copy",
+            "tiny"
+          ],
+          "owned_body_bytes": 14
+        },
+        "record_id": "tiny",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 1,
+        "body_sha256": "043a718774c572bd8a25adbeb1bfcd5c0256ae11cecf9f9c3f925d0e52beaf89",
+        "caller_sequence_at_flush": 0
+      }
+    ],
+    "large": [
+      {
+        "step": 4,
+        "action": "enqueue_copied",
+        "source_claims": [
+          "ring_copy"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "state": {
+          "queue": "raw",
+          "slots": 4,
+          "usable_capacity": 3,
+          "write": 3,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 1,
+          "record_ids": [
+            "copy",
+            "tiny",
+            "large"
+          ],
+          "owned_body_bytes": 4110
+        },
+        "record_id": "large",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 4096,
+        "body_sha256": "a6b74b2d8379893f36ef5dbe9658bced71643f7985078b3d6c4a8b5eaf901e52",
+        "caller_sequence_at_flush": 0
+      }
+    ],
+    "too-many": [
+      {
+        "step": 5,
+        "action": "enqueue_rejected_full",
+        "source_claims": [
+          "ring_full"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "state": {
+          "queue": "raw",
+          "slots": 4,
+          "usable_capacity": 3,
+          "write": 3,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 1,
+          "record_ids": [
+            "copy",
+            "tiny",
+            "large"
+          ],
+          "owned_body_bytes": 4110
+        },
+        "record_id": "too-many",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 1,
+        "body_sha256": "043a718774c572bd8a25adbeb1bfcd5c0256ae11cecf9f9c3f925d0e52beaf89",
+        "caller_sequence_at_flush": 0
+      }
+    ],
+    "wrap": [
+      {
+        "step": 10,
+        "action": "enqueue_copied",
+        "source_claims": [
+          "ring_copy"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "state": {
+          "queue": "raw",
+          "slots": 4,
+          "usable_capacity": 3,
+          "write": 0,
+          "read": 1,
+          "cached_read": 1,
+          "cached_write": 1,
+          "record_ids": [
+            "tiny",
+            "large",
+            "wrap"
+          ],
+          "owned_body_bytes": 4100
+        },
+        "record_id": "wrap",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 3,
+        "body_sha256": "ed415da6d67dcb38258965b9a3abec2cbc2ec61710b7b66dedd3e27168e7d2c8",
+        "caller_sequence_at_flush": 0
+      }
+    ],
+    "still-full": [
+      {
+        "step": 11,
+        "action": "enqueue_rejected_full",
+        "source_claims": [
+          "ring_full"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "state": {
+          "queue": "raw",
+          "slots": 4,
+          "usable_capacity": 3,
+          "write": 0,
+          "read": 1,
+          "cached_read": 1,
+          "cached_write": 1,
+          "record_ids": [
+            "tiny",
+            "large",
+            "wrap"
+          ],
+          "owned_body_bytes": 4100
+        },
+        "record_id": "still-full",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 25,
+        "body_sha256": "bc8b994234e614e6088162f95112149c36673a3932c9716d470def24325dab61",
+        "caller_sequence_at_flush": 0
+      }
+    ]
+  }
+}

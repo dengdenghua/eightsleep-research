@@ -1,0 +1,64 @@
+TARGET 0801c3a4 function=0801c3a4
+CALLER/REF 08019ea2 UNCONDITIONAL_CALL
+CALLER/REF 08019ecc UNCONDITIONAL_CALL
+
+uint FUN_0801c3a4(uint param_1)
+
+{
+  uint uVar1;
+  uint uVar2;
+  uint uVar3;
+  
+  uVar3 = (param_1 & 0x7fffffff) >> 0x17;
+  uVar1 = 0;
+  if (0x7e < uVar3) {
+    if (uVar3 < 0x9e) {
+      uVar2 = param_1 & 0x7fffff | 0x800000;
+      if (uVar3 < 0x96) {
+        uVar2 = uVar2 >> (0x96 - uVar3 & 0xff);
+      }
+      else {
+        uVar2 = uVar2 << (uVar3 - 0x96 & 0xff);
+      }
+      uVar1 = -uVar2;
+      if (-1 < (int)param_1) {
+        uVar1 = uVar2;
+      }
+    }
+    else {
+      uVar1 = 0x7fffffff - ((int)param_1 >> 0x1f);
+    }
+  }
+  return uVar1;
+}
+
+
+0801c3a4 lsls r1,r0,#0x9
+0801c3a6 lsls r2,r0,#0x1
+0801c3a8 lsrs r3,r0,#0x1f
+0801c3aa lsrs r1,r1,#0x9
+0801c3ac movs r0,#0x0
+0801c3ae lsrs r2,r2,#0x18
+0801c3b0 cmp r2,#0x7e
+0801c3b2 ble 0x0801c3bc
+0801c3b4 cmp r2,#0x9d
+0801c3b6 ble 0x0801c3be
+0801c3b8 ldr r2,[0x0801c3e0] [0801c3e0=7fffffff]
+0801c3ba adds r0,r3,r2
+0801c3bc bx lr
+0801c3be movs r0,#0x80
+0801c3c0 lsls r0,r0,#0x10
+0801c3c2 orrs r1,r0
+0801c3c4 cmp r2,#0x95
+0801c3c6 bgt 0x0801c3d8
+0801c3c8 movs r0,#0x96
+0801c3ca subs r2,r0,r2
+0801c3cc lsrs r1,r2
+0801c3ce rsbs r0,r1
+0801c3d0 cmp r3,#0x0
+0801c3d2 bne 0x0801c3bc
+0801c3d4 movs r0,r1
+0801c3d6 b 0x0801c3bc
+0801c3d8 subs r2,#0x96
+0801c3da lsls r1,r2
+0801c3dc b 0x0801c3ce

@@ -1,0 +1,43 @@
+FUNCTION 0801d1c0 BODY [[0801d1c0, 0801d1ed]]
+
+void FUN_0801d1c0(int param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4)
+
+{
+  int iVar1;
+  uint uVar2;
+  
+  uVar2 = 0;
+  do {
+    iVar1 = param_1 + uVar2 * 4;
+    if (*(int *)(iVar1 + 0x144) != 0) {
+      FUN_0801c8f8("[i2c%u] ec%02x cnt=%u",*(undefined1 *)(param_1 + 0x130),1 << (uVar2 & 0xff),
+                   *(undefined4 *)(iVar1 + 0x144),param_4);
+    }
+    uVar2 = uVar2 + 1;
+  } while (uVar2 != 10);
+  return;
+}
+
+
+INSN 0801d1c0 f8b5 push {r3,r4,r5,r6,r7,lr}
+INSN 0801d1c2 9827 movs r7,#0x98
+INSN 0801d1c4 0500 movs r5,r0
+INSN 0801d1c6 0024 movs r4,#0x0
+INSN 0801d1c8 0126 movs r6,#0x1
+INSN 0801d1ca 7f00 lsls r7,r7,#0x1
+INSN 0801d1cc a300 lsls r3,r4,#0x2
+INSN 0801d1ce eb18 adds r3,r5,r3
+INSN 0801d1d0 fc33 adds r3,#0xfc
+INSN 0801d1d2 9a6c ldr r2,[r3,#0x48]
+INSN 0801d1d4 002a cmp r2,#0x0
+INSN 0801d1d6 06d0 beq 0x0801d1e6 REF[CONDITIONAL_JUMP:0801d1e6]
+INSN 0801d1d8 3200 movs r2,r6
+INSN 0801d1da 9b6c ldr r3,[r3,#0x48]
+INSN 0801d1dc a240 lsls r2,r4
+INSN 0801d1de e95d ldrb r1,[r5,r7]
+INSN 0801d1e0 0348 ldr r0,[0x0801d1f0] REF[READ:0801d1f0=802e47b] REF[PARAM:0802e47b=6332695b]
+INSN 0801d1e2 fff789fb bl 0x0801c8f8 REF[UNCONDITIONAL_CALL:0801c8f8]
+INSN 0801d1e6 0134 adds r4,#0x1
+INSN 0801d1e8 0a2c cmp r4,#0xa
+INSN 0801d1ea efd1 bne 0x0801d1cc REF[CONDITIONAL_JUMP:0801d1cc]
+INSN 0801d1ec f8bd pop {r3,r4,r5,r6,r7,pc}

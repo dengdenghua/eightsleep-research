@@ -1,0 +1,113 @@
+TARGET 0801d228 function=0801d228
+REF_TO 0801d842 UNCONDITIONAL_CALL owner=0801d7dc
+REF_TO 0801d2f8 UNCONDITIONAL_CALL owner=0801d2c0
+FUNCTION_BODY [[0801d228, 0801d2b3]]
+
+undefined8 FUN_0801d228(undefined4 *param_1,undefined4 param_2,uint param_3,int param_4)
+
+{
+  int iVar1;
+  char *pcVar2;
+  uint uVar3;
+  uint uVar4;
+  
+  iVar1 = (*(code *)param_1[3])(*(undefined1 *)(param_1 + 5),param_1[4]);
+  if (iVar1 == 0) {
+    pcVar2 = "[ads%s] failed to set spi mode";
+LAB_0801d244:
+    FUN_0801c8f8(pcVar2,param_1[0x10]);
+  }
+  else {
+    (*(code *)*param_1)(1);
+    iVar1 = (*(code *)param_1[1])(param_2,param_4,param_3 * 3);
+    (*(code *)*param_1)(0);
+    uVar4 = (uint)*(byte *)(param_1 + 0xf);
+    if (uVar4 == 0) {
+      uVar4 = (uint)(iVar1 == 0);
+      goto LAB_0801d276;
+    }
+    if (iVar1 != 0) {
+      pcVar2 = "[ads%s] failed readback";
+      goto LAB_0801d244;
+    }
+    iVar1 = FUN_08029218(param_4,0xffff);
+    for (uVar3 = 1; uVar3 < param_3; uVar3 = uVar3 + 1) {
+      iVar1 = FUN_08029218(param_4 + uVar3 * 3);
+    }
+    if (iVar1 == 0) goto LAB_0801d276;
+    param_1[7] = param_1[7] + 1;
+    *(undefined1 *)(param_1 + 6) = 1;
+  }
+  uVar4 = 0;
+LAB_0801d276:
+  return CONCAT44(param_1,uVar4);
+}
+
+
+INSN 0801d228 f7b5 push {r0,r1,r2,r4,r5,r6,r7,lr}
+INSN 0801d22a 0400 movs r4,r0
+INSN 0801d22c 0327 movs r7,#0x3
+INSN 0801d22e 0192 str r2,[sp,#0x4] REF[WRITE:Stack[-0x1c]]
+INSN 0801d230 0d00 movs r5,r1
+INSN 0801d232 1e00 movs r6,r3
+INSN 0801d234 007d ldrb r0,[r0,#0x14]
+INSN 0801d236 e368 ldr r3,[r4,#0xc]
+INSN 0801d238 2169 ldr r1,[r4,#0x10]
+INSN 0801d23a 5743 muls r7,r2
+INSN 0801d23c 9847 blx r3
+INSN 0801d23e 0028 cmp r0,#0x0
+INSN 0801d240 05d1 bne 0x0801d24e REF[CONDITIONAL_JUMP:0801d24e]
+INSN 0801d242 1c48 ldr r0,[0x0801d2b4] REF[READ:0801d2b4=802e4c3] REF[PARAM:0802e4c3=7364615b]
+INSN 0801d244 216c ldr r1,[r4,#0x40]
+INSN 0801d246 fff757fb bl 0x0801c8f8 REF[UNCONDITIONAL_CALL:0801c8f8]
+INSN 0801d24a 0027 movs r7,#0x0
+INSN 0801d24c 13e0 b 0x0801d276 REF[UNCONDITIONAL_JUMP:0801d276]
+INSN 0801d24e 0120 movs r0,#0x1
+INSN 0801d250 2368 ldr r3,[r4,#0x0]
+INSN 0801d252 9847 blx r3
+INSN 0801d254 3a00 movs r2,r7
+INSN 0801d256 3100 movs r1,r6
+INSN 0801d258 2800 movs r0,r5
+INSN 0801d25a 6368 ldr r3,[r4,#0x4]
+INSN 0801d25c 9847 blx r3
+INSN 0801d25e 2368 ldr r3,[r4,#0x0]
+INSN 0801d260 0500 movs r5,r0
+INSN 0801d262 0020 movs r0,#0x0
+INSN 0801d264 9847 blx r3
+INSN 0801d266 2300 movs r3,r4
+INSN 0801d268 3c33 adds r3,#0x3c
+INSN 0801d26a 1f78 ldrb r7,[r3,#0x0]
+INSN 0801d26c 002f cmp r7,#0x0
+INSN 0801d26e 04d1 bne 0x0801d27a REF[CONDITIONAL_JUMP:0801d27a]
+INSN 0801d270 6b42 rsbs r3,r5
+INSN 0801d272 5d41 adcs r5,r3
+INSN 0801d274 efb2 uxtb r7,r5
+INSN 0801d276 3800 movs r0,r7
+INSN 0801d278 febd pop {r1,r2,r3,r4,r5,r6,r7,pc}
+INSN 0801d27a 002d cmp r5,#0x0
+INSN 0801d27c 01d0 beq 0x0801d282 REF[CONDITIONAL_JUMP:0801d282]
+INSN 0801d27e 0e48 ldr r0,[0x0801d2b8] REF[READ:0801d2b8=802e4e2] REF[PARAM:0802e4e2=7364615b]
+INSN 0801d280 e0e7 b 0x0801d244 REF[UNCONDITIONAL_JUMP:0801d244]
+INSN 0801d282 0e49 ldr r1,[0x0801d2bc] REF[READ:0801d2bc=ffff]
+INSN 0801d284 3000 movs r0,r6
+INSN 0801d286 0bf0c7ff bl 0x08029218 REF[UNCONDITIONAL_CALL:08029218]
+INSN 0801d28a 0125 movs r5,#0x1
+INSN 0801d28c 0100 movs r1,r0
+INSN 0801d28e 019b ldr r3,[sp,#0x4] REF[READ:Stack[-0x1c]]
+INSN 0801d290 9d42 cmp r5,r3
+INSN 0801d292 07d3 bcc 0x0801d2a4 REF[CONDITIONAL_JUMP:0801d2a4]
+INSN 0801d294 0029 cmp r1,#0x0
+INSN 0801d296 eed0 beq 0x0801d276 REF[CONDITIONAL_JUMP:0801d276]
+INSN 0801d298 e369 ldr r3,[r4,#0x1c]
+INSN 0801d29a 0133 adds r3,#0x1
+INSN 0801d29c e361 str r3,[r4,#0x1c]
+INSN 0801d29e 0123 movs r3,#0x1
+INSN 0801d2a0 2376 strb r3,[r4,#0x18]
+INSN 0801d2a2 d2e7 b 0x0801d24a REF[UNCONDITIONAL_JUMP:0801d24a]
+INSN 0801d2a4 0320 movs r0,#0x3
+INSN 0801d2a6 6843 muls r0,r5
+INSN 0801d2a8 3018 adds r0,r6,r0
+INSN 0801d2aa 0bf0b5ff bl 0x08029218 REF[UNCONDITIONAL_CALL:08029218]
+INSN 0801d2ae 0135 adds r5,#0x1
+INSN 0801d2b0 0100 movs r1,r0
+INSN 0801d2b2 ece7 b 0x0801d28e REF[UNCONDITIONAL_JUMP:0801d28e]

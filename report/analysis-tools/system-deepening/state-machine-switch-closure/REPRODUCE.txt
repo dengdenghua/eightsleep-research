@@ -1,0 +1,119 @@
+nonUSB 第十二轮复现说明：五态帧解析状态机与跳转表归属
+2026-11-09
+只读静态逆向。不执行固件、不改 Ghidra 工程、不访问设备、账号或外部网络。
+
+============================================================
+一、没有新增 Ghidra 调用
+============================================================
+
+全部输入是冻结 BBIN 和既有只读导出。因此本目录没有 passN/、没有
+passN-export.log，也没有 EXPORT_COMMANDS.json / EXPORT_TARGETS.json。
+五个 handler 入口本来就在 Ghidra 未解码的字节段里，直接按冻结镜像
+解码，不修改工程、不请求重新反汇编。
+
+  cd report/analysis-tools/system-deepening/state-machine-switch-closure
+
+  python3 model/build_round12.py
+      -> SWITCH_TABLE.json
+         STATE_MACHINE.json
+         MODEL_RESULTS.json
+         (89 条断言，0 失败)
+
+  python3 scripts/verify_round12.py
+      -> BYTE_VALIDATION.json
+         (90 项字节核验，0 失败)
+
+  python3 scripts/write_source_manifest.py
+      -> SOURCE_MANIFEST.json
+
+两个主脚本互不导入，在 5 项跳转表 / 5 个状态 / 132B / 19 处字面量 /
+10 个全局字段上独立吻合。
+
+============================================================
+二、输入清单
+============================================================
+
+  1. 冻结镜像
+     materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/
+     opt/eight/lib/subsystem_updates/firmware-sensor-g0.bbin
+     132896B
+     SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+     VA -> 文件偏移：offset = VA - 0x08008000
+
+  2. 既有导出
+     .../residual-target-closure/pass8/08015e00_08017000.txt
+       496 条已解码指令，覆盖状态机主循环和跳转表；五个 handler
+       入口恰好不在其中
+     .../sensor-nonusb-dispatch/pass1/08008484.txt
+       __gnu_thumb1_case_shi 跳转器，10 条指令
+     .../sensor-nonusb-dispatch/pass4/0800a578.txt
+       状态 4 调用的 sink/writer 助手
+
+  3. 前序台账
+     .../literal-field-access/CASE_CHAIN.json
+       六组 ldr→bl 的原始记录；本目录把它们重新归类为冷路径
+     .../literal-field-access/HOLE_WITNESSES.json
+       对象空洞见证，与本状态机无依赖
+
+============================================================
+三、最短复核路径
+============================================================
+
+  跳转表
+    -> SWITCH_TABLE.json table.entries
+       5 项，entry_va 从 08016fdc 起每 2B 一项，target 五入口
+    -> 手工算：target = 08016fdc + 2 * int16(entry)
+
+  状态分派
+    -> SWITCH_TABLE.json dispatch.rows
+       08016fd0 ldrb / 08016fd2 cmp #4 / 08016fd4 bls / 08016fd6 b
+       08016fd8 bl 08008484
+
+  五个 handler
+    -> SWITCH_TABLE.json handlers[state].rows
+       状态 0..3 还有 cold_tail 段；状态 4 只有线性前缀
+    -> STATE_MACHINE.json state_semantics
+
+  帧格式
+    -> STATE_MACHINE.json frame_format.evidence
+       0x7e 帧标志 / 0x7d 转义 / XOR 0x20
+
+  队列对象
+    -> STATE_MACHINE.json queue_object
+       +0x04 回调、+0x08 64B 缓冲、+0x48 head、+0x4c tail、+0x50 转义
+
+  全局字段
+    -> STATE_MACHINE.json globals
+       范围 2000a4a0..2000a4bc 与两个绝对地址
+
+============================================================
+四、取数要点
+============================================================
+
+  1. 跳转增量是相对返回地址的 int16，不是绝对地址。
+     ldrsh + lsls #1 + add lr 的语义是：
+       target = return_address + 2 * signed_halfword
+     表基址 = 08016fdc（bl 的下一条指令），不是 08016fd8。
+
+  2. 五个 handler 入口无 Ghidra INSN 行。
+     08016e50/e70/e9c/ec8/ed4 在 08015e00..08017000 的导出里都找不到，
+     也没有 bl 直接指向它们。必须从冻结字节解码。
+
+  3. 状态 2 有两条控制流入口。
+     线性路径在 08016ec2 以 b 08016e22 结束，但 08016ea8 的 bcs 跳到
+     08016ec4，后面还有 2 条指令。只做线性前缀扫描会少 4B。
+
+  4. 0x7d 的 subs 结果写入转义标志，不是状态。
+     08016f2c subs r3,#0x7c 得到 1，08016f2e strb r3,[r1] 写到 r6+0x50。
+     帧状态仍在 r6+0，不要混。
+
+============================================================
+五、产物
+============================================================
+
+  SWITCH_TABLE.json    跳转表、分派序列、五个 handler 的全部前缀指令
+  STATE_MACHINE.json   队列对象、状态语义、全局字段、帧格式、冷路径
+  MODEL_RESULTS.json   89 条断言与 headline
+  BYTE_VALIDATION.json 90 项独立字节核验
+  FINDINGS_ZH.txt      中文结论
+  SOURCE_MANIFEST.json 输入哈希清单

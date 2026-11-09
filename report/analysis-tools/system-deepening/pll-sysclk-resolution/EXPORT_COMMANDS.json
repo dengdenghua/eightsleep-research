@@ -1,0 +1,50 @@
+{
+  "schema": "eightsleep.nonusb.pll-sysclk-export-commands.v1",
+  "date": "2026-11-08",
+  "purpose": "Exact read-only Ghidra invocations used for this evidence folder, plus the Ghidra-independent verification path.",
+  "toolchain": {
+    "ghidra_analyzeHeadless": "/opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless",
+    "java_home": "/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home",
+    "java_home_required": "Without exporting JAVA_HOME, analyzeHeadless aborts with 'Unable to locate a Java Runtime' / 'Unable to prompt user for JDK path, no TTY detected'.",
+    "project_directory": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra",
+    "project_file": "NonUsbSensor.gpr",
+    "program_name_in_project": "firmware-sensor-g0.bbin",
+    "script_directory": "report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts",
+    "post_script": "ExportSensorDiff.java"
+  },
+  "safety_flags": {
+    "readOnly": "opens the existing project read-only; nothing is written back",
+    "noanalysis": "no auto-analysis; only already-decoded instruction rows are exported",
+    "script_sha_gate": "ExportSensorDiff.java refuses to run unless currentProgram.getExecutableSHA256() == 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+    "range_targets": "a start:end target dumps only already-decoded instructions in that range; it never disassembles or mutates the program",
+    "no_execution": "no firmware executed; no device/account/API/network access"
+  },
+  "passes": [
+    {
+      "name": "exploration",
+      "output_directory": "report/analysis-tools/system-deepening/pll-sysclk-resolution/pass1",
+      "targets": ["0800995c", "0800c7d0", "080099ec", "08008174", "0800cbd1:0800cc10"],
+      "note": "First look at the SysTick divider and the writer2 tail. The range export 0800cbd1_0800cc10.txt is retained as a supplementary check of the 0800cc04 PLL block boundary."
+    },
+    {
+      "name": "consolidated",
+      "output_directory": "report/analysis-tools/system-deepening/pll-sysclk-resolution/pass1",
+      "targets": ["0800c828", "0800c8dc", "0800cd24", "0800cdb4", "080108ac", "08010960", "08008174", "0800995c", "0800e8b4", "080099ec", "0800c7d0", "0800a44c", "0800a3a4"],
+      "note": "Re-exported the complete self-contained set into the same directory, overwriting the five overlapping files. The retained range export from the exploration pass is kept."
+    }
+  ],
+  "command_template": "export JAVA_HOME=\"/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home\"; export PATH=\"$JAVA_HOME/bin:$PATH\"; \"$HEADLESS\" \"$GHIDRA_PROJECT_DIR\" NonUsbSensor -process firmware-sensor-g0.bbin -readOnly -noanalysis -scriptPath \"$SCRIPT_DIR\" -postScript ExportSensorDiff.java \"$OUT_DIR\" <targets...>",
+  "ghidra_independent_path": {
+    "commands": [
+      "cd report/analysis-tools/system-deepening/pll-sysclk-resolution",
+      "python3 scripts/verify_pll_chain.py",
+      "python3 model/pll_cases.py",
+      "python3 scripts/write_source_manifest.py"
+    ],
+    "statement": "All published claims can be re-verified from the retained pass1 exports plus the frozen BBIN. The Ghidra project lives in a local research directory outside the delivery and is NOT required to audit the published conclusions; it is only needed to regenerate the exports."
+  },
+  "inputs_not_in_delivery": [
+    "The NonUsbSensor.gpr project in ~/Downloads (working artifact, not part of the frozen evidence bundle)",
+    "Ghidra 12.1.4 and OpenJDK 21 installed on the analysis host"
+  ]
+}

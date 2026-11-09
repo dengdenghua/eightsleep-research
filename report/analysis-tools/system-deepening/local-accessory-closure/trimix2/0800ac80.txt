@@ -1,0 +1,29 @@
+TARGET 0800ac80 function=0800ac80
+REF_TO 0800ac6a CONDITIONAL_JUMP owner=0800ac68
+REF_TO 0800ac72 UNCONDITIONAL_CALL owner=0800ac68
+FUNCTION_BODY [[0800ac80, 0800ac97]]
+
+undefined8 FUN_0800ac80(int param_1,int param_2)
+
+{
+  uint uVar1;
+  char in_ZR;
+  
+  if (in_ZR == '\0') {
+    uVar1 = param_1 << LZCOUNT(param_1);
+    param_2 = (0x420 - (LZCOUNT(param_1) + 3)) * 0x100000 + (uVar1 >> 0xb);
+    param_1 = uVar1 << 0x15;
+  }
+  return CONCAT44(param_2,param_1);
+}
+
+
+INSN 0800ac80 09d0 beq 0x0800ac96 REF[CONDITIONAL_JUMP:0800ac96]
+INSN 0800ac82 b0fa80f1 clz r1,r0
+INSN 0800ac86 8840 lsls r0,r1
+INSN 0800ac88 c91c adds r1,r1,#0x3
+INSN 0800ac8a c1f58461 rsb.w r1,r1,#0x420
+INSN 0800ac8e 0905 lsls r1,r1,#0x14
+INSN 0800ac90 01ebd021 add.w r1,r1,r0, lsr #0xb
+INSN 0800ac94 4005 lsls r0,r0,#0x15
+INSN 0800ac96 7047 bx lr

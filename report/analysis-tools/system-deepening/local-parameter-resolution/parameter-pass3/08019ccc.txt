@@ -1,0 +1,93 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+void analysis_08019ccc(void)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  char *pcVar3;
+  int unaff_r4;
+  int iVar4;
+  uint unaff_r5;
+  int unaff_r6;
+  int in_stack_00000058;
+  
+  iVar4 = unaff_r4;
+  if (4 < unaff_r5) {
+    FUN_08027fb8(&stack0x00000058,unaff_r6 + 1,4);
+    pcVar3 = "[cmd] invalid sleep duration %u sec (must be 1-3600)";
+    if (0xe0f < in_stack_00000058 - 1U) goto LAB_080198b6;
+    pcVar3 = "[cmd] failed to set sleep duration";
+    if (*(char *)(unaff_r4 + 0x1b04) == '\0') goto LAB_0801975c;
+    iVar4 = unaff_r4 + 0x1ab4;
+    *(int *)(unaff_r4 + 0x1af8) = in_stack_00000058;
+    FUN_08017634("[scheduler] sleep duration set to %u sec");
+    pcVar3 = "[cmd] sleep duration set to %u sec";
+    goto LAB_080197e6;
+  }
+  FUN_08017634("[cmd] set_sleep_duration: need 5 bytes");
+  uVar2 = 6;
+  do {
+    while( true ) {
+      FUN_08015fec(uVar2);
+      FUN_0801a424();
+      FUN_08027fb8(&stack0x00000058,unaff_r6 + 1,4);
+      iVar1 = in_stack_00000058;
+      pcVar3 = "[cmd] invalid interval %u ms (must be 1-60000)";
+      if (in_stack_00000058 - 1U < 60000) break;
+LAB_080198b6:
+      FUN_08017634(pcVar3,in_stack_00000058);
+LAB_0801988e:
+      uVar2 = 1;
+    }
+    pcVar3 = "[cmd] failed to set control interval";
+    unaff_r4 = iVar4;
+    if (*(char *)(iVar4 + 0x1b04) == '\0') {
+LAB_0801975c:
+      FUN_08017634(pcVar3);
+      iVar4 = unaff_r4;
+      goto LAB_0801988e;
+    }
+    *(int *)(iVar4 + 0x1ae4) = in_stack_00000058;
+    FUN_08016fce(iVar4 + 0x1adc,in_stack_00000058);
+    FUN_08017634("[scheduler] control interval set to %u ms",iVar1);
+    pcVar3 = "[cmd] control interval set to %u ms";
+LAB_080197e6:
+    FUN_08017634(pcVar3,in_stack_00000058);
+    uVar2 = 0;
+  } while( true );
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08019ccc 6048 ldr r0,[0x08019e50]
+08019cce 042d cmp r5,#0x4
+08019cd0 00d8 bhi 0x08019cd4
+08019cd2 63e5 b 0x0801979c
+08019cd4 0422 movs r2,#0x4
+08019cd6 711c adds r1,r6,#0x1
+08019cd8 16a8 add r0,sp,#0x58
+08019cda 0ef06df9 bl 0x08027fb8
+08019cde e123 movs r3,#0xe1
+08019ce0 1699 ldr r1,[sp,#0x58]
+08019ce2 5c48 ldr r0,[0x08019e54]
+08019ce4 4a1e subs r2,r1,#0x1
+08019ce6 1b01 lsls r3,r3,#0x4
+08019ce8 9a42 cmp r2,r3
+08019cea 00d3 bcc 0x08019cee
+08019cec e3e5 b 0x080198b6
+08019cee 4a4b ldr r3,[0x08019e18]
+08019cf0 5948 ldr r0,[0x08019e58]
+08019cf2 e318 adds r3,r4,r3
+08019cf4 1b78 ldrb r3,[r3,#0x0]
+08019cf6 002b cmp r3,#0x0
+08019cf8 00d1 bne 0x08019cfc
+08019cfa 2fe5 b 0x0801975c
+08019cfc 4b4b ldr r3,[0x08019e2c]
+08019cfe 5748 ldr r0,[0x08019e5c]
+08019d00 e418 adds r4,r4,r3
+08019d02 6164 str r1,[r4,#0x44]
+08019d04 fdf796fc bl 0x08017634
+08019d08 5548 ldr r0,[0x08019e60]
+08019d0a 6ce5 b 0x080197e6

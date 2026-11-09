@@ -1,0 +1,142 @@
+// IL code: Eight.Firmness
+.class public auto ansi beforefieldinit Eight.Firmness.StateMachine.States.FirmnessStateFactory
+	extends Eight.Firmness.StateMachine.States.SubsystemStateFactoryBase
+	implements Eight.Firmness.StateMachine.States.IFirmnessStateFactory,
+	           [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.interfaceimpl type Eight.Firmness.StateMachine.States.IFirmnessStateFactory
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	.interfaceimpl type [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	// Fields
+	.field private class Eight.Firmness.Models.BalloonOptions '<balloonOptions>P'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [System.ComponentModel]System.IServiceProvider serviceProvider,
+			class Eight.Firmness.Models.BalloonOptions balloonOptions,
+			class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.IPacketHandler packetHandler
+		) cil managed 
+	{
+		.param [3]
+			.custom instance void [Microsoft.Extensions.DependencyInjection.Abstractions]Microsoft.Extensions.DependencyInjection.FromKeyedServicesAttribute::.ctor(object) = (
+				01 00 0e 07 62 61 6c 6c 6f 6f 6e 00 00
+			)
+		// Method begins at RVA 0x45a3
+		// Header size: 1
+		// Code size: 22 (0x16)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.2
+		IL_0002: stfld class Eight.Firmness.Models.BalloonOptions Eight.Firmness.StateMachine.States.FirmnessStateFactory::'<balloonOptions>P'
+		IL_0007: ldarg.0
+		IL_0008: ldarg.1
+		IL_0009: ldarg.0
+		IL_000a: ldfld class Eight.Firmness.Models.BalloonOptions Eight.Firmness.StateMachine.States.FirmnessStateFactory::'<balloonOptions>P'
+		IL_000f: ldarg.3
+		IL_0010: call instance void Eight.Firmness.StateMachine.States.SubsystemStateFactoryBase::.ctor(class [System.ComponentModel]System.IServiceProvider, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.IDeviceOptions, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.IPacketHandler)
+		IL_0015: ret
+	} // end of method FirmnessStateFactory::.ctor
+
+	.method public hidebysig virtual 
+		instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState CreateReadyState (
+			class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection connection,
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.FirmwareInfo firmwareInfo
+		) cil managed 
+	{
+		// Method begins at RVA 0x45bc
+		// Header size: 12
+		// Code size: 39 (0x27)
+		.maxstack 6
+		.locals init (
+			[0] class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.ComponentModel]System.IServiceProvider Eight.Firmness.StateMachine.States.SubsystemStateFactoryBase::serviceProvider
+		IL_0006: call !!0 [Microsoft.Extensions.DependencyInjection.Abstractions]Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions::GetRequiredService<class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.States.FirmnessReadyState>>(class [System.ComponentModel]System.IServiceProvider)
+		IL_000b: ldarg.0
+		IL_000c: ldfld class [System.ComponentModel]System.IServiceProvider Eight.Firmness.StateMachine.States.SubsystemStateFactoryBase::serviceProvider
+		IL_0011: call !!0 [Microsoft.Extensions.DependencyInjection.Abstractions]Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions::GetRequiredService<class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration>>(class [System.ComponentModel]System.IServiceProvider)
+		IL_0016: stloc.0
+		IL_0017: ldarg.0
+		IL_0018: ldarg.1
+		IL_0019: ldloc.0
+		IL_001a: ldarg.0
+		IL_001b: ldfld class Eight.Firmness.Models.BalloonOptions Eight.Firmness.StateMachine.States.FirmnessStateFactory::'<balloonOptions>P'
+		IL_0020: ldarg.2
+		IL_0021: newobj instance void Eight.Firmness.StateMachine.States.FirmnessReadyState::.ctor(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.States.FirmnessReadyState>, class Eight.Firmness.StateMachine.States.IFirmnessStateFactory, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection, class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration>, class Eight.Firmness.Models.BalloonOptions, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.FirmwareInfo)
+		IL_0026: ret
+	} // end of method FirmnessStateFactory::CreateReadyState
+
+	.method public final hidebysig newslot virtual 
+		instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState CreateCalibratingState (
+			class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection connection,
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.FirmwareInfo firmwareInfo,
+			int32 bagCount,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> requestedBags,
+			valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod> 'method'
+		) cil managed 
+	{
+		.param [4]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x45f0
+		// Header size: 12
+		// Code size: 70 (0x46)
+		.maxstack 11
+		.locals init (
+			[0] class Eight.Firmness.Models.CalibrationOptions,
+			[1] class Eight.Firmness.Services.Calibration.CalibrationAnalyzerRunner,
+			[2] class Eight.Firmness.Services.Calibration.ICalibrationRunStore
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.ComponentModel]System.IServiceProvider Eight.Firmness.StateMachine.States.SubsystemStateFactoryBase::serviceProvider
+		IL_0006: call !!0 [Microsoft.Extensions.DependencyInjection.Abstractions]Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions::GetRequiredService<class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.States.CalibratingState>>(class [System.ComponentModel]System.IServiceProvider)
+		IL_000b: ldarg.0
+		IL_000c: ldfld class [System.ComponentModel]System.IServiceProvider Eight.Firmness.StateMachine.States.SubsystemStateFactoryBase::serviceProvider
+		IL_0011: call !!0 [Microsoft.Extensions.DependencyInjection.Abstractions]Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions::GetRequiredService<class Eight.Firmness.Models.CalibrationOptions>(class [System.ComponentModel]System.IServiceProvider)
+		IL_0016: stloc.0
+		IL_0017: ldarg.0
+		IL_0018: ldfld class [System.ComponentModel]System.IServiceProvider Eight.Firmness.StateMachine.States.SubsystemStateFactoryBase::serviceProvider
+		IL_001d: call !!0 [Microsoft.Extensions.DependencyInjection.Abstractions]Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions::GetRequiredService<class Eight.Firmness.Services.Calibration.CalibrationAnalyzerRunner>(class [System.ComponentModel]System.IServiceProvider)
+		IL_0022: stloc.1
+		IL_0023: ldarg.0
+		IL_0024: ldfld class [System.ComponentModel]System.IServiceProvider Eight.Firmness.StateMachine.States.SubsystemStateFactoryBase::serviceProvider
+		IL_0029: call !!0 [Microsoft.Extensions.DependencyInjection.Abstractions]Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions::GetRequiredService<class Eight.Firmness.Services.Calibration.ICalibrationRunStore>(class [System.ComponentModel]System.IServiceProvider)
+		IL_002e: stloc.2
+		IL_002f: ldarg.0
+		IL_0030: ldarg.1
+		IL_0031: ldarg.2
+		IL_0032: ldarg.3
+		IL_0033: ldarg.s requestedBags
+		IL_0035: ldarg.s 'method'
+		IL_0037: ldloc.0
+		IL_0038: ldarg.0
+		IL_0039: ldfld class Eight.Firmness.Models.BalloonOptions Eight.Firmness.StateMachine.States.FirmnessStateFactory::'<balloonOptions>P'
+		IL_003e: ldloc.1
+		IL_003f: ldloc.2
+		IL_0040: newobj instance void Eight.Firmness.StateMachine.States.CalibratingState::.ctor(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.States.CalibratingState>, class Eight.Firmness.StateMachine.States.IFirmnessStateFactory, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.FirmwareInfo, int32, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>, class Eight.Firmness.Models.CalibrationOptions, class Eight.Firmness.Models.BalloonOptions, class Eight.Firmness.Services.Calibration.CalibrationAnalyzerRunner, class Eight.Firmness.Services.Calibration.ICalibrationRunStore)
+		IL_0045: ret
+	} // end of method FirmnessStateFactory::CreateCalibratingState
+
+} // end of class Eight.Firmness.StateMachine.States.FirmnessStateFactory

@@ -1,0 +1,65 @@
+TARGET 0801c730 function=0801c730
+REF_TO 08015b6a UNCONDITIONAL_CALL
+REF_TO 08015b8a UNCONDITIONAL_CALL
+FUNCTION_BODY [[0801c730, 0801c775]]
+
+undefined8 FUN_0801c730(int param_1,int param_2,int param_3)
+
+{
+  int iVar1;
+  int iVar2;
+  undefined4 uVar3;
+  int iVar4;
+  undefined4 *puVar5;
+  
+  iVar4 = 0;
+  puVar5 = (undefined4 *)(param_3 + 0xc);
+  do {
+    uVar3 = *puVar5;
+    puVar5 = puVar5 + 1;
+    iVar1 = FUN_080122b6(param_1 + iVar4,param_2 - iVar4,uVar3);
+    iVar4 = iVar4 + iVar1;
+  } while (puVar5 != (undefined4 *)(param_3 + 0x2c));
+  iVar1 = param_3 + 0x20;
+  do {
+    iVar2 = FUN_080122b6(param_1 + iVar4,param_2 - iVar4,*(undefined4 *)(iVar1 + 0xc));
+    iVar1 = iVar1 + 4;
+    iVar4 = iVar4 + iVar2;
+  } while (iVar1 != param_3 + 0x40);
+  return CONCAT44(param_1,iVar4);
+}
+
+
+INSN 0801c730 1300 movs r3,r2
+INSN 0801c732 f7b5 push {r0,r1,r2,r4,r5,r6,r7,lr}
+INSN 0801c734 1600 movs r6,r2
+INSN 0801c736 0f00 movs r7,r1
+INSN 0801c738 1500 movs r5,r2
+INSN 0801c73a 0024 movs r4,#0x0
+INSN 0801c73c 2c33 adds r3,#0x2c
+INSN 0801c73e 0090 str r0,[sp,#0x0] REF[WRITE:Stack[-0x20]]
+INSN 0801c740 0c36 adds r6,#0xc
+INSN 0801c742 0193 str r3,[sp,#0x4] REF[WRITE:Stack[-0x1c]]
+INSN 0801c744 009b ldr r3,[sp,#0x0] REF[READ:Stack[-0x20]]
+INSN 0801c746 391b subs r1,r7,r4
+INSN 0801c748 1819 adds r0,r3,r4
+INSN 0801c74a 04ce ldmia r6!,{r2}
+INSN 0801c74c f5f7b3fd bl 0x080122b6 REF[UNCONDITIONAL_CALL:080122b6]
+INSN 0801c750 019b ldr r3,[sp,#0x4] REF[READ:Stack[-0x1c]]
+INSN 0801c752 2418 adds r4,r4,r0
+INSN 0801c754 9e42 cmp r6,r3
+INSN 0801c756 f5d1 bne 0x0801c744 REF[CONDITIONAL_JUMP:0801c744]
+INSN 0801c758 2e00 movs r6,r5
+INSN 0801c75a 4035 adds r5,#0x40
+INSN 0801c75c 2036 adds r6,#0x20
+INSN 0801c75e 009b ldr r3,[sp,#0x0] REF[READ:Stack[-0x20]]
+INSN 0801c760 f268 ldr r2,[r6,#0xc]
+INSN 0801c762 391b subs r1,r7,r4
+INSN 0801c764 1819 adds r0,r3,r4
+INSN 0801c766 f5f7a6fd bl 0x080122b6 REF[UNCONDITIONAL_CALL:080122b6]
+INSN 0801c76a 0436 adds r6,#0x4
+INSN 0801c76c 2418 adds r4,r4,r0
+INSN 0801c76e ae42 cmp r6,r5
+INSN 0801c770 f5d1 bne 0x0801c75e REF[CONDITIONAL_JUMP:0801c75e]
+INSN 0801c772 2000 movs r0,r4
+INSN 0801c774 febd pop {r1,r2,r3,r4,r5,r6,r7,pc}

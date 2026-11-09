@@ -1,0 +1,97 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+设备诊断与维护入口：请求分发、运行条件和失败边界
+日期：2026-11-08（Asia/Shanghai）。对象：此前下载的官方 MTK SWU 中 Capybara 托管组件。
+本轮仅复用已有反编译 C#，补做一个原 DLL 的单成员 IL 导出；未运行目标程序集、启动维护、读取实机/账号载荷或调用官方接口。结论不代表用户当前 Pod6 正在运行相同版本。
+证据编号 S01–S54 的完整原路径、SHA256、快照见 SOURCE_MANIFEST.json；SOURCE_CONTEXTS.txt 保留带原行号的完整类型上下文。source/ 是逐字节副本，C# 为反编译结果，不是厂商原始源码。
+
+一、相对已有报告新增了什么
+
+旧 DOWNLOAD_AND_RUNTIME_ARTIFACTS_ZH.txt 已证明控制器注册及维护服务存在；旧 analysis/device-side-followup/diagnostics/FINDINGS_ZH.txt 已恢复气囊遥测布局、状态分类、缓存与非同步边界。本轮不把这些重复计为新发现。
+本轮补到：
+1. SignalR Request → 串行执行 → Response 的完整设备侧分发，以及未知路由、反序列化、依赖初始化和返回发送失败的不同结果。
+2. 普通 Capybara 与 Cavia 启动模式下的诊断注册差异；设备证书身份与手机账号身份的边界。
+3. debugnats/get 的白名单、5 秒本机请求超时、字节分片算法及“每页重读，没有同一快照保证”的限制。
+4. debugsubsystem/usbports 的真实 sysfs 枚举路径，空结果与异常被吞的语义。
+5. gettelemetryprofile/gettolerance 返回的是主控保存配置，不能当成当次 MCU 回读；pairing/status 也不能替代维护所需的 IPairingMode.Active。
+6. 维护函数名中的 get 不保证无副作用；配对检查、5 秒成功判定、2h 外部超时及清理对象分别发生在哪里。
+7. remoteconnectivity/startssh 的显式非零端口分支缺陷，由原程序集 IL 独立确认。
+
+二、从正常启动到设备请求：仍不是一个手机 HTTP API
+
+普通模式：HostExtensions.ConfigureCapybara 注册 RegisterHandlers(fullFeatures:true)、AddDeviceAPIService、AddFirmnessServices、AddNatsMonitoring。[S01:34–84]
+  - RegisterHandlers → RegisterFirmnessController → SubsystemDebugController/FirmnessDebugController/TelemetryProfileDebugController/ToleranceDebugController。[S02:54–67；S03:9–18]
+  - AddNatsMonitoring 单独注册 DebugNatsController，并从配置读取 nats:monitoringUrl。[S04:60–64]
+Cavia 模式：RegisterHandlers(fullFeatures:false) 仍注册维护和配对控制器，但该分支未注册上述 Firmness controllers 或 AddNatsMonitoring。不能将普通模式的注册表无条件套到测试模式。[S01:88–102；S02:56–66]
+
+连接配置：正常 DeviceAPI 的 ClientId 来自硬件 DeviceCertificateChainPem；CertificateClientId 将 PEM 编码后放入 X-Ssl-Cert 头。它不是手机邮箱密码或用户 access token，也不是此代码证明的 TLS 客户端私钥认证。[S01:52；S05:17–34；S07:7–13]
+所见默认配置是 wss://device-api-ws.8slp.net/v1/device。ConnectionOptions 选择 WebSockets、SkipNegotiation=true、MessagePack hub protocol；默认服务器校验要求 TLS 无策略错误且目标域属于 .8slp.net/.8slp.net.cn。存在 allowInsecureTls 配置分支，默认 JSON 未设置该字段；不能从此静态配置断言运行时最终端点或服务端认证规则。[S06:15–46；源配置哈希见 manifest]
+这条证据只能证明设备客户端怎样连接。没有手机 → 云端管理接口 → 设备请求的授权链，不能拼接 /debugnats/get 等新手机 GET，也不能承诺普通账号可达。
+
+三、分发契约与“无响应”的不同原因
+
+DeviceAPIService 在 SignalR 的 Request 消息回调中写入 Channel<Request>；Request 有 Id(Guid)、Type(string)、Payload(byte memory)。构造的函数键是严格的 functions. + FunctionHandler 名称，例如 functions.debugnats/get；ScopedRouter 按字典精确匹配，不做大小写归一化。[S08:15–26；S16；S10:25–34；S12:71–79；S11:22–40]
+连接首次启动前随机等 0–9999ms，SetupConnection 使用 30 秒 linked cancellation；失败时随机等待后重试。这是连接建立逻辑，不能写成每个诊断 handler 的统一 30 秒时限。[S08:35–68；S09:33–40]
+ProcessRequests 对每个请求 await ProcessRequest，再读下一条；其通道无界。当前 Request 类型没有截止时间字段，参数工厂只支持完整 RawRequest 或 JSON Payload，不注入调用者 cancellation。慢 handler/慢回包可阻挡后续请求；未量化真实服务器投递速率与队列积压。[S09:48–96；S13:132–168]
+
+返回分支：
+  - 未注册 Type：Response.Id=原 Id，Payload=null，Exception.Classifier="BadRequest"。[S11:24–27]
+  - JSON 参数按 camelCase 名称、required constructor/nullability 约束解析；JSON 错误包为 DeserializeException，它不是 ClassifiedException，最终通用 Exception 的 classifier 为 null，不能把所有参数错误都归为 BadRequest。[S14:13–34；S15；S12:41–67]
+  - handler 返回 Task<Response> 时补回请求 Id；Task<T> 则 JSON 编码成 Payload。空值属性默认省略，枚举使用字符串 converter。[S13:81–115；S14:15–23；S19:30–33]
+  - controller 的 GetRequiredService 在 InvokeFunction 的外层重载发生，早于内部 try。若依赖创建失败（如 nats:monitoringUrl 缺失），异常可进入 Client.ProcessRequest 的日志分支而不生成 Response；不同于正常诊断错误 DTO。[S12:36–45；S04:62；S09:68–81]
+  - 回包通过 InvokeAsync<bool>("Response", response)；bool 返回值没有使用，发送异常只记录日志，本客户端所读路径没有回包重发/持久队列。所以设备执行完成不等于云端或手机收到；断线后重连也不证明旧响应会补发。[S09:84–96]
+
+附带待核：Client 构造与 DeviceAPIService 构造分别给同一 HubConnection 注册 Request，且各持有一个同名但不同的无界 channel；派生 ExecuteAsync 只消费派生 channel。[S09:20–30；S08:15–37]
+静态代码确有双注册，但未审计该版本第三方 SignalR 多 handler 调度实现或运行时队列，因此只标为资源生命周期待核，不宣布“请求执行两次”或已发生内存泄漏。
+
+四、debugnats/get：监控文本分页，并非原始传感流
+
+已证请求字段：endpoint 必需 string；offset/maxBytes 可空 int。endpoint Trim 后小写，只接受 healthz、varz、jsz、connz、subsz、stacksz；不能任意传 URL/路径/查询参数。jsz 被固定扩成 jsz?streams=true&consumers=true&config=true。[S23:24–42；S24]
+INatsMonitoringClient 来自配置；所见默认 http://localhost:8222。HttpClient.Timeout=5 秒，EnsureSuccessStatusCode 后读取文本。这个超时属于设备→本机 NATS 监控读取；不是手机采集总时长。[S26:14–28]
+错误：未知 endpoint → BadRequest；带 HTTP 状态码的 HttpRequestException → DeviceCommunication；不带状态码的 HttpRequestException → OfflineAccessory；OperationCanceledException → DeviceCommunication/timed out。这是设备错误分类，不是手机端 HTTP 状态。[S23:30–69]
+
+分片的实际顺序：先取得本次完整监控文本，再 UTF8 编码；offset=max(请求值或0,0)；maxBytes>0时照用，否则131072；截取 min(maxBytes,totalBytes-offset)，单独 Gzip+Base64。返回 endpoint,totalBytes,offset,length,truncated,contentGzipB64。[S23:71–88；S25]
+新增重要边界：
+  - 131072 是默认值，不是硬上限。代码不先限长再抓监控响应，调小 maxBytes 也不减少本机完整响应的获取/编码内存。
+  - offset 以 UTF8 字节计；切片可能落在多字节字符内部。若获得合法分片，重组时应拼解压字节，再统一 UTF8 解码；不能假定每页单独都是合法 JSON/UTF8 文本。
+  - offset>=totalBytes 返回空片、length=0、truncated=false，保留请求 offset；这不等于端点不存在。
+  - 每次调用都会重新 GetAsync，没有快照 ID、ETag、序列号或跨请求冻结缓存。监控在变化时，即使逐页 offset 连续也不能证明它们属于同一完整文档；不同页 totalBytes 相等也不足以证明内容一致。
+  - 返回 NATS 监控状态，handler 没有请求某个 stream 消息载荷或原始压电数据；不能借名称把它归为传感数据出口。
+
+五、debugsubsystem/usbports：只读拓扑，不证明附件就绪
+
+无参数。SerialPort.GetPortNames → 按名称排序 → 仅保留 basename 为 ttyUSB/ttyACM 开头的项 → ResolveDeviceToUsbPort → 成功映射才追加 {device,usbPort}。[S20:20–39；S21:51–70；S22]
+解析器在 Linux 读取 /sys/bus/usb/devices，枚举顶层与下一层目录，以接口目录正则定位物理 port，再找对应 tty。它没有在该 handler 中打开串口发设备命令，也不读固件身份/协议握手状态。[S21:17–27、111–179]
+如果 sysfs 根不存在，枚举直接结束；SafeGetDirectories 捕获目录遍历异常后返回空数组；某个 tty 无映射也会被跳过。因此 [] 可能是无匹配设备、拓扑不可见/读取失败，不能等同“实机没有附件”。[S21:119–124、190–200；S20:32–35]
+上抛 PlatformNotSupportedException 才映射 BadRequest/Linux only；其他上抛异常映射 UnknownAccessory。由于 Linux 检查位于映射调用内部，不能说所有非 Linux 且零候选的情况必返回 BadRequest。[S20:41–48；S21:51–54]
+
+六、相关读数入口：状态、缓存和配置必须区分
+
+debugfirmness/get 与 gethardwareinfo 使用 Side.Left/Right，依次通过 FirmnessDeviceStatus 和 FirmnessReadyState 检查。null/NullState→UnknownAccessory；NotConnected/WaitingForBootloader→OfflineAccessory；检查/启动/升级/恢复中→AccessoryInitialization；校准中→BadRequest。此分类已在旧诊断报告证明，本轮接口表完整保留而不重复计算贡献。[S27:28–40；S28:12–66；S54]
+get 还要求至少4个压力通道和4个控制 bag，以及硬件/固件信息；current/health 可缺失；gethardwareinfo 只需 Ready+HardwareInfo，不要求压力/控制已到齐。[S27:43–110、128–141]
+这两个 handler 都读取主控 DeviceState 缓存，不发送当次采样请求；不同遥测命令逐类替换缓存，解析异常只记日志。handler 自身没有跨类型时间一致性或时效阈值，不能把一份 JSON 认为同一时间点的全部新读数。ReadyStateBase 另有连接状态退回 NotConnected，故也不能夸大为“无论连接如何都会永久返回旧值”。[S29:135–175；S46:26–64]
+局部一致性缺口：get 只先保证 Sensors.Count>=4；若控制袋数=5而压力 Sensors.Count=4，随后 GetGaugePressure(4) 会访问不存在项。这里只证明这种组合在 handler 没被拦住，未证实真实设备发送过这种组合。[S27:58–68、94–96、111–124]
+
+gettelemetryprofile/gettolerance 的新判读：两者要求 FirmnessReadyState，但返回 StoredTelemetryProfile/StoredToleranceBands；这些属性直接读 configManager.Configuration 的左右侧配置，不向 MCU 发 get 命令。profile未配是 configured:false，tolerance未配是 tuned:false+空bins（null属性序列化时省略），不是通讯失败；返回成功也不是本次验证 MCU 已应用这些配置。[S33:24–37；S35:25–48；S29:56–77；S34、S36]
+pairing/status 返回 PairingService.currentPairingState（配网任务 ID、步骤、错误、起止时间等），没有返回 IPairingMode.Active。任务完成/失败后状态对象仍可保留，不能仅凭 state!=null 判定任务仍执行，更不能用它确认维护门控已经打开。[S37:31–40；S39:16、47–59、70–72、107–153；S40]
+
+七、维护静态边界：不列为可立即尝试的只读功能
+
+1. IPairingMode 是进程内 bool。初值来自启动时是否已有指定 NetworkManager 连接；正常模式的配对按钮事件会置true；部分配网写入流程会置false。PairingMode 类本身没有计时自动过期。只能描述这些代码条件，不能把 Active 直接等同“刚完成物理按键确认”。[S43；S44:85–103；S45:80–103；S48:67–87；S49:42–50]
+2. RunRemoteConnectivity 一开始检查 Active，不满足直接 Result=false；已有未退出的 tunnel 则返回当前 sshPort。检查在每次调用入口，不是持续订阅配对状态。已读类没有在 Active 变false时停止既有进程的回调。[S42:338–350]
+3. 新进程用外部 timeout、名义2h；SSH keepalive 参数15秒/最多3次；本类先等进程退出或5秒。5秒后 HasExited=false 即返回 Result=true，不读取一个独立“隧道可用”确认。因此不能把它当成功握手/可达性的强证明。外部 timeout 信号处理及服务器端状态未运行核验。[S42:31–35、351–402]
+4. 初始化期间退出或启动异常会 CleanArtifacts，后者只删除会话 key 与 .pub，不删除 authorized_keys。正常2h超时后的进程退出，在此类未见 Exited handler/finally 做同样清理；不能写成“超时自动擦除所有授权状态”。[S42:55–65、374–396、400–402]
+5. remoteconnectivity/getpublickey 名称像读接口，实际若 .pub 不存在就生成密钥对或从已有私钥补公钥并写文件；所读控制器没有配对检查。它不属于无副作用诊断白名单。本轮没有调用，也没有读取任何真实 key 内容。[S41:50–54；S42:405–483]
+6. addauthorizedkeys 的配对检查在 controller；legacy StartSSH 若请求含 key，会先 PrimeLegacyConnectivity，再进入 RunRemoteConnectivity 的配对检查。初始化写入并不在同一门控之后，故失败返回不能推成“此前没有文件副作用”。只记录调用顺序，不构造输入或尝试绕过。[S41:24–32、56–64；S42:156–172]
+7. StartSsh2 缺陷：局部 num 初始0，仅参数为空/0时更新随机值；显式非零参数分支没有把 args.Port 赋给 num，继而 num<=1024 返回 Invalid port number supplied。原 DLL IL_0000–0043 与 IL_0044–005d确认该分支，RVA=0xeb18，code size121字节。证据 il/StartSsh2.il.txt，单成员导出退出0、无stderr、关闭更新检查。未执行该函数。[S41:35–47；il/COMMAND.json]
+
+八、结论边界与后续最有价值的材料
+
+已解决：设备侧注册/分发、两个主要只读诊断的完整入参/返回/错误、配置型读数与采样型读数的区别、维护门控位置和生命周期限制。INTERFACE_CONTRACTS.json 供报告引用，不含可调用手机 HTTP URL或认证参数。
+仍缺：手机或官方支持工具如何获准投递这些 functions.*、普通账号可达范围、国行真实连接端点、用户设备当前程序集版本、实装附件以及真实诊断输出。登录且在线只是必要材料之一，不能由此宣布诊断已可用。
+可继续离线：核对 SignalR 双注册/未消费 channel 的框架语义；对严格读入口的依赖初始化失败做独立托管桩验证；核对 config型getter与实际MCU应用/恢复时序。当前未把这些候选写成已复现问题。
+若后续获得合法诊断/厂商导出：先核对固件版本及附件，再验证单次小响应字段；NATS分页必须记录“每页是独立观测”限制，不能静默拼成同一快照。无需为验证诊断而启动SSH、增补授权key或改变telemetryprofile。
+附件执行面下一轮建议：沿现有 LSP ready/bootloader/firmware 状态机核对真实回执含义、断连状态切换及调试读数的最新一包年龄；继续使用已有板固件/协议证据，先不扩大到机械控制操作。
+
+完整性复核：54个选定C#文件与旧decompilation-provenance中的SHA256全部相同，54份source快照逐字节相同；7个原程序集、主可执行文件和配置/原索引均记录SHA256。上述校验说明材料一致，不证明反编译语义无误；关键端口分支另有IL证据。没有新增睡眠分期、HRV或云端温控算法实现。

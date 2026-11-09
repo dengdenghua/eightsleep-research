@@ -1,0 +1,30 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+敲击优先进入闹钟分支：补齐原生guard的语义
+2026-11-08；同一MTK frankenfirmware，SHA256=84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+没有执行固件、触发敲击或调用设备接口。本文是普通控制分流，不涉及此前停止的共享日志调查。
+
+新补齐的函数
+原THERMAL_MODE_ROUTING_ZH.txt第5.2节把0020dcd0本身列为未恢复，本次补完整C/汇编/refs及其0020dc60 helper。
+新导出由SignalHost只读分析提供；本目录独立回读原ELF，逐条核对102+27条A64指令，共516字节一致。静态005df708指针的文件原值0x4e3308加Ghidra基址0x100000后为005e3308，正是已有alarm对象。账本见SOURCE_LEDGER.json。
+
+精确条件
+0020dcd0检查该对象的六个task，基址分别+0x78、+0xd8、+0x138、+0x1b0、+0x210、+0x270。前后三个分别来自已有左/右setter，类型是Sensor/Pillow/UsbSensor；本次没有把它们说成六个不同闹钟策略。
+每个task用自己的clock回调取得now，检查：now>=tt、now>=di、signed32(tt+du-now)>0。任何一个task满足就返回true；第五个经0020dc60返回剩余秒数，非零同样返回true。六个都不满足才false。
+每次clock读取发生在检查该task时，函数没有一次性采样后共享给六槽；因此这里只用通常时间窗解释，不声称边界瞬间各槽是同时快照。clock回调缺失会抛bad_function_call，不能把对象未初始化当作正常false。
+已恢复0019a6d0的实际task tick使用同一时间窗条件。guard没有检查振动端点是否连接或发送成功，因此true表示已配置任务处于有效时间窗，不证明实际振动已启动。
+
+对敲击调温意味着什么
+0027e7b0在0027ea60调用guard，将结果保存到UsbSensor状态+0x89。已有tap>1分流在0027f0a8之后：guard非零调用0027b5b0(handleVibrationAlarm)，否则调用00277cb0(handleGesture)。普通2/3次敲击调温属于后者。
+guard检查两侧全部六task，并非只按此次敲击侧过滤。因此在另一侧存在有效闹钟窗的条件下，此入口也先走闹钟处理。之后仍可能因侧别/姿态pattern等条件拒绝dismiss；已审该分支不因此回退为同一次普通调温。
+这是一个明确的本地优先规则，但仅限这条USB敲击入口。它不能推导云端、BLE、手动设置之间存在统一的目标温度优先级，也不改变已有ALARM_THERMAL_INTERACTION结论：原生alarm tick/clear是振动路径，BLE Dismiss另外发送Heat=0/Level=0。
+
+复核位置
+source/0020dcd0.txt与0020dc60.txt：完整条件和原指令字节。
+source/0019d830.c、0019dd00.c：左右task构造/替换；0017a7b0.c：alarm对象初始化。
+source/0019a6d0.c：实际tick的相同时间窗与发送回调。
+source/0027e7b0.asm.txt：调用guard和tap分流；0027b5b0.c、00277cb0.c：闹钟与普通调温消费者。
+
+边界
+没有新增全系统来源优先级表；已定位的guard本身已闭合，不应继续把它列作静态未知。仍需实机确认当前固件、连接状态、实际敲击事件和云端后续响应。任意未识别间接回调不由本次129条指令校验自动覆盖。

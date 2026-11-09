@@ -1,0 +1,73 @@
+FUNCTION 08008b64 FUN_08008b64 BODY [[08008b64, 08008bbb]]
+INCOMING 0800c814 UNCONDITIONAL_CALL
+INCOMING 08009dee UNCONDITIONAL_CALL
+INCOMING 0800a5fe UNCONDITIONAL_CALL
+
+undefined8 __stdcall_softfp FUN_08008b64(undefined4 *param_1,byte *param_2,int param_3,int param_4)
+
+{
+  byte bVar1;
+  int iVar2;
+  byte *pbVar3;
+  int *piVar4;
+  
+  piVar4 = (int *)*param_1;
+  *(uint *)(*piVar4 + 4) =
+       (uint)(param_4 != 0) * 0x2000000 |
+       param_3 << 0x10 | 0x2000U | *(uint *)(*piVar4 + 4) & 0xfc009800 |
+       (*(ushort *)(param_1 + 1) & 0x1ff) << 1;
+  pbVar3 = param_2;
+  while( true ) {
+    if ((pbVar3 == param_2 + param_3) || (iVar2 = FUN_08008184(piVar4,2,0), iVar2 == 0)) break;
+    bVar1 = *pbVar3;
+    pbVar3 = pbVar3 + 1;
+    *(uint *)(*piVar4 + 0x28) = (uint)bVar1;
+  }
+  return CONCAT44(param_1,(int)pbVar3 - (int)param_2);
+}
+
+
+ASSEMBLY
+08008b64 push {r0,r1,r2,r4,r5,r6,r7,lr} BYTES f7b5
+08008b66 movs r5,r1 BYTES 0d00
+08008b68 subs r1,r3,#0x1 BYTES 591e
+08008b6a sbcs r3,r1 BYTES 8b41
+08008b6c lsls r3,r3,#0x19 BYTES 5b06
+08008b6e ldr r6,[r0,#0x0] BYTES 0668
+08008b70 ldrh r0,[r0,#0x4] BYTES 8088
+08008b72 str r3,[sp,#0x4] BYTES 0193 REF WRITE=Stack[-0x1c]
+08008b74 movs r3,#0x80 BYTES 8023
+08008b76 ldr r4,[r6,#0x0] BYTES 3468
+08008b78 lsls r3,r3,#0x6 BYTES 9b01
+08008b7a lsls r1,r2,#0x10 BYTES 1104
+08008b7c ldr r7,[r4,#0x4] BYTES 6768
+08008b7e orrs r1,r3 BYTES 1943
+08008b80 ldr r3,[0x08008bbc] BYTES 0e4b REF READ=08008bbc WORD=fc009800
+08008b82 lsls r0,r0,#0x17 BYTES c005
+08008b84 ands r7,r3 BYTES 1f40
+08008b86 orrs r1,r7 BYTES 3943
+08008b88 ldr r3,[sp,#0x4] BYTES 019b REF READ=Stack[-0x1c]
+08008b8a lsrs r0,r0,#0x16 BYTES 800d
+08008b8c orrs r1,r0 BYTES 0143
+08008b8e orrs r3,r1 BYTES 0b43
+08008b90 str r3,[r4,#0x4] BYTES 6360
+08008b92 movs r4,r5 BYTES 2c00
+08008b94 adds r3,r5,r2 BYTES ab18
+08008b96 str r3,[sp,#0x4] BYTES 0193 REF WRITE=Stack[-0x1c]
+08008b98 ldr r3,[sp,#0x4] BYTES 019b REF READ=Stack[-0x1c]
+08008b9a subs r7,r4,r5 BYTES 671b
+08008b9c cmp r4,r3 BYTES 9c42
+08008b9e bne 0x08008ba4 BYTES 01d1 REF CONDITIONAL_JUMP=08008ba4
+08008ba0 movs r0,r7 BYTES 3800
+08008ba2 pop {r1,r2,r3,r4,r5,r6,r7,pc} BYTES febd
+08008ba4 movs r2,#0x0 BYTES 0022
+08008ba6 movs r1,#0x2 BYTES 0221
+08008ba8 movs r0,r6 BYTES 3000
+08008baa bl 0x08008184 BYTES fff7ebfa REF UNCONDITIONAL_CALL=08008184
+08008bae cmp r0,#0x0 BYTES 0028
+08008bb0 beq 0x08008ba0 BYTES f6d0 REF CONDITIONAL_JUMP=08008ba0
+08008bb2 ldrb r2,[r4,#0x0] BYTES 2278
+08008bb4 ldr r3,[r6,#0x0] BYTES 3368
+08008bb6 adds r4,#0x1 BYTES 0134
+08008bb8 str r2,[r3,#0x28] BYTES 9a62
+08008bba b 0x08008b98 BYTES ede7 REF UNCONDITIONAL_JUMP=08008b98

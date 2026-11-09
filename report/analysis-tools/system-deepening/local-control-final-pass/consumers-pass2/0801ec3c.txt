@@ -1,0 +1,286 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_0801ec3c(int param_1,uint param_2)
+
+{
+  int *piVar1;
+  char cVar2;
+  char *pcVar3;
+  int *piVar4;
+  undefined4 uVar5;
+  undefined4 *puVar6;
+  int iVar7;
+  int iVar8;
+  byte bVar9;
+  uint uVar10;
+  int local_24;
+  
+  piVar4 = *(int **)(param_1 + 4);
+  iVar7 = *piVar4;
+  if (param_2 < 0x65) {
+    if (param_2 == 0) {
+      iVar8 = *(int *)(iVar7 + 0x2c);
+      uVar10 = 0;
+    }
+    else {
+      uVar10 = (uint)*(byte *)(param_1 + 0x10);
+      if (uVar10 <= param_2) goto LAB_0801ec72;
+LAB_0801ec7e:
+      iVar8 = *(int *)(iVar7 + 0x2c);
+      if (uVar10 == 100) {
+        local_24 = iVar8 + 1;
+        goto LAB_0801ec88;
+      }
+    }
+  }
+  else {
+    uVar10 = (uint)*(byte *)(param_1 + 0x10);
+    if (uVar10 < 0x65) {
+      param_2 = 100;
+LAB_0801ec72:
+      bVar9 = *(byte *)(param_1 + 0x11);
+      if (param_2 < bVar9) {
+        bVar9 = (byte)param_2;
+      }
+      uVar10 = (uint)bVar9;
+      goto LAB_0801ec7e;
+    }
+    iVar8 = *(int *)(iVar7 + 0x2c);
+  }
+  local_24 = FUN_08010160(uVar10 * iVar8,100);
+LAB_0801ec88:
+  if (*(char *)(param_1 + 0x12) == '\x01') {
+    local_24 = iVar8 - local_24;
+  }
+  uVar5 = *(undefined4 *)(param_1 + 8);
+  piVar1 = (int *)FUN_0801e822(iVar7,uVar5);
+  if (piVar1 == (int *)0x0) {
+    FUN_08017634("[solenoid:%u] ERROR: failed to get CCR register for ch=%lu",
+                 *(undefined1 *)(param_1 + 0x4d),uVar5);
+  }
+  else {
+    *piVar1 = local_24;
+    cVar2 = *(char *)(param_1 + 0x4c);
+    *(char *)(param_1 + 0x4c) = (char)uVar10;
+    if (uVar10 == 0) {
+      if (cVar2 != '\0') {
+        FUN_080149d8(piVar4,*(undefined4 *)(param_1 + 8));
+        iVar7 = **(int **)(param_1 + 4);
+        uVar5 = 1;
+        if ((((iVar7 != 0x40012c00) && (uVar5 = 3, iVar7 != 0x40000400)) &&
+            (uVar5 = 4, iVar7 != 0x40000800)) && (uVar5 = 0, iVar7 == 0x40014000)) {
+          uVar5 = 0xf;
+        }
+        FUN_08017634("[solenoid:%u] stop TIM%d ch=%lu duty=0%% PWM stopped",
+                     *(undefined1 *)(param_1 + 0x4d),uVar5,*(undefined4 *)(param_1 + 8));
+      }
+    }
+    else if (cVar2 == '\0') {
+      iVar7 = FUN_08014928(piVar4,*(undefined4 *)(param_1 + 8));
+      if (iVar7 == 0) {
+        puVar6 = (undefined4 *)**(undefined4 **)(param_1 + 4);
+        if (puVar6 == (undefined4 *)0x40012c00) {
+          cVar2 = '\x01';
+          uVar5 = _DAT_40012c44;
+        }
+        else if (puVar6 == (undefined4 *)0x40014000) {
+          cVar2 = '\x0f';
+          uVar5 = _DAT_40014044;
+        }
+        else {
+          cVar2 = '\x03';
+          uVar5 = 0;
+          if (puVar6 != (undefined4 *)0x40000400) {
+            cVar2 = (puVar6 == (undefined4 *)0x40000800) * '\x04';
+          }
+        }
+        pcVar3 = "(DC)";
+        if (uVar10 != 100) {
+          pcVar3 = "(PWM)";
+        }
+        FUN_08017634("[solenoid:%u] start TIM%d@%p ch=%lu duty=%u%% on %s (ARR=%lu CCR=%lu) CR1=0x%lx CCER=0x%lx BDTR=0x%lx"
+                     ,*(undefined1 *)(param_1 + 0x4d),cVar2,puVar6,*(undefined4 *)(param_1 + 8),
+                     uVar10,pcVar3,iVar8,local_24,*puVar6,puVar6[8],uVar5);
+      }
+      else {
+        FUN_08017634("[solenoid:%u] ERROR: HAL_TIM_PWM_Start failed with status %d for tim=%p ch=%lu"
+                     ,*(undefined1 *)(param_1 + 0x4d),iVar7,**(undefined4 **)(param_1 + 4),
+                     *(undefined4 *)(param_1 + 8));
+      }
+    }
+  }
+  return;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+0801ec3c f0b5 push {r4,r5,r6,r7,lr}
+0801ec3e 4368 ldr r3,[r0,#0x4]
+0801ec40 8db0 sub sp,#0x34
+0801ec42 0400 movs r4,r0
+0801ec44 1d68 ldr r5,[r3,#0x0]
+0801ec46 0a93 str r3,[sp,#0x28]
+0801ec48 6429 cmp r1,#0x64
+0801ec4a 0ad8 bhi 0x0801ec62
+0801ec4c 0029 cmp r1,#0x0
+0801ec4e 0dd1 bne 0x0801ec6c
+0801ec50 0f00 movs r7,r1
+0801ec52 ee6a ldr r6,[r5,#0x2c]
+0801ec54 3000 movs r0,r6
+0801ec56 6421 movs r1,#0x64
+0801ec58 7843 muls r0,r7
+0801ec5a f1f781fa bl 0x08010160
+0801ec5e 0990 str r0,[sp,#0x24]
+0801ec60 12e0 b 0x0801ec88
+0801ec62 077c ldrb r7,[r0,#0x10]
+0801ec64 642f cmp r7,#0x64
+0801ec66 46d9 bls 0x0801ecf6
+0801ec68 ee6a ldr r6,[r5,#0x2c]
+0801ec6a f3e7 b 0x0801ec54
+0801ec6c 077c ldrb r7,[r0,#0x10]
+0801ec6e 8f42 cmp r7,r1
+0801ec70 05d8 bhi 0x0801ec7e
+0801ec72 627c ldrb r2,[r4,#0x11]
+0801ec74 171c adds r7,r2,#0x0
+0801ec76 8a42 cmp r2,r1
+0801ec78 00d9 bls 0x0801ec7c
+0801ec7a 0f1c adds r7,r1,#0x0
+0801ec7c ffb2 uxtb r7,r7
+0801ec7e ee6a ldr r6,[r5,#0x2c]
+0801ec80 642f cmp r7,#0x64
+0801ec82 e7d1 bne 0x0801ec54
+0801ec84 731c adds r3,r6,#0x1
+0801ec86 0993 str r3,[sp,#0x24]
+0801ec88 a37c ldrb r3,[r4,#0x12]
+0801ec8a 012b cmp r3,#0x1
+0801ec8c 02d1 bne 0x0801ec94
+0801ec8e 099b ldr r3,[sp,#0x24]
+0801ec90 f31a subs r3,r6,r3
+0801ec92 0993 str r3,[sp,#0x24]
+0801ec94 a368 ldr r3,[r4,#0x8]
+0801ec96 2800 movs r0,r5
+0801ec98 1900 movs r1,r3
+0801ec9a 0b93 str r3,[sp,#0x2c]
+0801ec9c fff7c1fd bl 0x0801e822
+0801eca0 0028 cmp r0,#0x0
+0801eca2 2ad0 beq 0x0801ecfa
+0801eca4 2200 movs r2,r4
+0801eca6 099b ldr r3,[sp,#0x24]
+0801eca8 4c32 adds r2,#0x4c
+0801ecaa 0360 str r3,[r0,#0x0]
+0801ecac 1378 ldrb r3,[r2,#0x0]
+0801ecae 1770 strb r7,[r2,#0x0]
+0801ecb0 002f cmp r7,#0x0
+0801ecb2 2ad1 bne 0x0801ed0a
+0801ecb4 002b cmp r3,#0x0
+0801ecb6 26d0 beq 0x0801ed06
+0801ecb8 a168 ldr r1,[r4,#0x8]
+0801ecba 0a98 ldr r0,[sp,#0x28]
+0801ecbc f5f78cfe bl 0x080149d8
+0801ecc0 2300 movs r3,r4
+0801ecc2 4d33 adds r3,#0x4d
+0801ecc4 1978 ldrb r1,[r3,#0x0]
+0801ecc6 6368 ldr r3,[r4,#0x4]
+0801ecc8 3448 ldr r0,[0x0801ed9c]
+0801ecca 1b68 ldr r3,[r3,#0x0]
+0801eccc 0122 movs r2,#0x1
+0801ecce 8342 cmp r3,r0
+0801ecd0 0cd0 beq 0x0801ecec
+0801ecd2 3348 ldr r0,[0x0801eda0]
+0801ecd4 0232 adds r2,#0x2
+0801ecd6 8342 cmp r3,r0
+0801ecd8 08d0 beq 0x0801ecec
+0801ecda 3248 ldr r0,[0x0801eda4]
+0801ecdc 0132 adds r2,#0x1
+0801ecde 8342 cmp r3,r0
+0801ece0 04d0 beq 0x0801ecec
+0801ece2 3148 ldr r0,[0x0801eda8]
+0801ece4 3a00 movs r2,r7
+0801ece6 8342 cmp r3,r0
+0801ece8 00d1 bne 0x0801ecec
+0801ecea 0f22 movs r2,#0xf
+0801ecec 2f48 ldr r0,[0x0801edac]
+0801ecee a368 ldr r3,[r4,#0x8]
+0801ecf0 f8f7a0fc bl 0x08017634
+0801ecf4 07e0 b 0x0801ed06
+0801ecf6 6421 movs r1,#0x64
+0801ecf8 bbe7 b 0x0801ec72
+0801ecfa 4d34 adds r4,#0x4d
+0801ecfc 2178 ldrb r1,[r4,#0x0]
+0801ecfe 2c48 ldr r0,[0x0801edb0]
+0801ed00 0b9a ldr r2,[sp,#0x2c]
+0801ed02 f8f797fc bl 0x08017634
+0801ed06 0db0 add sp,#0x34
+0801ed08 f0bd pop {r4,r5,r6,r7,pc}
+0801ed0a 002b cmp r3,#0x0
+0801ed0c fbd1 bne 0x0801ed06
+0801ed0e a168 ldr r1,[r4,#0x8]
+0801ed10 0a98 ldr r0,[sp,#0x28]
+0801ed12 f5f709fe bl 0x08014928
+0801ed16 6368 ldr r3,[r4,#0x4]
+0801ed18 021e subs r2,r0,#0x0
+0801ed1a 09d0 beq 0x0801ed30
+0801ed1c 2100 movs r1,r4
+0801ed1e a468 ldr r4,[r4,#0x8]
+0801ed20 4d31 adds r1,#0x4d
+0801ed22 0978 ldrb r1,[r1,#0x0]
+0801ed24 0094 str r4,[sp,#0x0]
+0801ed26 2348 ldr r0,[0x0801edb4]
+0801ed28 1b68 ldr r3,[r3,#0x0]
+0801ed2a f8f783fc bl 0x08017634
+0801ed2e eae7 b 0x0801ed06
+0801ed30 1b68 ldr r3,[r3,#0x0]
+0801ed32 196a ldr r1,[r3,#0x20]
+0801ed34 0a91 str r1,[sp,#0x28]
+0801ed36 1968 ldr r1,[r3,#0x0]
+0801ed38 8c46 mov r12,r1
+0801ed3a 2100 movs r1,r4
+0801ed3c 4d31 adds r1,#0x4d
+0801ed3e 0978 ldrb r1,[r1,#0x0]
+0801ed40 0b91 str r1,[sp,#0x2c]
+0801ed42 1649 ldr r1,[0x0801ed9c]
+0801ed44 8b42 cmp r3,r1
+0801ed46 25d0 beq 0x0801ed94
+0801ed48 1749 ldr r1,[0x0801eda8]
+0801ed4a 8b42 cmp r3,r1
+0801ed4c 1fd0 beq 0x0801ed8e
+0801ed4e 1448 ldr r0,[0x0801eda0]
+0801ed50 1500 movs r5,r2
+0801ed52 0321 movs r1,#0x3
+0801ed54 8342 cmp r3,r0
+0801ed56 04d0 beq 0x0801ed62
+0801ed58 1749 ldr r1,[0x0801edb8]
+0801ed5a 5918 adds r1,r3,r1
+0801ed5c 4842 rsbs r0,r1
+0801ed5e 4141 adcs r1,r0
+0801ed60 8900 lsls r1,r1,#0x2
+0801ed62 a468 ldr r4,[r4,#0x8]
+0801ed64 154a ldr r2,[0x0801edbc]
+0801ed66 642f cmp r7,#0x64
+0801ed68 00d0 beq 0x0801ed6c
+0801ed6a 154a ldr r2,[0x0801edc0]
+0801ed6c 0795 str r5,[sp,#0x1c]
+0801ed6e 0a9d ldr r5,[sp,#0x28]
+0801ed70 0292 str r2,[sp,#0x8]
+0801ed72 0695 str r5,[sp,#0x18]
+0801ed74 6546 mov r5,r12
+0801ed76 0595 str r5,[sp,#0x14]
+0801ed78 099d ldr r5,[sp,#0x24]
+0801ed7a 0a00 movs r2,r1
+0801ed7c 1148 ldr r0,[0x0801edc4]
+0801ed7e 0b99 ldr r1,[sp,#0x2c]
+0801ed80 0495 str r5,[sp,#0x10]
+0801ed82 0396 str r6,[sp,#0xc]
+0801ed84 0197 str r7,[sp,#0x4]
+0801ed86 0094 str r4,[sp,#0x0]
+0801ed88 f8f754fc bl 0x08017634
+0801ed8c bbe7 b 0x0801ed06
+0801ed8e 0f21 movs r1,#0xf
+0801ed90 5d6c ldr r5,[r3,#0x44]
+0801ed92 e6e7 b 0x0801ed62
+0801ed94 0121 movs r1,#0x1
+0801ed96 5d6c ldr r5,[r3,#0x44]
+0801ed98 e3e7 b 0x0801ed62

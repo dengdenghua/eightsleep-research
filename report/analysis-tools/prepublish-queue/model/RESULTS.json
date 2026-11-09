@@ -1,0 +1,779 @@
+{
+  "schema": "frank-prepublish-queue-model-v1",
+  "synthetic": true,
+  "not_real_device_data": true,
+  "firmware_executed": false,
+  "network_operations": 0,
+  "passed": true,
+  "case_count": 10,
+  "cases": [
+    {
+      "name": "actual_raw_capacity_rejects_new_17th",
+      "synthetic": true,
+      "passed": true,
+      "assertions": 21,
+      "conclusions": [
+        "Raw ring admits 16 message bodies; full rejects the new record and preserves existing heads.",
+        "All 17 normal enqueue-return caller paths advance the logger sequence and release temporaries.",
+        "A caller sequence gap is not uniquely diagnostic of this failure in real captures."
+      ],
+      "external_fixture_assumptions": [],
+      "queue_state": [
+        {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 16,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [
+            "full-00",
+            "full-01",
+            "full-02",
+            "full-03",
+            "full-04",
+            "full-05",
+            "full-06",
+            "full-07",
+            "full-08",
+            "full-09",
+            "full-10",
+            "full-11",
+            "full-12",
+            "full-13",
+            "full-14",
+            "full-15"
+          ],
+          "owned_body_bytes": 262
+        },
+        {
+          "queue": "log",
+          "slots": 1025,
+          "usable_capacity": 1024,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "third",
+          "slots": 33,
+          "usable_capacity": 32,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        }
+      ],
+      "core_record_ids": [],
+      "cursor": 0,
+      "connected": false,
+      "trace": "traces/actual_raw_capacity_rejects_new_17th.jsonl",
+      "record_lineage": "traces/actual_raw_capacity_rejects_new_17th-records.json",
+      "event_counts": {
+        "worker_fixture_initialized": 1,
+        "caller_body_candidate": 17,
+        "enqueue_copied": 16,
+        "caller_temporaries_released": 17,
+        "enqueue_rejected_full": 1
+      },
+      "trace_sha256": "9f46eb8dbb1467a01ec49bdda40d0e66b83ea72113e1cec4cf60bc77daaca027"
+    },
+    {
+      "name": "non_log_masks_share_raw_slots",
+      "synthetic": true,
+      "passed": true,
+      "assertions": 20,
+      "conclusions": [
+        "Different non-1 raw masks share the 16-message raw ring.",
+        "mask=1 uses the independent log ring; body size does not turn slot capacity into a time limit."
+      ],
+      "external_fixture_assumptions": [],
+      "queue_state": [
+        {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 16,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [
+            "shared-00",
+            "shared-01",
+            "shared-02",
+            "shared-03",
+            "shared-04",
+            "shared-05",
+            "shared-06",
+            "shared-07",
+            "shared-08",
+            "shared-09",
+            "shared-10",
+            "shared-11",
+            "shared-12",
+            "shared-13",
+            "shared-14",
+            "shared-15"
+          ],
+          "owned_body_bytes": 262
+        },
+        {
+          "queue": "log",
+          "slots": 1025,
+          "usable_capacity": 1024,
+          "write": 1,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [
+            "independent-log"
+          ],
+          "owned_body_bytes": 8
+        },
+        {
+          "queue": "third",
+          "slots": 33,
+          "usable_capacity": 32,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        }
+      ],
+      "core_record_ids": [],
+      "cursor": 0,
+      "connected": false,
+      "trace": "traces/non_log_masks_share_raw_slots.jsonl",
+      "record_lineage": "traces/non_log_masks_share_raw_slots-records.json",
+      "event_counts": {
+        "worker_fixture_initialized": 1,
+        "caller_body_candidate": 18,
+        "enqueue_copied": 17,
+        "caller_temporaries_released": 18,
+        "enqueue_rejected_full": 1
+      },
+      "trace_sha256": "cbb3b3e0718b2d8ec51ac69f54cce5d4ea4828e983c95cf3d038f767e2e8a394"
+    },
+    {
+      "name": "copy_ownership_sizes_and_index_wrap",
+      "synthetic": true,
+      "passed": true,
+      "assertions": 12,
+      "conclusions": [
+        "Accepted subject/body values survive mutation of caller buffers.",
+        "Pop followed by enqueue reuses the wrapped slot; a refreshed cached read prevents false-full.",
+        "The ring counts records, not payload bytes."
+      ],
+      "external_fixture_assumptions": [
+        "Reduced four-slot rings exercise the same index rule; not the shipped capacity."
+      ],
+      "queue_state": [
+        {
+          "queue": "raw",
+          "slots": 4,
+          "usable_capacity": 3,
+          "write": 0,
+          "read": 1,
+          "cached_read": 1,
+          "cached_write": 1,
+          "record_ids": [
+            "tiny",
+            "large",
+            "wrap"
+          ],
+          "owned_body_bytes": 4100
+        },
+        {
+          "queue": "log",
+          "slots": 4,
+          "usable_capacity": 3,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "third",
+          "slots": 4,
+          "usable_capacity": 3,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        }
+      ],
+      "core_record_ids": [],
+      "cursor": 1,
+      "connected": true,
+      "trace": "traces/copy_ownership_sizes_and_index_wrap.jsonl",
+      "record_lineage": "traces/copy_ownership_sizes_and_index_wrap-records.json",
+      "event_counts": {
+        "worker_fixture_initialized": 1,
+        "enqueue_copied": 4,
+        "enqueue_rejected_full": 2,
+        "connection_fixture_result": 1,
+        "js_publish_attempt": 1,
+        "publish_return_ok_pop": 1,
+        "js_cursor_advanced": 1
+      },
+      "trace_sha256": "bc2e0dd12a5bb8f380ff3dec821c44b5cfeed2bb49816f59452b928c1f4ecbaa"
+    },
+    {
+      "name": "persistent_failure_keeps_head_and_fills_capacity",
+      "synthetic": true,
+      "passed": true,
+      "assertions": 34,
+      "conclusions": [
+        "Five nonzero returns retry the same head; none of the 15 following records is attempted.",
+        "Five new raw bodies cannot enter the full ring on these normal caller paths.",
+        "Remote receipt and elapsed time are unknown, despite five local API invocations."
+      ],
+      "external_fixture_assumptions": [],
+      "queue_state": [
+        {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 16,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 16,
+          "record_ids": [
+            "blocked-00",
+            "blocked-01",
+            "blocked-02",
+            "blocked-03",
+            "blocked-04",
+            "blocked-05",
+            "blocked-06",
+            "blocked-07",
+            "blocked-08",
+            "blocked-09",
+            "blocked-10",
+            "blocked-11",
+            "blocked-12",
+            "blocked-13",
+            "blocked-14",
+            "blocked-15"
+          ],
+          "owned_body_bytes": 262
+        },
+        {
+          "queue": "log",
+          "slots": 1025,
+          "usable_capacity": 1024,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "third",
+          "slots": 33,
+          "usable_capacity": 32,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        }
+      ],
+      "core_record_ids": [],
+      "cursor": 0,
+      "connected": false,
+      "trace": "traces/persistent_failure_keeps_head_and_fills_capacity.jsonl",
+      "record_lineage": "traces/persistent_failure_keeps_head_and_fills_capacity-records.json",
+      "event_counts": {
+        "worker_fixture_initialized": 1,
+        "caller_body_candidate": 21,
+        "enqueue_copied": 16,
+        "caller_temporaries_released": 21,
+        "connection_fixture_result": 5,
+        "js_publish_attempt": 5,
+        "connection_cleanup_head_retained": 5,
+        "enqueue_rejected_full": 5
+      },
+      "trace_sha256": "e6f014f3f4e8d558e2dcdbbeaaa90cfdfbab6c8b5d283169068e3fd11cb19af3"
+    },
+    {
+      "name": "recovery_drains_admitted_records_only",
+      "synthetic": true,
+      "passed": true,
+      "assertions": 19,
+      "conclusions": [
+        "Sixteen later successful API returns pop the admitted records in order.",
+        "Previously rejected bodies do not reappear automatically in this modeled path.",
+        "Success count concerns the local publish return, not cloud delivery or disk persistence."
+      ],
+      "external_fixture_assumptions": [],
+      "queue_state": [
+        {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 16,
+          "read": 16,
+          "cached_read": 0,
+          "cached_write": 16,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "log",
+          "slots": 1025,
+          "usable_capacity": 1024,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "third",
+          "slots": 33,
+          "usable_capacity": 32,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        }
+      ],
+      "core_record_ids": [],
+      "cursor": 1,
+      "connected": true,
+      "trace": "traces/recovery_drains_admitted_records_only.jsonl",
+      "record_lineage": "traces/recovery_drains_admitted_records_only-records.json",
+      "event_counts": {
+        "worker_fixture_initialized": 1,
+        "caller_body_candidate": 21,
+        "enqueue_copied": 16,
+        "caller_temporaries_released": 21,
+        "connection_fixture_result": 6,
+        "js_publish_attempt": 21,
+        "connection_cleanup_head_retained": 5,
+        "enqueue_rejected_full": 5,
+        "publish_return_ok_pop": 16,
+        "js_cursor_advanced": 16,
+        "no_js_head": 1
+      },
+      "trace_sha256": "79a2b842480eca4007f2f1bc92ca6a64a80bddde55051877de35d4845794a87e"
+    },
+    {
+      "name": "round_robin_advances_only_on_success",
+      "synthetic": true,
+      "passed": true,
+      "assertions": 16,
+      "conclusions": [
+        "Failure holds the selected queue head and shared cursor across injected reconnection.",
+        "A later nonempty queue gets no opportunity during this bounded failed-head scenario.",
+        "Recovery then advances to the following queue; no global concurrency fairness claim."
+      ],
+      "external_fixture_assumptions": [],
+      "queue_state": [
+        {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 2,
+          "read": 1,
+          "cached_read": 0,
+          "cached_write": 2,
+          "record_ids": [
+            "q0-tail"
+          ],
+          "owned_body_bytes": 22
+        },
+        {
+          "queue": "log",
+          "slots": 1025,
+          "usable_capacity": 1024,
+          "write": 2,
+          "read": 1,
+          "cached_read": 0,
+          "cached_write": 2,
+          "record_ids": [
+            "q1-tail"
+          ],
+          "owned_body_bytes": 22
+        },
+        {
+          "queue": "third",
+          "slots": 33,
+          "usable_capacity": 32,
+          "write": 2,
+          "read": 1,
+          "cached_read": 0,
+          "cached_write": 2,
+          "record_ids": [
+            "q2-tail"
+          ],
+          "owned_body_bytes": 22
+        }
+      ],
+      "core_record_ids": [],
+      "cursor": 0,
+      "connected": true,
+      "trace": "traces/round_robin_advances_only_on_success.jsonl",
+      "record_lineage": "traces/round_robin_advances_only_on_success-records.json",
+      "event_counts": {
+        "worker_fixture_initialized": 1,
+        "enqueue_copied": 6,
+        "connection_fixture_result": 3,
+        "js_publish_attempt": 5,
+        "publish_return_ok_pop": 3,
+        "js_cursor_advanced": 3,
+        "connection_cleanup_head_retained": 2
+      },
+      "trace_sha256": "8b3874035e31f616c00702ef1dc32af6b4ad4805d06ba600dab8bf5e50f89a79"
+    },
+    {
+      "name": "bounded_core_priority_delays_js",
+      "synthetic": true,
+      "passed": true,
+      "assertions": 30,
+      "conclusions": [
+        "Five already-pending core messages take five loop opportunities before any JS attempt.",
+        "The raw ring stays full during those opportunities and rejects five new raw candidates.",
+        "A permanently nonempty core workload is a possible scheduling condition, not measured starvation."
+      ],
+      "external_fixture_assumptions": [
+        "Five core records are preloaded; core producer/admission and real-time arrival rates are not simulated."
+      ],
+      "queue_state": [
+        {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 16,
+          "read": 1,
+          "cached_read": 0,
+          "cached_write": 16,
+          "record_ids": [
+            "core-wait-01",
+            "core-wait-02",
+            "core-wait-03",
+            "core-wait-04",
+            "core-wait-05",
+            "core-wait-06",
+            "core-wait-07",
+            "core-wait-08",
+            "core-wait-09",
+            "core-wait-10",
+            "core-wait-11",
+            "core-wait-12",
+            "core-wait-13",
+            "core-wait-14",
+            "core-wait-15"
+          ],
+          "owned_body_bytes": 60
+        },
+        {
+          "queue": "log",
+          "slots": 1025,
+          "usable_capacity": 1024,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "third",
+          "slots": 33,
+          "usable_capacity": 32,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        }
+      ],
+      "core_record_ids": [],
+      "cursor": 1,
+      "connected": true,
+      "trace": "traces/bounded_core_priority_delays_js.jsonl",
+      "record_lineage": "traces/bounded_core_priority_delays_js-records.json",
+      "event_counts": {
+        "worker_fixture_initialized": 1,
+        "caller_body_candidate": 21,
+        "enqueue_copied": 16,
+        "caller_temporaries_released": 21,
+        "connection_fixture_result": 1,
+        "core_priority_attempt": 5,
+        "core_pop_restart_loop": 5,
+        "enqueue_rejected_full": 5,
+        "js_publish_attempt": 1,
+        "publish_return_ok_pop": 1,
+        "js_cursor_advanced": 1
+      },
+      "trace_sha256": "6d63d8606082149a16b408fa9eb05d4af36cedbd7d65c0c3a0543c2db89a4d52"
+    },
+    {
+      "name": "core_flush_failure_retains_core_head",
+      "synthetic": true,
+      "passed": true,
+      "assertions": 5,
+      "conclusions": [
+        "Successful core Publish followed by failed Flush retains the core head and clears the connection.",
+        "A later successful Publish+Flush releases the head before JS is considered.",
+        "Neither core Flush nor JS API return proves cloud acceptance."
+      ],
+      "external_fixture_assumptions": [],
+      "queue_state": [
+        {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 1,
+          "read": 1,
+          "cached_read": 0,
+          "cached_write": 1,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "log",
+          "slots": 1025,
+          "usable_capacity": 1024,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "third",
+          "slots": 33,
+          "usable_capacity": 32,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        }
+      ],
+      "core_record_ids": [],
+      "cursor": 1,
+      "connected": true,
+      "trace": "traces/core_flush_failure_retains_core_head.jsonl",
+      "record_lineage": "traces/core_flush_failure_retains_core_head-records.json",
+      "event_counts": {
+        "worker_fixture_initialized": 1,
+        "enqueue_copied": 1,
+        "connection_fixture_result": 2,
+        "core_priority_attempt": 2,
+        "connection_cleanup_head_retained": 1,
+        "core_pop_restart_loop": 1,
+        "js_publish_attempt": 1,
+        "publish_return_ok_pop": 1,
+        "js_cursor_advanced": 1
+      },
+      "trace_sha256": "26a344c05b6e7036f2401aba0baccba1c9fbb41bd2690640140e5a5bc01396a2"
+    },
+    {
+      "name": "failed_return_remote_acceptance_is_unknown",
+      "synthetic": true,
+      "passed": true,
+      "assertions": 6,
+      "conclusions": [
+        "The same body is supplied to two local publish calls.",
+        "One call might already have reached the receiver before a local error; actual duplicate storage is not established.",
+        "Return 0 controls the modeled pop but does not fabricate an observed ACK packet."
+      ],
+      "external_fixture_assumptions": [
+        "First attempt may have been accepted remotely while the fixture observes no ACK.",
+        "No server state, broker deduplication or exactly-once semantics is simulated."
+      ],
+      "queue_state": [
+        {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 1,
+          "read": 1,
+          "cached_read": 0,
+          "cached_write": 1,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "log",
+          "slots": 1025,
+          "usable_capacity": 1024,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "third",
+          "slots": 33,
+          "usable_capacity": 32,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        }
+      ],
+      "core_record_ids": [],
+      "cursor": 1,
+      "connected": true,
+      "trace": "traces/failed_return_remote_acceptance_is_unknown.jsonl",
+      "record_lineage": "traces/failed_return_remote_acceptance_is_unknown-records.json",
+      "event_counts": {
+        "worker_fixture_initialized": 1,
+        "enqueue_copied": 1,
+        "connection_fixture_result": 2,
+        "js_publish_attempt": 2,
+        "connection_cleanup_head_retained": 1,
+        "publish_return_ok_pop": 1,
+        "js_cursor_advanced": 1
+      },
+      "trace_sha256": "5cd83d3a9994104a85f1421d73c84689f39ede58d895d70754d0a1ef4e88d99c"
+    },
+    {
+      "name": "worker_flag_exit_is_not_a_queue_drain",
+      "synthetic": true,
+      "passed": true,
+      "assertions": 3,
+      "conclusions": [
+        "The worker branch exits with pending ownership still represented.",
+        "This case does not model normal owner stop, waiting, destructors or process termination."
+      ],
+      "external_fixture_assumptions": [],
+      "queue_state": [
+        {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 1,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [
+            "pending-at-exit"
+          ],
+          "owned_body_bytes": 30
+        },
+        {
+          "queue": "log",
+          "slots": 1025,
+          "usable_capacity": 1024,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        {
+          "queue": "third",
+          "slots": 33,
+          "usable_capacity": 32,
+          "write": 0,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        }
+      ],
+      "core_record_ids": [],
+      "cursor": 0,
+      "connected": true,
+      "trace": "traces/worker_flag_exit_is_not_a_queue_drain.jsonl",
+      "record_lineage": "traces/worker_flag_exit_is_not_a_queue_drain-records.json",
+      "event_counts": {
+        "worker_fixture_initialized": 1,
+        "enqueue_copied": 1,
+        "connection_fixture_result": 1,
+        "running_flag_cleared": 1,
+        "worker_returned_without_drain": 1
+      },
+      "trace_sha256": "47b1ae3f33aa65fc06b80b4f2c2c5a659554abb7bfe16582169c52e392a16527"
+    }
+  ],
+  "ring_exhaustive_validation": {
+    "scenario_count": 1024,
+    "operation_count": 8192,
+    "oracle": "collections.deque with capacity=N-1; does not use ring indices",
+    "synthetic": true,
+    "passed": true
+  },
+  "claims": {
+    "capacity": "FUN_0019a970: raw/log/third JS slots=17/1025/33; usable=N-1; core slots=17",
+    "ring_full": "FUN_001f49b0: next(write)==refreshed read returns 0 before copies",
+    "ring_copy": "FUN_001f49b0: copy subject/body, then publish write index",
+    "caller": "FUN_001e9390: non-mask1 -> raw queue; false logs; release temporaries; sequence++; ready=0",
+    "publish": "FUN_001afe00: js_Publish uses head subject/body; return 0 frees/pop; other returns retain head",
+    "round_robin": "FUN_001afe00: scan three JS queues; only success sets cursor=(selected+1)%3",
+    "failure": "FUN_001afe00: failed publish destroys contexts/connection, requests 1 second sleep, loops",
+    "core_priority": "FUN_001afe00: core Publish+Flush success pops then restarts loop before JS",
+    "worker_exit": "FUN_001afe00: cleared running flag returns; this branch does not drain queues",
+    "observation_boundary": "libnats implementation and remote outcome not modeled; API return is not an observed ACK packet"
+  },
+  "source_manifest": [
+    {
+      "path_relative_to_research": "analysis/signal-host/pass2/001f49b0.c",
+      "sha256": "821b81c659d310c944bc0543dbdc29bce95a0bcd01bd63e3106280d2d5f7a8b5",
+      "kind": "static_decompilation_or_disassembly_not_original_source"
+    },
+    {
+      "path_relative_to_research": "analysis/signal-host/pass5/001afe00.c",
+      "sha256": "066b9fc93d6d71f5fba7285ced1ac5ca0d459e30cd1dcd492cc50969b135dffe",
+      "kind": "static_decompilation_or_disassembly_not_original_source"
+    },
+    {
+      "path_relative_to_research": "analysis/signal-host/pass6/001e9390.c",
+      "sha256": "d305bfcbbd25292ea9257ed3523fed576f2c9df056943f22ceab40ff64316b42",
+      "kind": "static_decompilation_or_disassembly_not_original_source"
+    },
+    {
+      "path_relative_to_research": "analysis/prepublish-queue-20261108/code-audit/pass1/0019a970.c",
+      "sha256": "229541abdaf45c7f34761929f9e70b0b0b3db4e23055a233424356d73d456eb5",
+      "kind": "static_decompilation_or_disassembly_not_original_source"
+    },
+    {
+      "path_relative_to_research": "analysis/prepublish-queue-20261108/code-audit/pass1/0019a970.asm.txt",
+      "sha256": "0aaf06730fb7a679ca527cc53f01d0a456e846380de85ca778e00c6685dd7ca4",
+      "kind": "static_decompilation_or_disassembly_not_original_source"
+    }
+  ],
+  "limitations": [
+    "Entry starts after a body candidate exists and allocations do not throw; only normal bool-return caller paths advance sequence/clear ready.",
+    "No physical sample timing, Hz, channel positions, number of seconds buffered or real transport rate is inferred.",
+    "Opaque synthetic bytes are neither sensor recordings nor validated production CBOR.",
+    "Thread synchronization, concurrent index visibility, maintenance gates and allocation failures are not simulated.",
+    "After failure the next scan starts at the unchanged cursor; an earlier queue that was empty can receive a new record and be selected before the previous failed queue. Blocking examples require the failed head to remain the first nonempty candidate.",
+    "Repeated API submissions are not proof of server duplicates; ACK observation and remote-acceptance labels are explicit external fixture annotations.",
+    "js_Publish return 0 is not converted into an observed ACK or a claim of disk/cloud persistence.",
+    "Worker running-flag exit is modeled separately from owner shutdown/destruction; lifecycle extensions require their own verified branches.",
+    "Logger sequence is distinct from uploader batch/chunk sequence and sample chronology."
+  ]
+}

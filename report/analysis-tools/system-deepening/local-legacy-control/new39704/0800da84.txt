@@ -1,0 +1,37 @@
+TARGET 0800da84 function=FUN_0800da84
+BODY [[0800da84, 0800daaf]]
+
+undefined4 FUN_0800da84(undefined4 param_1,undefined4 param_2)
+
+{
+  int iVar1;
+  
+  iVar1 = FUN_0800dab0();
+  if ((iVar1 == 0) ||
+     ((iVar1 = FUN_0800dab0(param_2), iVar1 != 0 &&
+      (iVar1 = FUN_0800518c(param_1,param_2), iVar1 == 0)))) {
+    param_1 = param_2;
+  }
+  return param_1;
+}
+
+
+INSN 0800da84 70b5 push {r4,r5,r6,lr}
+INSN 0800da86 041c adds r4,r0,#0x0
+INSN 0800da88 0d1c adds r5,r1,#0x0
+INSN 0800da8a 00f011f8 bl 0x0800dab0 REF UNCONDITIONAL_CALL=0800dab0
+INSN 0800da8e 0028 cmp r0,#0x0
+INSN 0800da90 02d1 bne 0x0800da98 REF CONDITIONAL_JUMP=0800da98
+INSN 0800da92 2c1c adds r4,r5,#0x0
+INSN 0800da94 201c adds r0,r4,#0x0
+INSN 0800da96 70bd pop {r4,r5,r6,pc}
+INSN 0800da98 281c adds r0,r5,#0x0
+INSN 0800da9a 00f009f8 bl 0x0800dab0 REF UNCONDITIONAL_CALL=0800dab0
+INSN 0800da9e 0028 cmp r0,#0x0
+INSN 0800daa0 f8d0 beq 0x0800da94 REF CONDITIONAL_JUMP=0800da94
+INSN 0800daa2 291c adds r1,r5,#0x0
+INSN 0800daa4 201c adds r0,r4,#0x0
+INSN 0800daa6 f7f771fb bl 0x0800518c REF UNCONDITIONAL_CALL=0800518c
+INSN 0800daaa 0028 cmp r0,#0x0
+INSN 0800daac f1d0 beq 0x0800da92 REF CONDITIONAL_JUMP=0800da92
+INSN 0800daae f1e7 b 0x0800da94 REF UNCONDITIONAL_JUMP=0800da94

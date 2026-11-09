@@ -1,0 +1,232 @@
+{
+  "status": "PASS",
+  "case_count": 24,
+  "cases": [
+    {
+      "name": "first_call_sends_then_waits",
+      "observed": "waiting-response",
+      "expected": "waiting-response",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "same_opcode_queues",
+      "observed": "queued",
+      "expected": "queued",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "different_opcode_can_be_pending",
+      "observed": "waiting-response",
+      "expected": "waiting-response",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "same_opcode_not_sent_while_gate_owned",
+      "observed": [
+        "A",
+        "M"
+      ],
+      "expected": [
+        "A",
+        "M"
+      ],
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "unmatched_opcode_does_not_resolve",
+      "observed": null,
+      "expected": null,
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "matching_response_selects_pending_opcode",
+      "observed": "A",
+      "expected": "A",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "gate_stays_owned_until_sender_finally",
+      "observed": "queued",
+      "expected": "queued",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "released_gate_allows_next",
+      "observed": "waiting-response",
+      "expected": "waiting-response",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "queue_time_deducted_from_response_budget",
+      "observed": [
+        "B",
+        380
+      ],
+      "expected": [
+        "B",
+        380
+      ],
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "budget_exhausted_does_not_send",
+      "observed": "budget-exhausted",
+      "expected": "budget-exhausted",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "budget_failure_sent_list_unchanged",
+      "observed": [
+        "A",
+        "M",
+        "B"
+      ],
+      "expected": [
+        "A",
+        "M",
+        "B"
+      ],
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "already_cancelled_free_gate_still_sends",
+      "observed": "cancelled-after-send",
+      "expected": "cancelled-after-send",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "cancelled_request_not_retracted",
+      "observed": [
+        "cancelled"
+      ],
+      "expected": [
+        "cancelled"
+      ],
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "cancel_finally_removes_pending",
+      "observed": {},
+      "expected": {},
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "cancelled_contended_request_not_sent",
+      "observed": "cancelled-in-queue",
+      "expected": "cancelled-in-queue",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "contention_cancel_sent_list",
+      "observed": [
+        "cancelled",
+        "held"
+      ],
+      "expected": [
+        "cancelled",
+        "held"
+      ],
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "late_response_without_waiter_discarded",
+      "observed": null,
+      "expected": null,
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "conditional_late_reply_matches_new_same_opcode",
+      "observed": "new",
+      "expected": "new",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "identity_matched_cleanup_keeps_new_pending",
+      "observed": "current",
+      "expected": "current",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "stop_has_no_explicit_pending_failure",
+      "observed": "current",
+      "expected": "current",
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "new_connection_has_separate_pending_dictionary",
+      "observed": {},
+      "expected": {},
+      "source": "Connection.SendCommand / ResolveRequest / ExpireRequests / StopAsync",
+      "status": "PASS"
+    },
+    {
+      "name": "ACK_returns_body_after_status",
+      "observed": [
+        "return",
+        {
+          "bytes_hex": "726561646261636b"
+        }
+      ],
+      "expected": [
+        "return",
+        {
+          "bytes_hex": "726561646261636b"
+        }
+      ],
+      "source": "DeviceSession.SendCommand",
+      "status": "PASS"
+    },
+    {
+      "name": "NAK_throws",
+      "observed": [
+        "DeviceCommunicationException",
+        1
+      ],
+      "expected": [
+        "DeviceCommunicationException",
+        1
+      ],
+      "source": "DeviceSession.SendCommand",
+      "status": "PASS"
+    },
+    {
+      "name": "unsupported_throws",
+      "observed": [
+        "DeviceCommunicationException",
+        2
+      ],
+      "expected": [
+        "DeviceCommunicationException",
+        2
+      ],
+      "source": "DeviceSession.SendCommand",
+      "status": "PASS"
+    }
+  ],
+  "limits": [
+    "Explicit normal response timing only; not a CLR scheduler or serial hardware simulator.",
+    "Late reply case assumes the old real reply arrives after a same-opcode successor registers; actual occurrence not observed.",
+    "Cancellation case assumes response has not already completed before cancellable wait.",
+    "No claims about physical-layer write atomicity, device completion, malicious input or real frequency."
+  ]
+}

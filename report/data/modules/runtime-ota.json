@@ -1,0 +1,53 @@
+{
+  "id": "runtime-ota",
+  "title": "运行环境、诊断与OTA",
+  "layer": "operations",
+  "status": "partial",
+  "summary": "主机里多个程序分工运行，另有程序负责启动、日志和更新。文件里写了要启动某项服务，不等于实机上已经成功运行。",
+  "inputs": [
+    "签名 OTA 清单、设备平台和版本",
+    "systemd 配置、持久目录与启动环境",
+    "网络心跳、空间阈值和运维日志"
+  ],
+  "outputs": [
+    "服务启动及 IPC 路由",
+    "另一系统槽安装与启动标记",
+    "日志/metrics、空间清理与网络恢复"
+  ],
+  "findings": [
+    "Frank / Capybara / DAC / NATS / uploader / Vector 各有独立职责，不能按体积或名称认定为睡眠模型。",
+    "MTK OTA 使用 rootfs_a/b 和对应 boot 槽；已核对签名迁移，未实际升级。",
+    "离线启动兜底只能把过早日期推到构建时间，不能提供当前真实日期。",
+    "断网监督可能清理旧消息；关机 dump 是带超时的尽力路径。",
+    "默认 Vector 订阅日志和 metrics，原始传感上传由 uploader 处理。",
+    "启动图校验286份保留文件和3份生产者源码，解析230个unit名称；明确区分排序、拉起和文件等待。",
+    "run_info在连接初始化前写入，非空不表示已联网；burrow校时与采样启动之间未恢复显式排序。",
+    "已补设备请求注册、参数/错误和回包链；普通模式与Cavia模式的诊断注册不同。",
+    "维护getpublickey可能写密钥文件，运行返回true仅代表子进程仍存活，不能作为只读入口或隧道可达证明。",
+    "同包SignalR确认两次Request注册均生效；正常路径两条队列入队、仅派生队列执行业务，基类队列存在未消费保留路径，未实测内存影响。"
+  ],
+  "unknowns": [
+    "同一用户实机的系统、主控进程、MCU 版本对应",
+    "实际运行 unit/drop-in、NTP 与启动依赖",
+    "真实 bootloader 环境及 OTA 回退效果",
+    "随包之外的运行期文件与部署内容"
+  ],
+  "evidence": [
+    "analysis/system/RUNTIME_SURFACE_AUDIT_ZH.txt",
+    "analysis/system/MTK_COMPARISON.txt",
+    "analysis/system/OFFLINE_SUPERVISOR_NOTE.txt",
+    "analysis/sleep-pipeline/DOWNLOAD_AND_RUNTIME_ARTIFACTS_ZH.txt",
+    "analysis/sleep-pipeline/THERMAL_MODE_ROUTING_ZH.txt",
+    "analysis/device-side-followup/recovery-round/time-recovery/FINDINGS_ZH.txt",
+    "analysis/finishable-20261107/startup/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/diagnostics/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/signalr-dispatch/FINDINGS_ZH.txt"
+  ],
+  "next": [
+    "C12",
+    "C14",
+    "C15"
+  ],
+  "order": 80,
+  "plain_intro": "这一页相当于设备的后台工作安排：谁先启动，程序之间怎样传消息，出了错记在哪里，更新时怎样替换程序。"
+}

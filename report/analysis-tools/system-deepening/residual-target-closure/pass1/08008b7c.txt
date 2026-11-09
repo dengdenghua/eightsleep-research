@@ -1,0 +1,33 @@
+TARGET 08008b7c function=08008b7c
+REF_TO 0800a518 UNCONDITIONAL_CALL
+FUNCTION_BODY [[08008b7c, 08008b9d]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_08008b7c(int *param_1)
+
+{
+  if (*param_1 == 0x40023000) {
+    _DAT_40021038 = _DAT_40021038 | 0x1000;
+  }
+  return;
+}
+
+
+INSN 08008b7c 084b ldr r3,[0x08008ba0] REF[READ:08008ba0=40023000]
+INSN 08008b7e 0268 ldr r2,[r0,#0x0]
+INSN 08008b80 82b0 sub sp,#0x8
+INSN 08008b82 9a42 cmp r2,r3
+INSN 08008b84 09d1 bne 0x08008b9a REF[CONDITIONAL_JUMP:08008b9a]
+INSN 08008b86 8021 movs r1,#0x80
+INSN 08008b88 064b ldr r3,[0x08008ba4] REF[READ:08008ba4=40021000]
+INSN 08008b8a 4901 lsls r1,r1,#0x5
+INSN 08008b8c 9a6b ldr r2,[r3,#0x38] REF[READ:40021038]
+INSN 08008b8e 0a43 orrs r2,r1
+INSN 08008b90 9a63 str r2,[r3,#0x38] REF[WRITE:40021038]
+INSN 08008b92 9b6b ldr r3,[r3,#0x38] REF[READ:40021038]
+INSN 08008b94 0b40 ands r3,r1
+INSN 08008b96 0193 str r3,[sp,#0x4] REF[WRITE:Stack[-0x4]]
+INSN 08008b98 019b ldr r3,[sp,#0x4] REF[READ:Stack[-0x4]]
+INSN 08008b9a 02b0 add sp,#0x8
+INSN 08008b9c 7047 bx lr

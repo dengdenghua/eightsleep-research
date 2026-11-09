@@ -1,0 +1,76 @@
+TARGET 0800a480 function=0800a480
+REF_TO 0800a5b4 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800a480, 0800a4d7]]
+
+undefined8 FUN_0800a480(undefined4 *param_1,byte *param_2,uint param_3)
+
+{
+  uint *puVar1;
+  byte *pbVar2;
+  byte *pbVar3;
+  
+  puVar1 = (uint *)*param_1;
+  pbVar2 = param_2 + (param_3 & 0xfffffffc);
+  for (pbVar3 = param_2; pbVar2 != pbVar3; pbVar3 = pbVar3 + 4) {
+    *puVar1 = (uint)*pbVar3 << 0x18 | (uint)pbVar3[1] << 0x10 | (uint)pbVar3[3] |
+              (uint)pbVar3[2] << 8;
+  }
+  if ((param_3 & 3) != 0) {
+    if ((param_3 & 3) == 1) {
+      *(byte *)puVar1 = param_2[param_3 & 0xfffffffc];
+    }
+    else {
+      *(ushort *)puVar1 = CONCAT11(param_2[param_3 & 0xfffffffc],pbVar2[1]);
+      if ((param_3 & 3) != 2) {
+        *(byte *)puVar1 = pbVar2[2];
+      }
+    }
+  }
+  return CONCAT44(param_1,*(undefined4 *)*param_1);
+}
+
+
+INSN 0800a480 f7b5 push {r0,r1,r2,r4,r5,r6,r7,lr}
+INSN 0800a482 0e00 movs r6,r1
+INSN 0800a484 9708 lsrs r7,r2,#0x2
+INSN 0800a486 bf00 lsls r7,r7,#0x2
+INSN 0800a488 0468 ldr r4,[r0,#0x0]
+INSN 0800a48a 0190 str r0,[sp,#0x4] REF[WRITE:Stack[-0x1c]]
+INSN 0800a48c cd19 adds r5,r1,r7
+INSN 0800a48e b542 cmp r5,r6
+INSN 0800a490 0cd1 bne 0x0800a4ac REF[CONDITIONAL_JUMP:0800a4ac]
+INSN 0800a492 0323 movs r3,#0x3
+INSN 0800a494 1600 movs r6,r2
+INSN 0800a496 1e40 ands r6,r3
+INSN 0800a498 1a42 tst r2,r3
+INSN 0800a49a 03d0 beq 0x0800a4a4 REF[CONDITIONAL_JUMP:0800a4a4]
+INSN 0800a49c ca5d ldrb r2,[r1,r7]
+INSN 0800a49e 012e cmp r6,#0x1
+INSN 0800a4a0 11d1 bne 0x0800a4c6 REF[CONDITIONAL_JUMP:0800a4c6]
+INSN 0800a4a2 2270 strb r2,[r4,#0x0]
+INSN 0800a4a4 019b ldr r3,[sp,#0x4] REF[READ:Stack[-0x1c]]
+INSN 0800a4a6 1b68 ldr r3,[r3,#0x0]
+INSN 0800a4a8 1868 ldr r0,[r3,#0x0]
+INSN 0800a4aa febd pop {r1,r2,r3,r4,r5,r6,r7,pc}
+INSN 0800a4ac 3378 ldrb r3,[r6,#0x0]
+INSN 0800a4ae 7078 ldrb r0,[r6,#0x1]
+INSN 0800a4b0 1b06 lsls r3,r3,#0x18
+INSN 0800a4b2 0004 lsls r0,r0,#0x10
+INSN 0800a4b4 0343 orrs r3,r0
+INSN 0800a4b6 f078 ldrb r0,[r6,#0x3]
+INSN 0800a4b8 0343 orrs r3,r0
+INSN 0800a4ba b078 ldrb r0,[r6,#0x2]
+INSN 0800a4bc 0436 adds r6,#0x4
+INSN 0800a4be 0002 lsls r0,r0,#0x8
+INSN 0800a4c0 0343 orrs r3,r0
+INSN 0800a4c2 2360 str r3,[r4,#0x0]
+INSN 0800a4c4 e3e7 b 0x0800a48e REF[UNCONDITIONAL_JUMP:0800a48e]
+INSN 0800a4c6 6b78 ldrb r3,[r5,#0x1]
+INSN 0800a4c8 1202 lsls r2,r2,#0x8
+INSN 0800a4ca 1343 orrs r3,r2
+INSN 0800a4cc 2380 strh r3,[r4,#0x0]
+INSN 0800a4ce 022e cmp r6,#0x2
+INSN 0800a4d0 e8d0 beq 0x0800a4a4 REF[CONDITIONAL_JUMP:0800a4a4]
+INSN 0800a4d2 ab78 ldrb r3,[r5,#0x2]
+INSN 0800a4d4 2370 strb r3,[r4,#0x0]
+INSN 0800a4d6 e5e7 b 0x0800a4a4 REF[UNCONDITIONAL_JUMP:0800a4a4]

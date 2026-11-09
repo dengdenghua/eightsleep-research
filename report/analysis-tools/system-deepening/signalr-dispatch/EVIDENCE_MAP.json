@@ -1,0 +1,339 @@
+{
+  "schema": "eightsleep.signalr.dispatch-evidence.v1",
+  "claims": [
+    {
+      "id": "SR-01",
+      "claim": "同一连接双注册与两份不同字段、订阅返回值丢弃",
+      "references": [
+        {
+          "file": "source/Eight.DeviceApiClient/Eight.DeviceApiClient/Client.cs",
+          "lines": [
+            27
+          ],
+          "locator": "hubConnection.On(\"Request\"",
+          "sha256": "bf54aca9419cf5150fffb699bb882ef60e866bff7a326d2c410c3a973874b996"
+        },
+        {
+          "file": "source/Eight.Capybara.DeviceApi/Eight.Capybara.DeviceApi/DeviceAPIService.cs",
+          "lines": [
+            20
+          ],
+          "locator": ": base(hubConnection, router, logger)",
+          "sha256": "2b6005188e4de29f6d4207365e283b4c7e3fe18637db3c9274c750b70f7851a3"
+        },
+        {
+          "file": "source/Eight.Capybara.DeviceApi/Eight.Capybara.DeviceApi/DeviceAPIService.cs",
+          "lines": [
+            23
+          ],
+          "locator": "hubConnection.On(\"Request\"",
+          "sha256": "2b6005188e4de29f6d4207365e283b4c7e3fe18637db3c9274c750b70f7851a3"
+        },
+        {
+          "file": "exports/Client.il.txt",
+          "lines": [
+            1317
+          ],
+          "locator": "IL_0043: pop",
+          "sha256": "76ffb04a34d65aa6579fec89656d2653e1bb242e81e33b76b11ab747a669e07c"
+        },
+        {
+          "file": "exports/DeviceAPIService.il.txt",
+          "lines": [
+            859
+          ],
+          "locator": "IL_004f: pop",
+          "sha256": "6d684b5fe5afe56b6766ee1225c9d84995293f12908ea30db7703d9361dde114"
+        },
+        {
+          "file": "exports/Client.il.txt",
+          "lines": [
+            67,
+            254,
+            1293
+          ],
+          "locator": "Client::serverRequests",
+          "sha256": "76ffb04a34d65aa6579fec89656d2653e1bb242e81e33b76b11ab747a669e07c"
+        },
+        {
+          "file": "exports/DeviceAPIService.il.txt",
+          "lines": [
+            72,
+            330,
+            835
+          ],
+          "locator": "DeviceAPIService::serverRequests",
+          "sha256": "6d684b5fe5afe56b6766ee1225c9d84995293f12908ea30db7703d9361dde114"
+        }
+      ]
+    },
+    {
+      "id": "SR-02",
+      "claim": "同名handler追加与逐项调用；共享参数对象而非深拷贝",
+      "references": [
+        {
+          "file": "exports/HubConnectionExtensions.cs",
+          "lines": [
+            162
+          ],
+          "locator": "public static IDisposable On<T1>(this HubConnection hubConnection, string methodName, Func<T1, Task> handler)",
+          "sha256": "1d637dc8040c5dd1f9bbbeb1aca1e5e41256d0271d1e376bd001bef70f646d51"
+        },
+        {
+          "file": "exports/HubConnection.cs",
+          "lines": [
+            95
+          ],
+          "locator": "_invocationHandlers.Add(handler);",
+          "sha256": "12645141dd8360181b00fa1bddd510d88e52c2098e5e183a47a04a82a9511452"
+        },
+        {
+          "file": "exports/HubConnection.cs",
+          "lines": [
+            2176
+          ],
+          "locator": "public virtual IDisposable On(string methodName, Type[] parameterTypes, Func<object?[], object, Task> handler",
+          "sha256": "12645141dd8360181b00fa1bddd510d88e52c2098e5e183a47a04a82a9511452"
+        },
+        {
+          "file": "exports/HubConnection.cs",
+          "lines": [
+            2901
+          ],
+          "locator": "Task task = handler.InvokeAsync(invocation.Arguments);",
+          "sha256": "12645141dd8360181b00fa1bddd510d88e52c2098e5e183a47a04a82a9511452"
+        },
+        {
+          "file": "exports/HubConnection.cs",
+          "lines": [
+            2576,
+            2904,
+            3157
+          ],
+          "locator": "await task.ConfigureAwait",
+          "sha256": "12645141dd8360181b00fa1bddd510d88e52c2098e5e183a47a04a82a9511452"
+        },
+        {
+          "file": "exports/HubConnection.il.txt",
+          "lines": [
+            244
+          ],
+          "locator": "end of method InvocationHandlerList::Add",
+          "sha256": "1462f8db8b8146301b325f34d9756e603323d5ee35464095a6eddb8dc431f368"
+        },
+        {
+          "file": "exports/HubConnection.il.txt",
+          "lines": [
+            12738
+          ],
+          "locator": "end of method '<DispatchInvocationAsync>d__85'::MoveNext",
+          "sha256": "1462f8db8b8146301b325f34d9756e603323d5ee35464095a6eddb8dc431f368"
+        },
+        {
+          "file": "source/Eight.DeviceProtocol/Eight.DeviceProtocol/Request.cs",
+          "lines": [
+            7
+          ],
+          "locator": "public record Request",
+          "sha256": "91a9d87c8d75ca42ad0e573895c32db061cd5a66aadd688f377ffebef2d4c1d9"
+        }
+      ]
+    },
+    {
+      "id": "SR-03",
+      "claim": "正常host虚调用派生ExecuteAsync，只消费派生reader",
+      "references": [
+        {
+          "file": "source/Eight.Capybara.DeviceApi/Eight.Capybara.DeviceApi/DeviceApiExtensions.cs",
+          "lines": [
+            34
+          ],
+          "locator": "services.AddHostedService<DeviceAPIService>();",
+          "sha256": "1302904bfff41c7233ca6308ffa364b1d7212333497c5496e2d09b381d263b9e"
+        },
+        {
+          "file": "exports/BackgroundService.il.txt",
+          "lines": [
+            348
+          ],
+          "locator": "callvirt instance class [System.Runtime]System.Threading.Tasks.Task Microsoft.Extensions.Hosting.BackgroundService::ExecuteAsync",
+          "sha256": "64f95a39f1142aabfd9a8c4438747d345e810c1022b7aae37b3201dbcd34f3f2"
+        },
+        {
+          "file": "source/Eight.Capybara.DeviceApi/Eight.Capybara.DeviceApi/DeviceAPIService.cs",
+          "lines": [
+            37
+          ],
+          "locator": "ProcessRequests(serverRequests.Reader, stoppingToken);",
+          "sha256": "2b6005188e4de29f6d4207365e283b4c7e3fe18637db3c9274c750b70f7851a3"
+        },
+        {
+          "file": "exports/DeviceAPIService.il.txt",
+          "lines": [
+            330
+          ],
+          "locator": "IL_002e: ldfld",
+          "sha256": "6d684b5fe5afe56b6766ee1225c9d84995293f12908ea30db7703d9361dde114"
+        },
+        {
+          "file": "exports/DeviceAPIService.il.txt",
+          "lines": [
+            334
+          ],
+          "locator": "IL_003e: call instance",
+          "sha256": "6d684b5fe5afe56b6766ee1225c9d84995293f12908ea30db7703d9361dde114"
+        },
+        {
+          "file": "source/Eight.DeviceApiClient/Eight.DeviceApiClient/Client.cs",
+          "lines": [
+            45
+          ],
+          "locator": "await ProcessRequests(serverRequests.Reader, stoppingToken);",
+          "sha256": "bf54aca9419cf5150fffb699bb882ef60e866bff7a326d2c410c3a973874b996"
+        },
+        {
+          "file": "source/Eight.DeviceApiClient/Eight.DeviceApiClient/Client.cs",
+          "lines": [
+            53
+          ],
+          "locator": "await foreach (Request item in requests.ReadAllAsync(cancellation))",
+          "sha256": "bf54aca9419cf5150fffb699bb882ef60e866bff7a326d2c410c3a973874b996"
+        }
+      ]
+    },
+    {
+      "id": "SR-04",
+      "claim": "无界通道存储与基类请求保留路径",
+      "references": [
+        {
+          "file": "exports/Channel.cs",
+          "lines": [
+            7
+          ],
+          "locator": "return new UnboundedChannel<T>(runContinuationsAsynchronously: true);",
+          "sha256": "a2272b619f8999e1e8b451da8553ad9aababbd04e69bfb801866318849cd936f"
+        },
+        {
+          "file": "exports/UnboundedChannel.cs",
+          "lines": [
+            180
+          ],
+          "locator": "parent._items.Enqueue(item);",
+          "sha256": "d8256c1c049dcf3ee72e563557e6ee2e8372ae1311d149c03459d8710f09babc"
+        },
+        {
+          "file": "exports/UnboundedChannel.cs",
+          "lines": [
+            234
+          ],
+          "locator": "private readonly ConcurrentQueue<T> _items",
+          "sha256": "d8256c1c049dcf3ee72e563557e6ee2e8372ae1311d149c03459d8710f09babc"
+        },
+        {
+          "file": "exports/UnboundedChannel.cs",
+          "lines": [
+            213
+          ],
+          "locator": "public override ValueTask WriteAsync(T item, CancellationToken cancellationToken)",
+          "sha256": "d8256c1c049dcf3ee72e563557e6ee2e8372ae1311d149c03459d8710f09babc"
+        },
+        {
+          "file": "exports/UnboundedChannel.cs",
+          "lines": [
+            45,
+            52,
+            70
+          ],
+          "locator": "parent._items.TryDequeue",
+          "sha256": "d8256c1c049dcf3ee72e563557e6ee2e8372ae1311d149c03459d8710f09babc"
+        },
+        {
+          "file": "exports/UnboundedChannel.il.txt",
+          "lines": [
+            739
+          ],
+          "locator": "end of method UnboundedChannelWriter::TryWrite",
+          "sha256": "9a41a4f0f1f0c33720827895d9a6c33fd9eadcfe91f93ee32d588628b5704d03"
+        },
+        {
+          "file": "exports/UnboundedChannel.il.txt",
+          "lines": [
+            830
+          ],
+          "locator": "end of method UnboundedChannelWriter::WriteAsync",
+          "sha256": "9a41a4f0f1f0c33720827895d9a6c33fd9eadcfe91f93ee32d588628b5704d03"
+        }
+      ]
+    },
+    {
+      "id": "SR-05",
+      "claim": "可见停止与重连不排空应用通道，正常重连不反复追加handler",
+      "references": [
+        {
+          "file": "exports/BackgroundService.cs",
+          "lines": [
+            24
+          ],
+          "locator": "public virtual async Task StopAsync",
+          "sha256": "fdc52fa069de534072f61236bfe25f26b6bac70e0bc9ba11c84b29f666af566b"
+        },
+        {
+          "file": "exports/BackgroundService.cs",
+          "lines": [
+            39
+          ],
+          "locator": "public virtual void Dispose",
+          "sha256": "fdc52fa069de534072f61236bfe25f26b6bac70e0bc9ba11c84b29f666af566b"
+        },
+        {
+          "file": "exports/HubConnection.cs",
+          "lines": [
+            49
+          ],
+          "locator": "_handlerList.Remove(_handler);",
+          "sha256": "12645141dd8360181b00fa1bddd510d88e52c2098e5e183a47a04a82a9511452"
+        },
+        {
+          "file": "exports/HubConnection.cs",
+          "lines": [
+            2196
+          ],
+          "locator": "_handlers.TryRemove(methodName",
+          "sha256": "12645141dd8360181b00fa1bddd510d88e52c2098e5e183a47a04a82a9511452"
+        },
+        {
+          "file": "exports/HubConnection.cs",
+          "lines": [
+            2267
+          ],
+          "locator": "private async Task StopAsyncCore(bool disposing)",
+          "sha256": "12645141dd8360181b00fa1bddd510d88e52c2098e5e183a47a04a82a9511452"
+        },
+        {
+          "file": "source/Eight.Capybara.DeviceApi/Eight.Capybara.DeviceApi/DeviceAPIService.cs",
+          "lines": [
+            40
+          ],
+          "locator": "while (!stoppingToken.IsCancellationRequested)",
+          "sha256": "2b6005188e4de29f6d4207365e283b4c7e3fe18637db3c9274c750b70f7851a3"
+        },
+        {
+          "file": "source/Eight.Capybara.DeviceApi/Eight.Capybara.DeviceApi/DeviceAPIService.cs",
+          "lines": [
+            46
+          ],
+          "locator": "await SetupConnection(linkedTokenSource.Token);",
+          "sha256": "2b6005188e4de29f6d4207365e283b4c7e3fe18637db3c9274c750b70f7851a3"
+        },
+        {
+          "file": "LIFECYCLE_REFERENCE_REVIEW.json",
+          "lines": [
+            2
+          ],
+          "locator": "Full selected types only; no reflection or external runtime modification claim.",
+          "sha256": "132447f4ccf2d6e72c88b3c924ef58e2e4a51278d13bdeb6380b5a4afda2453a"
+        }
+      ]
+    }
+  ]
+}

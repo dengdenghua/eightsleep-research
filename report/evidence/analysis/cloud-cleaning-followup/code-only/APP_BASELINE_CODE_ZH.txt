@@ -1,0 +1,87 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+国行 App 基线与异常结果：只基于 APK 代码的调用链
+日期：2026-11-07。样本：7.63.5-cn-tencent；APK SHA256 8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+REA index 462a22f663ae482ea93bab3130b96eaf。复用现有 12 条专题证据与既有网络/健康结果证据；未重新提取或索引，未执行目标或请求账户 API。
+
+结论
+客户端存在一条完整的“服务端响应 → 健康结果 → 星期基线/异常字段 → 本地缓存与 UI 取值”路径。value、isAbnormal、dayOfWeekAverage 等字段从 JSON 读取，未在该解析链中由原始传感波形计算。现有代码可证明 App 接受既成结果，不能据此还原服务器所用算法、确认 EMA、确定其训练方式，或断言全部数据清洗都在云端。
+
+一、网络服务构造与 GET 入口
+
+ce/l.Z3() 使用 AppEnvironment.getBaseUrl(appEnvironment,"client-api",默认协议) 配置 Retrofit，并注册 Moshi converter 与 OkHttpClient。
+AppEnvironment.CHINA 的 domain 是 8slp.net.cn；getBaseUrl 将 subDomain 加 -proxy，默认协议为 https。
+MetricsTrendsRepository 注入的 Loc/c 来自 Z3().create(Loc/c)，不是另一个 app-api Retrofit。
+Loc/c.d 的 GET 路径是 v1/users/{USER_ID}/trends；返回类型 MetricsTrendsResponse。
+调用者 pc/Z.invokeSuspend 传入 tz/from/to、include-main=false、include-all-sessions=true、model-version="v3"、consistent-read。
+因此按本 APK 的 CHINA 配置组合为 https://client-api-proxy.8slp.net.cn/v1/users/{USER_ID}/trends。它是从构造代码恢复的地址，没有发送请求、捕获响应或验证线上可用性；"v3" 参数不能充当后台模型实现。
+
+可直接定位：
+${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5/java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/p061ce/C2685l.java:1613–1622
+${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5/java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/com/eightsleep/data_core/enums/AppEnvironment.java:8、17–38
+${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/ce/k.smali:1998–2026
+${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/oc/c.smali:151–194
+${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/pc/Z.smali:131–149
+
+二、response → health → wellbeing → abnormalities
+
+MetricsTrendsResponse.days 中的 DailyTrendsResponse 由 pc/a0 取出并调用 toEntity，进入 daily_trends 缓存。DailyTrendsResponseJsonAdapter 将 JSON health 绑定到 HealthScoreResponse。其 toDomain 依次转 breathing、heartbeat、wellbeing；wellbeing 的七个顶层字段为 value/rating/ranges/abnormalities/dayCount/daysUntilAvailable/daysUntilCalibrated。
+WellBeingHealthScoreStatResponse.toDomain 直接把 abnormalities 及另外六项传给 rc/m。RawDailyTrends 转显示模型时保留这份 wellbeing；DailyTrends 的 L 槽是健康结果。
+WellBeingAbnormalitiesJsonAdapter 从对象读取 hr/hrv/rr，分别交给 WellBeingDetailStats adapter；三项各自可空，并原样放入 WellBeingAbnormalities。
+这里没有将 dayCount 解释成任何统计模型的历史长度；也没有把 daysUntilCalibrated 当作手机本地训练过程。
+
+代码定位（下述 Java 文件共同根目录 J；Smali 文件共同根目录 S）：
+J=${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5/java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/
+S=${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/
+J/p378pc/a0.java:60–84；J/com/eightsleep/data_metrics/data/model/DailyTrendsResponse.java:609–621。
+J/com/eightsleep/data_metrics/data/model/DailyTrendsResponseJsonAdapter.java:31、83–85。
+J/com/eightsleep/data_metrics/data/model/health_score/HealthScoreResponse.java:81–87。
+J/com/eightsleep/data_metrics/data/model/health_score/WellBeingHealthScoreStatResponseJsonAdapter.java:15、28–30、77–89、123–126。
+J/com/eightsleep/data_metrics/data/model/health_score/WellBeingHealthScoreStatResponse.java:136–137。
+J/com/eightsleep/data_metrics/domain/model/RawDailyTrends.java:262–267、331。
+J/com/eightsleep/data_metrics/data/model/health_score/WellBeingAbnormalitiesJsonAdapter.java:11–16、35–55。
+
+三、八字段 fromJson 的完整编译后语义
+
+WellBeingDetailStatsJsonAdapter 的构造器固定如下八个 JSON 名称，其 fromJson 实际读取并直接构造 DTO：
+  value                  double；缺失或 null 抛错
+  isAbnormal             boolean；缺失或 null 抛错
+  probability            nullable Double
+  dayOfWeekAverage       double；缺失或 null 抛错
+  dayOfWeekStdDev         nullable Double
+  dayOfWeekDeviation      nullable Double
+  abnormalLowerBound     nullable Double
+  abnormalUpperBound     nullable Double
+
+编译后 Smali 已从方法起点读到 .end method（180–449）：beginObject → selectName/packed-switch → 对应 Double/Boolean adapter → endObject → 必需值检查 → invoke-direct 构造 WellBeingDetailStats。没有均值更新、方差计算、标准差比较、滤波、波形输入或模型调用。
+字段以 JSON 值进入；例如 isAbnormal 并不是此方法对 value 与上下界比较得出的布尔值。dayOfWeekDeviation/probability 的计算定义也不能从字段名补出。
+
+直接文件：
+${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/com/eightsleep/data_metrics/data/model/health_score/WellBeingDetailStatsJsonAdapter.smali:96–175、180–449
+Java 对照：J/com/eightsleep/data_metrics/data/model/health_score/WellBeingDetailStatsJsonAdapter.java:11–25、44–112。
+DTO 保存：J/com/eightsleep/data_metrics/data/model/health_score/WellBeingDetailStats.java:7–24。
+
+四、真正的 UI 消费者和阈值边界
+
+HealthCheckHomeViewModel 的观察者把 trends、aggregate、tags、pregnancyMode 交给 updateContent。该方法从 DailyTrends.L.c.d 取得 abnormalities：
+  2512/2518：getHr → getValue → HEART_RATE formatter。
+  2643/2649：getHrv → getValue → HRV formatter。
+  2774/2780：getRr → getValue → BREATH_RATE formatter。
+同时从既有聚合 map 选择数据序列，构造三张显示模型：
+  HEART_RATE + WELLBEING_HR_UPPER；
+  HRV + WELLBEING_HRV_LOWER；
+  BREATH_RATE + WELLBEING_RR_UPPER。
+这是从返回的聚合数据挑选曲线及界限序列，不是在这些分支中生成基线。代码只支持上述显示选择方向，不能把它扩展成服务器的全部异常判断规则。
+
+直接文件：
+${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/com/eightsleep/presentation_metrics/viewmodel/HealthCheckHomeViewModel.smali:2488–2872
+观察者：J/com/eightsleep/presentation_metrics/viewmodel/HealthCheckHomeViewModel$2$3.java:34–42。
+
+精确引用审计：全 Smali 搜索 WellBeingDetailStats;-> 得到 81 条、has_more=false。66 条在 DTO 自身、9 条在 JSON adapter、3 条是 WellBeingAbnormalities.hashCode，其余 3 条就是上述 getValue。dayOfWeekAverage 和 isAbnormal 的精确 getter 调用图也只找到 JSON 写出。
+因此，在这组具体类型和直接引用范围内，没有尚未追踪的“用 dayOfWeekAverage/StdDev/上下界在手机执行异常阈值计算”入口；此项无待办。这个结论不覆盖反射、运行期替换或全应用所有算法。公共图表最终绘制的全部条件也未在此报告穷尽；它们不能仅因显示界限而被当作原始信号生成器。
+
+证据保存与剩余未知
+
+复用专题 12 条 REA evidence，原件位于 ../patents/app-bridge/，源文件及查询哈希见同目录 APP_BASELINE_CODE_SOURCE_LEDGER.json。fromJson 的 methods 默认视图曾截断，已用 detail-parser-tail 接到 449 行完整方法；本报告不使用截断视图作全方法证明。JADX 全工作区仍为 partial，未掩盖原有错误。
+仍未知：服务端如何生成上述基线/异常值、原始波形清洗、心搏/呼吸提取、多通道融合、模型参数及 Pod6 部署绑定。没有真实请求响应或设备记录，所以此处证明的是已编译客户端的接受和消费行为，不是某一夜线上数据的实际内容。

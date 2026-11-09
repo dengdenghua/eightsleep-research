@@ -1,0 +1,50 @@
+TARGET 0801d6c8 function=0801d6c8
+REF_TO 08028e70 UNCONDITIONAL_CALL owner=08028e4c
+REF_TO 08020e20 UNCONDITIONAL_CALL owner=0801f0d0
+REF_TO 0801d73a UNCONDITIONAL_CALL owner=0801d6fc
+FUNCTION_BODY [[0801d6c8, 0801d6fb]]
+
+void FUN_0801d6c8(int param_1)
+
+{
+  int iVar1;
+  
+  iVar1 = (**(code **)(param_1 + 0x30))();
+  if (iVar1 == 0) {
+    if (*(int *)(param_1 + 0x3c) == 0) {
+      iVar1 = FUN_0801c44c(param_1 + 0x14,param_1 + 0x3c);
+      if (iVar1 == 0) {
+        return;
+      }
+      DataSynchronizationBarrier(0xf);
+      DataMemoryBarrier(0x1f);
+    }
+    (**(code **)(param_1 + 0x34))(*(undefined4 *)(param_1 + 0x3c),*(undefined4 *)(param_1 + 0x40));
+  }
+  return;
+}
+
+
+INSN 0801d6c8 10b5 push {r4,lr}
+INSN 0801d6ca 036b ldr r3,[r0,#0x30]
+INSN 0801d6cc 0400 movs r4,r0
+INSN 0801d6ce 9847 blx r3
+INSN 0801d6d0 0028 cmp r0,#0x0
+INSN 0801d6d2 12d1 bne 0x0801d6fa REF[CONDITIONAL_JUMP:0801d6fa]
+INSN 0801d6d4 e36b ldr r3,[r4,#0x3c]
+INSN 0801d6d6 002b cmp r3,#0x0
+INSN 0801d6d8 0bd1 bne 0x0801d6f2 REF[CONDITIONAL_JUMP:0801d6f2]
+INSN 0801d6da 2100 movs r1,r4
+INSN 0801d6dc 2000 movs r0,r4
+INSN 0801d6de 3c31 adds r1,#0x3c
+INSN 0801d6e0 1430 adds r0,#0x14
+INSN 0801d6e2 fef7b3fe bl 0x0801c44c REF[UNCONDITIONAL_CALL:0801c44c]
+INSN 0801d6e6 0028 cmp r0,#0x0
+INSN 0801d6e8 07d0 beq 0x0801d6fa REF[CONDITIONAL_JUMP:0801d6fa]
+INSN 0801d6ea bff34f8f dsb #0xf
+INSN 0801d6ee bff35f8f dmb #0x1f
+INSN 0801d6f2 636b ldr r3,[r4,#0x34]
+INSN 0801d6f4 216c ldr r1,[r4,#0x40]
+INSN 0801d6f6 e06b ldr r0,[r4,#0x3c]
+INSN 0801d6f8 9847 blx r3
+INSN 0801d6fa 10bd pop {r4,pc}

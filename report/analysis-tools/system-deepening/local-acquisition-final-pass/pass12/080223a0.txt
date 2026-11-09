@@ -1,0 +1,24 @@
+TARGET 080223a0 function=080223a0
+FUNCTION_BODY [[080223a0, 080223b9]]
+
+void analyst_normal_entry_080223a0(void)
+
+{
+  DataSynchronizationBarrier(0xf);
+  DataMemoryBarrier(0x1f);
+  DAT_200026e8 = DAT_200026e8 + 1;
+  DataSynchronizationBarrier(0xf);
+  DataMemoryBarrier(0x1f);
+  return;
+}
+
+
+INSN 080223a0 bff34f8f dsb #0xf
+INSN 080223a4 bff35f8f dmb #0x1f
+INSN 080223a8 044a ldr r2,[0x080223bc] REF[READ:080223bc=200026e8]
+INSN 080223aa 1368 ldr r3,[r2,#0x0] REF[READ:200026e8]
+INSN 080223ac 0133 adds r3,#0x1
+INSN 080223ae 1360 str r3,[r2,#0x0] REF[WRITE:200026e8]
+INSN 080223b0 bff34f8f dsb #0xf
+INSN 080223b4 bff35f8f dmb #0x1f
+INSN 080223b8 7047 bx lr

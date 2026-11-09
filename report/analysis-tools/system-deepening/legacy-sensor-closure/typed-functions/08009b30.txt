@@ -1,0 +1,48 @@
+FUNCTION 08009b30 analyst_ring_push BODY [[08009b30, 08009b63]]
+INCOMING 0800a3ce UNCONDITIONAL_CALL
+INCOMING 08009b8c UNCONDITIONAL_CALL
+
+/* WARNING: Unknown calling convention -- yet parameter storage is locked */
+
+int analyst_ring_push(undefined *arg0,undefined *arg1)
+
+{
+  int extraout_r1;
+  bool bVar1;
+  
+  bVar1 = *(int *)(arg0 + 0xc) - *(int *)(arg0 + 0x10) != *(int *)(arg0 + 4);
+  if (bVar1) {
+    FUN_0800549c(*(undefined4 *)(arg0 + 0xc));
+    analyst_copy_bytes((undefined *)(*(int *)arg0 + *(uint *)(arg0 + 8) * extraout_r1),arg1,
+                       *(uint *)(arg0 + 8));
+    *(int *)(arg0 + 0xc) = *(int *)(arg0 + 0xc) + 1;
+  }
+  return (uint)bVar1;
+}
+
+
+ASSEMBLY
+08009b30 ldr r3,[r0,#0xc] BYTES c368
+08009b32 push {r4,r5,r6,lr} BYTES 70b5
+08009b34 ldr r2,[r0,#0x10] BYTES 0269
+08009b36 movs r6,r1 BYTES 0e00
+08009b38 ldr r1,[r0,#0x4] BYTES 4168
+08009b3a movs r4,r0 BYTES 0400
+08009b3c subs r3,r3,r2 BYTES 9b1a
+08009b3e movs r0,#0x0 BYTES 0020
+08009b40 cmp r3,r1 BYTES 8b42
+08009b42 beq 0x08009b62 BYTES 0ed0 REF CONDITIONAL_JUMP=08009b62
+08009b44 ldr r0,[r4,#0xc] BYTES e068
+08009b46 bl 0x0800549c BYTES fbf7a9fc REF UNCONDITIONAL_CALL=0800549c
+08009b4a ldr r5,[r4,#0x8] BYTES a568
+08009b4c ldr r3,[r4,#0x0] BYTES 2368
+08009b4e muls r1,r5 BYTES 6943
+08009b50 movs r2,r5 BYTES 2a00
+08009b52 adds r0,r3,r1 BYTES 5818
+08009b54 movs r1,r6 BYTES 3100
+08009b56 bl 0x0800e120 BYTES 04f0e3fa REF UNCONDITIONAL_CALL=0800e120
+08009b5a movs r0,#0x1 BYTES 0120
+08009b5c ldr r3,[r4,#0xc] BYTES e368
+08009b5e adds r3,#0x1 BYTES 0133
+08009b60 str r3,[r4,#0xc] BYTES e360
+08009b62 pop {r4,r5,r6,pc} BYTES 70bd

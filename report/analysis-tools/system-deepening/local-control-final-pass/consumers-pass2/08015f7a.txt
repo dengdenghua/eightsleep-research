@@ -1,0 +1,29 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+undefined8 FUN_08015f7a(uint param_1)
+
+{
+  return CONCAT44(param_1,param_1 >> 0x18 | (param_1 >> 0x10 & 0xff) << 8 |
+                          (param_1 >> 8 & 0xff) << 0x10 | param_1 << 0x18);
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08015f7a 13b5 push {r0,r1,r4,lr}
+08015f7c 03ba rev r3,r0
+08015f7e ff24 movs r4,#0xff
+08015f80 1800 movs r0,r3
+08015f82 190a lsrs r1,r3,#0x8
+08015f84 1a0c lsrs r2,r3,#0x10
+08015f86 2140 ands r1,r4
+08015f88 2040 ands r0,r4
+08015f8a 0902 lsls r1,r1,#0x8
+08015f8c 2240 ands r2,r4
+08015f8e 1204 lsls r2,r2,#0x10
+08015f90 0843 orrs r0,r1
+08015f92 1b0e lsrs r3,r3,#0x18
+08015f94 1b06 lsls r3,r3,#0x18
+08015f96 1043 orrs r0,r2
+08015f98 1843 orrs r0,r3
+08015f9a 16bd pop {r1,r2,r4,pc}

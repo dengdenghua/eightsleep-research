@@ -1,0 +1,65 @@
+TARGET 0802c450 function=0802c450
+REF_TO 0801f59e UNCONDITIONAL_CALL owner=0801f0d0
+REF_TO 0801f5c0 UNCONDITIONAL_CALL owner=0801f0d0
+FUNCTION_BODY [[0802c450, 0802c491]]
+
+uint FUN_0802c450(uint param_1)
+
+{
+  uint uVar1;
+  uint uVar2;
+  
+  uVar2 = ((param_1 & 0x7fffffff) >> 0x17) - 0x7f;
+  if ((int)uVar2 < 0x17) {
+    if ((int)uVar2 < 0) {
+      param_1 = param_1 & 0x80000000;
+      if (uVar2 == 0xffffffff) {
+        param_1 = param_1 | 0x3f800000;
+      }
+    }
+    else {
+      uVar1 = 0x7fffff >> (uVar2 & 0xff);
+      if ((uVar1 & param_1) != 0) {
+        param_1 = (0x400000 >> (uVar2 & 0xff)) + param_1 & ~uVar1;
+      }
+    }
+  }
+  else if (uVar2 == 0x80) {
+    param_1 = FUN_0802d1cc(param_1,param_1);
+  }
+  return param_1;
+}
+
+
+INSN 0802c450 4300 lsls r3,r0,#0x1
+INSN 0802c452 1b0e lsrs r3,r3,#0x18
+INSN 0802c454 7f3b subs r3,#0x7f
+INSN 0802c456 10b5 push {r4,lr}
+INSN 0802c458 021c adds r2,r0,#0x0
+INSN 0802c45a 162b cmp r3,#0x16
+INSN 0802c45c 13dc bgt 0x0802c486 REF[CONDITIONAL_JUMP:0802c486]
+INSN 0802c45e 002b cmp r3,#0x0
+INSN 0802c460 09db blt 0x0802c476 REF[CONDITIONAL_JUMP:0802c476]
+INSN 0802c462 0c49 ldr r1,[0x0802c494] REF[READ:0802c494=7fffff]
+INSN 0802c464 1941 asrs r1,r3
+INSN 0802c466 0142 tst r1,r0
+INSN 0802c468 04d0 beq 0x0802c474 REF[CONDITIONAL_JUMP:0802c474]
+INSN 0802c46a 8020 movs r0,#0x80
+INSN 0802c46c c003 lsls r0,r0,#0xf
+INSN 0802c46e 1841 asrs r0,r3
+INSN 0802c470 8018 adds r0,r0,r2
+INSN 0802c472 8843 bics r0,r1
+INSN 0802c474 10bd pop {r4,pc}
+INSN 0802c476 c00f lsrs r0,r0,#0x1f
+INSN 0802c478 c007 lsls r0,r0,#0x1f
+INSN 0802c47a 0133 adds r3,#0x1
+INSN 0802c47c fad1 bne 0x0802c474 REF[CONDITIONAL_JUMP:0802c474]
+INSN 0802c47e fe23 movs r3,#0xfe
+INSN 0802c480 9b05 lsls r3,r3,#0x16
+INSN 0802c482 1843 orrs r0,r3
+INSN 0802c484 f6e7 b 0x0802c474 REF[UNCONDITIONAL_JUMP:0802c474]
+INSN 0802c486 802b cmp r3,#0x80
+INSN 0802c488 f4d1 bne 0x0802c474 REF[CONDITIONAL_JUMP:0802c474]
+INSN 0802c48a 011c adds r1,r0,#0x0
+INSN 0802c48c 00f09efe bl 0x0802d1cc REF[UNCONDITIONAL_CALL:0802d1cc]
+INSN 0802c490 f0e7 b 0x0802c474 REF[UNCONDITIONAL_JUMP:0802c474]

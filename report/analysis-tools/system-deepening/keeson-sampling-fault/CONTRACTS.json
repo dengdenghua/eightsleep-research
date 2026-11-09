@@ -1,0 +1,258 @@
+{
+  "sample_sha256": "1856c1baec5f9bca7151e5b550fdf0a8d749e87f889d963a3a343293a4160966",
+  "sampling": {
+    "initializer": "0x29534",
+    "global_config_va": "0x36c24",
+    "global_config_hex": "01000600",
+    "register_values": {
+      "0x400075f0": 1,
+      "0x400075f4": 0
+    },
+    "interpreted": {
+      "resolution_bits": 10,
+      "oversample": "disabled",
+      "mode": "single-ended",
+      "reference_v_nominal": 0.6,
+      "internal_gain": "1/6",
+      "tacq_us": 10,
+      "burst": false
+    },
+    "channels": [
+      {
+        "channel": 0,
+        "record_va": "0x36c28",
+        "PSELP": 1,
+        "PSELN": 0,
+        "CONFIG": "0x20000",
+        "analog_input": "AIN0",
+        "physical_axis": null,
+        "units": null
+      },
+      {
+        "channel": 1,
+        "record_va": "0x36c34",
+        "PSELP": 2,
+        "PSELN": 0,
+        "CONFIG": "0x20000",
+        "analog_input": "AIN1",
+        "physical_axis": null,
+        "units": null
+      },
+      {
+        "channel": 2,
+        "record_va": "0x36c40",
+        "PSELP": 3,
+        "PSELN": 0,
+        "CONFIG": "0x20000",
+        "analog_input": "AIN2",
+        "physical_axis": null,
+        "units": null
+      },
+      {
+        "channel": 3,
+        "record_va": "0x36c4c",
+        "PSELP": 4,
+        "PSELN": 0,
+        "CONFIG": "0x20000",
+        "analog_input": "AIN3",
+        "physical_axis": null,
+        "units": null
+      }
+    ],
+    "return_checks": "caller ignores init and channel configuration results",
+    "reading": "temporarily disable all configured inputs, enable one requested channel, acquire maxcnt=1, restore configuration; not simultaneous",
+    "registered_callback": {
+      "thumb_pointer": "0x358bd",
+      "va": "0x358bc",
+      "bytes": "7047",
+      "interpretation": "bx lr",
+      "ghidra_function_defined": false
+    },
+    "board_calibration_known": false
+  },
+  "timer": {
+    "peripheral": "RTC1",
+    "prescaler_register": "0x40011508",
+    "prescaler_value": 0,
+    "counter_register": "0x40011504",
+    "compare0_register": "0x40011540",
+    "counter_bits": 24,
+    "object": "0x20004264",
+    "mode": 1,
+    "callback_thumb": "0x2c70d",
+    "delay_ticks": 328,
+    "repeat_ticks": 328,
+    "nominal_rtc_hz": 32768,
+    "nominal_period_seconds": 0.010009765625,
+    "nominal_callback_hz": 99.90243902439025,
+    "actual_measured_hz": null,
+    "vectors": [
+      {
+        "index": 33,
+        "irq": 17,
+        "thumb": "0x2bbf1",
+        "handler": "0x2bbf0"
+      },
+      {
+        "index": 36,
+        "irq": 20,
+        "thumb": "0x2bdbd",
+        "handler": "0x2bdbc",
+        "thunk_target": "0x36080"
+      }
+    ],
+    "conditional": "normal LFCLK at nominal frequency, successful initialization/queueing, subject to dispatch and interrupt delays",
+    "queue_start_errors": {
+      "interval_lt_5": 7,
+      "no_queue_slot": 4,
+      "invalid_or_uninitialized_state": 8
+    },
+    "software_tick": {
+      "address": "0x20003f48",
+      "increment": "once per 0x2c70c callback",
+      "reader_0x2b8f0": "parameter==1 returns raw software tick, otherwise tick/100"
+    },
+    "not_equivalent_to": "guaranteed fresh four-channel sample every period"
+  },
+  "fault_a": {
+    "address": "0x20003f57",
+    "stage": "0x20003496",
+    "wait_count": "0x200034a8",
+    "hall_pass_count": "0x20003e77",
+    "residual_pass_count": "0x20003e78",
+    "residual_accumulators": {
+      "base": "0x200034b0",
+      "stride": 2,
+      "count": 4,
+      "stored_width": 16,
+      "gate": "signed old value < 0x1fff",
+      "update": "add cached processed residual and store low16",
+      "saturating": false,
+      "fresh_sample_gate": false,
+      "update_context": "main loop, not once-per-sample callback"
+    },
+    "stages": [
+      {
+        "stage": 0,
+        "gate": "0x20003f54==0",
+        "effects": [
+          "snapshot positions",
+          "wait=200",
+          "stage=1"
+        ]
+      },
+      {
+        "stage": 1,
+        "gate": "wait==0",
+        "effects": [
+          "request runstate=0 on four axes",
+          "wait=50",
+          "stage=2"
+        ]
+      },
+      {
+        "stage": 2,
+        "gate": "wait!=0",
+        "effects": [
+          "accumulate cached residual per main-loop call"
+        ],
+        "zero_effects": [
+          "request runstate=2",
+          "wait=100",
+          "stage=3"
+        ]
+      },
+      {
+        "stage": 3,
+        "gate": "wait==0",
+        "effects": [
+          "signed current_position-snapshot >5 increments HallNum",
+          "signed accumulator>5 increments CurrentNum",
+          "clear accumulators",
+          "refresh position snapshots",
+          "request runstate=1",
+          "wait=100",
+          "stage=4"
+        ]
+      },
+      {
+        "stage": 4,
+        "gate": "wait!=0",
+        "effects": [
+          "accumulate cached residual per main-loop call"
+        ],
+        "zero_effects": [
+          "request runstate=2",
+          "signed snapshot-current_position >5 increments HallNum",
+          "signed accumulator>5 increments CurrentNum",
+          "clear accumulators",
+          "wait=100",
+          "stage=5"
+        ]
+      },
+      {
+        "stage": 5,
+        "gate": "wait==0",
+        "effects": [
+          "HallNum==8: if A==2 then A=3; diagnostic=0",
+          "HallNum!=8: if A==0 then A=1; diagnostic=(CurrentNum==8 ? 1 : 2); diagnostic_wait=5000",
+          "wait=100",
+          "stage=6"
+        ]
+      },
+      {
+        "stage": 6,
+        "gate": "wait==0",
+        "effects": [
+          "build fault and position/status reports",
+          "stage=0x11",
+          "wait=0",
+          "HallNum=0",
+          "CurrentNum=0"
+        ]
+      }
+    ],
+    "transition_writers": [
+      {
+        "from": 0,
+        "to": 1,
+        "function": "0x2b044",
+        "gate": "stage5; wait0; HallNum != 8"
+      },
+      {
+        "from": 1,
+        "to": 2,
+        "function": "0x288d4",
+        "gate": "0x2e594 and 0x3131c(100) return"
+      },
+      {
+        "from": 2,
+        "to": 3,
+        "function": "0x2b044",
+        "gate": "stage5; wait0; HallNum==8"
+      },
+      {
+        "from": 2,
+        "to": 3,
+        "function": "0x2a098",
+        "gate": "internal bottom mode and allowed selection; mode gate; axis pending==2; axis wait==0; software position cleanup"
+      },
+      {
+        "from": 2,
+        "to": 3,
+        "function": "0x2a8a4",
+        "gate": "internal bottom state nonzero and four wait fields zero; software position cleanup"
+      },
+      {
+        "from": 3,
+        "to": 0,
+        "function": "0x288d4",
+        "gate": "0x3131c(100) returns"
+      }
+    ],
+    "restart_boundary": "selected stage-reset branch does not also reset pass counters or accumulators",
+    "wire_rule": "all A nonzero states map to wire2 and are copied to four axis fields",
+    "physical_fault_type": null,
+    "physical_motion_proven": false
+  }
+}

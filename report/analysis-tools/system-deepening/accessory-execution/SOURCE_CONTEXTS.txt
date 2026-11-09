@@ -1,0 +1,779 @@
+=== A01 analysis/sleep-pipeline/decompiled/Eight.Audio/Eight.Audio.StateMachine/SpeakerUpdater.cs ===
+SHA256 c34cfcda80b4f14282984640900a5ee2288505d7ad1f10081e873d6bc7440c66
+0001: using System.Collections.Generic;
+0002: using System.IO;
+0003: using System.Linq;
+0004: using System.Threading;
+0005: using System.Threading.Tasks;
+0006: using Eight.Speaker;
+0007: using Microsoft.Extensions.Logging;
+0008: using NodaTime;
+0009: 
+0010: namespace Eight.Audio.StateMachine;
+0011: 
+0012: public class SpeakerUpdater(ILogger<SpeakerUpdater> logger, IReadOnlyList<MinamiFirmwareConfiguration> minamiConfigurations, IReadOnlyList<MinamiFirmwareConfiguration> fotaConfigurations, ISpeakerFactory speakerFactory) : ISpeakerUpdater
+0013: {
+0014: 	private readonly ILogger<SpeakerUpdater> logger = logger;
+0015: 
+0016: 	private readonly IReadOnlyList<MinamiFirmwareConfiguration> minamiConfigurations = minamiConfigurations;
+0017: 
+0018: 	private readonly IReadOnlyList<MinamiFirmwareConfiguration> fotaConfigurations = fotaConfigurations;
+0019: 
+0020: 	private readonly ISpeakerFactory speakerFactory = speakerFactory;
+0021: 
+0022: 	public async Task<SpeakerUpdateResult> Update(ISpeaker speaker, CancellationToken cancellationToken)
+0023: 	{
+0024: 		SpeakerHardwareInfo hardwareInfo = await speaker.GetHardwareInfo(default);
+0025: 		if (await speaker.GetAlias(cancellationToken) == "B13")
+0026: 		{
+0027: 			MinamiFirmwareConfiguration fotaConfig = fotaConfigurations.FirstOrDefault();
+0028: 			if ((object)fotaConfig == null)
+0029: 			{
+0030: 				logger.LogCritical("Failed to find FOTA firmware config for B13 speaker: {@HardwareInfo}", hardwareInfo);
+0031: 				return SpeakerUpdateResult.UpToDate;
+0032: 			}
+0033: 			if (int.Parse(hardwareInfo.SoftwareVersion) == fotaConfig.ExpectedVersion)
+0034: 			{
+0035: 				logger.LogInformation("Firmware is already up to date: {CurrentVersion}", hardwareInfo.SoftwareVersion);
+0036: 				return SpeakerUpdateResult.UpToDate;
+0037: 			}
+0038: 			if (!(await speaker.WriteFirmwareFota(await File.ReadAllBytesAsync(fotaConfig.FirmwarePath, cancellationToken), (uint)fotaConfig.ExpectedVersion, cancellationToken)))
+0039: 			{
+0040: 				return SpeakerUpdateResult.Retry;
+0041: 			}
+0042: 			return await EvictAndWaitForReboot(speaker, hardwareInfo, cancellationToken);
+0043: 		}
+0044: 		MinamiFirmwareConfiguration minamiFirmwareConfiguration = minamiConfigurations.FirstOrDefault((MinamiFirmwareConfiguration x) => x.HardwareVersion == int.Parse(hardwareInfo.HardwareVersion));
+0045: 		if ((object)minamiFirmwareConfiguration == null)
+0046: 		{
+0047: 			logger.LogCritical("Failed to find firmware for hardware version: {@HardwareInfo}", hardwareInfo);
+0048: 			return SpeakerUpdateResult.UpToDate;
+0049: 		}
+0050: 		if (int.Parse(hardwareInfo.SoftwareVersion) == minamiFirmwareConfiguration.ExpectedVersion)
+0051: 		{
+0052: 			logger.LogInformation("Firmware is already up to date: {CurrentVersion}", hardwareInfo.SoftwareVersion);
+0053: 			return SpeakerUpdateResult.UpToDate;
+0054: 		}
+0055: 		if (!(await speaker.WriteFirmware(await File.ReadAllBytesAsync(minamiFirmwareConfiguration.FirmwarePath, cancellationToken), cancellationToken)))
+0056: 		{
+0057: 			return SpeakerUpdateResult.Retry;
+0058: 		}
+0059: 		return await EvictAndWaitForReboot(speaker, hardwareInfo, cancellationToken);
+0060: 	}
+0061: 
+0062: 	private async Task<SpeakerUpdateResult> EvictAndWaitForReboot(ISpeaker speaker, SpeakerHardwareInfo hardwareInfo, CancellationToken cancellationToken)
+0063: 	{
+0064: 		await speaker.Disconnect(cancellationToken);
+0065: 		await speakerFactory.Remove(hardwareInfo.MacAddress, Duration.FromSeconds(10L), cancellationToken);
+0066: 		await Task.Delay(120000, cancellationToken);
+0067: 		return SpeakerUpdateResult.Flashed;
+0068: 	}
+0069: }
+=== A02 analysis/sleep-pipeline/decompiled/Eight.Speaker/Eight.Speaker/MinamiSpeaker.cs ===
+SHA256 76d9c0aaa2bb9a7d242235450e433380f4ef56ab8273058df83cdd03c67ffb37
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using System.Linq;
+0004: using System.Threading;
+0005: using System.Threading.Tasks;
+0006: using Eight.Core;
+0007: using Eight.DBus;
+0008: using Eight.DBus.Bluez;
+0009: using Microsoft.Extensions.Logging;
+0010: using NodaTime;
+0011: using Tmds.DBus.Protocol;
+0012: 
+0013: namespace Eight.Speaker;
+0014: 
+0015: public class MinamiSpeaker(ILogger<MinamiSpeaker> logger, Device1 device, Rfcomm rfcomm) : ISpeaker, IDisposable
+0016: {
+0017: 	private static readonly Duration DbusTimeout = Duration.FromSeconds(30L);
+0018: 
+0019: 	internal const string FallbackSku = "Minami";
+0020: 
+0021: 	private readonly Device1 device = device;
+0022: 
+0023: 	private readonly Rfcomm rfcomm = rfcomm;
+0024: 
+0025: 	private readonly ILogger<MinamiSpeaker> logger = logger;
+0026: 
+0027: 	private readonly Crc16Ccitt crc = new Crc16Ccitt(InitialCrcValue.Zeros);
+0028: 
+0029: 	private readonly SpeakerHardwareInfoCache hardwareInfo = new SpeakerHardwareInfoCache(logger, (CancellationToken _) => ReadLinkInfo(logger, device, rfcomm), (CancellationToken _) => Dbus(device.GetAliasAsync()));
+0030: 
+0031: 	private IDisposable? watcher;
+0032: 
+0033: 	public event SpeakerConnectedEventHandler? ConnectedChangedEvent;
+0034: 
+0035: 	private static Task<T> Dbus<T>(Task<T> call)
+0036: 	{
+0037: 		return call.WithTimeout(DbusTimeout);
+0038: 	}
+0039: 
+0040: 	private static async Task Dbus(Task call)
+0041: 	{
+0042: 		await call.WithTimeout(DbusTimeout);
+0043: 		await call;
+0044: 	}
+0045: 
+0046: 	public async Task Connect(CancellationToken cancellationToken)
+0047: 	{
+0048: 		await device.Connect(DBusExtensions.BrEdrConnectBudget, cancellationToken);
+0049: 		watcher?.Dispose();
+0050: 		watcher = await Dbus(device.WatchPropertiesChangedAsync((Exception? _, PropertyChanges<Device1Properties> changes) =>
+0051: 		{
+0052: 			if (changes != null && Enumerable.Contains(changes.Changed, "Connected"))
+0053: 			{
+0054: 				if (changes.Properties.Connected)
+0055: 				{
+0056: 					rfcomm.Reset();
+0057: 				}
+0058: 				ConnectedChangedEvent?.Invoke(this, new SpeakerConnectedEventArgs(changes.Properties.Connected));
+0059: 			}
+0060: 		}).AsTask());
+0061: 		await rfcomm.Initialize(cancellationToken);
+0062: 	}
+0063: 
+0064: 	public async Task Disconnect(CancellationToken cancellationToken)
+0065: 	{
+0066: 		rfcomm.Reset();
+0067: 		try
+0068: 		{
+0069: 			await Dbus(device.DisconnectAsync());
+0070: 		}
+0071: 		catch (DBusException exception)
+0072: 		{
+0073: 			logger.LogInformation(exception, "Speaker device already gone during Disconnect; treating as already disconnected");
+0074: 		}
+0075: 		catch (TimeoutException exception2)
+0076: 		{
+0077: 			logger.LogWarning(exception2, "Speaker Disconnect timed out on D-Bus; treating as already disconnected");
+0078: 		}
+0079: 	}
+0080: 
+0081: 	public async Task<bool> IsConnected(CancellationToken cancellationToken)
+0082: 	{
+0083: 		try
+0084: 		{
+0085: 			return await Dbus(device.GetConnectedAsync());
+0086: 		}
+0087: 		catch (DBusException exception)
+0088: 		{
+0089: 			logger.LogInformation(exception, "Speaker device gone while checking connection state; treating as disconnected");
+0090: 			return false;
+0091: 		}
+0092: 		catch (TimeoutException exception2)
+0093: 		{
+0094: 			logger.LogWarning(exception2, "Checking speaker connection state timed out on D-Bus; treating as disconnected");
+0095: 			return false;
+0096: 		}
+0097: 	}
+0098: 
+0099: 	public Task<SpeakerHardwareInfo> GetHardwareInfo(CancellationToken cancellationToken)
+0100: 	{
+0101: 		return hardwareInfo.Get(cancellationToken);
+0102: 	}
+0103: 
+0104: 	private static async Task<SpeakerHardwareInfo> ReadLinkInfo(ILogger logger, Device1 device, Rfcomm rfcomm)
+0105: 	{
+0106: 		string hardwareVersion = GetHardwareVersion(logger, rfcomm).ToString();
+0107: 		string softwareVersion = ReadSoftwareVersion(logger, rfcomm).ToString();
+0108: 		return new SpeakerHardwareInfo("Minami", hardwareVersion, softwareVersion, await Dbus(device.GetAddressAsync()));
+0109: 	}
+0110: 
+0111: 	internal static string SkuFromAlias(string? alias)
+0112: 	{
+0113: 		if (alias == null || !MinamiSpeakerFactory.IsMinamiAlias(alias))
+0114: 		{
+0115: 			return "Minami";
+0116: 		}
+0117: 		return alias;
+0118: 	}
+0119: 
+0120: 	private static int GetHardwareVersion(ILogger logger, Rfcomm rfcomm)
+0121: 	{
+0122: 		byte[] array = rfcomm.WriteWithResponse(new byte[3] { 92, 6, 1 }, 4);
+0123: 		logger.LogTrace("GetHardwareVersion raw response: {Response}", BitConverter.ToString(array));
+0124: 		return BitConverter.ToInt16(Enumerable.Reverse(array[2..4]).ToArray());
+0125: 	}
+0126: 
+0127: 	public int GetSoftwareVersion()
+0128: 	{
+0129: 		return ReadSoftwareVersion(logger, rfcomm);
+0130: 	}
+0131: 
+0132: 	private static int ReadSoftwareVersion(ILogger logger, Rfcomm rfcomm)
+0133: 	{
+0134: 		byte[] array = rfcomm.WriteWithResponse(new byte[3] { 92, 12, 1 }, 4);
+0135: 		logger.LogTrace("GetSoftwareVersion raw response: {Response}", BitConverter.ToString(array));
+0136: 		return BitConverter.ToInt16(Enumerable.Reverse(array[2..4]).ToArray());
+0137: 	}
+0138: 
+0139: 	public async Task<string> GetMacAddress(CancellationToken cancellationToken)
+0140: 	{
+0141: 		return await Dbus(device.GetAddressAsync());
+0142: 	}
+0143: 
+0144: 	public async Task<string> GetAlias(CancellationToken cancellationToken)
+0145: 	{
+0146: 		return await Dbus(device.GetAliasAsync());
+0147: 	}
+0148: 
+0149: 	public Task<bool> WriteFirmware(byte[] firmwareBytes, CancellationToken cancellationToken)
+0150: 	{
+0151: 		byte[] array = rfcomm.WriteWithResponseUpTo(new byte[2] { 128, 1 }, 9);
+0152: 		int num = 0;
+0153: 		foreach (byte[] item in firmwareBytes.Chunk(128))
+0154: 		{
+0155: 			byte[] payload = BuildOTAPayload(item);
+0156: 			array = rfcomm.WriteWithResponseUpTo(payload, 9);
+0157: 			logger.LogDebug("OTA payload {PayloadNumber} ({Length} bytes) -> response {Response}", num, item.Length, BitConverter.ToString(array));
+0158: 			if (array[1] != 144 && array[1] != 146)
+0159: 			{
+0160: 				throw new Exception($"Unexpected OTA response on payload {num}: {BitConverter.ToString(array)}");
+0161: 			}
+0162: 			if (num % 100 == 0)
+0163: 			{
+0164: 				logger.LogInformation("Wrote payload {PayloadNumber}", num);
+0165: 			}
+0166: 			num++;
+0167: 		}
+0168: 		if (array[1] != 146)
+0169: 		{
+0170: 			rfcomm.WriteWithResponseUpTo(BuildOTAPayload(Array.Empty<byte>()), 9);
+0171: 		}
+0172: 		rfcomm.WriteWithoutResponse(new byte[2] { 128, 18 });
+0173: 		hardwareInfo.Invalidate();
+0174: 		return Task.FromResult(result: true);
+0175: 	}
+0176: 
+0177: 	public Task<bool> WriteFirmwareFota(byte[] firmware, uint version, CancellationToken cancellationToken)
+0178: 	{
+0179: 		hardwareInfo.Invalidate();
+0180: 		return new BluetrumFotaUpdater(logger, rfcomm).Update(firmware, version, cancellationToken);
+0181: 	}
+0182: 
+0183: 	private byte[] GenerateCRC(Span<byte> data)
+0184: 	{
+0185: 		return BitConverter.GetBytes(crc.ComputeChecksum(data));
+0186: 	}
+0187: 
+0188: 	private byte[] BuildOTAPayload(byte[] data)
+0189: 	{
+0190: 		if (data.Length > 128)
+0191: 		{
+0192: 			throw new ArgumentException("Payload for OTA update cannot be greater than 128 bytes");
+0193: 		}
+0194: 		return new List<byte> { 128, 17 }.Concat(Enumerable.Reverse(BitConverter.GetBytes(data.Length)[..^1])).Concat(data).Concat(Enumerable.Reverse(GenerateCRC(data)))
+0195: 			.ToArray();
+0196: 	}
+0197: 
+0198: 	public void Dispose()
+0199: 	{
+0200: 		watcher?.Dispose();
+0201: 		rfcomm.Dispose();
+0202: 	}
+0203: }
+=== A03 analysis/sleep-pipeline/decompiled/Eight.Speaker/Eight.Speaker/BluetrumFotaUpdater.cs ===
+SHA256 bc77783be59de17d6b8236d1b9c35d9baeee85d593370f29c9a3f3581d146fba
+0001: using System;
+0002: using System.Buffers.Binary;
+0003: using System.Threading;
+0004: using System.Threading.Tasks;
+0005: using Microsoft.Extensions.Logging;
+0006: 
+0007: namespace Eight.Speaker;
+0008: 
+0009: public class BluetrumFotaUpdater(ILogger logger, Rfcomm rfcomm)
+0010: {
+0011: 	private static readonly byte[] ConnectionId = new byte[7] { 204, 170, 85, 238, 18, 25, 228 };
+0012: 
+0013: 	private const byte CmdStartData = 160;
+0014: 
+0015: 	private const byte CmdContinueData = 32;
+0016: 
+0017: 	private const byte CmdStatus = 144;
+0018: 
+0019: 	private const byte CmdUpgradeRequest = 145;
+0020: 
+0021: 	private const byte TypeUpgradeRequest = 2;
+0022: 
+0023: 	private const ushort ForceVersion = ushort.MaxValue;
+0024: 
+0025: 	private const int StartDataHeader = 10;
+0026: 
+0027: 	private const int ContinueHeader = 2;
+0028: 
+0029: 	private readonly ILogger logger = logger;
+0030: 
+0031: 	private readonly Rfcomm rfcomm = rfcomm;
+0032: 
+0033: 	private int seq;
+0034: 
+0035: 	public Task<bool> Update(byte[] firmware, uint version, CancellationToken cancellationToken)
+0036: 	{
+0037: 		return Task.FromResult(RunUpdate(firmware, (ushort)version, cancellationToken));
+0038: 	}
+0039: 
+0040: 	private bool RunUpdate(byte[] firmware, ushort version, CancellationToken cancellationToken)
+0041: 	{
+0042: 		logger.LogInformation("FOT: sending connection ID {Id}", BitConverter.ToString(ConnectionId));
+0043: 		rfcomm.WriteWithoutResponse(ConnectionId);
+0044: 		uint num = Crc32(firmware);
+0045: 		byte[] array = new byte[9]
+0046: 		{
+0047: 			145,
+0048: 			NextSeq(),
+0049: 			2,
+0050: 			0,
+0051: 			0,
+0052: 			0,
+0053: 			0,
+0054: 			0,
+0055: 			0
+0056: 		};
+0057: 		BinaryPrimitives.WriteUInt16LittleEndian(array.AsSpan(3, 2), ushort.MaxValue);
+0058: 		BinaryPrimitives.WriteUInt32LittleEndian(array.AsSpan(5, 4), num);
+0059: 		logger.LogInformation("FOT: upgrade request (0x91/02) version=0x{Ver:X4} hash=0x{Hash:X8} (file version {Cfg}, size {Size})", ushort.MaxValue, num, version, firmware.Length);
+0060: 		rfcomm.WriteWithoutResponse(array);
+0061: 		if (!ReadUpgradeResponse(out var startAddress, out var blockLength, out var maxPacket, out var allowed))
+0062: 		{
+0063: 			return false;
+0064: 		}
+0065: 		logger.LogInformation("FOT: upgrade response startAddr={Start} blockLen={Block} maxPacket={Max} allowed={Allowed}", startAddress, blockLength, maxPacket, allowed);
+0066: 		if (allowed != 1)
+0067: 		{
+0068: 			logger.LogError("FOT: upgrade not allowed by device (allowed={Allowed}).", allowed);
+0069: 			return false;
+0070: 		}
+0071: 		if (blockLength <= 0 || maxPacket <= 10)
+0072: 		{
+0073: 			logger.LogError("FOT: invalid blockLen={Block}/maxPacket={Max} from device.", blockLength, maxPacket);
+0074: 			return false;
+0075: 		}
+0076: 		int num2;
+0077: 		for (int i = (int)startAddress; i < firmware.Length; i += num2)
+0078: 		{
+0079: 			cancellationToken.ThrowIfCancellationRequested();
+0080: 			num2 = Math.Min(blockLength, firmware.Length - i);
+0081: 			SendBlock((uint)i, firmware, i, num2, maxPacket);
+0082: 			byte b = ReadStatus(cancellationToken);
+0083: 			switch (b)
+0084: 			{
+0085: 			case 0:
+0086: 				break;
+0087: 			case byte.MaxValue:
+0088: 				logger.LogInformation("FOT complete (status 255) at offset {Offset}.", i + num2);
+0089: 				CloseLinkAfterCompletion();
+0090: 				return true;
+0091: 			case 253:
+0092: 				logger.LogWarning("FOT paused by device (status 253); aborting this run.");
+0093: 				return false;
+0094: 			default:
+0095: 				logger.LogError("FOT aborted: device status {Status} ({Desc}).", b, DescribeStatus(b));
+0096: 				return false;
+0097: 			}
+0098: 		}
+0099: 		byte b2 = ReadStatus(cancellationToken);
+0100: 		logger.LogInformation("FOT final status {Status} ({Desc}).", b2, DescribeStatus(b2));
+0101: 		bool flag = ((b2 == 0 || b2 == byte.MaxValue) ? true : false);
+0102: 		bool flag2 = flag;
+0103: 		if (flag2)
+0104: 		{
+0105: 			CloseLinkAfterCompletion();
+0106: 		}
+0107: 		return flag2;
+0108: 	}
+0109: 
+0110: 	private void CloseLinkAfterCompletion()
+0111: 	{
+0112: 		try
+0113: 		{
+0114: 			logger.LogInformation("FOT: closing the RFCOMM link so the device can apply and reboot.");
+0115: 			rfcomm.Reset();
+0116: 		}
+0117: 		catch (Exception exception)
+0118: 		{
+0119: 			logger.LogWarning(exception, "FOT: failed to close the RFCOMM link after completion; continuing.");
+0120: 		}
+0121: 	}
+0122: 
+0123: 	private void SendBlock(uint address, byte[] firmware, int sourceOffset, int length, int maxPacket)
+0124: 	{
+0125: 		int num = Math.Min(length, maxPacket - 10);
+0126: 		byte[] array = new byte[10 + num];
+0127: 		array[0] = 160;
+0128: 		array[1] = NextSeq();
+0129: 		BinaryPrimitives.WriteUInt32LittleEndian(array.AsSpan(2, 4), address);
+0130: 		BinaryPrimitives.WriteUInt32LittleEndian(array.AsSpan(6, 4), (uint)length);
+0131: 		Array.Copy(firmware, sourceOffset, array, 10, num);
+0132: 		rfcomm.WriteWithoutResponse(array);
+0133: 		int num2;
+0134: 		for (int i = num; i < length; i += num2)
+0135: 		{
+0136: 			num2 = Math.Min(length - i, maxPacket - 2);
+0137: 			byte[] array2 = new byte[2 + num2];
+0138: 			array2[0] = 32;
+0139: 			array2[1] = NextSeq();
+0140: 			Array.Copy(firmware, sourceOffset + i, array2, 2, num2);
+0141: 			rfcomm.WriteWithoutResponse(array2);
+0142: 		}
+0143: 		logger.LogDebug("FOT block sent: addr={Addr} len={Len}", address, length);
+0144: 	}
+0145: 
+0146: 	private bool ReadUpgradeResponse(out uint startAddress, out int blockLength, out int maxPacket, out byte allowed)
+0147: 	{
+0148: 		startAddress = 0u;
+0149: 		blockLength = 0;
+0150: 		maxPacket = 0;
+0151: 		allowed = 0;
+0152: 		byte[] array = rfcomm.ReadExact(3);
+0153: 		logger.LogInformation("FOT: upgrade response header {Header}", BitConverter.ToString(array));
+0154: 		if (array[0] != 145 || array[2] != 2)
+0155: 		{
+0156: 			logger.LogError("FOT: expected 0x91/02 response, got cmd=0x{Cmd:X2} type=0x{Type:X2}", array[0], array[2]);
+0157: 			return false;
+0158: 		}
+0159: 		byte[] array2 = rfcomm.ReadExact(11);
+0160: 		logger.LogInformation("FOT: upgrade response value {Value}", BitConverter.ToString(array2));
+0161: 		startAddress = BinaryPrimitives.ReadUInt32LittleEndian(array2.AsSpan(0, 4));
+0162: 		blockLength = (int)BinaryPrimitives.ReadUInt32LittleEndian(array2.AsSpan(4, 4));
+0163: 		maxPacket = BinaryPrimitives.ReadUInt16LittleEndian(array2.AsSpan(8, 2));
+0164: 		allowed = array2[10];
+0165: 		return true;
+0166: 	}
+0167: 
+0168: 	private byte ReadStatus(CancellationToken cancellationToken)
+0169: 	{
+0170: 		for (int i = 0; i < 8; i++)
+0171: 		{
+0172: 			cancellationToken.ThrowIfCancellationRequested();
+0173: 			byte[] array = rfcomm.ReadExact(3);
+0174: 			logger.LogInformation("FOT RX status frame: {Frame}", BitConverter.ToString(array));
+0175: 			if (array[0] == 144)
+0176: 			{
+0177: 				return array[2];
+0178: 			}
+0179: 			logger.LogDebug("FOT: ignoring non-status frame cmd=0x{Cmd:X2} while awaiting 0x90.", array[0]);
+0180: 		}
+0181: 		throw new InvalidOperationException("FOT: no 0x90 status frame received from the device.");
+0182: 	}
+0183: 
+0184: 	private byte NextSeq()
+0185: 	{
+0186: 		byte result = (byte)(seq & 0xFF);
+0187: 		seq = (seq + 1) & 0xFF;
+0188: 		return result;
+0189: 	}
+0190: 
+0191: 	private static string DescribeStatus(byte status)
+0192: 	{
+0193: 		return status switch
+0194: 		{
+0195: 			0 => "normal", 
+0196: 			1 => "firmware identical to current", 
+0197: 			2 => "key mismatch", 
+0198: 			3 => "invalid file format (not .fot)", 
+0199: 			11 => "CRC error", 
+0200: 			64 => "seq error", 
+0201: 			65 => "data length error", 
+0202: 			253 => "pause", 
+0203: 			254 => "resume", 
+0204: 			byte.MaxValue => "complete", 
+0205: 			_ => "unknown", 
+0206: 		};
+0207: 	}
+0208: 
+0209: 	private static uint Crc32(byte[] data)
+0210: 	{
+0211: 		uint num = uint.MaxValue;
+0212: 		foreach (byte b in data)
+0213: 		{
+0214: 			num ^= b;
+0215: 			for (int j = 0; j < 8; j++)
+0216: 			{
+0217: 				num = (((num & 1) != 0) ? ((num >> 1) ^ 0xEDB88320u) : (num >> 1));
+0218: 			}
+0219: 		}
+0220: 		return ~num;
+0221: 	}
+0222: }
+=== A04 analysis/sleep-pipeline/decompiled/Eight.Speaker/Eight.Speaker/Rfcomm.cs ===
+SHA256 b3a2ed99c1e7222cedb341acf45e1bcfb39dffdcae595c636aaa1a986d705849
+0001: using System;
+0002: using System.Diagnostics;
+0003: using System.IO;
+0004: using System.IO.Ports;
+0005: using System.Threading;
+0006: using System.Threading.Tasks;
+0007: using Microsoft.Extensions.Logging;
+0008: 
+0009: namespace Eight.Speaker;
+0010: 
+0011: public class Rfcomm(ILogger<Rfcomm> logger, string deviceName, string macAddress) : IAsyncDisposable, IDisposable
+0012: {
+0013: 	private readonly ILogger<Rfcomm> logger = logger;
+0014: 
+0015: 	private readonly string deviceName = deviceName;
+0016: 
+0017: 	private readonly string macAddress = macAddress;
+0018: 
+0019: 	private const string RfcommPath = "/usr/bin/rfcomm";
+0020: 
+0021: 	private SerialPort? serialPort;
+0022: 
+0023: 	private bool initialized;
+0024: 
+0025: 	private string DevicePath => "/dev/" + deviceName;
+0026: 
+0027: 	public byte[] WriteWithResponse(byte[] payload, int responseSize)
+0028: 	{
+0029: 		for (int i = 0; i < 3; i++)
+0030: 		{
+0031: 			try
+0032: 			{
+0033: 				return WriteWithResponseInternal(payload, responseSize);
+0034: 			}
+0035: 			catch (ObjectDisposedException)
+0036: 			{
+0037: 				if (i == 2)
+0038: 				{
+0039: 					throw;
+0040: 				}
+0041: 				serialPort.Close();
+0042: 				serialPort.Open();
+0043: 			}
+0044: 		}
+0045: 		throw new Exception("");
+0046: 	}
+0047: 
+0048: 	private byte[] WriteWithResponseInternal(byte[] payload, int responseSize)
+0049: 	{
+0050: 		WriteWithoutResponse(payload);
+0051: 		return Read(responseSize);
+0052: 	}
+0053: 
+0054: 	public byte[] WriteWithResponseUpTo(byte[] payload, int maxSize)
+0055: 	{
+0056: 		for (int i = 0; i < 3; i++)
+0057: 		{
+0058: 			try
+0059: 			{
+0060: 				WriteWithoutResponse(payload);
+0061: 				return ReadUpTo(maxSize);
+0062: 			}
+0063: 			catch (ObjectDisposedException)
+0064: 			{
+0065: 				if (i == 2)
+0066: 				{
+0067: 					throw;
+0068: 				}
+0069: 				serialPort.Close();
+0070: 				serialPort.Open();
+0071: 			}
+0072: 		}
+0073: 		throw new Exception("");
+0074: 	}
+0075: 
+0076: 	private byte[] ReadUpTo(int maxSize)
+0077: 	{
+0078: 		byte[] array = new byte[maxSize];
+0079: 		int num = serialPort.Read(array, 0, maxSize);
+0080: 		logger.LogDebug("RFCOMM RX (up to {Max}, got {Got}): {Bytes}", maxSize, num, BitConverter.ToString(array, 0, num));
+0081: 		return array;
+0082: 	}
+0083: 
+0084: 	public void WriteWithoutResponse(byte[] payload)
+0085: 	{
+0086: 		if (!initialized || serialPort == null)
+0087: 		{
+0088: 			throw new ArgumentException("Unabled to write to uninitialized rfcomm");
+0089: 		}
+0090: 		if (!serialPort.IsOpen)
+0091: 		{
+0092: 			throw new ArgumentException("Unabled to write to closed serial port");
+0093: 		}
+0094: 		Write(payload);
+0095: 	}
+0096: 
+0097: 	private void Write(byte[] payload)
+0098: 	{
+0099: 		logger.LogDebug("RFCOMM TX ({Length}): {Payload}", payload.Length, BitConverter.ToString(payload));
+0100: 		serialPort.Write(payload, 0, payload.Length);
+0101: 	}
+0102: 
+0103: 	private byte[] Read(int responseSize)
+0104: 	{
+0105: 		return ReadFramed(responseSize, (byte[] buf, int off, int count) => serialPort.Read(buf, off, count), () => serialPort.BytesToRead, logger);
+0106: 	}
+0107: 
+0108: 	internal static byte[] ReadFramed(int responseSize, Func<byte[], int, int, int> read, Func<int> bytesToRead, ILogger logger)
+0109: 	{
+0110: 		byte[] array = new byte[responseSize];
+0111: 		int i = 0;
+0112: 		try
+0113: 		{
+0114: 			int num;
+0115: 			for (; i < responseSize; i += num)
+0116: 			{
+0117: 				num = read(array, i, responseSize - i);
+0118: 				if (num == 0)
+0119: 				{
+0120: 					throw new RfcommDisconnectedException($"RFCOMM read hit EOF after {i} of {responseSize} byte(s): the link is down");
+0121: 				}
+0122: 			}
+0123: 		}
+0124: 		catch (TimeoutException ex) when (!(ex is RfcommDisconnectedException))
+0125: 		{
+0126: 			if (i == 0)
+0127: 			{
+0128: 				throw new RfcommDisconnectedException($"RFCOMM read timed out with 0 of {responseSize} byte(s): the link is down", ex);
+0129: 			}
+0130: 			logger.LogWarning("RFCOMM read incomplete: expected {Expected} byte(s) but only read {Actual}. Bytes read: {Response}. Still buffered: {Remaining} byte(s)", responseSize, i, BitConverter.ToString(array, 0, i), bytesToRead());
+0131: 			throw;
+0132: 		}
+0133: 		logger.LogDebug("RFCOMM RX ({Length}): {Response}", i, BitConverter.ToString(array, 0, i));
+0134: 		return array;
+0135: 	}
+0136: 
+0137: 	public byte[] ReadExact(int count)
+0138: 	{
+0139: 		return Read(count);
+0140: 	}
+0141: 
+0142: 	public byte[] ReadAvailable()
+0143: 	{
+0144: 		if (serialPort == null || !serialPort.IsOpen)
+0145: 		{
+0146: 			return Array.Empty<byte>();
+0147: 		}
+0148: 		int bytesToRead = serialPort.BytesToRead;
+0149: 		if (bytesToRead <= 0)
+0150: 		{
+0151: 			return Array.Empty<byte>();
+0152: 		}
+0153: 		byte[] array = new byte[bytesToRead];
+0154: 		int num = serialPort.Read(array, 0, bytesToRead);
+0155: 		byte[] array2 = ((num == array.Length) ? array : array[..num]);
+0156: 		logger.LogDebug("RFCOMM RX (available {Count}): {Bytes}", array2.Length, BitConverter.ToString(array2));
+0157: 		return array2;
+0158: 	}
+0159: 
+0160: 	public async Task Initialize(CancellationToken cancellationToken)
+0161: 	{
+0162: 		if (serialPort != null)
+0163: 		{
+0164: 			Reset();
+0165: 		}
+0166: 		await Unbind(cancellationToken);
+0167: 		await Task.Delay(1000, cancellationToken);
+0168: 		await Bind(cancellationToken);
+0169: 		await Task.Delay(1000, cancellationToken);
+0170: 		serialPort = new SerialPort
+0171: 		{
+0172: 			BaudRate = 115200,
+0173: 			PortName = DevicePath,
+0174: 			ReadTimeout = 20000
+0175: 		};
+0176: 		serialPort.Open();
+0177: 		initialized = true;
+0178: 	}
+0179: 
+0180: 	private async Task Bind(CancellationToken cancellationToken)
+0181: 	{
+0182: 		string arguments = "bind " + DevicePath + " " + macAddress;
+0183: 		ProcessStartInfo startInfo = new ProcessStartInfo
+0184: 		{
+0185: 			FileName = "/usr/bin/rfcomm",
+0186: 			Arguments = arguments,
+0187: 			RedirectStandardError = true,
+0188: 			RedirectStandardOutput = true,
+0189: 			UseShellExecute = false
+0190: 		};
+0191: 		Process proc = new Process
+0192: 		{
+0193: 			StartInfo = startInfo
+0194: 		};
+0195: 		proc.Start();
+0196: 		await proc.WaitForExitAsync(cancellationToken);
+0197: 		if (proc.ExitCode != 0)
+0198: 		{
+0199: 			throw new ArgumentException("Failed to bind rfcomm");
+0200: 		}
+0201: 	}
+0202: 
+0203: 	private Task Unbind(CancellationToken cancellationToken)
+0204: 	{
+0205: 		return ReleaseNode(logger, deviceName, cancellationToken);
+0206: 	}
+0207: 
+0208: 	public void Reset()
+0209: 	{
+0210: 		Dispose(disposing: true);
+0211: 	}
+0212: 
+0213: 	public async ValueTask DisposeAsync()
+0214: 	{
+0215: 		serialPort?.Close();
+0216: 		serialPort?.Dispose();
+0217: 		serialPort = null;
+0218: 		await DisposeAsyncCore();
+0219: 		GC.SuppressFinalize(this);
+0220: 	}
+0221: 
+0222: 	protected virtual async Task DisposeAsyncCore()
+0223: 	{
+0224: 		await Unbind(default);
+0225: 	}
+0226: 
+0227: 	public void Dispose()
+0228: 	{
+0229: 		Dispose(disposing: true);
+0230: 		GC.SuppressFinalize(this);
+0231: 	}
+0232: 
+0233: 	protected virtual void Dispose(bool disposing)
+0234: 	{
+0235: 		serialPort?.Close();
+0236: 		serialPort?.Dispose();
+0237: 		serialPort = null;
+0238: 		if (disposing)
+0239: 		{
+0240: 			try
+0241: 			{
+0242: 				DisposeAsyncCore().GetAwaiter().GetResult();
+0243: 			}
+0244: 			catch (Exception exception)
+0245: 			{
+0246: 				logger.LogWarning(exception, "RFCOMM release during dispose failed for {Device}", DevicePath);
+0247: 			}
+0248: 		}
+0249: 	}
+0250: 
+0251: 	internal static async Task ReleaseNode(ILogger logger, string deviceName, CancellationToken cancellationToken = default(CancellationToken))
+0252: 	{
+0253: 		string devicePath = "/dev/" + deviceName;
+0254: 		if (File.Exists(devicePath))
+0255: 		{
+0256: 			ProcessStartInfo startInfo = new ProcessStartInfo
+0257: 			{
+0258: 				FileName = "/usr/bin/rfcomm",
+0259: 				Arguments = "release " + devicePath,
+0260: 				RedirectStandardError = true,
+0261: 				RedirectStandardOutput = true,
+0262: 				UseShellExecute = false
+0263: 			};
+0264: 			Process proc = new Process
+0265: 			{
+0266: 				StartInfo = startInfo
+0267: 			};
+0268: 			proc.Start();
+0269: 			await proc.WaitForExitAsync(cancellationToken);
+0270: 			string text = (await proc.StandardError.ReadToEndAsync(cancellationToken)).Trim();
+0271: 			if (proc.ExitCode != 0 || text.Length > 0)
+0272: 			{
+0273: 				logger.LogWarning("rfcomm release {Device} exited {Code}: {Stderr}", devicePath, proc.ExitCode, text);
+0274: 			}
+0275: 		}
+0276: 	}
+0277: }

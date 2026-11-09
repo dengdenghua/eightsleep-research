@@ -1,0 +1,101 @@
+ENTRY 0801baa8 FUN_0801baa8 body=[[0801baa8, 0801bb23]]
+CALLER/REF 0801e486 UNCONDITIONAL_CALL
+
+undefined4 * FUN_0801baa8(undefined4 *param_1,float *param_2)
+
+{
+  float fVar1;
+  float fVar2;
+  byte bVar3;
+  byte bVar4;
+  
+  if (*(char *)(param_2 + 5) == '\0') {
+    fVar1 = *param_2;
+  }
+  else {
+    fVar1 = param_2[6];
+  }
+  fp_mul(fVar1,100.0);
+  fVar1 = (float)FUN_08026a78();
+  bVar4 = 0;
+  if (*(char *)(param_2 + 5) != '\0') {
+    bVar4 = *(byte *)((int)param_2 + 0x23) ^ 1;
+  }
+  bVar3 = 0;
+  if (*(char *)((int)param_2 + 0x16) != '\0') {
+    bVar3 = *(byte *)(param_2 + 9) ^ 1;
+  }
+  fVar2 = param_2[10];
+  *param_1 = CONCAT13(*(char *)(param_2 + 5),
+                      CONCAT12(*(byte *)((int)param_2 + 0x22) ^ *(byte *)(param_2 + 8),
+                               CONCAT11(*(byte *)(param_2 + 8),*(undefined1 *)((int)param_2 + 0x21))
+                              ));
+  *(byte *)(param_1 + 1) = bVar4;
+  *(byte *)((int)param_1 + 5) = bVar3;
+  param_1[2] = fVar1;
+  *(char *)((int)param_1 + 6) = '\x01' - (fVar2 == fVar1);
+  param_1[3] = fVar2;
+  return param_1;
+}
+
+
+0801baa8  push {r4,r5,r6,r7,lr}
+0801baaa  mov lr,r8
+0801baac  push {lr}
+0801baae  ldrb r3,[r1,#0x14]
+0801bab0  movs r5,r0
+0801bab2  movs r4,r1
+0801bab4  cmp r3,#0x0
+0801bab6  beq 0x0801bb20
+0801bab8  ldr r0,[r1,#0x18]
+0801baba  ldr r1,[0x0801bb24] [0801bb24=42c80000]
+0801babc  bl 0x0800ac74
+0801bac0  bl 0x08026a78
+0801bac4  movs r3,#0x21
+0801bac6  movs r1,#0x22
+0801bac8  ldrb r2,[r4,r3]
+0801baca  subs r3,#0x1
+0801bacc  ldrb r3,[r4,r3]
+0801bace  ldrb r1,[r4,r1]
+0801bad0  movs r7,#0x0
+0801bad2  eors r1,r3
+0801bad4  mov r12,r1
+0801bad6  ldrb r1,[r4,#0x14]
+0801bad8  mov r8,r1
+0801bada  cmp r1,#0x0
+0801badc  beq 0x0801bae6
+0801bade  movs r1,#0x23
+0801bae0  ldrb r7,[r4,r1]
+0801bae2  movs r1,#0x1
+0801bae4  eors r7,r1
+0801bae6  ldrb r6,[r4,#0x16]
+0801bae8  cmp r6,#0x0
+0801baea  beq 0x0801baf4
+0801baec  movs r1,#0x24
+0801baee  ldrb r6,[r4,r1]
+0801baf0  movs r1,#0x1
+0801baf2  eors r6,r1
+0801baf4  ldr r1,[r4,#0x28]
+0801baf6  lsls r3,r3,#0x8
+0801baf8  mov r4,r12
+0801bafa  orrs r3,r2
+0801bafc  mov r2,r8
+0801bafe  lsls r4,r4,#0x10
+0801bb00  lsls r2,r2,#0x18
+0801bb02  orrs r3,r4
+0801bb04  orrs r3,r2
+0801bb06  str r3,[r5,#0x0]
+0801bb08  subs r3,r1,r0
+0801bb0a  subs r2,r3,#0x1
+0801bb0c  sbcs r3,r2
+0801bb0e  strb r7,[r5,#0x4]
+0801bb10  strb r6,[r5,#0x5]
+0801bb12  str r0,[r5,#0x8]
+0801bb14  strb r3,[r5,#0x6]
+0801bb16  movs r0,r5
+0801bb18  str r1,[r5,#0xc]
+0801bb1a  pop {r2}
+0801bb1c  mov r8,r2
+0801bb1e  pop {r4,r5,r6,r7,pc}
+0801bb20  ldr r0,[r1,#0x0]
+0801bb22  b 0x0801baba

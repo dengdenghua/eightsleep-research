@@ -1,0 +1,38 @@
+TARGET 00219b34 function=00219b34
+REF_TO 004cceec INDIRECTION owner=none
+REF_TO 004f7864 DATA owner=none
+REF_TO 0020bcd0 UNCONDITIONAL_CALL owner=0020b574
+REF_TO 00235278 UNCONDITIONAL_CALL owner=002349f0
+REF_TO 00243758 UNCONDITIONAL_CALL owner=002433a4
+FUNCTION_BODY [[00219b34, 00219b6b]]
+
+bool FUN_00219b34(byte *param_1,long param_2,byte *param_3)
+
+{
+  byte bVar1;
+  
+  if (param_2 != 0) {
+    *param_3 = *param_1 & 0x7f;
+    bVar1 = *param_1;
+    *(byte **)(param_3 + 8) = param_1 + 1;
+    *(long *)(param_3 + 0x10) = param_2 + -1;
+    param_3[1] = bVar1 >> 7;
+  }
+  return param_2 != 0;
+}
+
+
+INSN 00219b34 5f2403d5 bti c
+INSN 00219b38 e30300aa mov x3,x0
+INSN 00219b3c 00008052 mov w0,#0x0
+INSN 00219b40 410100b4 cbz x1,0x00219b68 REF[CONDITIONAL_JUMP:00219b68]
+INSN 00219b44 64004039 ldrb w4,[x3]
+INSN 00219b48 210400d1 sub x1,x1,#0x1
+INSN 00219b4c 20008052 mov w0,#0x1
+INSN 00219b50 84180012 and w4,w4,#0x7f
+INSN 00219b54 44000039 strb w4,[x2]
+INSN 00219b58 64144038 ldrb w4,[x3], #0x1
+INSN 00219b5c 438400a9 stp x3,x1,[x2, #0x8]
+INSN 00219b60 817c0753 lsr w1,w4,#0x7
+INSN 00219b64 41040039 strb w1,[x2, #0x1]
+INSN 00219b68 c0035fd6 ret

@@ -1,0 +1,619 @@
+// IL code: Eight.Lsp.Subsystems
+.class public auto ansi abstract sealed beforefieldinit Eight.Lsp.Subsystems.StateMachine.SubsystemHost
+	extends [System.Runtime]System.Object
+{
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit '<RunAsync>d__0'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger logger
+		.field public string deviceType
+		.field public valuetype Eight.Lsp.Subsystems.Models.Side side
+		.field public class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory factory
+		.field public class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> stateDict
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field public class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> ctsDict
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken stoppingToken
+		.field public class [System.Runtime]System.TimeProvider timeProvider
+		.field public class [System.Runtime]System.Func`2<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool> isNullState
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field private class Eight.Lsp.Subsystems.StateMachine.ISubsystemState '<state>5__2'
+		.field private object '<>7__wrap2'
+		.field private int32 '<>7__wrap3'
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> '<>u__1'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__2'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x40c4
+			// Header size: 12
+			// Code size: 1022 (0x3fe)
+			.maxstack 7
+			.locals init (
+				[0] int32,
+				[1] class [System.Runtime]System.Threading.CancellationTokenSource,
+				[2] class [System.Runtime]System.Threading.CancellationTokenSource,
+				[3] class Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+				[4] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>,
+				[5] class [System.Runtime]System.Exception,
+				[6] int32,
+				[7] class [System.Runtime]System.Exception,
+				[8] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[9] class [System.Runtime]System.Exception,
+				[10] class [System.Runtime]System.Threading.CancellationTokenSource,
+				[11] class Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+				[12] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>1__state'
+			IL_0006: stloc.0
+			.try
+			{
+				IL_0007: ldloc.0
+				IL_0008: ldc.i4.1
+				IL_0009: ble.un.s IL_006b
+
+				IL_000b: ldarg.0
+				IL_000c: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::logger
+				IL_0011: ldstr "Starting {DeviceType} state machine for {Side} side"
+				IL_0016: ldc.i4.2
+				IL_0017: newarr [System.Runtime]System.Object
+				IL_001c: dup
+				IL_001d: ldc.i4.0
+				IL_001e: ldarg.0
+				IL_001f: ldfld string Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::deviceType
+				IL_0024: stelem.ref
+				IL_0025: dup
+				IL_0026: ldc.i4.1
+				IL_0027: ldarg.0
+				IL_0028: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+				IL_002d: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+				IL_0032: stelem.ref
+				IL_0033: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+				IL_0038: ldarg.0
+				IL_0039: ldarg.0
+				IL_003a: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::factory
+				IL_003f: ldarg.0
+				IL_0040: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+				IL_0045: callvirt instance class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory::CreateNullState(valuetype Eight.Lsp.Subsystems.Models.Side)
+				IL_004a: stfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+				IL_004f: ldarg.0
+				IL_0050: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::stateDict
+				IL_0055: ldarg.0
+				IL_0056: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+				IL_005b: ldarg.0
+				IL_005c: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+				IL_0061: callvirt instance void class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::set_Item(!0, !1)
+				IL_0066: br IL_0384
+
+				IL_006b: nop
+				.try
+				{
+					IL_006c: ldloc.0
+					IL_006d: brfalse.s IL_007d
+
+					IL_006f: ldloc.0
+					IL_0070: ldc.i4.1
+					IL_0071: beq IL_0209
+
+					IL_0076: ldarg.0
+					IL_0077: ldc.i4.0
+					IL_0078: stfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>7__wrap3'
+
+					IL_007d: nop
+					.try
+					{
+						IL_007e: ldloc.0
+						IL_007f: brfalse.s IL_00ff
+
+						IL_0081: ldarg.0
+						IL_0082: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::ctsDict
+						IL_0087: ldarg.0
+						IL_0088: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+						IL_008d: ldloca.s 1
+						IL_008f: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource>::TryGetValue(!0, !1&)
+						IL_0094: brfalse.s IL_009c
+
+						IL_0096: ldloc.1
+						IL_0097: callvirt instance void [System.Runtime]System.Threading.CancellationTokenSource::Dispose()
+
+						IL_009c: ldarg.0
+						IL_009d: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::stoppingToken
+						IL_00a2: call class [System.Runtime]System.Threading.CancellationTokenSource [System.Runtime]System.Threading.CancellationTokenSource::CreateLinkedTokenSource(valuetype [System.Runtime]System.Threading.CancellationToken)
+						IL_00a7: stloc.2
+						IL_00a8: ldarg.0
+						IL_00a9: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::ctsDict
+						IL_00ae: ldarg.0
+						IL_00af: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+						IL_00b4: ldloc.2
+						IL_00b5: callvirt instance void class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource>::set_Item(!0, !1)
+						IL_00ba: ldarg.0
+						IL_00bb: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+						IL_00c0: ldloc.2
+						IL_00c1: callvirt instance valuetype [System.Runtime]System.Threading.CancellationToken [System.Runtime]System.Threading.CancellationTokenSource::get_Token()
+						IL_00c6: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.ISubsystemState::GetNextState(valuetype [System.Runtime]System.Threading.CancellationToken)
+						IL_00cb: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<!0> class [System.Runtime]System.Threading.Tasks.Task`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::GetAwaiter()
+						IL_00d0: stloc.s 4
+						IL_00d2: ldloca.s 4
+						IL_00d4: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::get_IsCompleted()
+						IL_00d9: brtrue.s IL_011c
+
+						IL_00db: ldarg.0
+						IL_00dc: ldc.i4.0
+						IL_00dd: dup
+						IL_00de: stloc.0
+						IL_00df: stfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>1__state'
+						IL_00e4: ldarg.0
+						IL_00e5: ldloc.s 4
+						IL_00e7: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>u__1'
+						IL_00ec: ldarg.0
+						IL_00ed: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>t__builder'
+						IL_00f2: ldloca.s 4
+						IL_00f4: ldarg.0
+						IL_00f5: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>, valuetype Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'>(!!0&, !!1&)
+						IL_00fa: leave IL_03fd
+
+						IL_00ff: ldarg.0
+						IL_0100: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>u__1'
+						IL_0105: stloc.s 4
+						IL_0107: ldarg.0
+						IL_0108: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>u__1'
+						IL_010d: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>
+						IL_0113: ldarg.0
+						IL_0114: ldc.i4.m1
+						IL_0115: dup
+						IL_0116: stloc.0
+						IL_0117: stfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>1__state'
+
+						IL_011c: ldloca.s 4
+						IL_011e: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::GetResult()
+						IL_0123: stloc.3
+						IL_0124: ldarg.0
+						IL_0125: ldloc.3
+						IL_0126: stfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+						IL_012b: ldarg.0
+						IL_012c: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::logger
+						IL_0131: ldstr "[{Side}:{DeviceType}] Transitioned to: {StateName}"
+						IL_0136: ldc.i4.3
+						IL_0137: newarr [System.Runtime]System.Object
+						IL_013c: dup
+						IL_013d: ldc.i4.0
+						IL_013e: ldarg.0
+						IL_013f: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+						IL_0144: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+						IL_0149: stelem.ref
+						IL_014a: dup
+						IL_014b: ldc.i4.1
+						IL_014c: ldarg.0
+						IL_014d: ldfld string Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::deviceType
+						IL_0152: stelem.ref
+						IL_0153: dup
+						IL_0154: ldc.i4.2
+						IL_0155: ldarg.0
+						IL_0156: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+						IL_015b: callvirt instance class [System.Runtime]System.Type [System.Runtime]System.Object::GetType()
+						IL_0160: callvirt instance string [System.Runtime]System.Reflection.MemberInfo::get_Name()
+						IL_0165: stelem.ref
+						IL_0166: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+						IL_016b: leave.s IL_01bd
+					} // end .try
+					catch [System.Runtime]System.OperationCanceledException
+					{
+						IL_016d: pop
+						IL_016e: ldarg.0
+						IL_016f: ldflda valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::stoppingToken
+						IL_0174: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+						IL_0179: brtrue.s IL_01a8
+
+						IL_017b: ldarg.0
+						IL_017c: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::logger
+						IL_0181: ldstr "[{Side}:{DeviceType}] Operation cancelled unexpectedly"
+						IL_0186: ldc.i4.2
+						IL_0187: newarr [System.Runtime]System.Object
+						IL_018c: dup
+						IL_018d: ldc.i4.0
+						IL_018e: ldarg.0
+						IL_018f: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+						IL_0194: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+						IL_0199: stelem.ref
+						IL_019a: dup
+						IL_019b: ldc.i4.1
+						IL_019c: ldarg.0
+						IL_019d: ldfld string Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::deviceType
+						IL_01a2: stelem.ref
+						IL_01a3: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+
+						IL_01a8: leave.s IL_01bd
+					} // end handler
+					catch [System.Runtime]System.Exception
+					{
+						IL_01aa: stloc.s 5
+						IL_01ac: ldarg.0
+						IL_01ad: ldloc.s 5
+						IL_01af: stfld object Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>7__wrap2'
+						IL_01b4: ldarg.0
+						IL_01b5: ldc.i4.1
+						IL_01b6: stfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>7__wrap3'
+						IL_01bb: leave.s IL_01bd
+					} // end handler
+
+					IL_01bd: ldarg.0
+					IL_01be: ldfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>7__wrap3'
+					IL_01c3: stloc.s 6
+					IL_01c5: ldloc.s 6
+					IL_01c7: ldc.i4.1
+					IL_01c8: bne.un IL_02e8
+
+					IL_01cd: ldarg.0
+					IL_01ce: ldfld object Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>7__wrap2'
+					IL_01d3: castclass [System.Runtime]System.Exception
+					IL_01d8: stloc.s 7
+					IL_01da: ldarg.0
+					IL_01db: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::logger
+					IL_01e0: ldloc.s 7
+					IL_01e2: ldstr "[{Side}:{DeviceType}] Unhandled error in state machine, restarting"
+					IL_01e7: ldc.i4.2
+					IL_01e8: newarr [System.Runtime]System.Object
+					IL_01ed: dup
+					IL_01ee: ldc.i4.0
+					IL_01ef: ldarg.0
+					IL_01f0: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+					IL_01f5: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+					IL_01fa: stelem.ref
+					IL_01fb: dup
+					IL_01fc: ldc.i4.1
+					IL_01fd: ldarg.0
+					IL_01fe: ldfld string Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::deviceType
+					IL_0203: stelem.ref
+					IL_0204: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogError(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+
+					IL_0209: nop
+					.try
+					{
+						IL_020a: ldloc.0
+						IL_020b: ldc.i4.1
+						IL_020c: beq.s IL_025a
+
+						IL_020e: ldc.i4.2
+						IL_020f: conv.i8
+						IL_0210: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::FromSeconds(int64)
+						IL_0215: ldarg.0
+						IL_0216: ldfld class [System.Runtime]System.TimeProvider Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::timeProvider
+						IL_021b: ldarg.0
+						IL_021c: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::stoppingToken
+						IL_0221: call class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Threading.Tasks.Task::Delay(valuetype [System.Runtime]System.TimeSpan, class [System.Runtime]System.TimeProvider, valuetype [System.Runtime]System.Threading.CancellationToken)
+						IL_0226: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+						IL_022b: stloc.s 8
+						IL_022d: ldloca.s 8
+						IL_022f: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+						IL_0234: brtrue.s IL_0277
+
+						IL_0236: ldarg.0
+						IL_0237: ldc.i4.1
+						IL_0238: dup
+						IL_0239: stloc.0
+						IL_023a: stfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>1__state'
+						IL_023f: ldarg.0
+						IL_0240: ldloc.s 8
+						IL_0242: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>u__2'
+						IL_0247: ldarg.0
+						IL_0248: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>t__builder'
+						IL_024d: ldloca.s 8
+						IL_024f: ldarg.0
+						IL_0250: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'>(!!0&, !!1&)
+						IL_0255: leave IL_03fd
+
+						IL_025a: ldarg.0
+						IL_025b: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>u__2'
+						IL_0260: stloc.s 8
+						IL_0262: ldarg.0
+						IL_0263: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>u__2'
+						IL_0268: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+						IL_026e: ldarg.0
+						IL_026f: ldc.i4.m1
+						IL_0270: dup
+						IL_0271: stloc.0
+						IL_0272: stfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>1__state'
+
+						IL_0277: ldloca.s 8
+						IL_0279: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+						IL_027e: leave.s IL_0286
+					} // end .try
+					catch [System.Runtime]System.OperationCanceledException
+					{
+						IL_0280: pop
+						IL_0281: leave IL_0394
+					} // end handler
+
+					IL_0286: ldarg.0
+					IL_0287: ldflda valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::stoppingToken
+					IL_028c: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+					IL_0291: brfalse.s IL_0298
+
+					IL_0293: leave IL_0394
+
+					IL_0298: nop
+					.try
+					{
+						IL_0299: ldarg.0
+						IL_029a: ldarg.0
+						IL_029b: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::factory
+						IL_02a0: ldarg.0
+						IL_02a1: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+						IL_02a6: callvirt instance class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory::CreateNullState(valuetype Eight.Lsp.Subsystems.Models.Side)
+						IL_02ab: stfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+						IL_02b0: leave.s IL_02e8
+					} // end .try
+					catch [System.Runtime]System.Exception
+					{
+						IL_02b2: stloc.s 9
+						IL_02b4: ldarg.0
+						IL_02b5: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::logger
+						IL_02ba: ldloc.s 9
+						IL_02bc: ldstr "[{Side}:{DeviceType}] Failed to create null state, stopping"
+						IL_02c1: ldc.i4.2
+						IL_02c2: newarr [System.Runtime]System.Object
+						IL_02c7: dup
+						IL_02c8: ldc.i4.0
+						IL_02c9: ldarg.0
+						IL_02ca: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+						IL_02cf: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+						IL_02d4: stelem.ref
+						IL_02d5: dup
+						IL_02d6: ldc.i4.1
+						IL_02d7: ldarg.0
+						IL_02d8: ldfld string Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::deviceType
+						IL_02dd: stelem.ref
+						IL_02de: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogCritical(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+						IL_02e3: leave IL_0394
+					} // end handler
+
+					IL_02e8: ldarg.0
+					IL_02e9: ldnull
+					IL_02ea: stfld object Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>7__wrap2'
+					IL_02ef: leave IL_0384
+				} // end .try
+				finally
+				{
+					IL_02f4: ldloc.0
+					IL_02f5: ldc.i4.0
+					IL_02f6: bge IL_0383
+
+					IL_02fb: ldarg.0
+					IL_02fc: ldfld class [System.Runtime]System.Func`2<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::isNullState
+					IL_0301: ldarg.0
+					IL_0302: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+					IL_0307: callvirt instance !1 class [System.Runtime]System.Func`2<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool>::Invoke(!0)
+					IL_030c: brfalse.s IL_0317
+
+					IL_030e: ldarg.0
+					IL_030f: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+					IL_0314: stloc.3
+					IL_0315: br.s IL_0365
+
+					IL_0317: ldarg.0
+					IL_0318: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::ctsDict
+					IL_031d: ldarg.0
+					IL_031e: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+					IL_0323: ldloca.s 10
+					IL_0325: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource>::TryGetValue(!0, !1&)
+					IL_032a: brfalse.s IL_035e
+
+					IL_032c: ldloc.s 10
+					IL_032e: callvirt instance bool [System.Runtime]System.Threading.CancellationTokenSource::get_IsCancellationRequested()
+					IL_0333: brfalse.s IL_035e
+
+					IL_0335: ldarg.0
+					IL_0336: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::stateDict
+					IL_033b: ldarg.0
+					IL_033c: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+					IL_0341: ldloca.s 11
+					IL_0343: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::TryGetValue(!0, !1&)
+					IL_0348: brfalse.s IL_035e
+
+					IL_034a: ldarg.0
+					IL_034b: ldfld class [System.Runtime]System.Func`2<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::isNullState
+					IL_0350: ldloc.s 11
+					IL_0352: callvirt instance !1 class [System.Runtime]System.Func`2<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool>::Invoke(!0)
+					IL_0357: brfalse.s IL_035e
+
+					IL_0359: ldloc.s 11
+					IL_035b: stloc.3
+					IL_035c: br.s IL_0365
+
+					IL_035e: ldarg.0
+					IL_035f: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+					IL_0364: stloc.3
+
+					IL_0365: ldarg.0
+					IL_0366: ldloc.3
+					IL_0367: stfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+					IL_036c: ldarg.0
+					IL_036d: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::stateDict
+					IL_0372: ldarg.0
+					IL_0373: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+					IL_0378: ldarg.0
+					IL_0379: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+					IL_037e: callvirt instance void class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::set_Item(!0, !1)
+
+					IL_0383: endfinally
+				} // end handler
+
+				IL_0384: ldarg.0
+				IL_0385: ldflda valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::stoppingToken
+				IL_038a: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+				IL_038f: brfalse IL_006b
+
+				IL_0394: ldarg.0
+				IL_0395: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::logger
+				IL_039a: ldstr "[{Side}:{DeviceType}] State machine stopped"
+				IL_039f: ldc.i4.2
+				IL_03a0: newarr [System.Runtime]System.Object
+				IL_03a5: dup
+				IL_03a6: ldc.i4.0
+				IL_03a7: ldarg.0
+				IL_03a8: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+				IL_03ad: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+				IL_03b2: stelem.ref
+				IL_03b3: dup
+				IL_03b4: ldc.i4.1
+				IL_03b5: ldarg.0
+				IL_03b6: ldfld string Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::deviceType
+				IL_03bb: stelem.ref
+				IL_03bc: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+				IL_03c1: leave.s IL_03e3
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_03c3: stloc.s 12
+				IL_03c5: ldarg.0
+				IL_03c6: ldc.i4.s -2
+				IL_03c8: stfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>1__state'
+				IL_03cd: ldarg.0
+				IL_03ce: ldnull
+				IL_03cf: stfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+				IL_03d4: ldarg.0
+				IL_03d5: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>t__builder'
+				IL_03da: ldloc.s 12
+				IL_03dc: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_03e1: leave.s IL_03fd
+			} // end handler
+
+			IL_03e3: ldarg.0
+			IL_03e4: ldc.i4.s -2
+			IL_03e6: stfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>1__state'
+			IL_03eb: ldarg.0
+			IL_03ec: ldnull
+			IL_03ed: stfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<state>5__2'
+			IL_03f2: ldarg.0
+			IL_03f3: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>t__builder'
+			IL_03f8: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_03fd: ret
+		} // end of method '<RunAsync>d__0'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			.param [1]
+				.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+					01 00 01 00 00
+				)
+			// Method begins at RVA 0x4564
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<RunAsync>d__0'::SetStateMachine
+
+	} // end of class <RunAsync>d__0
+
+
+	// Methods
+	.method public hidebysig static 
+		class [System.Runtime]System.Threading.Tasks.Task RunAsync (
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger logger,
+			class [System.Runtime]System.TimeProvider timeProvider,
+			valuetype Eight.Lsp.Subsystems.Models.Side side,
+			string deviceType,
+			class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory factory,
+			class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> stateDict,
+			class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> ctsDict,
+			class [System.Runtime]System.Func`2<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool> isNullState,
+			valuetype [System.Runtime]System.Threading.CancellationToken stoppingToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 01 00 00
+		)
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 3e 45 69 67 68 74 2e 4c 73 70 2e 53 75 62
+			73 79 73 74 65 6d 73 2e 53 74 61 74 65 4d 61 63
+			68 69 6e 65 2e 53 75 62 73 79 73 74 65 6d 48 6f
+			73 74 2b 3c 52 75 6e 41 73 79 6e 63 3e 64 5f 5f
+			30 00 00
+		)
+		// Method begins at RVA 0x2234
+		// Header size: 12
+		// Code size: 124 (0x7c)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::logger
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class [System.Runtime]System.TimeProvider Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::timeProvider
+		IL_001c: ldloca.s 0
+		IL_001e: ldarg.2
+		IL_001f: stfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::side
+		IL_0024: ldloca.s 0
+		IL_0026: ldarg.3
+		IL_0027: stfld string Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::deviceType
+		IL_002c: ldloca.s 0
+		IL_002e: ldarg.s factory
+		IL_0030: stfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::factory
+		IL_0035: ldloca.s 0
+		IL_0037: ldarg.s stateDict
+		IL_0039: stfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::stateDict
+		IL_003e: ldloca.s 0
+		IL_0040: ldarg.s ctsDict
+		IL_0042: stfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::ctsDict
+		IL_0047: ldloca.s 0
+		IL_0049: ldarg.s isNullState
+		IL_004b: stfld class [System.Runtime]System.Func`2<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool> Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::isNullState
+		IL_0050: ldloca.s 0
+		IL_0052: ldarg.s stoppingToken
+		IL_0054: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::stoppingToken
+		IL_0059: ldloca.s 0
+		IL_005b: ldc.i4.m1
+		IL_005c: stfld int32 Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>1__state'
+		IL_0061: ldloca.s 0
+		IL_0063: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>t__builder'
+		IL_0068: ldloca.s 0
+		IL_006a: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'>(!!0&)
+		IL_006f: ldloca.s 0
+		IL_0071: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.SubsystemHost/'<RunAsync>d__0'::'<>t__builder'
+		IL_0076: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_007b: ret
+	} // end of method SubsystemHost::RunAsync
+
+} // end of class Eight.Lsp.Subsystems.StateMachine.SubsystemHost

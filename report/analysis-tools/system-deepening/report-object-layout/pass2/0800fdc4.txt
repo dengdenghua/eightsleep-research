@@ -1,0 +1,91 @@
+TARGET 0800fdc4 function=0800fdc4
+REF_TO 08013330 UNCONDITIONAL_CALL
+REF_TO 0801333e UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800fdc4, 0800fe39]]
+
+void FUN_0800fdc4(int param_1,uint param_2,int *param_3,uint *param_4)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  undefined4 uVar3;
+  uint uVar4;
+  
+  iVar1 = FUN_08008574(param_1,0,param_3,param_4,param_4);
+  if (iVar1 != 0) {
+    param_1 = param_1 + -0x80000000;
+  }
+  iVar1 = FUN_08008574(param_1,0x4b800000);
+  if (iVar1 == 0) {
+    *param_3 = 0x1000000;
+    *param_4 = 0;
+  }
+  else {
+    iVar1 = FUN_0801fe0c(param_1);
+    *param_3 = iVar1;
+    uVar2 = FUN_0801feb8();
+    uVar2 = FUN_08023d54(param_1,uVar2);
+    uVar3 = FUN_0801feb8(param_2);
+    uVar2 = FUN_08023ad8(uVar2,uVar3);
+    FUN_080233f8(uVar2,0x3f000000);
+    uVar4 = FUN_0801fe0c();
+    *param_4 = uVar4;
+    if (param_2 <= uVar4) {
+      *param_3 = *param_3 + 1;
+      *param_4 = *param_4 - param_2;
+    }
+  }
+  return;
+}
+
+
+INSN 0800fdc4 f8b5 push {r3,r4,r5,r6,r7,lr}
+INSN 0800fdc6 0f00 movs r7,r1
+INSN 0800fdc8 0021 movs r1,#0x0
+INSN 0800fdca 1600 movs r6,r2
+INSN 0800fdcc 1d00 movs r5,r3
+INSN 0800fdce 041c adds r4,r0,#0x0
+INSN 0800fdd0 f8f7d0fb bl 0x08008574 REF[UNCONDITIONAL_CALL:08008574]
+INSN 0800fdd4 0028 cmp r0,#0x0
+INSN 0800fdd6 02d0 beq 0x0800fdde REF[CONDITIONAL_JUMP:0800fdde]
+INSN 0800fdd8 8023 movs r3,#0x80
+INSN 0800fdda 1b06 lsls r3,r3,#0x18
+INSN 0800fddc e418 adds r4,r4,r3
+INSN 0800fdde 9721 movs r1,#0x97
+INSN 0800fde0 201c adds r0,r4,#0x0
+INSN 0800fde2 c905 lsls r1,r1,#0x17
+INSN 0800fde4 f8f7c6fb bl 0x08008574 REF[UNCONDITIONAL_CALL:08008574]
+INSN 0800fde8 0028 cmp r0,#0x0
+INSN 0800fdea 04d1 bne 0x0800fdf6 REF[CONDITIONAL_JUMP:0800fdf6]
+INSN 0800fdec 8023 movs r3,#0x80
+INSN 0800fdee 5b04 lsls r3,r3,#0x11
+INSN 0800fdf0 3360 str r3,[r6,#0x0]
+INSN 0800fdf2 2860 str r0,[r5,#0x0]
+INSN 0800fdf4 f8bd pop {r3,r4,r5,r6,r7,pc}
+INSN 0800fdf6 201c adds r0,r4,#0x0
+INSN 0800fdf8 10f008f8 bl 0x0801fe0c REF[UNCONDITIONAL_CALL:0801fe0c]
+INSN 0800fdfc 3060 str r0,[r6,#0x0]
+INSN 0800fdfe 10f05bf8 bl 0x0801feb8 REF[UNCONDITIONAL_CALL:0801feb8]
+INSN 0800fe02 011c adds r1,r0,#0x0
+INSN 0800fe04 201c adds r0,r4,#0x0
+INSN 0800fe06 13f0a5ff bl 0x08023d54 REF[UNCONDITIONAL_CALL:08023d54]
+INSN 0800fe0a 041c adds r4,r0,#0x0
+INSN 0800fe0c 3800 movs r0,r7
+INSN 0800fe0e 10f053f8 bl 0x0801feb8 REF[UNCONDITIONAL_CALL:0801feb8]
+INSN 0800fe12 011c adds r1,r0,#0x0
+INSN 0800fe14 201c adds r0,r4,#0x0
+INSN 0800fe16 13f05ffe bl 0x08023ad8 REF[UNCONDITIONAL_CALL:08023ad8]
+INSN 0800fe1a fc21 movs r1,#0xfc
+INSN 0800fe1c 8905 lsls r1,r1,#0x16
+INSN 0800fe1e 13f0ebfa bl 0x080233f8 REF[UNCONDITIONAL_CALL:080233f8]
+INSN 0800fe22 0ff0f3ff bl 0x0801fe0c REF[UNCONDITIONAL_CALL:0801fe0c]
+INSN 0800fe26 2860 str r0,[r5,#0x0]
+INSN 0800fe28 b842 cmp r0,r7
+INSN 0800fe2a e3d3 bcc 0x0800fdf4 REF[CONDITIONAL_JUMP:0800fdf4]
+INSN 0800fe2c 3368 ldr r3,[r6,#0x0]
+INSN 0800fe2e 0133 adds r3,#0x1
+INSN 0800fe30 3360 str r3,[r6,#0x0]
+INSN 0800fe32 2b68 ldr r3,[r5,#0x0]
+INSN 0800fe34 db1b subs r3,r3,r7
+INSN 0800fe36 2b60 str r3,[r5,#0x0]
+INSN 0800fe38 dce7 b 0x0800fdf4 REF[UNCONDITIONAL_JUMP:0800fdf4]

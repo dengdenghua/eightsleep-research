@@ -1,0 +1,1072 @@
+// IL code: Eight.Lsp.Subsystems
+.class public auto ansi sealed beforefieldinit Eight.Lsp.Subsystems.Services.Connection.DeviceConnection
+	extends [System.Runtime]System.Object
+	implements Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection,
+	           [System.Runtime]System.IAsyncDisposable
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.interfaceimpl type Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	.interfaceimpl type [System.Runtime]System.IAsyncDisposable
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit '<Close>d__29'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x70a4
+			// Header size: 12
+			// Code size: 282 (0x11a)
+			.maxstack 6
+			.locals init (
+				[0] int32,
+				[1] class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection,
+				[2] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[3] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse IL_00a6
+
+				IL_0014: ldloc.1
+				IL_0015: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::logger
+				IL_001a: ldstr "[{Side}] Closing connection"
+				IL_001f: ldc.i4.1
+				IL_0020: newarr [System.Runtime]System.Object
+				IL_0025: dup
+				IL_0026: ldc.i4.0
+				IL_0027: ldloc.1
+				IL_0028: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::side
+				IL_002d: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+				IL_0032: stelem.ref
+				IL_0033: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogDebug(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+				IL_0038: ldloc.1
+				IL_0039: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+				IL_003e: ldloc.1
+				IL_003f: ldftn instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::OnPacketReceived(class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext)
+				IL_0045: newobj instance void class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::.ctor(object, native int)
+				IL_004a: callvirt instance void class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::remove_PacketReceived(class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, !0>)
+				IL_004f: ldloc.1
+				IL_0050: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+				IL_0055: ldloc.1
+				IL_0056: ldftn instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::OnStateChanged(valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState)
+				IL_005c: newobj instance void class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>::.ctor(object, native int)
+				IL_0061: callvirt instance void class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::remove_StateChanged(class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>)
+				IL_0066: ldloc.1
+				IL_0067: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+				IL_006c: ldarg.0
+				IL_006d: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::cancellation
+				IL_0072: callvirt instance class [System.Runtime]System.Threading.Tasks.Task class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::Close(valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_0077: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+				IL_007c: stloc.2
+				IL_007d: ldloca.s 2
+				IL_007f: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+				IL_0084: brtrue.s IL_00c2
+
+				IL_0086: ldarg.0
+				IL_0087: ldc.i4.0
+				IL_0088: dup
+				IL_0089: stloc.0
+				IL_008a: stfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>1__state'
+				IL_008f: ldarg.0
+				IL_0090: ldloc.2
+				IL_0091: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>u__1'
+				IL_0096: ldarg.0
+				IL_0097: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>t__builder'
+				IL_009c: ldloca.s 2
+				IL_009e: ldarg.0
+				IL_009f: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'>(!!0&, !!1&)
+				IL_00a4: leave.s IL_0119
+
+				IL_00a6: ldarg.0
+				IL_00a7: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>u__1'
+				IL_00ac: stloc.2
+				IL_00ad: ldarg.0
+				IL_00ae: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>u__1'
+				IL_00b3: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+				IL_00b9: ldarg.0
+				IL_00ba: ldc.i4.m1
+				IL_00bb: dup
+				IL_00bc: stloc.0
+				IL_00bd: stfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>1__state'
+
+				IL_00c2: ldloca.s 2
+				IL_00c4: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+				IL_00c9: ldloc.1
+				IL_00ca: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::logger
+				IL_00cf: ldstr "[{Side}] Connection closed"
+				IL_00d4: ldc.i4.1
+				IL_00d5: newarr [System.Runtime]System.Object
+				IL_00da: dup
+				IL_00db: ldc.i4.0
+				IL_00dc: ldloc.1
+				IL_00dd: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::side
+				IL_00e2: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+				IL_00e7: stelem.ref
+				IL_00e8: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogDebug(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+				IL_00ed: leave.s IL_0106
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_00ef: stloc.3
+				IL_00f0: ldarg.0
+				IL_00f1: ldc.i4.s -2
+				IL_00f3: stfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>1__state'
+				IL_00f8: ldarg.0
+				IL_00f9: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>t__builder'
+				IL_00fe: ldloc.3
+				IL_00ff: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_0104: leave.s IL_0119
+			} // end handler
+
+			IL_0106: ldarg.0
+			IL_0107: ldc.i4.s -2
+			IL_0109: stfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>1__state'
+			IL_010e: ldarg.0
+			IL_010f: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>t__builder'
+			IL_0114: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_0119: ret
+		} // end of method '<Close>d__29'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x71dc
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<Close>d__29'::SetStateMachine
+
+	} // end of class <Close>d__29
+
+	.class nested private auto ansi sealed beforefieldinit '<DisposeAsync>d__30'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder '<>t__builder'
+		.field public class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter '<>u__1'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x71ec
+			// Header size: 12
+			// Code size: 160 (0xa0)
+			.maxstack 3
+			.locals init (
+				[0] int32,
+				[1] class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection,
+				[2] valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter,
+				[3] valuetype [System.Runtime]System.Threading.Tasks.ValueTask,
+				[4] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse.s IL_004e
+
+				IL_0011: ldloc.1
+				IL_0012: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+				IL_0017: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::DisposeAsync()
+				IL_001c: stloc.3
+				IL_001d: ldloca.s 3
+				IL_001f: call instance valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter [System.Runtime]System.Threading.Tasks.ValueTask::GetAwaiter()
+				IL_0024: stloc.2
+				IL_0025: ldloca.s 2
+				IL_0027: call instance bool [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::get_IsCompleted()
+				IL_002c: brtrue.s IL_006a
+
+				IL_002e: ldarg.0
+				IL_002f: ldc.i4.0
+				IL_0030: dup
+				IL_0031: stloc.0
+				IL_0032: stfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>1__state'
+				IL_0037: ldarg.0
+				IL_0038: ldloc.2
+				IL_0039: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>u__1'
+				IL_003e: ldarg.0
+				IL_003f: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>t__builder'
+				IL_0044: ldloca.s 2
+				IL_0046: ldarg.0
+				IL_0047: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter, valuetype Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'>(!!0&, !!1&)
+				IL_004c: leave.s IL_009f
+
+				IL_004e: ldarg.0
+				IL_004f: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>u__1'
+				IL_0054: stloc.2
+				IL_0055: ldarg.0
+				IL_0056: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>u__1'
+				IL_005b: initobj [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter
+				IL_0061: ldarg.0
+				IL_0062: ldc.i4.m1
+				IL_0063: dup
+				IL_0064: stloc.0
+				IL_0065: stfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>1__state'
+
+				IL_006a: ldloca.s 2
+				IL_006c: call instance void [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::GetResult()
+				IL_0071: leave.s IL_008c
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_0073: stloc.s 4
+				IL_0075: ldarg.0
+				IL_0076: ldc.i4.s -2
+				IL_0078: stfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>1__state'
+				IL_007d: ldarg.0
+				IL_007e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>t__builder'
+				IL_0083: ldloc.s 4
+				IL_0085: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_008a: leave.s IL_009f
+			} // end handler
+
+			IL_008c: ldarg.0
+			IL_008d: ldc.i4.s -2
+			IL_008f: stfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>1__state'
+			IL_0094: ldarg.0
+			IL_0095: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>t__builder'
+			IL_009a: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder::SetResult()
+
+			IL_009f: ret
+		} // end of method '<DisposeAsync>d__30'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x72a8
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<DisposeAsync>d__30'::SetStateMachine
+
+	} // end of class <DisposeAsync>d__30
+
+
+	// Fields
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection> logger
+	.field private initonly valuetype Eight.Lsp.Subsystems.Models.Side side
+	.field private initonly string devicePath
+	.field private initonly class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> protocol
+	.field private class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> StateChanged
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+	.field private class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> PacketReceived
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+		01 00 03 00 00 00 02 01 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+
+	// Methods
+	.method assembly hidebysig specialname rtspecialname 
+		instance void .ctor (
+			valuetype Eight.Lsp.Subsystems.Models.Side side,
+			string devicePath,
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection> logger,
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> protocol,
+			class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> eventHandler
+		) cil managed 
+	{
+		.param [5]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 03 00 00 00 02 01 01 00 00
+			)
+		// Method begins at RVA 0x2d40
+		// Header size: 12
+		// Code size: 87 (0x57)
+		.maxstack 3
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0006: ldarg.0
+		IL_0007: ldarg.1
+		IL_0008: stfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::side
+		IL_000d: ldarg.0
+		IL_000e: ldarg.2
+		IL_000f: stfld string Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::devicePath
+		IL_0014: ldarg.0
+		IL_0015: ldarg.3
+		IL_0016: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::logger
+		IL_001b: ldarg.0
+		IL_001c: ldarg.s protocol
+		IL_001e: stfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_0023: ldarg.s eventHandler
+		IL_0025: brfalse.s IL_0030
+
+		IL_0027: ldarg.s protocol
+		IL_0029: ldarg.s eventHandler
+		IL_002b: callvirt instance void class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::add_PacketReceived(class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, !0>)
+
+		IL_0030: ldarg.s protocol
+		IL_0032: ldarg.0
+		IL_0033: ldftn instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::OnPacketReceived(class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext)
+		IL_0039: newobj instance void class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::.ctor(object, native int)
+		IL_003e: callvirt instance void class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::add_PacketReceived(class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, !0>)
+		IL_0043: ldarg.s protocol
+		IL_0045: ldarg.0
+		IL_0046: ldftn instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::OnStateChanged(valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState)
+		IL_004c: newobj instance void class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>::.ctor(object, native int)
+		IL_0051: callvirt instance void class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::add_StateChanged(class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>)
+		IL_0056: ret
+	} // end of method DeviceConnection::.ctor
+
+	.method public final hidebysig specialname newslot virtual 
+		instance valuetype Eight.Lsp.Subsystems.Models.Side get_Side () cil managed 
+	{
+		// Method begins at RVA 0x2da3
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::side
+		IL_0006: ret
+	} // end of method DeviceConnection::get_Side
+
+	.method public final hidebysig specialname newslot virtual 
+		instance string get_DevicePath () cil managed 
+	{
+		// Method begins at RVA 0x2dab
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld string Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::devicePath
+		IL_0006: ret
+	} // end of method DeviceConnection::get_DevicePath
+
+	.method public final hidebysig specialname newslot virtual 
+		instance bool get_IsConnected () cil managed 
+	{
+		// Method begins at RVA 0x2db3
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_0006: callvirt instance bool class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::IsConnected()
+		IL_000b: ret
+	} // end of method DeviceConnection::get_IsConnected
+
+	.method public final hidebysig specialname newslot virtual 
+		instance void add_StateChanged (
+			class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> 'value'
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x2dc0
+		// Header size: 12
+		// Code size: 41 (0x29)
+		.maxstack 3
+		.locals init (
+			[0] class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>,
+			[1] class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>,
+			[2] class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::StateChanged
+		IL_0006: stloc.0
+		// loop start (head: IL_0007)
+			IL_0007: ldloc.0
+			IL_0008: stloc.1
+			IL_0009: ldloc.1
+			IL_000a: ldarg.1
+			IL_000b: call class [System.Runtime]System.Delegate [System.Runtime]System.Delegate::Combine(class [System.Runtime]System.Delegate, class [System.Runtime]System.Delegate)
+			IL_0010: castclass class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>
+			IL_0015: stloc.2
+			IL_0016: ldarg.0
+			IL_0017: ldflda class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::StateChanged
+			IL_001c: ldloc.2
+			IL_001d: ldloc.1
+			IL_001e: call !!0 [System.Threading]System.Threading.Interlocked::CompareExchange<class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>>(!!0&, !!0, !!0)
+			IL_0023: stloc.0
+			IL_0024: ldloc.0
+			IL_0025: ldloc.1
+			IL_0026: bne.un.s IL_0007
+		// end loop
+		IL_0028: ret
+	} // end of method DeviceConnection::add_StateChanged
+
+	.method public final hidebysig specialname newslot virtual 
+		instance void remove_StateChanged (
+			class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> 'value'
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x2df8
+		// Header size: 12
+		// Code size: 41 (0x29)
+		.maxstack 3
+		.locals init (
+			[0] class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>,
+			[1] class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>,
+			[2] class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::StateChanged
+		IL_0006: stloc.0
+		// loop start (head: IL_0007)
+			IL_0007: ldloc.0
+			IL_0008: stloc.1
+			IL_0009: ldloc.1
+			IL_000a: ldarg.1
+			IL_000b: call class [System.Runtime]System.Delegate [System.Runtime]System.Delegate::Remove(class [System.Runtime]System.Delegate, class [System.Runtime]System.Delegate)
+			IL_0010: castclass class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>
+			IL_0015: stloc.2
+			IL_0016: ldarg.0
+			IL_0017: ldflda class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::StateChanged
+			IL_001c: ldloc.2
+			IL_001d: ldloc.1
+			IL_001e: call !!0 [System.Threading]System.Threading.Interlocked::CompareExchange<class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>>(!!0&, !!0, !!0)
+			IL_0023: stloc.0
+			IL_0024: ldloc.0
+			IL_0025: ldloc.1
+			IL_0026: bne.un.s IL_0007
+		// end loop
+		IL_0028: ret
+	} // end of method DeviceConnection::remove_StateChanged
+
+	.method public final hidebysig specialname newslot virtual 
+		instance void add_PacketReceived (
+			class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> 'value'
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.param [1]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 03 00 00 00 02 01 01 00 00
+			)
+		// Method begins at RVA 0x2e30
+		// Header size: 12
+		// Code size: 41 (0x29)
+		.maxstack 3
+		.locals init (
+			[0] class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>,
+			[1] class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>,
+			[2] class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::PacketReceived
+		IL_0006: stloc.0
+		// loop start (head: IL_0007)
+			IL_0007: ldloc.0
+			IL_0008: stloc.1
+			IL_0009: ldloc.1
+			IL_000a: ldarg.1
+			IL_000b: call class [System.Runtime]System.Delegate [System.Runtime]System.Delegate::Combine(class [System.Runtime]System.Delegate, class [System.Runtime]System.Delegate)
+			IL_0010: castclass class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>
+			IL_0015: stloc.2
+			IL_0016: ldarg.0
+			IL_0017: ldflda class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::PacketReceived
+			IL_001c: ldloc.2
+			IL_001d: ldloc.1
+			IL_001e: call !!0 [System.Threading]System.Threading.Interlocked::CompareExchange<class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>>(!!0&, !!0, !!0)
+			IL_0023: stloc.0
+			IL_0024: ldloc.0
+			IL_0025: ldloc.1
+			IL_0026: bne.un.s IL_0007
+		// end loop
+		IL_0028: ret
+	} // end of method DeviceConnection::add_PacketReceived
+
+	.method public final hidebysig specialname newslot virtual 
+		instance void remove_PacketReceived (
+			class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> 'value'
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.param [1]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 03 00 00 00 02 01 01 00 00
+			)
+		// Method begins at RVA 0x2e68
+		// Header size: 12
+		// Code size: 41 (0x29)
+		.maxstack 3
+		.locals init (
+			[0] class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>,
+			[1] class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>,
+			[2] class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::PacketReceived
+		IL_0006: stloc.0
+		// loop start (head: IL_0007)
+			IL_0007: ldloc.0
+			IL_0008: stloc.1
+			IL_0009: ldloc.1
+			IL_000a: ldarg.1
+			IL_000b: call class [System.Runtime]System.Delegate [System.Runtime]System.Delegate::Remove(class [System.Runtime]System.Delegate, class [System.Runtime]System.Delegate)
+			IL_0010: castclass class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>
+			IL_0015: stloc.2
+			IL_0016: ldarg.0
+			IL_0017: ldflda class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::PacketReceived
+			IL_001c: ldloc.2
+			IL_001d: ldloc.1
+			IL_001e: call !!0 [System.Threading]System.Threading.Interlocked::CompareExchange<class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>>(!!0&, !!0, !!0)
+			IL_0023: stloc.0
+			IL_0024: ldloc.0
+			IL_0025: ldloc.1
+			IL_0026: bne.un.s IL_0007
+		// end loop
+		IL_0028: ret
+	} // end of method DeviceConnection::remove_PacketReceived
+
+	.method public final hidebysig newslot virtual 
+		instance void Open (
+			int32 baudrate,
+			[opt] int32 lengthBytes
+		) cil managed 
+	{
+		.param [2] = int32(1)
+		// Method begins at RVA 0x2ea0
+		// Header size: 12
+		// Code size: 104 (0x68)
+		.maxstack 6
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::logger
+		IL_0006: ldstr "[{Side}] Opening connection to {DevicePath} at {Baudrate} baud"
+		IL_000b: ldc.i4.3
+		IL_000c: newarr [System.Runtime]System.Object
+		IL_0011: dup
+		IL_0012: ldc.i4.0
+		IL_0013: ldarg.0
+		IL_0014: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::side
+		IL_0019: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+		IL_001e: stelem.ref
+		IL_001f: dup
+		IL_0020: ldc.i4.1
+		IL_0021: ldarg.0
+		IL_0022: ldfld string Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::devicePath
+		IL_0027: stelem.ref
+		IL_0028: dup
+		IL_0029: ldc.i4.2
+		IL_002a: ldarg.1
+		IL_002b: box [System.Runtime]System.Int32
+		IL_0030: stelem.ref
+		IL_0031: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_0036: ldarg.0
+		IL_0037: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_003c: ldarg.1
+		IL_003d: ldarg.2
+		IL_003e: callvirt instance void class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::Open(int32, int32)
+		IL_0043: ldarg.0
+		IL_0044: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::logger
+		IL_0049: ldstr "[{Side}] Connection opened successfully"
+		IL_004e: ldc.i4.1
+		IL_004f: newarr [System.Runtime]System.Object
+		IL_0054: dup
+		IL_0055: ldc.i4.0
+		IL_0056: ldarg.0
+		IL_0057: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::side
+		IL_005c: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+		IL_0061: stelem.ref
+		IL_0062: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_0067: ret
+	} // end of method DeviceConnection::Open
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> GetState (
+			valuetype [System.Runtime]System.TimeSpan timeout,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		// Method begins at RVA 0x2f14
+		// Header size: 1
+		// Code size: 20 (0x14)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::EnsureConnected()
+		IL_0006: ldarg.0
+		IL_0007: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_000c: ldarg.1
+		IL_000d: ldarg.2
+		IL_000e: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::GetState(valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0013: ret
+	} // end of method DeviceConnection::GetState
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo> GetHwInfo (
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		// Method begins at RVA 0x2f29
+		// Header size: 1
+		// Code size: 19 (0x13)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::EnsureConnected()
+		IL_0006: ldarg.0
+		IL_0007: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_000c: ldarg.1
+		IL_000d: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo> class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::GetHwInfo(valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0012: ret
+	} // end of method DeviceConnection::GetHwInfo
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.FirmwareInfo> GetFwInfo (
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		// Method begins at RVA 0x2f3d
+		// Header size: 1
+		// Code size: 19 (0x13)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::EnsureConnected()
+		IL_0006: ldarg.0
+		IL_0007: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_000c: ldarg.1
+		IL_000d: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.FirmwareInfo> class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::GetFwInfo(valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0012: ret
+	} // end of method DeviceConnection::GetFwInfo
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<bool> UpdateFirmware (
+			uint8[] firmwareData,
+			int32 chunkSize,
+			class [System.Runtime]System.Action`4<int32, int32, int32, int32> progressCallback,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		.param [3]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2f51
+		// Header size: 1
+		// Code size: 23 (0x17)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::EnsureConnected()
+		IL_0006: ldarg.0
+		IL_0007: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_000c: ldarg.1
+		IL_000d: ldarg.2
+		IL_000e: ldarg.3
+		IL_000f: ldarg.s cancellation
+		IL_0011: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<bool> class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::UpdateFirmware(uint8[], int32, class [System.Runtime]System.Action`4<int32, int32, int32, int32>, valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0016: ret
+	} // end of method DeviceConnection::UpdateFirmware
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task StartFirmware (
+			int32 lengthBytes,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		// Method begins at RVA 0x2f69
+		// Header size: 1
+		// Code size: 20 (0x14)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::EnsureConnected()
+		IL_0006: ldarg.0
+		IL_0007: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_000c: ldarg.1
+		IL_000d: ldarg.2
+		IL_000e: callvirt instance class [System.Runtime]System.Threading.Tasks.Task class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::StartFirmware(int32, valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0013: ret
+	} // end of method DeviceConnection::StartFirmware
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task Reboot (
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		// Method begins at RVA 0x2f7e
+		// Header size: 1
+		// Code size: 19 (0x13)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::EnsureConnected()
+		IL_0006: ldarg.0
+		IL_0007: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_000c: ldarg.1
+		IL_000d: callvirt instance class [System.Runtime]System.Threading.Tasks.Task class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::Reboot(valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0012: ret
+	} // end of method DeviceConnection::Reboot
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task SendCustomCommand (
+			uint8 command,
+			uint8[] payload,
+			valuetype [System.Runtime]System.TimeSpan timeout,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		// Method begins at RVA 0x2f92
+		// Header size: 1
+		// Code size: 23 (0x17)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::EnsureConnected()
+		IL_0006: ldarg.0
+		IL_0007: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_000c: ldarg.1
+		IL_000d: ldarg.2
+		IL_000e: ldarg.3
+		IL_000f: ldarg.s cancellation
+		IL_0011: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<uint8[]> class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::SendCustomCommand(uint8, uint8[], valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0016: ret
+	} // end of method DeviceConnection::SendCustomCommand
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<uint8[]> SendCustomCommandWithResponse (
+			uint8 command,
+			uint8[] payload,
+			valuetype [System.Runtime]System.TimeSpan timeout,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		// Method begins at RVA 0x2faa
+		// Header size: 1
+		// Code size: 23 (0x17)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::EnsureConnected()
+		IL_0006: ldarg.0
+		IL_0007: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::protocol
+		IL_000c: ldarg.1
+		IL_000d: ldarg.2
+		IL_000e: ldarg.3
+		IL_000f: ldarg.s cancellation
+		IL_0011: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<uint8[]> class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.DeviceSession`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::SendCustomCommand(uint8, uint8[], valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0016: ret
+	} // end of method DeviceConnection::SendCustomCommandWithResponse
+
+	.method private hidebysig 
+		instance void EnsureConnected () cil managed 
+	{
+		// Method begins at RVA 0x2fc2
+		// Header size: 1
+		// Code size: 41 (0x29)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance bool Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::get_IsConnected()
+		IL_0006: brtrue.s IL_0028
+
+		IL_0008: ldstr "["
+		IL_000d: ldarg.0
+		IL_000e: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::side
+		IL_0013: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+		IL_0018: ldstr "] Device not connected"
+		IL_001d: call string [System.Runtime]System.String::Concat(string, string, string)
+		IL_0022: newobj instance void [System.Runtime]System.InvalidOperationException::.ctor(string)
+		IL_0027: throw
+
+		IL_0028: ret
+	} // end of method DeviceConnection::EnsureConnected
+
+	.method private hidebysig 
+		instance void OnStateChanged (
+			valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState newState,
+			valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState prevState
+		) cil managed 
+	{
+		// Method begins at RVA 0x2fec
+		// Header size: 12
+		// Code size: 73 (0x49)
+		.maxstack 6
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::logger
+		IL_0006: ldstr "[{Side}] State changed: {PrevState} -> {NewState}"
+		IL_000b: ldc.i4.3
+		IL_000c: newarr [System.Runtime]System.Object
+		IL_0011: dup
+		IL_0012: ldc.i4.0
+		IL_0013: ldarg.0
+		IL_0014: ldfld valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::side
+		IL_0019: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+		IL_001e: stelem.ref
+		IL_001f: dup
+		IL_0020: ldc.i4.1
+		IL_0021: ldarg.2
+		IL_0022: call string [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceStateExtensions::ToDisplayName(valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState)
+		IL_0027: stelem.ref
+		IL_0028: dup
+		IL_0029: ldc.i4.2
+		IL_002a: ldarg.1
+		IL_002b: call string [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceStateExtensions::ToDisplayName(valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState)
+		IL_0030: stelem.ref
+		IL_0031: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogDebug(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_0036: ldarg.0
+		IL_0037: ldfld class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::StateChanged
+		IL_003c: dup
+		IL_003d: brtrue.s IL_0041
+
+		IL_003f: pop
+		IL_0040: ret
+
+		IL_0041: ldarg.1
+		IL_0042: ldarg.2
+		IL_0043: callvirt instance void class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>::Invoke(!0, !1)
+		IL_0048: ret
+	} // end of method DeviceConnection::OnStateChanged
+
+	.method private hidebysig 
+		instance void OnPacketReceived (
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet packet,
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext context
+		) cil managed 
+	{
+		// Method begins at RVA 0x3041
+		// Header size: 1
+		// Code size: 19 (0x13)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::PacketReceived
+		IL_0006: dup
+		IL_0007: brtrue.s IL_000b
+
+		IL_0009: pop
+		IL_000a: ret
+
+		IL_000b: ldarg.1
+		IL_000c: ldarg.2
+		IL_000d: callvirt instance void class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>::Invoke(!0, !1)
+		IL_0012: ret
+	} // end of method DeviceConnection::OnPacketReceived
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task Close (
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 46 45 69 67 68 74 2e 4c 73 70 2e 53 75 62
+			73 79 73 74 65 6d 73 2e 53 65 72 76 69 63 65 73
+			2e 43 6f 6e 6e 65 63 74 69 6f 6e 2e 44 65 76 69
+			63 65 43 6f 6e 6e 65 63 74 69 6f 6e 2b 3c 43 6c
+			6f 73 65 3e 64 5f 5f 32 39 00 00
+		)
+		// Method begins at RVA 0x3058
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::cancellation
+		IL_001c: ldloca.s 0
+		IL_001e: ldc.i4.m1
+		IL_001f: stfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>1__state'
+		IL_0024: ldloca.s 0
+		IL_0026: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>t__builder'
+		IL_002b: ldloca.s 0
+		IL_002d: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'>(!!0&)
+		IL_0032: ldloca.s 0
+		IL_0034: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<Close>d__29'::'<>t__builder'
+		IL_0039: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_003e: ret
+	} // end of method DeviceConnection::Close
+
+	.method public final hidebysig newslot virtual 
+		instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask DisposeAsync () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 4d 45 69 67 68 74 2e 4c 73 70 2e 53 75 62
+			73 79 73 74 65 6d 73 2e 53 65 72 76 69 63 65 73
+			2e 43 6f 6e 6e 65 63 74 69 6f 6e 2e 44 65 76 69
+			63 65 43 6f 6e 6e 65 63 74 69 6f 6e 2b 3c 44 69
+			73 70 6f 73 65 41 73 79 6e 63 3e 64 5f 5f 33 30
+			00 00
+		)
+		// Method begins at RVA 0x30a4
+		// Header size: 12
+		// Code size: 55 (0x37)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldc.i4.m1
+		IL_0017: stfld int32 Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>1__state'
+		IL_001c: ldloca.s 0
+		IL_001e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>t__builder'
+		IL_0023: ldloca.s 0
+		IL_0025: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder::Start<valuetype Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'>(!!0&)
+		IL_002a: ldloca.s 0
+		IL_002c: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder Eight.Lsp.Subsystems.Services.Connection.DeviceConnection/'<DisposeAsync>d__30'::'<>t__builder'
+		IL_0031: call instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask [System.Runtime]System.Runtime.CompilerServices.AsyncValueTaskMethodBuilder::get_Task()
+		IL_0036: ret
+	} // end of method DeviceConnection::DisposeAsync
+
+	// Events
+	.event class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState> StateChanged
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		.addon instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::add_StateChanged(class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>)
+		.removeon instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::remove_StateChanged(class [System.Runtime]System.Action`2<valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState, valuetype [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.DeviceState>)
+	}
+
+	.event class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext> PacketReceived
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 03 00 00 00 02 01 01 00 00
+		)
+		.addon instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::add_PacketReceived(class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>)
+		.removeon instance void Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::remove_PacketReceived(class [System.Runtime]System.Action`2<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext>)
+	}
+
+
+	// Properties
+	.property instance valuetype Eight.Lsp.Subsystems.Models.Side Side()
+	{
+		.get instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::get_Side()
+	}
+	.property instance string DevicePath()
+	{
+		.get instance string Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::get_DevicePath()
+	}
+	.property instance bool IsConnected()
+	{
+		.get instance bool Eight.Lsp.Subsystems.Services.Connection.DeviceConnection::get_IsConnected()
+	}
+
+} // end of class Eight.Lsp.Subsystems.Services.Connection.DeviceConnection

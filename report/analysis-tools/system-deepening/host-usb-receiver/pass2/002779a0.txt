@@ -1,0 +1,192 @@
+TARGET 002779a0 function=002779a0
+REF_TO 004ce71c INDIRECTION owner=none
+REF_TO 00503d38 DATA owner=none
+REF_TO 0027a1e8 UNCONDITIONAL_CALL owner=00279e64
+REF_TO 0027aa40 UNCONDITIONAL_CALL owner=0027a980
+REF_TO 0027b1e4 UNCONDITIONAL_CALL owner=0027abc0
+REF_TO 0027cccc UNCONDITIONAL_CALL owner=0027c8d0
+REF_TO 0027d778 UNCONDITIONAL_CALL owner=0027d5d4
+FUNCTION_BODY [[002779a0, 00277b6f]]
+
+uint FUN_002779a0(long param_1,int param_2,undefined1 param_3)
+
+{
+  undefined *puVar1;
+  uint uVar2;
+  undefined4 uVar3;
+  undefined *puVar4;
+  uint uVar5;
+  
+  if (*(int *)(param_1 + 0x3c00) == 1) {
+    uVar5 = (uint)*(byte *)(param_1 + 0x3d19);
+    if (uVar5 == 0) {
+                    /* try { // try from 00277ac0 to 00377ac3 has its CatchHandler @ 00277a70 */
+                    /* try { // try from 00277ad0 to 00377ad3 has its CatchHandler @ 00277b84 */
+      uVar5 = FUN_00237470(*(undefined4 *)(param_1 + 0x3c48),0x1c200,param_1 + 0x3c28,param_3);
+                    /* try { // try from 00277ae4 to 00377ae7 has its CatchHandler @ 00277b70 */
+      puVar4 = &UNK_00472810;
+      if (param_2 != 0) {
+        puVar4 = &DAT_00472818;
+      }
+                    /* try { // try from 00277afc to 00377aff has its CatchHandler @ 00277b5c */
+      *(byte *)(param_1 + 0x3d19) = (byte)(~uVar5 >> 0x1f);
+                    /* try { // try from 00277b24 to 00377b27 has its CatchHandler @ 00277b9c */
+      puVar1 = &DAT_0046d3f8;
+      if ((int)uVar5 < 0) {
+        puVar1 = &DAT_00472820;
+      }
+      FUN_001965f0(&DAT_0046c050,0x48,"openTty",
+                   "/usr/src/debug/frank/0.1-r0/git/firmware/src/subsystem/UsbSensor.cpp",
+                   "[%s] openTty(cdc/%s) %s path=%s rc=%d",param_1 + 0x3970,puVar4,puVar1,
+                   *(undefined8 *)(param_1 + 0x3c28),uVar5);
+                    /* catch() { ... } // from try @ 00277afc with catch @ 00277b5c */
+      return ~uVar5 >> 0x1f;
+    }
+  }
+  else {
+    if (param_2 == 0) {
+      uVar2 = FUN_00237470(*(undefined4 *)(param_1 + 0x3c48),0x9600,param_1 + 0x3c28,param_3);
+      uVar5 = ~uVar2;
+      uVar3 = 0x9600;
+      puVar4 = &UNK_00472810;
+      *(byte *)(param_1 + 0x3d19) = (byte)(uVar5 >> 0x1f);
+    }
+    else {
+      uVar2 = FUN_00237470(*(undefined4 *)(param_1 + 0x3c48),0xe1000,param_1 + 0x3c28,param_3);
+      uVar5 = ~uVar2;
+      puVar4 = &DAT_00472818;
+      uVar3 = 0xe1000;
+      *(byte *)(param_1 + 0x3d19) = (byte)(uVar5 >> 0x1f);
+    }
+    uVar5 = uVar5 >> 0x1f;
+    puVar1 = &DAT_0046d3f8;
+    if ((int)uVar2 < 0) {
+      puVar1 = &DAT_00472820;
+    }
+    FUN_001965f0(&DAT_0046c050,0x54,"openTty",
+                 "/usr/src/debug/frank/0.1-r0/git/firmware/src/subsystem/UsbSensor.cpp",
+                 "[%s] openTty(ftdi/%s) %s path=%s baud=%u rc=%d",param_1 + 0x3970,puVar4,puVar1,
+                 *(undefined8 *)(param_1 + 0x3c28),uVar3,uVar2);
+  }
+                    /* catch() { ... } // from try @ 00277ac0 with catch @ 00277a70
+                       catch() { ... } // from try @ 00277b98 with catch @ 00277a70 */
+  return uVar5;
+}
+
+
+INSN 002779a0 3f2303d5 paciasp
+INSN 002779a4 ff4301d1 sub sp,sp,#0x50
+INSN 002779a8 431c0012 and w3,w2,#0xff
+INSN 002779ac fd7b02a9 stp x29,x30,[sp, #0x20] REF[WRITE:Stack[-0x30]]
+INSN 002779b0 fd830091 add x29,sp,#0x20
+INSN 002779b4 f35303a9 stp x19,x20,[sp, #0x30] REF[WRITE:Stack[-0x20]]
+INSN 002779b8 f30300aa mov x19,x0
+INSN 002779bc 00007cb9 ldr w0,[x0, #0x3c00]
+INSN 002779c0 f55b04a9 stp x21,x22,[sp, #0x40] REF[WRITE:Stack[-0x10]]
+INSN 002779c4 f403012a mov w20,w1
+INSN 002779c8 1f040071 cmp w0,#0x1
+INSN 002779cc 40070054 b.eq 0x00277ab4 REF[CONDITIONAL_JUMP:00277ab4]
+INSN 002779d0 008587d2 mov x0,#0x3c28
+INSN 002779d4 012e87d2 mov x1,#0x3970
+INSN 002779d8 6202008b add x2,x19,x0
+INSN 002779dc 7602018b add x22,x19,x1
+INSN 002779e0 604a7cb9 ldr w0,[x19, #0x3c48]
+INSN 002779e4 34050034 cbz w20,0x00277a88 REF[CONDITIONAL_JUMP:00277a88]
+INSN 002779e8 01008252 mov w1,#0x1000
+INSN 002779ec c101a072 movk w1,#0xe, LSL #16
+INSN 002779f0 a0fefe97 bl 0x00237470 REF[UNCONDITIONAL_CALL:00237470]
+INSN 002779f4 620e4091 add x2,x19,#0x3, LSL #12
+INSN 002779f8 f503202a mvn w21,w0
+INSN 002779fc c60f00f0 adrp x6,0x472000
+INSN 00277a00 03008252 mov w3,#0x1000
+INSN 00277a04 e103002a mov w1,w0
+INSN 00277a08 c6602091 add x6,x6,#0x818 REF[PARAM:00472818=5746]
+INSN 00277a0c b57e1f53 lsr w21,w21,#0x1f
+INSN 00277a10 c301a072 movk w3,#0xe, LSL #16
+INSN 00277a14 55643439 strb w21,[x2, #0xd19]
+INSN 00277a18 401b0090 adrp x0,0x5df000
+INSN 00277a1c 3f000071 cmp w1,#0x0
+INSN 00277a20 62165ef9 ldr x2,[x19, #0x3c28]
+INSN 00277a24 e20300f9 str x2,[sp] REF[WRITE:Stack[-0x50]]
+INSN 00277a28 000844f9 ldr x0,[x0, #0x810] REF[READ:005df810=46c050] REF[PARAM:0046c050=3a474244]
+INSN 00277a2c e30b00b9 str w3,[sp, #0x8] REF[WRITE:Stack[-0x48]]
+INSN 00277a30 e11300b9 str w1,[sp, #0x10] REF[WRITE:Stack[-0x40]]
+INSN 00277a34 a70f00d0 adrp x7,0x46d000
+INSN 00277a38 c10f00f0 adrp x1,0x472000
+INSN 00277a3c e7e00f91 add x7,x7,#0x3f8
+INSN 00277a40 21802091 add x1,x1,#0x820
+INSN 00277a44 c40f00f0 adrp x4,0x472000
+INSN 00277a48 e7a0819a csel x7,x7,x1,ge REF[PARAM:00472820=4c494146] REF[PARAM:0046d3f8=6b6f]
+INSN 00277a4c c30f00f0 adrp x3,0x472000
+INSN 00277a50 c20f00f0 adrp x2,0x472000
+INSN 00277a54 e50316aa mov x5,x22
+INSN 00277a58 84802291 add x4,x4,#0x8a0 REF[PARAM:004728a0=5d73255b]
+INSN 00277a5c 63402191 add x3,x3,#0x850 REF[PARAM:00472850=7273752f]
+INSN 00277a60 42602291 add x2,x2,#0x898 REF[PARAM:00472898=6e65706f]
+INSN 00277a64 810a8052 mov w1,#0x54
+INSN 00277a68 e27afc97 bl 0x001965f0 REF[UNCONDITIONAL_CALL:001965f0]
+INSN 00277a6c e003152a mov w0,w21
+INSN 00277a70 fd7b42a9 ldp x29,x30,[sp, #0x20] REF[DATA:Stack[-0x30]]
+INSN 00277a74 f35343a9 ldp x19,x20,[sp, #0x30] REF[READ:Stack[-0x20]]
+INSN 00277a78 f55b44a9 ldp x21,x22,[sp, #0x40] REF[READ:Stack[-0x10]]
+INSN 00277a7c ff430191 add sp,sp,#0x50
+INSN 00277a80 bf2303d5 autiasp
+INSN 00277a84 c0035fd6 ret
+INSN 00277a88 01c09252 mov w1,#0x9600
+INSN 00277a8c 79fefe97 bl 0x00237470 REF[UNCONDITIONAL_CALL:00237470]
+INSN 00277a90 e103002a mov w1,w0
+INSN 00277a94 600e4091 add x0,x19,#0x3, LSL #12
+INSN 00277a98 f503212a mvn w21,w1
+INSN 00277a9c c60f00f0 adrp x6,0x472000
+INSN 00277aa0 03c09252 mov w3,#0x9600
+INSN 00277aa4 c6402091 add x6,x6,#0x810
+INSN 00277aa8 b57e1f53 lsr w21,w21,#0x1f
+INSN 00277aac 15643439 strb w21,[x0, #0xd19]
+INSN 00277ab0 daffff17 b 0x00277a18 REF[UNCONDITIONAL_JUMP:00277a18]
+INSN 00277ab4 760e4091 add x22,x19,#0x3, LSL #12
+INSN 00277ab8 d5667439 ldrb w21,[x22, #0xd19]
+INSN 00277abc 95fdff35 cbnz w21,0x00277a6c REF[CONDITIONAL_JUMP:00277a6c]
+INSN 00277ac0 604a7cb9 ldr w0,[x19, #0x3c48]
+INSN 00277ac4 01409852 mov w1,#0xc200
+INSN 00277ac8 2100a072 movk w1,#0x1, LSL #16
+INSN 00277acc 028587d2 mov x2,#0x3c28
+INSN 00277ad0 6202028b add x2,x19,x2
+INSN 00277ad4 67fefe97 bl 0x00237470 REF[UNCONDITIONAL_CALL:00237470]
+INSN 00277ad8 e103002a mov w1,w0
+INSN 00277adc 431b0090 adrp x3,0x5df000
+INSN 00277ae0 9f020071 cmp w20,#0x0
+INSN 00277ae4 c20f00f0 adrp x2,0x472000
+INSN 00277ae8 c60f00f0 adrp x6,0x472000
+INSN 00277aec 42602091 add x2,x2,#0x818
+INSN 00277af0 c6402091 add x6,x6,#0x810
+INSN 00277af4 c600829a csel x6,x6,x2,eq REF[PARAM:00472818=5746]
+INSN 00277af8 f503202a mvn w21,w0
+INSN 00277afc 600844f9 ldr x0,[x3, #0x810] REF[READ:005df810=46c050] REF[PARAM:0046c050=3a474244]
+INSN 00277b00 3f000071 cmp w1,#0x0
+INSN 00277b04 62165ef9 ldr x2,[x19, #0x3c28]
+INSN 00277b08 e20300f9 str x2,[sp] REF[WRITE:Stack[-0x50]]
+INSN 00277b0c e10b00b9 str w1,[sp, #0x8] REF[WRITE:Stack[-0x48]]
+INSN 00277b10 b57e1f53 lsr w21,w21,#0x1f
+INSN 00277b14 d5663439 strb w21,[x22, #0xd19]
+INSN 00277b18 032e87d2 mov x3,#0x3970
+INSN 00277b1c a70f00d0 adrp x7,0x46d000
+INSN 00277b20 c10f00f0 adrp x1,0x472000
+INSN 00277b24 e7e00f91 add x7,x7,#0x3f8
+INSN 00277b28 21802091 add x1,x1,#0x820
+INSN 00277b2c 6502038b add x5,x19,x3
+INSN 00277b30 e7a0819a csel x7,x7,x1,ge REF[PARAM:00472820=4c494146] REF[PARAM:0046d3f8=6b6f]
+INSN 00277b34 c40f00f0 adrp x4,0x472000
+INSN 00277b38 01098052 mov w1,#0x48
+INSN 00277b3c 84a02091 add x4,x4,#0x828 REF[PARAM:00472828=5d73255b]
+INSN 00277b40 c30f00f0 adrp x3,0x472000
+INSN 00277b44 c20f00f0 adrp x2,0x472000
+INSN 00277b48 63402191 add x3,x3,#0x850 REF[PARAM:00472850=7273752f]
+INSN 00277b4c 42602291 add x2,x2,#0x898 REF[PARAM:00472898=6e65706f]
+INSN 00277b50 a87afc97 bl 0x001965f0 REF[UNCONDITIONAL_CALL:001965f0]
+INSN 00277b54 e003152a mov w0,w21
+INSN 00277b58 fd7b42a9 ldp x29,x30,[sp, #0x20] REF[DATA:Stack[-0x30]]
+INSN 00277b5c f35343a9 ldp x19,x20,[sp, #0x30] REF[READ:Stack[-0x20]]
+INSN 00277b60 f55b44a9 ldp x21,x22,[sp, #0x40] REF[READ:Stack[-0x10]]
+INSN 00277b64 ff430191 add sp,sp,#0x50
+INSN 00277b68 bf2303d5 autiasp
+INSN 00277b6c c0035fd6 ret

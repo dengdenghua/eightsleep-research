@@ -1,0 +1,67 @@
+FUNCTION 0002b6a8 BODY [[0002b6a8, 0002b6f9]]
+REF_TO 0002b91a UNCONDITIONAL_CALL
+
+void FUN_0002b6a8(void)
+
+{
+  bool bVar1;
+  int iVar2;
+  int iVar3;
+  uint uVar4;
+  int iVar5;
+  
+  iVar3 = DAT_0002b700;
+  iVar2 = DAT_0002b6fc;
+  uVar4 = 0;
+  bVar1 = false;
+  do {
+    *(undefined4 *)(iVar3 + uVar4 * 4) = *(undefined4 *)(iVar2 + uVar4 * 0x28);
+    if (*(char *)(iVar2 + uVar4 * 0x28 + 0x19) != '\x02') {
+      bVar1 = true;
+    }
+    uVar4 = uVar4 + 1 & 0xff;
+  } while (uVar4 < 4);
+  if ((!bVar1 && *DAT_0002b704 == '\0') &&
+     (iVar5 = FUN_0002f28c(0xffffffff,DAT_0002b700,0x18), iVar2 = DAT_0002b708,
+     *(int *)(iVar3 + 0x1c) != iVar5)) {
+    *(int *)(iVar3 + 0x1c) = iVar5;
+    *(undefined1 *)(iVar2 + 0x78) = 0;
+  }
+  return;
+}
+
+
+INSN 0002b6a8 70b5 push {r4,r5,r6,lr}
+INSN 0002b6aa 0020 movs r0,#0x0
+INSN 0002b6ac 134a ldr r2,[0x0002b6fc] REF[READ:0002b6fc=20003bc8]
+INSN 0002b6ae 144c ldr r4,[0x0002b700] REF[READ:0002b700=20003c68]
+INSN 0002b6b0 0146 mov r1,r0
+INSN 0002b6b2 00bf nop
+INSN 0002b6b4 00eb8003 add.w r3,r0,r0, lsl #0x2
+INSN 0002b6b8 52f83350 ldr.w r5,[r2,r3,lsl #0x3] REF[READ:20003bc8] REF[READ:20003bf0]
+INSN 0002b6bc 02ebc303 add.w r3,r2,r3, lsl #0x3
+INSN 0002b6c0 44f82050 str.w r5,[r4,r0,lsl #0x2] REF[WRITE:20003c68] REF[WRITE:20003c6c]
+INSN 0002b6c4 5b7e ldrb r3,[r3,#0x19] REF[READ:20003be1] REF[READ:20003c09]
+INSN 0002b6c6 022b cmp r3,#0x2
+INSN 0002b6c8 00d0 beq 0x0002b6cc REF[CONDITIONAL_JUMP:0002b6cc]
+INSN 0002b6ca 0121 movs r1,#0x1
+INSN 0002b6cc 401c adds r0,r0,#0x1
+INSN 0002b6ce c0b2 uxtb r0,r0
+INSN 0002b6d0 0428 cmp r0,#0x4
+INSN 0002b6d2 efd3 bcc 0x0002b6b4 REF[CONDITIONAL_JUMP:0002b6b4]
+INSN 0002b6d4 0b48 ldr r0,[0x0002b704] REF[READ:0002b704=200030f9]
+INSN 0002b6d6 0078 ldrb r0,[r0,#0x0] REF[READ:200030f9]
+INSN 0002b6d8 0143 orrs r1,r0
+INSN 0002b6da 0dd1 bne 0x0002b6f8 REF[CONDITIONAL_JUMP:0002b6f8]
+INSN 0002b6dc 1822 movs r2,#0x18
+INSN 0002b6de 0849 ldr r1,[0x0002b700] REF[READ:0002b700=20003c68] REF[PARAM:20003c68]
+INSN 0002b6e0 4ff0ff30 mov.w r0,#0xffffffff
+INSN 0002b6e4 03f0d2fd bl 0x0002f28c REF[UNCONDITIONAL_CALL:0002f28c]
+INSN 0002b6e8 e169 ldr r1,[r4,#0x1c] REF[READ:20003c84]
+INSN 0002b6ea 8142 cmp r1,r0
+INSN 0002b6ec 04d0 beq 0x0002b6f8 REF[CONDITIONAL_JUMP:0002b6f8]
+INSN 0002b6ee 0649 ldr r1,[0x0002b708] REF[READ:0002b708=20003f48]
+INSN 0002b6f0 e061 str r0,[r4,#0x1c] REF[WRITE:20003c84]
+INSN 0002b6f2 0020 movs r0,#0x0
+INSN 0002b6f4 81f87800 strb.w r0,[r1,#0x78] REF[WRITE:20003fc0]
+INSN 0002b6f8 70bd pop {r4,r5,r6,pc}

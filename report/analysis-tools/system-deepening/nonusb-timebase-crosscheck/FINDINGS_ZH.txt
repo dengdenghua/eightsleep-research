@@ -1,0 +1,102 @@
+USB / nonUSB 传感时基独立核对与并排结论
+2026-11-08；只读静态复核。不执行固件、不连接设备/账号/网络，不修改历史证据文件。
+
+结论（置顶）
+
+1. 用户缺口表中的「nonUSB 独立时基」已经闭合，不是待办。依据是 sensor-nonusb-dispatch
+   的 NU-05：本份 132896B BBIN 自身的 SysTick 向量、tick 增量、.data 初值、除法与
+   寄存器写入均有独立原字节证据。本轮另用不依赖 Ghidra 的方式重读两份原件，
+   46 项字节/映射检查 0 失败，确认该记录可从冻结归档复现。
+2. 但两版不能互相套用。地址、tick RAM、.data 源偏移、bss 范围都不同；只有
+   「同一套整数公式 + 同一组默认初值」相同。USB 侧已接到的三个频率变量 writer、
+   两个配置入口和错误停留路径，在 nonUSB 侧并未核对，不能投影过去。
+3. 真正剩下的时基尾巴是：nonUSB 的频率变量 writer 与其调用者、错误辅助函数全部副作用、
+   全部上游配置选择、切换过渡与累计 tick 损失；以及两版共同的物理核心时钟、中断延迟、
+   ADC CLKIN/DRDY 实测。前四项仍属可静态推进，后三项需实测。
+4. 名义毫秒只在「配置成功 + 软件频率变量与实际核心时钟一致 + SysTick 中断正常服务」时成立。
+   缓存 8、发送 500 是计数门限，不是墙钟截止时延证明。
+
+一、为什么这次能独立复核
+
+先前两份 RAW_INIT_FACTS.json 分别记录 USB 与 nonUSB 的启动事实，但形状不同：
+nonUSB 含 reset/systick 两个向量、bss 范围和 raw_hex；USB 只含 systick 向量值与
+.data 边界。scripts/verify_init_bytes.py 把两者归一化后，直接到
+materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/lib/subsystem_updates/
+读原始 BBIN，逐项比对：
+
+  文件大小与 SHA256、记录中的 SHA、映射基址；
+  向量文件偏移处的 4 字节与 LE32 值、systick 去 Thumb 位后的 handler；
+  三个初值（clock / step / priority）的偏移、原字节与数值；
+  由「Flash .data 起点 + (RAM 地址 − RAM 起点) − 映射基址」独立反算的偏移；
+  三个初值是否落在 .data 源区内；bss 清零是否覆盖各自 tick RAM。
+
+USB 与 nonUSB 的 .data 源区都恰好延伸到各自文件末尾（139912+916=140828、
+132196+700=132896），这是两份记录之外的独立一致性证据，不是从 Ghidra 抄来的。
+USB 的 bss 范围取自 sensor-timebase 结论文本而非 RAW_INIT_FACTS.json，脚本在
+BYTE_CROSSCHECK.json 的 note 中明确标注该来源差异，没有伪装成字节重推。
+
+二、并排要点（完整 36 行见 TIMEBASE_COMPARISON.json）
+
+项目                         USB                       nonUSB
+BBIN / 字节                  -usb / 140828             -g0 / 132896
+映射基址                     08010000                  08008000
+SysTick 向量 @188            080114a3→080114a2         080094a3→080094a2
+tick 增量 / 读               080119d4 / 080119ec       080099d4 / 080099ec
+tick RAM                     2000121c                  20001144
+.data Flash→RAM              08032288→20000200..594    08028464→20000200..4bc
+clock / step / prio 偏移     139992 / 140000 / 140004  132276 / 132284 / 132288
+配置 / 除法 / 寄存器写        0801195c/08010174/0801244c 0800995c/08008174/0800a44c
+step 修改                    080119f8                  080099f8
+默认初值                     16MHz / step1 / prio4     16MHz / step1 / prio4
+N / LOAD                     16000 / 15999             16000 / 15999
+名义单位                     1ms（条件成立）            1ms（条件成立）
+
+两版 RAM 初值里的 priority=4 都不是运行初始化实参：nonUSB 的 080099ac/080099bc
+以 priority=3 调用 0800995c；USB 侧本轮没有独立记录该实参，故在对照表中留空，
+不拿 nonUSB 的 3 填过去。
+
+三、公式与不保证项
+
+q=floor(1000/step)，N=floor(clock_variable/q)，写 LOAD=N−1、VAL=0、CTRL=7。
+CTRL 的语义只用保存的 ARM 官方 CMSIS 参考解释寄存器，不把公开 CMSIS 当本固件源码。
+16MHz 能被 1000 整除，故默认无取整误差；若运行时改频但同步更新变量并重配，
+仍可保持名义单位，非整除频率则存在取整误差。
+
+0801195c / 0800995c 都是先重配 SysTick 寄存器，再检查 priority<4。因此
+step 修改失败时只恢复旧 step 字节，不保证回滚已写入的 reload；两版共有该条件性弱点。
+时钟等待循环本身用 tick 差值判超时，若 tick 不前进，比较本身不能保证到期退出——
+这是静态条件结论，不是实机停 tick 的观测。
+
+USB 侧的 workspace/algorithm-opportunities/sensor-clock 已把 08014C8C / 08014D40 /
+08015218 三个频率 writer 接到 08019FD0 / 0801A084 两个配置入口，并指出失败进入
+08010C04（关中断后永久循环），不是自动回滚继续采样；三配置在软件整数解码中均得
+64MHz，step=1/10 时 LOAD=63999/639999。这些结论只适用于 USB 原件。
+
+四、文档状态修正（不改写历史证据）
+
+sensor-timebase/FINDINGS_ZH.txt 第 39 行「nonUSB 的独立时基尚未在本补充核对」、
+workspace/algorithm-opportunities/sensor-clock/FINDINGS_ZH.txt 第 27 行
+「nonUSB 版仍须独立核对，不能套 USB 结论」，以及 report/wiki/sensor-clock-20261108.md
+第 38 行把「nonUSB 独立时基」列为残余，描述的都是各自撰写时点的状态。
+NU-05 随后已在另一分析目录闭合它。这些历史记录原样保留，不作追溯改写；
+本目录的 TIMEBASE_COMPARISON.json / FINDINGS_ZH.txt 与当前 Wiki、roadmap 承担
+「已闭合」的现行状态，避免读者把旧句当成今日缺口。
+
+五、对用户缺口表的处置
+
+传感时钟一行中「nonUSB 独立时基」可划掉；仍成立的部分是：
+  - 错误辅助函数全部副作用：USB 08012430 未追完，nonUSB 未识别；
+  - 全部上游配置选择：两版都未穷尽，USB 只接了两个已识别入口；
+  - 切换过渡（PLL 锁定、寄存器已写而变量未同步、累计 tick 损失）：两版都未验证；
+  - 物理时序：需同次启动的实机测量，静态分析不能替代。
+气囊、床架暂缓，核心生理算法、Autopilot、姿态分类、实机绑定、音箱 DSP 均不在本轮范围。
+USB 0x2B 生产者与旧波形 RAW writer 两个旧缺口保持原状。
+
+六、复跑与边界
+
+  cd report/analysis-tools/system-deepening/nonusb-timebase-crosscheck
+  python3 scripts/verify_init_bytes.py
+
+输入 SHA、逐检查的 expected/actual、派生整数结果全部写入 BYTE_CROSSCHECK.json。
+脚本只把两份 BBIN 当数据读取。本轮没有重跑 Ghidra 导出、没有新增指令覆盖，
+也没有把 46 项字节检查说成全程序覆盖或实机时钟测量。

@@ -1,0 +1,86 @@
+{
+  "reviewer": "/root/live_backend_tests",
+  "date": "2026-11-08",
+  "status": "PASS_WITH_BOUNDED_REVIEW_SCOPE",
+  "blockers": [],
+  "modifications_to_reviewed_directory": false,
+  "reviewed": [
+    {
+      "claim": "Program configuration sources",
+      "result": "Source and IL support Sources.Clear followed only by AddConfiguration; LoadConfiguration adds default then machine, with empty-root EightEnvironment used for optional. Does not establish actual runtime environment.",
+      "anchors": [
+        "Program.cs:74-79,188-197",
+        "Program.il:451-475,LoadConfiguration",
+        "ConfigurationRoot.il:430-470"
+      ]
+    },
+    {
+      "claim": "R12 RAM precedes save",
+      "result": "UpdateConfiguration IL0002 assigns property before IL0008 Save; Save acquires gate after assignment; savedJson updated only after SaveConfiguration. Finite old-snapshot interleaving is permissible and not frequency evidence.",
+      "anchors": [
+        "PodConifgurationManager.cs:UpdateConfiguration/Save/SaveConfiguration/WriteDurably",
+        "PodConifgurationManager.il:125-180"
+      ]
+    },
+    {
+      "claim": "Ready batch selection and calibration precedence",
+      "result": "TryDequeue loop replaces each type slot; calibration branch exits via CreateCalibratingState before normal OnRequest; otherwise firmness then mode. Model agrees.",
+      "anchors": [
+        "FirmnessReadyState.cs:440-483",
+        "FirmnessReadyState.il:3820-4015"
+      ]
+    },
+    {
+      "claim": "Target save then send; tolerance send then save",
+      "result": "OnRequest calls SaveTargetFirmness/Mode before respective Send; tolerance async body awaits SendToleranceBands GetResult before merge and SaveToleranceBands. Source catches save/send failures separately; no partial device rollback asserted.",
+      "anchors": [
+        "FirmnessReadyState.cs:226-419,486-554",
+        "FirmnessReadyState.il:829-878,2820-2877"
+      ]
+    },
+    {
+      "claim": "Dynamic and manual share queue",
+      "result": "Both construct SetFirmnessRequest and invoke Ready.MakeRequest; latter Enqueue on same requests field. Posture state updates before ApplyPreset and unchanged mtime returns before parsing; report keeps missing posture producer explicit.",
+      "anchors": [
+        "DynamicModeService.cs:137-275",
+        "DynamicModeService.il:1365-1395",
+        "FirmnessReadyState.il:5125-5129",
+        "FirmnessController source/retained IL selected MakeRequest anchors"
+      ]
+    },
+    {
+      "claim": "Finite model artifacts",
+      "result": "Read entire model source and all persisted34 observations; every observed equals expected, deep-copy protects prior cases. No original firmware or managed assembly executed; model not independently rerun.",
+      "case_count": 34,
+      "persisted_comparisons_matching": 34
+    }
+  ],
+  "read_file_hashes": {
+    "FINDINGS_ZH.txt": "b8f0d0511819d96f9d9d4b8f6a1841efb828e7a11feee852b49e0190d96ac599",
+    "scripts/config_contracts.py": "d5da51fa8b5ee1ddc8621c929f3ea42ff26eb4e63f41d012924bc301629f4f91",
+    "MODEL_RESULTS.json": "57a4bd35c1391a64ed6ff6321f16d31e75a936330fb3845477364e6e0a82792f",
+    "VERIFICATION.json": "51517f3e03b1c1af33dcc6559b755b72bb4fb7582416e156c3bb4a9c2c45ac0e",
+    "source/Eight.Capybara/Eight.Capybara/Program.cs": "10a1464870986c4bfc7615d4766345a3684203e962e3e3b3a697c1c464801a00",
+    "source/Eight.Config/Eight.Config/Extensions.cs": "2c3948ef57202e209bda406b278fa7047ca642246a89ec099ecec8e557ac9ac1",
+    "source/Eight.Capybara.Config/Eight.Capybara.Config/PodConifgurationManager.cs": "22f3ec3620061be05189a35bf60c046112e44919d21fd2fc76c7996611be92b7",
+    "source/Eight.Firmness/Eight.Firmness.StateMachine.States/FirmnessReadyState.cs": "21ab6cdedd3c0a498f0a15922beb890d3175043554523ac5adea2a554d317ecb",
+    "source/Eight.Firmness/Eight.Firmness.Services/DynamicModeService.cs": "5bad48d37620fb50af73f97552e66b20e96cf09c43715d0cbaca991bd4c297ad",
+    "il/Eight.Capybara__Program.il.txt": "fefe0431d75e8735abe42ec62baf76b35d341a2262cac060fe44cb8bd71ffd42",
+    "il/Eight.Capybara.Config__PodConifgurationManager.il.txt": "51838296ab04d78a0462ed02c8117d9403e327c81f7c162041e64687a4bef03c",
+    "il/Eight.Firmness__FirmnessReadyState.il.txt": "18d3f1e51ce08c9405decf28ec7e5e543dd43f1f97630e8c85b749ab1145836b",
+    "il/Eight.Firmness__DynamicModeService.il.txt": "4e4dbec0eb7dd04936bd12c6d176850f849c98b93757b2b4d8f11bd2d9121f3f",
+    "il/Eight.Firmness__FirmnessController.il.txt": "9c325f7376038102b72b154a9c384c340351451c847dd0b627432cca69e90b5b",
+    "il/Microsoft.Extensions.Configuration__ConfigurationRoot.il.txt": "7d1e48644e0b5318a1e571adf00efbf00b39c10a3bd0b521c2a3bdc1900c434e"
+  },
+  "frozen_manifest_rechecked_files": 66,
+  "manifest_sha256": "f48467fc7855b559829c7ea533861325e3407c37a775f337646d7a3f0a53151b",
+  "not_independently_verified": [
+    "Did not re-extract or byte-compare the7 original bundle members; read VERIFICATION claim only.",
+    "Did not independently decode all28 IL exports or review all gate/telemetry/machine/preset paths.",
+    "No runtime disk-failure injection, MCU ACK/state, actual concurrency or physical deployment verification.",
+    "No changes to frozen evidence files and no original code execution."
+  ],
+  "notes": [
+    "The review supports the specified source/order contracts; it is not a claim that every statement in all34 source identities was independently rederived."
+  ]
+}

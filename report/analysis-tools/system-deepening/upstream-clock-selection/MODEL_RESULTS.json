@@ -1,0 +1,230 @@
+{
+  "date": "2026-11-08",
+  "kind": "synthetic_integer_arithmetic_not_firmware_execution_or_clock_measurement",
+  "formula": "system_clock = FUN_0800cd24(RCC_CFGR.SWS, 0x20000474, RCC regs); 0x20000250 = system_clock >> table[(RCC_CFGR2 & 0xfff) >> 8]; q=floor(1000/step); N=floor(clock_variable/q); LOAD=N-1",
+  "formula_sources": [
+    "pass1/0800cd24.txt",
+    "pass1/0800cdb4.txt",
+    "nonusb-clock-writers/pass1/0800995c.txt"
+  ],
+  "case_count": 9,
+  "checks": [
+    {
+      "check": "HSI default yields 16000000",
+      "ok": true
+    },
+    {
+      "check": "HSE branch returns the software input verbatim",
+      "ok": true
+    },
+    {
+      "check": "three software inputs are distinct",
+      "ok": true
+    },
+    {
+      "check": "prescaler index 15 divides by 2^9",
+      "ok": true
+    },
+    {
+      "check": "PLL branch is computed, not hardcoded",
+      "ok": true
+    },
+    {
+      "check": "every LOAD fits the 24-bit field",
+      "ok": true
+    },
+    {
+      "check": "step=1 -> 1 ms and step=10 -> 10 ms",
+      "ok": true
+    },
+    {
+      "check": "USB 64MHz arithmetic is reproducible as a formula only",
+      "ok": true
+    },
+    {
+      "check": "no case reads a real register or executes firmware",
+      "ok": true
+    }
+  ],
+  "checks_failed": 0,
+  "cases": [
+    {
+      "label": "HSI_default",
+      "sws": "0x0",
+      "source": "HSI",
+      "software_input_hz": 16000000,
+      "prescaler_index": 0,
+      "prescaler_shift": 0,
+      "system_clock_hz": 16000000,
+      "clock_variable_0x20000250": 16000000,
+      "tick_step": 1,
+      "systick": {
+        "q": 1000,
+        "n": 16000,
+        "load": 15999,
+        "load_within_24bit": true,
+        "conditional_nominal_unit_ms": 1.0
+      },
+      "note": ".data default; HSI path ignores the software input field"
+    },
+    {
+      "label": "HSE_16MHz_input",
+      "sws": "0x8",
+      "source": "HSE",
+      "software_input_hz": 16000000,
+      "prescaler_index": 0,
+      "prescaler_shift": 0,
+      "system_clock_hz": 16000000,
+      "clock_variable_0x20000250": 16000000,
+      "tick_step": 1,
+      "systick": {
+        "q": 1000,
+        "n": 16000,
+        "load": 15999,
+        "load_within_24bit": true,
+        "conditional_nominal_unit_ms": 1.0
+      },
+      "note": "080108ac true branch writes 16000000 to 0x20000474"
+    },
+    {
+      "label": "HSE_32MHz_input",
+      "sws": "0x8",
+      "source": "HSE",
+      "software_input_hz": 32000000,
+      "prescaler_index": 0,
+      "prescaler_shift": 0,
+      "system_clock_hz": 32000000,
+      "clock_variable_0x20000250": 32000000,
+      "tick_step": 1,
+      "systick": {
+        "q": 1000,
+        "n": 32000,
+        "load": 31999,
+        "load_within_24bit": true,
+        "conditional_nominal_unit_ms": 1.0
+      },
+      "note": "080108ac false branch writes 32000000 to 0x20000474"
+    },
+    {
+      "label": "HSE_8MHz_input",
+      "sws": "0x8",
+      "source": "HSE",
+      "software_input_hz": 8000000,
+      "prescaler_index": 0,
+      "prescaler_shift": 0,
+      "system_clock_hz": 8000000,
+      "clock_variable_0x20000250": 8000000,
+      "tick_step": 1,
+      "systick": {
+        "q": 1000,
+        "n": 8000,
+        "load": 7999,
+        "load_within_24bit": true,
+        "conditional_nominal_unit_ms": 1.0
+      },
+      "note": "08010960 writes 8000000 to 0x20000474"
+    },
+    {
+      "label": "HSE_prescaler_max",
+      "sws": "0x8",
+      "source": "HSE",
+      "software_input_hz": 16000000,
+      "prescaler_index": 15,
+      "prescaler_shift": 9,
+      "system_clock_hz": 16000000,
+      "clock_variable_0x20000250": 31250,
+      "tick_step": 1,
+      "systick": {
+        "q": 1000,
+        "n": 31,
+        "load": 30,
+        "load_within_24bit": true,
+        "conditional_nominal_unit_ms": 1.0
+      },
+      "note": "largest in-table shift (9) cuts the SysTick clock to 31250 Hz"
+    },
+    {
+      "label": "PLL_formula_hypothetical_registers",
+      "sws": "0x10",
+      "source": "PLL",
+      "software_input_hz": 8000000,
+      "prescaler_index": 0,
+      "prescaler_shift": 0,
+      "system_clock_hz": 12800000,
+      "clock_variable_0x20000250": 12800000,
+      "tick_step": 1,
+      "systick": {
+        "q": 1000,
+        "n": 12800,
+        "load": 12799,
+        "load_within_24bit": true,
+        "conditional_nominal_unit_ms": 1.0
+      },
+      "note": "HYPOTHETICAL cfgr values yield 12.8 MHz, NOT 64 MHz: the PLL branch is a formula over runtime registers, so 64 MHz cannot be carried over from the USB analysis without evidence for the nonUSB register values."
+    },
+    {
+      "label": "LSI",
+      "sws": "0x18",
+      "source": "LSI",
+      "software_input_hz": 16000000,
+      "prescaler_index": 0,
+      "prescaler_shift": 0,
+      "system_clock_hz": 32000,
+      "clock_variable_0x20000250": 32000,
+      "tick_step": 1,
+      "systick": {
+        "q": 1000,
+        "n": 32,
+        "load": 31,
+        "load_within_24bit": true,
+        "conditional_nominal_unit_ms": 1.0
+      },
+      "note": "fixed 32000 Hz branch"
+    },
+    {
+      "label": "LSE",
+      "sws": "0x20",
+      "source": "LSE",
+      "software_input_hz": 16000000,
+      "prescaler_index": 0,
+      "prescaler_shift": 0,
+      "system_clock_hz": 32768,
+      "clock_variable_0x20000250": 32768,
+      "tick_step": 1,
+      "systick": {
+        "q": 1000,
+        "n": 32,
+        "load": 31,
+        "load_within_24bit": true,
+        "conditional_nominal_unit_ms": 1.0
+      },
+      "note": "fixed 32768 Hz branch"
+    },
+    {
+      "label": "HSE_step10",
+      "sws": "0x8",
+      "source": "HSE",
+      "software_input_hz": 16000000,
+      "prescaler_index": 0,
+      "prescaler_shift": 0,
+      "system_clock_hz": 16000000,
+      "clock_variable_0x20000250": 16000000,
+      "tick_step": 10,
+      "systick": {
+        "q": 100,
+        "n": 160000,
+        "load": 159999,
+        "load_within_24bit": true,
+        "conditional_nominal_unit_ms": 10.0
+      },
+      "note": "guards the corrected 1000/q millisecond unit (10 ms)"
+    }
+  ],
+  "scope_limits": [
+    "RCC register values other than the .data defaults are explicit hypothetical inputs, not device readings.",
+    "The PLL configuration written by writer 2 (0800c8dc) and the config structs in 080108ac/08010960 are NOT decoded here.",
+    "USB-side 64MHz is used only to check the LOAD formula; it is NOT asserted as the nonUSB running core clock.",
+    "No PLL lock, switch transition, lost ticks, interrupt latency or wall-clock deadline is modelled.",
+    "Conditional nominal millisecond unit requires running core clock == clock_variable and serviced SysTick IRQs."
+  ]
+}

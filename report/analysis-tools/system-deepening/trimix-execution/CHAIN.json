@@ -1,0 +1,218 @@
+{
+  "scope": "V25 selector1/flag20000074 stop request branch",
+  "not_runtime": "No firmware/device execution; no mechanical acknowledgment observed",
+  "steps": [
+    {
+      "id": "host_stop",
+      "kind": "prior_host_code",
+      "evidence": "analysis/sleep-pipeline/decompiled/Eight.BedFrame/Eight.TriMix/TriMixBedFrame.cs:539",
+      "value": [
+        35,
+        20,
+        15,
+        1
+      ],
+      "claim": "StopRightLeg host method; name is host-provided, no independent physical-axis proof"
+    },
+    {
+      "id": "command_gate",
+      "kind": "observed_branch",
+      "file": "pass7/0800b940_0800b9ae.txt",
+      "anchors": [
+        "0800b944",
+        "0800b95a",
+        "0800b968",
+        "0800b97e"
+      ],
+      "claim": "state E2 or0 reaches selector; selector1 writes20000074=1; other nonzero clears request active and leaves"
+    },
+    {
+      "id": "main_loop",
+      "kind": "observed_calls",
+      "file": "pass6/080108d8.txt",
+      "anchors": [
+        "08010976",
+        "08010982",
+        "08010984"
+      ],
+      "claim": "receive poll then latched type20007fba→099d8"
+    },
+    {
+      "id": "dispatch_E2",
+      "kind": "observed_branch",
+      "file": "pass5/080099d8.txt",
+      "anchors": [
+        "08009c6e",
+        "08009c70",
+        "08009c74"
+      ],
+      "claim": "E2→099d4→b220, input phase20007f24"
+    },
+    {
+      "id": "consume_gate",
+      "kind": "observed_branch",
+      "file": "pass3/0800b220.txt",
+      "anchors": [
+        "0800b3a0",
+        "0800b402"
+      ],
+      "claim": "pending2000005e==1 block or phase0 block callsb1cc; no timing guarantee"
+    },
+    {
+      "id": "consume_flag74",
+      "kind": "observed_branch",
+      "file": "pass3/0800b1cc.txt",
+      "anchors": [
+        "0800b1d6",
+        "0800b1de",
+        "0800b1e0",
+        "0800b1e6"
+      ],
+      "claim": "ifflag==1 clearflag; a690(); state20007f14=AA"
+    },
+    {
+      "id": "stop_handler",
+      "kind": "observed_instructions",
+      "file": "pass4/0800a690.txt",
+      "anchors": [
+        "0800a692",
+        "0800a6b0",
+        "0800a6bc",
+        "0800a6c6"
+      ],
+      "support": [
+        "pass5/0800a74e.txt",
+        "pass5/0800a740.txt",
+        "pass5/0800a746.txt"
+      ],
+      "claim": "clamp RAM field; a364 output shutdown; change bookkeeping; helper register effects not ordinary ABI parameters"
+    },
+    {
+      "id": "output_calls",
+      "kind": "observed_calls",
+      "file": "pass5/0800a364.txt",
+      "anchors": [
+        "0800a368",
+        "0800a36e",
+        "0800a374",
+        "0800a37a",
+        "0800a388"
+      ],
+      "claim": "four calls withR0=0 then clear26B local cache"
+    },
+    {
+      "id": "output_bits",
+      "kind": "exact_MMIO_writes",
+      "files": [
+        "pass6/0800a238.txt",
+        "pass6/0800a246.txt",
+        "pass8/0800a498_0800a4ac.txt",
+        "pass9/0800d558.txt"
+      ],
+      "writes": [
+        {
+          "address": "0x40011414",
+          "width": 32,
+          "values_in_order": [
+            "0x100",
+            "0x200"
+          ]
+        }
+      ],
+      "boundary": "only d558..d560 tail relevant; containing Ghidra ownera59e is a different entry"
+    },
+    {
+      "id": "compare_values",
+      "kind": "exact_MMIO_writes",
+      "files": [
+        "pass6/0800db2a.txt",
+        "pass6/0800db22.txt",
+        "pass7/0800db3a.txt",
+        "pass7/0800dcf0.txt",
+        "pass8/0800dcae_0800dcf6.txt",
+        "pass7/08010f76.txt",
+        "pass7/08010f72.txt"
+      ],
+      "writes": [
+        {
+          "address": "0x40000838",
+          "width": 32,
+          "value": 0
+        },
+        {
+          "address": "0x40000834",
+          "width": 32,
+          "value": 0
+        }
+      ],
+      "claim": "input0→compare0; trace helper registers and Z condition, not misleading C in_ZR"
+    },
+    {
+      "id": "mode_bits",
+      "kind": "exact_MMIO_read_modify_writes",
+      "files": [
+        "pass9/08010f44.txt",
+        "pass9/08010f36.txt"
+      ],
+      "writes": [
+        {
+          "address": "0x40000818",
+          "width": 16,
+          "clear_mask": "0x800"
+        },
+        {
+          "address": "0x40000818",
+          "width": 16,
+          "clear_mask": "0x8"
+        }
+      ],
+      "boundary": "register masks exact; no chip/pin/mechanical brake mode claim"
+    }
+  ],
+  "selector_map": [
+    {
+      "selector": 1,
+      "flags": [
+        "0x20000074"
+      ],
+      "host_method": "StopRightLeg"
+    },
+    {
+      "selector": 2,
+      "flags": [
+        "0x20000075"
+      ],
+      "host_method": "StopRightTorso"
+    },
+    {
+      "selector": 3,
+      "flags": [
+        "0x20000077"
+      ],
+      "host_method": "StopLeftLeg"
+    },
+    {
+      "selector": 4,
+      "flags": [
+        "0x20000076"
+      ],
+      "host_method": "StopLeftTorso"
+    },
+    {
+      "selector": 5,
+      "flags": [
+        "0x20000074",
+        "0x20000077"
+      ],
+      "host_method": "StopLeg"
+    },
+    {
+      "selector": 6,
+      "flags": [
+        "0x20000075",
+        "0x20000076"
+      ],
+      "host_method": "StopTorso"
+    }
+  ]
+}

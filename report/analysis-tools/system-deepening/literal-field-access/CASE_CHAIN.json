@@ -1,0 +1,127 @@
+{
+  "assertions": [
+    {
+      "got": 496,
+      "label": "cluster_insn_rows",
+      "ok": true,
+      "want": 496
+    },
+    {
+      "got": 6,
+      "label": "case_pairs",
+      "ok": true,
+      "want": 6
+    },
+    {
+      "got": true,
+      "label": "case_sequence_contiguous",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": true,
+      "label": "case_0_is_float_minus_one",
+      "ok": true,
+      "want": true
+    },
+    {
+      "got": 8388608,
+      "label": "mask_cleared_bit",
+      "ok": true,
+      "want": 8388608
+    },
+    {
+      "got": "[sensor] unshielding took %ums before settling time start",
+      "label": "log_case_string",
+      "ok": true,
+      "want": "[sensor] unshielding took %ums before settling time start"
+    },
+    {
+      "got": true,
+      "label": "dispatch_gate",
+      "ok": true,
+      "want": true
+    }
+  ],
+  "cases": [
+    {
+      "bl_va": "0x08016144",
+      "case_va": "0x08016142",
+      "literal": "0x080161e8",
+      "reg": "r0",
+      "semantics": "log format string, see below",
+      "target": "0x08012754",
+      "value": "0x080252a8"
+    },
+    {
+      "bl_va": "0x08016e04",
+      "case_va": "0x08016e02",
+      "literal": "0x08016f8c",
+      "reg": "r1",
+      "semantics": "float -1.0f sentinel written through the stub",
+      "target": "0x08015f08",
+      "value": "0xbf800000"
+    },
+    {
+      "bl_va": "0x08016e0a",
+      "case_va": "0x08016e08",
+      "literal": "0x08016f90",
+      "reg": "r0",
+      "semantics": "bit-clear mask, clears bit 23 (0x00800000)",
+      "target": "0x08015f28",
+      "value": "0xff7fffff"
+    },
+    {
+      "bl_va": "0x08016e10",
+      "case_va": "0x08016e0e",
+      "literal": "0x08016f90",
+      "reg": "r0",
+      "semantics": "bit-clear mask, clears bit 23 (0x00800000)",
+      "target": "0x08015f46",
+      "value": "0xff7fffff"
+    },
+    {
+      "bl_va": "0x08016e16",
+      "case_va": "0x08016e14",
+      "literal": "0x08016f90",
+      "reg": "r1",
+      "semantics": "bit-clear mask, clears bit 23 (0x00800000)",
+      "target": "0x08015f64",
+      "value": "0xff7fffff"
+    },
+    {
+      "bl_va": "0x08016f1a",
+      "case_va": "0x08016f18",
+      "literal": "0x08016fc4",
+      "reg": "r0",
+      "semantics": "RAM address handed to 080134be",
+      "target": "0x080134be",
+      "value": "0x2000a498"
+    }
+  ],
+  "date": "2026-11-09",
+  "dispatch_gate": "08016e1a cmp r2,#0 / 08016e1c beq 08016e22",
+  "instruction_rows": 496,
+  "literal_semantics": {
+    "0x080252a8": "log format string, see below",
+    "0x2000a498": "RAM address handed to 080134be",
+    "0xbf800000": "float -1.0f sentinel written through the stub",
+    "0xff7fffff": "bit-clear mask, clears bit 23 (0x00800000)"
+  },
+  "notes": [
+    "The cluster is a case chain, not a table of function pointers: each case loads one literal constant into a register and calls a small stub.",
+    "Two of the six cases feed float -1.0f or the bit-23 clear mask into stubs at 0x08015fxx, consistent with a fault/status clearing path.",
+    "The case at 08016142 logs \"unshielding took %ums\", so the same region also formats diagnostic text into a stack buffer at sp+0x20.",
+    "Which switch statement each case belongs to is NOT resolved here."
+  ],
+  "region": [
+    "0x08015e00",
+    "0x08017000"
+  ],
+  "round": 11,
+  "schema": "eightsleep.nonusb.literal-field-access.case-chain.v1",
+  "source": {
+    "frozen_bbin": "materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/lib/subsystem_updates/firmware-sensor-g0.bbin",
+    "sha256": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891"
+  }
+}

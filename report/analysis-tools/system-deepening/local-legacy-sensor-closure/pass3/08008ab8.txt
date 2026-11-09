@@ -1,0 +1,22 @@
+TARGET 08008ab8 function=08008ab8
+REF_TO 0800cfee UNCONDITIONAL_CALL owner=0800cea4
+REF_TO 0800ca44 UNCONDITIONAL_CALL owner=0800ca44
+FUNCTION_BODY [[08008ab8, 08008ac7]]
+
+void FUN_08008ab8(void)
+
+{
+  DataSynchronizationBarrier(0xf);
+  DataSynchronizationBarrier(0xf);
+  do {
+                    /* WARNING: Do nothing block with infinite loop */
+  } while( true );
+}
+
+
+INSN 08008ab8 bff34f8f dsb #0xf
+INSN 08008abc 024b ldr r3,[0x08008ac8] REF[READ:08008ac8=e000ed00]
+INSN 08008abe 034a ldr r2,[0x08008acc] REF[READ:08008acc=5fa0004]
+INSN 08008ac0 da60 str r2,[r3,#0xc] REF[WRITE:e000ed0c]
+INSN 08008ac2 bff34f8f dsb #0xf
+INSN 08008ac6 fee7 b 0x08008ac6 REF[UNCONDITIONAL_JUMP:08008ac6]

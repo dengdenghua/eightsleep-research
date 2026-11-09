@@ -1,0 +1,30 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+本人账号历史响应中的算法版本：实际读取结果
+
+结果
+依官方国行 APK 的 GET trends 契约进行两次只读请求：
+1. 2026-11-01..2026-11-07（含首尾七天）：返回 days=[]。
+2. 2026-10-01..2026-10-31：返回 4 个 day、4 段 session；四段的 device.id 均与此前已关联的本人 Pod 设备 ID 相符。没有混入其他设备或缺少设备身份的 session。
+
+四段匹配记录里的去重版本值：
+  sleepAlgorithmVersion     0.1.1
+  presenceAlgorithmVersion  3.2.1
+  hrvAlgorithmVersion       1.2.0
+两次响应顶层均为 modelVersion=v3、sfsCalculator=v3.2。
+
+这些是服务器实际返回的历史结果元数据，已经超出静态 APK 只声明字段名的证据。它们仍不等于模型源码、权重、网络结构、当前设备运行二进制或生产服务的确切发布包。请求本身包含 model-version=v3，因此仅看到返回 v3，不能证明请求参数与真实模型实现之间的关系。sfsCalculator 字符串也没有提供评分公式。
+历史 session 关联同一 Pod ID，不证明它在记录当日的硬件修订、系统/MCU 固件与现在一致；不能用这三组值反向替代固件 firmwareCommit 或 rat_version。
+
+读取与最小化
+两次请求均使用 Asia/Shanghai、include-main=false、include-all-sessions=true、model-version=v3、consistent-read=false，与 APK 正常历史读取链一致。日期为 LocalDate 字符串，App 预期首尾含；服务端所有边界语义没有通过穷举验证。
+接口没有 metadata-only/fields 投影参数，因此网络响应本身仍是完整趋势 JSON。在进程内提取结构计数及上述版本后，完整响应即丢弃；没有保存睡眠时间、阶段序列、心率/HRV/呼吸数值、用户/设备/session ID，也没有把汇总 timeseries 当作原始 ADC/IMU 波形。
+两次读取得到的脱敏结果分别为 RUNTIME_METADATA.json、PREVIOUS_MONTH_METADATA.json。只查询这两个范围，不据七天空列表推断账号从未使用设备或全部历史为空。
+
+与设备离线、邮件导出的关系
+历史接口成功读取不证明设备已恢复联网，也不能解释此前 live404。没有重试 live、status 或设备控制。
+本轮另经用户明确授权提交了一次邮件导出请求，回执另见 ../data-export-request/RECEIPT.json；本历史 GET 不会提交导出申请。
+
+证据
+contract/ 保留官方 APK 参数、字段类型、DI、Query 序列化、日期语义的 Java/Smali 证据（27份源码）。两个 probe 脚本只读同一当前账号，并对 session 设备 ID 做内存内等值比较后才保留版本。公开报告不含这些 ID。

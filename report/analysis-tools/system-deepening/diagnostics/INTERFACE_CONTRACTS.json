@@ -1,0 +1,529 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-08",
+  "evidence_type": "static decompiled source; targeted IL corroboration for StartSsh2",
+  "scope": "selected device-side routes, not exhaustive surface",
+  "device_envelope": {
+    "request": [
+      "Id:Guid",
+      "Type:string",
+      "Payload:bytes"
+    ],
+    "response": [
+      "Id:Guid",
+      "Payload:bytes|null",
+      "Exception:{Message,StackTrace,Classifier}|null"
+    ],
+    "payload_encoding": "camelCase UTF8 JSON inside MessagePack SignalR envelope; null properties omitted",
+    "unknown_route": "BadRequest",
+    "malformed_payload": "DeserializeException -> generic exception, classifier null",
+    "dependency_creation_failure": "may be logged by Client without response",
+    "execution": "single request loop awaits handler then Response invocation; no per-request deadline field",
+    "response_delivery": "InvokeAsync<bool> result ignored; exception logged without retry"
+  },
+  "source_refs": [
+    "S08",
+    "S09",
+    "S11",
+    "S12",
+    "S13",
+    "S14",
+    "S15",
+    "S16",
+    "S17",
+    "S18"
+  ],
+  "common_firmness_state_errors": {
+    "null/NullState": "UnknownAccessory",
+    "NotConnectedState/WaitingForBootloaderState": "OfflineAccessory",
+    "CheckingFirmwareState/BootingToFirmwareState/UpdatingFirmwareState/ErrorWaitingState/other not ready": "AccessoryInitialization",
+    "CalibratingState": "BadRequest"
+  },
+  "contracts": [
+    {
+      "request_type": "functions.debugsubsystem/usbports",
+      "transport": "device SignalR Request; NOT a phone HTTP route",
+      "side_effect_class": "read_only_handler",
+      "parameters": {},
+      "payload_fields": [
+        "device",
+        "usbPort"
+      ],
+      "device_gates": [
+        "Capybara normal/fullFeatures registration",
+        "device SignalR connection accepts Request",
+        "controller dependency resolution succeeds"
+      ],
+      "error_classes": {
+        "PlatformNotSupportedException": "BadRequest",
+        "other propagated exception": "UnknownAccessory"
+      },
+      "reads": [
+        "SerialPort.GetPortNames",
+        "Linux sysfs topology"
+      ],
+      "evidence": [
+        "S01:34-84",
+        "S03:9-18",
+        "S20:20-49",
+        "S21:51-70,111-200",
+        "S22"
+      ],
+      "notes": [
+        "No serial command is sent by this handler.",
+        "Empty list can mean no matching tty, no mapping, missing sysfs root or swallowed directory enumeration error.",
+        "No firmware identity or ready-state assertion."
+      ],
+      "ordinary_account_reachability": "unknown",
+      "runtime_verified": false
+    },
+    {
+      "request_type": "functions.debugnats/get",
+      "transport": "device SignalR Request; NOT a phone HTTP route",
+      "side_effect_class": "read_only_handler",
+      "parameters": {
+        "endpoint": {
+          "type": "string",
+          "required": true,
+          "normalize": "trim+lowercase",
+          "allowed": [
+            "healthz",
+            "varz",
+            "jsz",
+            "connz",
+            "subsz",
+            "stacksz"
+          ]
+        },
+        "offset": {
+          "type": "int32|null",
+          "default": 0,
+          "normalization": "max(value,0)"
+        },
+        "maxBytes": {
+          "type": "int32|null",
+          "default": 131072,
+          "normalization": "positive value accepted as-is; absent/nonpositive uses default"
+        }
+      },
+      "payload_fields": [
+        "endpoint",
+        "totalBytes",
+        "offset",
+        "length",
+        "truncated",
+        "contentGzipB64"
+      ],
+      "device_gates": [
+        "Capybara normal/fullFeatures registration",
+        "device SignalR connection accepts Request",
+        "controller dependency resolution succeeds",
+        "AddNatsMonitoring registered",
+        "nats:monitoringUrl resolves"
+      ],
+      "error_classes": {
+        "unsupported endpoint": "BadRequest",
+        "HTTP error with StatusCode": "DeviceCommunication",
+        "HTTP error without StatusCode": "OfflineAccessory",
+        "OperationCanceledException": "DeviceCommunication"
+      },
+      "reads": [
+        "configured NATS monitoring HTTP GET, default localhost:8222; 5-second HttpClient timeout"
+      ],
+      "evidence": [
+        "S04:60-64",
+        "S23:24-88",
+        "S24",
+        "S25",
+        "S26:14-28"
+      ],
+      "notes": [
+        "jsz receives a fixed query streams=true&consumers=true&config=true.",
+        "Each request refetches entire response before slicing UTF8 bytes; no snapshot continuity guarantee.",
+        "131072 is default not hard cap; small maxBytes does not bound total monitor download.",
+        "Each slice is separately gzip/base64 encoded; UTF8 code points may be split.",
+        "offset beyond total returns empty bytes and truncated=false.",
+        "No stream message body/piezo data read is implemented here."
+      ],
+      "ordinary_account_reachability": "unknown",
+      "runtime_verified": false
+    },
+    {
+      "request_type": "functions.debugfirmness/get",
+      "transport": "device SignalR Request; NOT a phone HTTP route",
+      "side_effect_class": "read_only_handler",
+      "parameters": {
+        "side": {
+          "type": "Side enum",
+          "defined_values": [
+            "Left",
+            "Right"
+          ],
+          "required": true,
+          "wire": "JsonStringEnumConverter; numeric-enum behavior not independently tested"
+        }
+      },
+      "payload_fields": [
+        "bag0",
+        "bag1",
+        "bag2",
+        "bag3",
+        "bag4?",
+        "hardwareInfo",
+        "mode",
+        "dynamicModeEnabled",
+        "firmwareInfo",
+        "rawPressureTelemetry",
+        "rawCurrentTelemetry?",
+        "rawControlTelemetry",
+        "rawHealthTelemetry?"
+      ],
+      "device_gates": [
+        "Capybara normal/fullFeatures registration",
+        "device SignalR connection accepts Request",
+        "controller dependency resolution succeeds",
+        "FirmnessReadyState",
+        "pressure exists, Sensors.Count>=4",
+        "control exists, Bags.Count>=4",
+        "HardwareInfo and FirmwareInfo exist"
+      ],
+      "error_classes": {
+        "null/NullState": "UnknownAccessory",
+        "NotConnectedState/WaitingForBootloaderState": "OfflineAccessory",
+        "CheckingFirmwareState/BootingToFirmwareState/UpdatingFirmwareState/ErrorWaitingState/other not ready": "AccessoryInitialization",
+        "CalibratingState": "BadRequest",
+        "telemetry_missing": "AccessoryInitialization"
+      },
+      "reads": [
+        "cached FirmnessReadyState.DeviceState",
+        "stored target/mode/dynamic configuration"
+      ],
+      "evidence": [
+        "S27:28-124",
+        "S28:12-66",
+        "S29:40-77,135-175",
+        "S32",
+        "S54"
+      ],
+      "notes": [
+        "No active per-call sampling and no freshness/alignment test in handler; underlying connection can still transition away from Ready.",
+        "5 control bags with only 4 pressure sensors can reach index4 without a matching count guard; occurrence unobserved.",
+        "Current/health optional; null properties omitted.",
+        "FirmwareInfo.RawData is information payload, not whole firmware binary."
+      ],
+      "ordinary_account_reachability": "unknown",
+      "runtime_verified": false
+    },
+    {
+      "request_type": "functions.debugfirmness/gethardwareinfo",
+      "transport": "device SignalR Request; NOT a phone HTTP route",
+      "side_effect_class": "read_only_handler",
+      "parameters": {
+        "side": {
+          "type": "Side enum",
+          "defined_values": [
+            "Left",
+            "Right"
+          ],
+          "required": true,
+          "wire": "JsonStringEnumConverter; numeric-enum behavior not independently tested"
+        }
+      },
+      "payload_fields": [
+        "label",
+        "revision",
+        "serialNumber",
+        "partNumber",
+        "sku"
+      ],
+      "device_gates": [
+        "Capybara normal/fullFeatures registration",
+        "device SignalR connection accepts Request",
+        "controller dependency resolution succeeds",
+        "FirmnessReadyState",
+        "HardwareInfo exists"
+      ],
+      "error_classes": {
+        "null/NullState": "UnknownAccessory",
+        "NotConnectedState/WaitingForBootloaderState": "OfflineAccessory",
+        "CheckingFirmwareState/BootingToFirmwareState/UpdatingFirmwareState/ErrorWaitingState/other not ready": "AccessoryInitialization",
+        "CalibratingState": "BadRequest",
+        "missing_hardware": "AccessoryInitialization"
+      },
+      "reads": [
+        "cached HardwareInfo"
+      ],
+      "evidence": [
+        "S27:128-141",
+        "S28"
+      ],
+      "notes": [
+        "Does not require pressure/control or FirmwareInfo to be populated."
+      ],
+      "ordinary_account_reachability": "unknown",
+      "runtime_verified": false
+    },
+    {
+      "request_type": "functions.firmness/get",
+      "transport": "device SignalR Request; NOT a phone HTTP route",
+      "side_effect_class": "read_only_handler",
+      "parameters": {
+        "side": {
+          "type": "Side enum",
+          "defined_values": [
+            "Left",
+            "Right"
+          ],
+          "required": true,
+          "wire": "JsonStringEnumConverter; numeric-enum behavior not independently tested"
+        }
+      },
+      "payload_fields": [
+        "response generated by FirmnessTelemetryBuilder: see baseline diagnostic report"
+      ],
+      "device_gates": [
+        "Capybara normal/fullFeatures registration",
+        "device SignalR connection accepts Request",
+        "controller dependency resolution succeeds",
+        "FirmnessReadyState",
+        "pressure exists, Sensors.Count>=4",
+        "control exists",
+        "HardwareInfo and FirmwareInfo exist"
+      ],
+      "error_classes": {
+        "null/NullState": "UnknownAccessory",
+        "NotConnectedState/WaitingForBootloaderState": "OfflineAccessory",
+        "CheckingFirmwareState/BootingToFirmwareState/UpdatingFirmwareState/ErrorWaitingState/other not ready": "AccessoryInitialization",
+        "CalibratingState": "BadRequest",
+        "missing_telemetry": "AccessoryInitialization"
+      },
+      "reads": [
+        "cached state and stored targets"
+      ],
+      "evidence": [
+        "S47:28-69",
+        "S28"
+      ],
+      "notes": [
+        "Existing known endpoint included only to compare gates; complete DTO field map not newly audited."
+      ],
+      "ordinary_account_reachability": "unknown",
+      "runtime_verified": false
+    },
+    {
+      "request_type": "functions.debugfirmness/gettelemetryprofile",
+      "transport": "device SignalR Request; NOT a phone HTTP route",
+      "side_effect_class": "read_only_handler",
+      "parameters": {
+        "side": {
+          "type": "Side enum",
+          "defined_values": [
+            "Left",
+            "Right"
+          ],
+          "required": true,
+          "wire": "JsonStringEnumConverter; numeric-enum behavior not independently tested"
+        }
+      },
+      "payload_fields": [
+        "configured",
+        "profile?"
+      ],
+      "device_gates": [
+        "Capybara normal/fullFeatures registration",
+        "device SignalR connection accepts Request",
+        "controller dependency resolution succeeds",
+        "FirmnessReadyState"
+      ],
+      "error_classes": {
+        "null/NullState": "UnknownAccessory",
+        "NotConnectedState/WaitingForBootloaderState": "OfflineAccessory",
+        "CheckingFirmwareState/BootingToFirmwareState/UpdatingFirmwareState/ErrorWaitingState/other not ready": "AccessoryInitialization",
+        "CalibratingState": "BadRequest"
+      },
+      "reads": [
+        "configManager.Configuration.Left/RightTelemetryProfile"
+      ],
+      "evidence": [
+        "S33:24-37",
+        "S29:68-77",
+        "S34"
+      ],
+      "notes": [
+        "Read of saved host configuration, not MCU roundtrip.",
+        "Unset gives configured=false; omitted profile."
+      ],
+      "ordinary_account_reachability": "unknown",
+      "runtime_verified": false
+    },
+    {
+      "request_type": "functions.debugfirmness/gettolerance",
+      "transport": "device SignalR Request; NOT a phone HTTP route",
+      "side_effect_class": "read_only_handler",
+      "parameters": {
+        "side": {
+          "type": "Side enum",
+          "defined_values": [
+            "Left",
+            "Right"
+          ],
+          "required": true,
+          "wire": "JsonStringEnumConverter; numeric-enum behavior not independently tested"
+        }
+      },
+      "payload_fields": [
+        "tuned",
+        "minKpa?",
+        "maxKpa?",
+        "bins"
+      ],
+      "device_gates": [
+        "Capybara normal/fullFeatures registration",
+        "device SignalR connection accepts Request",
+        "controller dependency resolution succeeds",
+        "FirmnessReadyState"
+      ],
+      "error_classes": {
+        "null/NullState": "UnknownAccessory",
+        "NotConnectedState/WaitingForBootloaderState": "OfflineAccessory",
+        "CheckingFirmwareState/BootingToFirmwareState/UpdatingFirmwareState/ErrorWaitingState/other not ready": "AccessoryInitialization",
+        "CalibratingState": "BadRequest"
+      },
+      "reads": [
+        "configManager.Configuration.Left/RightToleranceBands"
+      ],
+      "evidence": [
+        "S35:25-48",
+        "S29:56-65",
+        "S36"
+      ],
+      "notes": [
+        "Read of saved host configuration, not MCU roundtrip.",
+        "Unset gives tuned=false and empty bins; null limits omitted."
+      ],
+      "ordinary_account_reachability": "unknown",
+      "runtime_verified": false
+    },
+    {
+      "request_type": "functions.pairing/status",
+      "transport": "device SignalR Request; NOT a phone HTTP route",
+      "side_effect_class": "read_only_handler",
+      "parameters": {},
+      "payload_fields": [
+        "state?",
+        "message?"
+      ],
+      "device_gates": [
+        "registered in normal and Cavia modes",
+        "device SignalR delivery and dependency resolution"
+      ],
+      "error_classes": {},
+      "reads": [
+        "PairingService.currentPairingState"
+      ],
+      "evidence": [
+        "S02:65-66",
+        "S37:31-40",
+        "S38",
+        "S39:47-72,107-153",
+        "S40"
+      ],
+      "notes": [
+        "This is pairing-task state, not IPairingMode.Active.",
+        "Finished/failed task state may remain stored; state!=null does not mean running.",
+        "Nested state includes pairingId/status/currentStep/progress/times/steps/errors/pairedDeviceId; actual identity values not read."
+      ],
+      "ordinary_account_reachability": "unknown",
+      "runtime_verified": false
+    },
+    {
+      "request_type": "functions.remoteconnectivity/getpublickey",
+      "transport": "device SignalR Request; NOT a phone HTTP route",
+      "side_effect_class": "maintenance_may_write_or_start_process",
+      "parameters": {},
+      "payload_fields": [
+        "publicKey"
+      ],
+      "device_gates": [
+        "registered normal and Cavia; no pairing check in this controller method"
+      ],
+      "error_classes": {
+        "file/process failures": "generic serialized exception"
+      },
+      "reads": [
+        "session key/pub file existence; may run key generator"
+      ],
+      "evidence": [
+        "S41:50-54",
+        "S42:405-483"
+      ],
+      "notes": [
+        "NOT an approved read-only probe: missing files cause creation/writes.",
+        "No key content read in this audit."
+      ],
+      "ordinary_account_reachability": "unknown",
+      "runtime_verified": false
+    },
+    {
+      "request_type": "functions.remoteconnectivity/startssh",
+      "transport": "device SignalR Request; NOT a phone HTTP route",
+      "side_effect_class": "maintenance_may_write_or_start_process",
+      "parameters": {
+        "port": "int32|null"
+      },
+      "payload_fields": [
+        "result",
+        "port",
+        "reason?"
+      ],
+      "device_gates": [
+        "RunRemoteConnectivity requires IPairingMode.Active",
+        "StartSsh2 explicit nonzero port currently rejected by local variable bug"
+      ],
+      "error_classes": {
+        "port validation or pairing/process failure": "ordinary result=false DTO, not necessarily envelope exception"
+      },
+      "reads": [
+        "current tunnel Process state"
+      ],
+      "evidence": [
+        "S41:35-47",
+        "S42:338-402",
+        "il/StartSsh2.il.txt"
+      ],
+      "notes": [
+        "Static only; no invocation recipe provided.",
+        "Result=true tests process survival after <=5s or reuses still-running process, not end-to-end tunnel verification.",
+        "External timeout requested for 2h; no observed later-exit cleanup callback here."
+      ],
+      "ordinary_account_reachability": "unknown",
+      "runtime_verified": false
+    }
+  ],
+  "maintenance_extra_boundaries": [
+    {
+      "name": "legacy StartSSH",
+      "fact": "PrimeLegacyConnectivity can occur before RunRemoteConnectivity pairing gate; failure does not prove no earlier file mutation",
+      "evidence": [
+        "S41:24-32",
+        "S42:156-172"
+      ]
+    },
+    {
+      "name": "addauthorizedkeys",
+      "fact": "controller checks pairing.Active; CleanArtifacts only removes session key/pub, not authorized_keys",
+      "evidence": [
+        "S41:56-64",
+        "S42:55-65,112-154"
+      ]
+    }
+  ],
+  "not_proven": [
+    "phone HTTP route",
+    "ordinary-user authorization",
+    "current unit firmware/attachment match",
+    "remote server behavior",
+    "runtime side effects or data values",
+    "cloud algorithm implementation"
+  ]
+}

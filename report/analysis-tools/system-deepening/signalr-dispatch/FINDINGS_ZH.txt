@@ -1,0 +1,85 @@
+SignalR 双 Request 注册：随包框架分发与通道生命周期
+日期：2026-11-08（Asia/Shanghai）
+对象：官方 MTK SWU 已提取的 Capybara 托管组件与其随包依赖。本目录是 diagnostics 交付后的独立补充；没有修改原 diagnostics 基线。
+仅运行 ILSpy 静态导出及 Python 文件核验。未执行目标程序集、建立连接、发送请求、访问账号或设备，也没有做压力/内存测试。
+
+结论
+
+此前“同一个 HubConnection 两次 On(Request) 是否都会生效”的缺口已闭合：会保留两条回调，逐一调用，不由后者覆盖前者。
+在本包正常 DeviceAPIService 宿主路径中，一次成功绑定并分发的 Request 会写入基类与派生类两个不同的无界 channel；正常消费者只读派生 channel。
+这支持“基类 channel 存在持续保留已接收 Request 的代码路径”，不支持“每个诊断执行两次”，也不等于已测得用户实机内存泄漏或崩溃。
+限定条件：对象已成功构造、两条订阅仍注册、请求成功解析、WriteAsync 正常完成、服务对象仍可达。未知当前实机版本和真实请求量。
+
+一、输入身份与证据层次
+
+原文件均在 analysis/sleep-pipeline/capybara-bundle/：
+Microsoft.AspNetCore.SignalR.Client.Core.dll，211792 bytes，SHA256 e7b569b5c573da0269b829204d36573f25a49b5790cb325182d9121c11e0c076
+Eight.DeviceApiClient.dll，41984 bytes，SHA256 82a463eac39c1cdcdb7482e7c551563dd9afb04586c8bfdfdde31b31ab74e51a
+Eight.Capybara.DeviceApi.dll，13312 bytes，SHA256 e2a9362182cc868136154351c597c20936f97e17108fe1a7d8130cefdf5a259c
+Microsoft.Extensions.Hosting.Abstractions.dll，54056 bytes，SHA256 e5dcb39fb65d813ea55bf91407224c9bdd08b497cd2cde2798eef339a28c8ffd
+System.Threading.Channels.dll，66344 bytes，SHA256 bf94cf966c9a5865a1dfd20a98dd5329b9aca3593a54fa6d50e21be9a5f29ee2
+
+source/ 中5份旧反编译 C# 是逐字节副本；exports/ 的框架 C#/IL 是本次从上述原 DLL 导出。没有用网上近似版本替代本包框架行为。
+关键字段绑定、构造调用和丢弃订阅句柄另用原 DLL IL 复核；RAW_METHOD_RANGES.json 对418个导出方法的原 PE RVA、header/code size及原代码字节 SHA 做一致性登记。
+418是导出方法范围核验数，不是418个全部深入审计的方法。该检查不是独立 IL 反汇编器，不宣称逐操作数解码已由第二实现复核。
+所有输入/输出 SHA、命令与逐结论行号分别见 SOURCE_MANIFEST.json、EXPORT_COMMANDS*.json、EVIDENCE_MAP.json。
+
+二、两次注册确实保留两条回调 [SR-01、SR-02]
+
+Client 构造：创建 Client::serverRequests，保存传入 HubConnection，然后 On<Request>("Request", 基类回调)。
+DeviceAPIService 构造：创建另一个同名字段，先调用 base 构造，再给同一传入 HubConnection 注册派生回调。
+IL 的 ldfld 明确分别指向 Eight.DeviceApiClient.Client::serverRequests 和 Eight.Capybara.DeviceApi.DeviceAPIService::serverRequests；不是同一字段的反编译命名差异。
+两次 On 返回的 IDisposable 都被 pop，没有存成可在退出时 Dispose 的字段。
+
+随包 HubConnectionExtensions.On<T1>(Func<T1,Task>) 传入一项参数类型和无返回值 Task handler。
+HubConnection.On 的 ConcurrentDictionary.AddOrUpdate：同名项不存在时创建 InvocationHandlerList；已存在时 Add 到原 list，再返回 Subscription。
+InvocationHandlerList 只限制多个 HasResult=true handler；这两条 Func<Request,Task> 不属该限制。Add 保持列表插入顺序；GetHandlers 得到该顺序的快照数组。
+在本构造序列、没有外部修改订阅的条件下，基类 handler 在前，派生 handler 在后。
+
+DispatchInvocationAsync 对完整快照循环：给每个 handler 传相同 invocation.Arguments，逐项 await；单项异常记录后继续后续项。
+因此正常一次投递是两次入队。两个 handler 接收同一个 Request 对象引用，不能把它写成“复制了两份 Payload 字节数组”。Request 是 record class，Payload 为 ReadOnlyMemory<byte>；保留这个对象也会延长其所引用数据的可达期，具体内存占用未测。
+若请求参数绑定失败，就不会进入此正常分发路径；若某个写入异常，也不能宣称该条已成功入队。
+
+三、正常宿主只启动派生队列消费者 [SR-03]
+
+DeviceApiExtensions 注册 AddHostedService<DeviceAPIService>()，不是另加一个 Client 宿主。
+随包 BackgroundService.StartAsync 通过虚调用 ExecuteAsync 启动服务；原 IL callvirt 与派生 override 一致。
+DeviceAPIService.ExecuteAsync 开头传入派生字段的 Reader 调用继承的 ProcessRequests；随后运行连接/重连循环。它没有调用 base.ExecuteAsync。
+Client.ExecuteAsync 本来会读取基类 Reader，但该实现不是此派生实例正常虚调用的入口。
+继承的 ProcessRequests 使用其传入 Reader，逐条 await ProcessRequest，不会自动换读 Client 自己的字段。
+
+所以双注册不等于业务执行两次：正常设备服务的一条请求只有派生消费者进入 router.ExecuteRequest。
+这是选定正常宿主路径的结论，不排除其他程序用反射/额外代码主动读基类队列，也不把单独实例化 Client 的情形套进来。
+另外派生启动 ProcessRequests 返回的 Task 被丢弃；宿主追踪的是 ExecuteAsync 的连接循环 Task。这里仅记录任务归属，不把未出现的消费者故障当实测结果。
+
+四、基类队列为何可积压，停止/重连做了什么 [SR-04、SR-05]
+
+本包 Channel.CreateUnbounded<Request>() 直接返回 UnboundedChannel<Request>。
+Writer.WriteAsync 在未取消、未完成写入时调用 TryWrite；没有等待 reader 的分支中，TryWrite 把 item 放入内部 ConcurrentQueue<T>。
+Reader.ReadAsync/TryRead 的正常消费才会 TryDequeue；没有容量淘汰、TTL 或覆盖旧项逻辑。基类队列未启动 reader，所以每个成功写入的 Request 均留在该队列中。
+“无界”不表示物理内存无限；只是此队列没有容量限制。无法据此静态计算多久耗尽或用户设备会收到多少请求。
+
+已读完整 Client 与 sealed DeviceAPIService 类型没有 StopAsync/Dispose override，没有补读基类队列、清空它或 Complete/替换该字段的代码。
+继承的 BackgroundService.StopAsync/Dispose 取消 stopping token，StopAsync 等待它追踪的 ExecuteAsync；这些代码不释放字段、不排空 channel，也不注销 Request handler。
+HubConnection.Subscription.Dispose 才会移除该 handler，Remove("Request") 才会移除该目标的 handler list；两条订阅的 IDisposable 已在构造处被丢弃。
+HubConnection.StopAsyncCore/DisposeAsync 负责连接和内部 service provider 生命周期，所读实现没有清 _handlers 或用户 channel 的步骤。不能把 SignalR 内部 invocationMessageChannel 的 TryComplete 与两个应用 channel 混为一谈。
+
+DeviceAPIService 重连循环复用同一 HubConnection 和两个 readonly channel；Request 注册仅在构造执行，循环内没有再次 On，也没有新建 channel。
+因此正常重连不会每次再增加两条注册，也不会清掉已积压的基类 Request。
+
+这是一条服务对象存活期间的保留路径：HubConnection handler -> delegate/closure -> service -> 基类 channel -> Request。
+所有相关对象失去外部可达引用后可以由 GC 回收；对象间循环引用本身不阻止 GC。没有据此宣称停服后永久泄漏，更没有证明进程结束后仍占内存。
+DI 宿主通常保持服务对象，但本轮没有穷尽整个容器、其他插件或外部反射的所有引用，更未观察实机 heap。
+
+五、对逆向与验证计划的意义
+
+已完成：双注册的第三方库语义、IL字段绑定、正常消费路径、同包无界队列存储、可见停止/重连清理边界。原 diagnostics 的“框架调度待核”可由本报告替代。
+仍未知：当前用户设备 DLL 是否相同、普通账号如何获准投递 diagnostics、真实 Request 速率/大小、运行时队列长度和 GC/容器最终释放时点。
+这没有新增手机可调用 API，也没有打通设备实时传感数据出口；DeviceAPI Request 与 raw 传感上传是不同通道。
+
+若获得合法设备调试材料：先校验这5个程序集版本/哈希，再用少量已授权只读请求配合本地 heap/queue 诊断，比较两个字段队列计数和 router 执行次数；记录停服/重连时对象是否仍可达。
+当前不需要、不建议用高频投递/内存压测来证明此静态问题；本轮没有发送任何诊断请求。
+离线桩实验即使能复现相同控制流，也只能标为模型，不代替当前生产设备的行为证据。
+
+复现：scripts/export_selected.py、export_framework_details.py、export_channel_il.py 使用已有 ILSpy，关闭更新检查；scripts/index_raw_method_bodies.py 只读原PE。
+范围与缺口见 COVERAGE.json；没有修改原固件、旧证据、网页项目或冻结证据包。

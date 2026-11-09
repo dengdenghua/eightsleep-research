@@ -1,0 +1,133 @@
+ENTRY 08015b00 FUN_08015b00 body=[[08015b00, 08015bb7]]
+CALLER/REF 0801670a UNCONDITIONAL_CALL
+CALLER/REF 08017ae6 UNCONDITIONAL_CALL
+
+void FUN_08015b00(undefined4 *param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4)
+
+{
+  int iVar1;
+  uint uVar2;
+  uint uVar3;
+  
+  if (*(char *)(param_1 + 0x25) == '\x02') {
+    iVar1 = FUN_08021d6c(param_1 + 0x26);
+    param_1[0x54] = param_1[0x54] + iVar1;
+    if (*(char *)((int)param_1 + 0x14a) == '\x01') {
+      uVar2 = param_1[0x53];
+    }
+    else {
+      uVar2 = iVar1 + param_1[0x53];
+    }
+    uVar3 = param_1[0x55];
+    iVar1 = 0;
+    if (uVar3 <= uVar2) {
+      iVar1 = FUN_0800a148(uVar2 - uVar3,14000);
+      iVar1 = iVar1 * 14000 + uVar3;
+    }
+    param_1[0x53] = iVar1;
+  }
+  else {
+    *(undefined1 *)((int)param_1 + 0x14a) = 0;
+    param_1[0x53] = 0;
+    param_1[0x54] = 0;
+  }
+  fw_log("[priming] pod6 entering wait-for-cap (pumps full, waiting for cap)");
+  *(undefined1 *)(param_1 + 0x25) = 3;
+  FUN_08021d28(param_1 + 0x26);
+  param_1[0x4c] = 0;
+  param_1[0x56] = 0;
+  uVar2 = (uint)*(byte *)(param_1 + 7);
+  FUN_08019144(*param_1,(uVar2 & 1) << 1,0x158,uVar2,param_4);
+  FUN_08019144(param_1[1],uVar2 & 2);
+  if (param_1[8] != 0) {
+    FUN_08014a10(param_1[8],3);
+  }
+  return;
+}
+
+
+08015b00  push {r3,r4,r5,r6,r7,lr}
+08015b02  movs r5,r0
+08015b04  movs r6,r0
+08015b06  adds r5,#0x78
+08015b08  ldrb r3,[r5,#0x1c]
+08015b0a  movs r4,r0
+08015b0c  adds r6,#0x98
+08015b0e  cmp r3,#0x2
+08015b10  beq 0x08015b6a
+08015b12  movs r2,r0
+08015b14  movs r3,#0x0
+08015b16  adds r2,#0x4b
+08015b18  adds r2,#0xff
+08015b1a  strb r3,[r2,#0x0]
+08015b1c  movs r2,#0xa6
+08015b1e  lsls r2,r2,#0x1
+08015b20  str r3,[r0,r2]
+08015b22  adds r2,#0x4
+08015b24  str r3,[r0,r2]
+08015b26  ldr r0,[0x08015bb8] [08015bb8=802a038] [0802a038=6972705b]
+08015b28  bl 0x08021be0
+08015b2c  movs r3,#0x3
+08015b2e  movs r0,r6
+08015b30  strb r3,[r5,#0x1c]
+08015b32  bl 0x08021d28
+08015b36  movs r2,#0x98
+08015b38  movs r3,#0x0
+08015b3a  movs r1,#0x1
+08015b3c  movs r5,#0x2
+08015b3e  lsls r2,r2,#0x1
+08015b40  str r3,[r4,r2]
+08015b42  adds r2,#0x28
+08015b44  str r3,[r4,r2]
+08015b46  ldrb r3,[r4,#0x1c]
+08015b48  ldr r0,[r4,#0x0]
+08015b4a  ands r1,r3
+08015b4c  ands r5,r3
+08015b4e  lsls r1,r1,#0x1
+08015b50  bl 0x08019144
+08015b54  ldr r0,[r4,#0x4]
+08015b56  movs r1,r5
+08015b58  bl 0x08019144
+08015b5c  ldr r0,[r4,#0x20]
+08015b5e  cmp r0,#0x0
+08015b60  beq 0x08015b68
+08015b62  movs r1,#0x3
+08015b64  bl 0x08014a10
+08015b68  pop {r3,r4,r5,r6,r7,pc}
+08015b6a  movs r0,r6
+08015b6c  bl 0x08021d6c
+08015b70  movs r2,#0xa8
+08015b72  lsls r2,r2,#0x1
+08015b74  ldr r3,[r4,r2]
+08015b76  adds r3,r3,r0
+08015b78  str r3,[r4,r2]
+08015b7a  movs r3,r4
+08015b7c  adds r3,#0x4b
+08015b7e  adds r3,#0xff
+08015b80  ldrb r3,[r3,#0x0]
+08015b82  cmp r3,#0x1
+08015b84  beq 0x08015bb0
+08015b86  movs r3,#0xa6
+08015b88  lsls r3,r3,#0x1
+08015b8a  ldr r3,[r4,r3]
+08015b8c  adds r0,r0,r3
+08015b8e  movs r3,#0xaa
+08015b90  lsls r3,r3,#0x1
+08015b92  ldr r7,[r4,r3]
+08015b94  movs r3,#0x0
+08015b96  cmp r7,r0
+08015b98  bhi 0x08015ba8
+08015b9a  subs r0,r0,r7
+08015b9c  ldr r1,[0x08015bbc] [08015bbc=36b0]
+08015b9e  bl 0x0800a148
+08015ba2  ldr r3,[0x08015bbc] [08015bbc=36b0]
+08015ba4  muls r3,r0
+08015ba6  adds r3,r3,r7
+08015ba8  movs r2,#0xa6
+08015baa  lsls r2,r2,#0x1
+08015bac  str r3,[r4,r2]
+08015bae  b 0x08015b26
+08015bb0  adds r3,#0x4c
+08015bb2  adds r3,#0xff
+08015bb4  ldr r0,[r4,r3]
+08015bb6  b 0x08015b8e

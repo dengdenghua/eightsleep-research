@@ -1,0 +1,45 @@
+TARGET 08010f44 function=0800dccc
+REF_TO 0800dcec UNCONDITIONAL_JUMP owner=0800dccc
+REF_TO 0800dae4 UNCONDITIONAL_JUMP owner=0800dae2
+FUNCTION_BODY [[0800dccc, 0800dcef] [08010f44, 08010f53]]
+
+void FUN_0800dccc(void)
+
+{
+  short sVar1;
+  int unaff_r4;
+  char in_ZR;
+  
+  FUN_0800dd38();
+  FUN_0800dcf0();
+  if (in_ZR == '\0') {
+    FUN_08010f76();
+    sVar1 = 8;
+  }
+  else {
+    FUN_08010f76();
+    sVar1 = 0;
+  }
+  *(ushort *)(unaff_r4 + 0x18) = *(ushort *)(unaff_r4 + 0x18) & 0xf7ff | sVar1 << 8;
+  return;
+}
+
+
+INSN 0800dccc 10b5 push {r4,lr}
+INSN 0800dcce 00f033f8 bl 0x0800dd38 REF[UNCONDITIONAL_CALL:0800dd38]
+INSN 0800dcd2 00f00df8 bl 0x0800dcf0 REF[UNCONDITIONAL_CALL:0800dcf0]
+INSN 0800dcd6 03d1 bne 0x0800dce0 REF[CONDITIONAL_JUMP:0800dce0]
+INSN 0800dcd8 03f04df9 bl 0x08010f76 REF[UNCONDITIONAL_CALL:08010f76]
+INSN 0800dcdc 0021 movs r1,#0x0
+INSN 0800dcde 02e0 b 0x0800dce6 REF[UNCONDITIONAL_JUMP:0800dce6]
+INSN 0800dce0 03f049f9 bl 0x08010f76 REF[UNCONDITIONAL_CALL:08010f76]
+INSN 0800dce4 0821 movs r1,#0x8
+INSN 0800dce6 2046 mov r0,r4
+INSN 0800dce8 bde81040 pop.w {r4,lr}
+INSN 0800dcec 03f02ab9 b.w 0x08010f44 REF[UNCONDITIONAL_JUMP:08010f44]
+INSN 08010f44 028b ldrh r2,[r0,#0x18]
+INSN 08010f46 4ff2ff73 movw r3,#0xf7ff
+INSN 08010f4a 1a40 ands r2,r3
+INSN 08010f4c 42ea0121 orr.w r1,r2,r1, lsl #0x8
+INSN 08010f50 0183 strh r1,[r0,#0x18]
+INSN 08010f52 7047 bx lr

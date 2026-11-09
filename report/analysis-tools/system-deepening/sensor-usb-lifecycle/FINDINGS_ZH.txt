@@ -1,0 +1,153 @@
+USB传感固件：发送描述符、32槽回收与USB状态门槛
+2026-11-08；USB 5.5.34.0，静态分析+六个合成时序，未运行固件或操作设备。
+
+主要结论
+========
+1. 槽状态1不等于主控收到数据。正常完成回调会置1，主循环的>50 tick恢复分支也会置1；
+   后者没有先清USB类的TxState，也没有调用USB取消传输。
+2. 软件busy与类TxState是独立状态。超时释放旧槽后，下一条描述符可已进入current，
+   但底层因TxState仍为1拒绝新发送。start失败后current保留。
+3. SetTxBuffer在检查TxState之前就改写类中的发送指针/长度；最终完成回调忽略传入的
+   指针/长度/端点，只释放全局current。因此存在“旧传输迟到完成，释放后继current”的条件窗口。
+   六个合成检查包含这个序列；没有证明它在实机发生、没有报告坏包率或物理损坏。
+4. gate失效时，待发FIFO被清空并将对应槽置2；当前current没有由该drain一起清空。
+   USB总线reset处理也不清adapter的current。恢复后存在重试保留current的路径，不能概括成
+   “全部丢弃”，也不能说“完整队列重放”。第一次传输是否到达主机仍未知。
+
+范围与身份
+==========
+原件：mediatek/rootfs-selected/opt/eight/lib/subsystem_updates/firmware-sensor-g0-usb.bbin
+SHA256=1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563，140828B。
+完整BBIN映射08010000，128B头已在映像内；文件偏移=地址-08010000，不额外加减128。
+复用analysis/sensor-mcu/ghidra/sensor.gpr，-readOnly -noanalysis；SRAM仍write=true。
+REA MCP本会话未加载，使用本地Ghidra12.1.4，不伪造REA Evidence ID。
+没有修改旧证据、Wiki/HTML、全量冻结包或服务；没有网络、账号、设备交互。
+pass*/含原指令字节、literal和C；若C丢掉寄存器副作用，以指令为准。
+
+三层所有权需要分开
+==================
+一、framer的32槽池
+槽状态基址200028cc，stride0x401：状态1B，正文1024B。初始化全置1。
+0801c4c0读取状态；0801c764接受任意非零状态，所以1与2都可再次选中。
+0=已交给adapter，暂不可选；1=初始化或回收后可用；2=被gate拒绝/丢弃后可用。
+1/2是本地所有权状态，不能当传输ACK或host receipt。
+
+二、adapter描述符
+对象20002814；+0x14开始是容量64、每项12B的FIFO（ptr,len,statusptr）。
+current三字段为20002850(ptr)、20002854(len)、20002858(statusptr)。
+成功直接提交或FIFO接收时把status*=0。64项FIFO不等于额外64个独立buffer；32槽仍独立受限。
+0801d6c8先看busy callback。空闲时若current为空才pop一项到current，再调用start(ptr,len)。
+它不处理start的返回值。start失败后该current留在原处，下次pump会再次尝试，不会再pop另一条。
+
+三、USB类与底层端点
+类对象+0x208是TxBuffer，+0x210是TxLength，+0x214是TxState。
+08018080无TxState检查就写TxBuffer/TxLength。
+080180be仅当TxState==0才置1并调用0801c048→08014ae6，后者保存底层端点的buffer/length
+再调用08017804。这里的成功返回仍不是主控收到数据；包装器没有把下游结果作为host ACK。
+类对象与底层端点各有自己的指针。本轮没有把“类指针改写”说成底层指针必然同步改写。
+
+USB transport绑定与正常完成
+==========================
+08019328这条配置分支把config+0x20设为0801937d（busy），+0x24为0801ba8d（start），
+init为0801b9d1。08027834把这些复制到adapter+0x30/+0x34。
+busy函数0801937c只读software_busy=20002868，不读取类TxState。
+该绑定证实的是此transport配置分支，不用它推定用户实际硬件SKU。
+
+.data初始化映射沿用已核验的reset链：Flash08032288→RAM20000200。
+RAM20000508的5个interface callback原字节来自Flash08032590：
+  init0801bc81 / deinit08019429 / control0801942d / receive0801bbfd / completion08019579。
+RAM200002a4的class表第5项为08017dbd（DataIn）。INITIALIZED_BINDINGS.json保留原偏移与字节，
+不是把未初始化RAM静态读数当运行值。
+
+完成路线：低层回调0801c0ae→0801830c（非零端点且device state=3）→class.DataIn08017dbc。
+若端点总长非零且能被max-packet整除，DataIn先发送零长度包并把端点总长清0，
+暂不清TxState、不调用interface completion；等下一次DataIn才完成回收。
+否则DataIn把类TxState清0，经interface+0x10调用08019578。
+08019578增加完成计数200026f0，清software_busy，再调用08028e4c；没有使用输入R0/R1/R2。
+
+08028e4c：如果current.ptr非0且statusptr非0，写status*=1；清current的ptr/len/statusptr，
+执行DSB/DMB，再pump。它没有比对“这次callback属于哪条描述符”的身份或世代字段。
+1956e另有同一回收入口，来自其他transport绑定；本轮USB链以interface completion19578为锚，
+不把其他transport回调混作USB中断。
+
+busy、失败与超时
+==============
+0801ba8c start有两个busy层次：
+- software_busy非0且tick差<=50：返回false，计数200026f8++。
+- 若software_busy过期（严格>50），清它并记20002860++，再检查gate。
+- gate不满足：返回false，计数200026f4++。
+- gate满足：先software_busy=1、保存起始tick，再SetTxBuffer(ptr,len)，最后TransmitPacket。
+- 类不存在时TransmitPacket返回3；TxState非0时返回1；两者都不发起新底层传输。
+  start把software_busy清0、记200026ec++并返回false。此前SetTxBuffer的改写没有回滚。
+
+主循环另有恢复：pass4/08020c00_08020c84.txt中，20c1c读取software_busy，
+20c20为0则跳过；非0时计算当前tick-20002864，严格>50才清busy、记错并调用28e4c。
+这条路径把当前槽置1，即使类TxState仍1。所见指令中没有USB abort、类TxState清零或端点指针清零。
+随后pump若取到新descriptor B，可能因旧TxState仍忙而start失败；B仍留作current，槽状态仍0。
+
+buffer池另有旧结论的>=500 tick等待截止；不要把它与上述>50混为一个计时器。
+sensor-timebase已补USB默认SysTick公式：step=1、频率变量正确且SysTick正常工作时，
+这些可解释为名义毫秒计数。它们不是墙钟上限：主循环要真正运行到检查点，tick还可能被延后。
+本轮不重做时基，也不测实际USB吞吐/中断时延。
+
+迟到回调的条件窗口
+==================
+以下是SYNTHETIC_CASES.json的构造序列，字母只是合成描述符标签：
+1. A已提交到底层，software_busy=1、TxState=1；B已在FIFO等待。
+2. 在A最终完成前，主循环运行至tick差51：回收A槽为1、current清空，再pop B到current。
+3. B.start先把类TxBuffer/TxLength改为B，再因TxState=1返回busy；B没有新的low-level submit。
+4. 随后A的最终DataIn到来，类TxState清0并调用19578。它不核对传入参数，28e4c释放当前B为1。
+   在这个构造序列中，低层提交列表只有A，但B已被本地回收。
+
+所需前提必须保留：A在>50检查时确实仍未完成；gate一直有效；B已经排队；之后A完成；
+中间没有reset或其他事件改变状态。未证明现场具备这些条件，也未证明实际数据被篡改/损坏。
+“A槽可复用”“类TxBuffer已指向B”“底层原端点仍持有A”是三件不同的事。
+低层后续何时读取旧buffer、USB中断能否按该时序交错，需另核IRQ与外设路径/被动实测。
+
+gate写入者与恢复
+==============
+mode flag2000abfc：
+- 0801b9e0初始化设1，在USB init/start调用之前；不能把flag=1当枚举成功。
+- 08020f98清0，位于elapsed>60000的主循环分支，随后调用12430。
+- 08021054清0，位于显式重启分支，随后调用12430。
+12430原指令向E000ED0C写05FA0004并DSB/等待，是系统复位请求；C只显示死循环，不能据C漏掉写入。
+mode flag不是普通插拔时来回翻转的在线状态。未见的间接写入不作全称排除。
+
+predicate080194a4要求20001648非0且device+0x29c（2000abbc）==3。
+20001648由control request0x22读取输入结构+2的bit0写入（19480..19496）；bit0清0时同时清20002810。
+USB reset处理1c0d4把20001648、20002810、software_busy、20001799清0，再调用183c6。
+183c6把device state写1并调用class.DeInit。
+
+device state=3的写入也已找到：标准request9的表目标1863c，在配置非零、class.Init成功后
+18694写3；配置0分支186a0写2并DeInit。request9表原字节独立验算，见INITIALIZED_BINDINGS。
+这里给出代码状态关系；无需把gate当云端online、App账号绑定状态或传感采样有效性。
+
+gate失效时：
+- 新adapter提交在1d6fc直接把其status设2后退出（若statusptr存在）；未据此宣称bool返回契约。
+- 主循环20c52..20c82屏蔽IRQ8，逐项pop待发FIFO，将每项status置2，然后恢复IRQ8。
+  它只遍历队列，不清current三字段。
+- 若current仍busy，之后>50恢复可以回收它；若USB reset已把software_busy清0，
+  这个超时检查会被跳过。class.DeInit只关端点/清class context，interface.DeInit19428直接返回0，
+  所见路径没有为adapter current调用28e4c。
+- 重新配置且control bit恢复后，新的有效输入帧20e20或新的提交可调用pump，重试保留current。
+  已丢弃的queued项不会因此恢复。保留current第一次是否已经被主机收到未知，不能断言重复投递。
+
+验收与未覆盖
+============
+BYTE_VALIDATION.json逐INSN与原BBIN比对，独立核BL/B.W、literal与两个.data callback表，
+另验标准request9跳转目标。数字含重叠导出，不能作全程序覆盖率。
+SYNTHETIC_CASES.json六个有界时序：正常完成、整包倍数/ZLP、gate丢队列、50超时不abort、
+迟到A完成释放B、USB reset后保留current并重试。均为手写分支模型，不执行BBIN。
+模型快照使用deepcopy，前一场景不会被后续续跑污染。
+
+实际缺口/下一步：
+1. 沿08014ae6→08017804与相关IRQ追端点buffer后续读取，判断槽提前复用会影响哪些字节；
+   同时核IRQ8的屏蔽范围与其他中断优先级。当前只确证所有权窗口，不称损坏实证。
+2. 检查主循环50恢复和真实callback之间的原子性；现有completion只有DSB/DMB，未做全交错证明。
+3. 被动USB抓包+本地计数可验证是否存在>50且TxState忙、迟到completion；尚无实机数据。
+4. 配置/断连期间所有current及队列清理入口的全局审计、其他SKU transport继承分支、nonUSB生命周期
+   仍是单独覆盖范围；不能把本USB分支的结论扩展到全部固件。
+5. 模型未包含pool分配、500等待、HAL内部全部错误和重复回调；没有输出实际故障概率。
+
+交付：EVIDENCE_MAP.json、COVERAGE.json、INITIALIZED_BINDINGS.json、BYTE_VALIDATION.json、
+SYNTHETIC_CASES.json、SOURCE_MANIFEST.json、JOBS.json、REPRODUCE.txt与pass*/原指令。

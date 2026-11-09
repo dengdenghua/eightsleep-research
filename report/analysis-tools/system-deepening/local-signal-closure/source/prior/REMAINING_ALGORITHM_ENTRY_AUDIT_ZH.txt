@@ -1,0 +1,72 @@
+剩余本地生理算法入口审计（有界补查）
+日期：2026-11-07
+样本：mediatek/rootfs-selected/opt/eight/bin/frankenfirmware
+SHA256：84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375
+根目录：/Users/dangbei/Downloads/eightsleep-firmware-research-20261107
+证据路径以下以analysis/signal-host/为根；地址均为Ghidra imageBase0x00100000。
+
+结论
+
+本轮审阅既有LOCAL_PHYSIOLOGY_AUDIT.txt、SIGNAL_HOST_ANALYSIS.txt和physiology/audit_inventory.json，发现一个真实未闭合类别：旧报告的五个quality名称停在静态表引用处。只为这个类别新增8个小函数的只读导出，已证明它们属于OpenSSL对象标识查找表，而非生理信号质量计算。连带同一表中的roleOccupant也可从“可能占床词”中明确排除。
+
+在既有候选集合中，未剩下一个能具体指认、具有传感波形输入而消费者尚未追到的滤波/统计/噪声质量/特征提取入口。这个结果不等于“整个stripped ELF没有HR/RR/睡眠算法”；它表示当前线索已经不足以指定下一条相关函数链。没有重复原来的82函数扫描，也没有向其他通用库无限扩展。
+
+一、本轮实际闭合的quality静态表 [Q1]
+
+旧证据physiology/seeds/string-xrefs.txt:88–105列出下列字串到数据记录的引用。原报告只能说“未连到传感器producer”；本轮补出实际消费者：
+  名称                         记录地址    NID   编码OID
+  qualityLabelledData          00593ba0    457   0.9.2342.19200300.100.4.22
+  dSAQuality                   00594190    495   0.9.2342.19200300.100.1.49
+  singleLevelQuality           005941b8    496   0.9.2342.19200300.100.1.50
+  subtreeMinimumQuality        005941e0    497   0.9.2342.19200300.100.1.51
+  subtreeMaximumQuality        00594208    498   0.9.2342.19200300.100.1.52
+  roleOccupant                 00597d40    877   2.5.4.33
+
+各记录40字节，布局为短名称指针、长名称指针、NID、OID长度、OID字节指针、flags；六项都满足address=0058f438+NID*40。不是根据英文词义猜测：ELF中的指针、数值索引、OID字节可直接互证。
+
+读取者：
+  0028e6e4：检查NID<0x4e0，返回表基址+NID*40；错误路径原文OBJ_nid2obj与../openssl-3.0.16/crypto/objects/obj_dat.c。
+  0028e830：同表取short name；原文OBJ_nid2sn、同一OpenSSL源路径。
+  0028e980：同表取long name；原文OBJ_nid2ln、同一OpenSSL源路径。
+  0028e3e0/0028e3b0：strcmp比较short/long name。
+  0028f144/0028f060：通过上述比较器搜索名称索引，返回相应NID。
+  0028eaf0：取对象NID或从对象数据索引查找；没有样本幅度、采样率、通道窗或生理输出字段。
+
+这组访问是名称↔对象编号/对象数据查找；不进行波形噪声打分、特征计算或人的occupancy判断。本轮至此停止，不继续枚举OpenSSL其他调用者。
+
+新证据：
+  physiology-remaining/quality-consumers/0028e6e4.c:20–32；0028e830.c:15–27；0028e980.c:15–27。
+  physiology-remaining/quality-consumers/0028e3e0.c:8；0028e3b0.c:8；0028f144.c:28–33；0028f060.c:29–34。
+  physiology-remaining/quality-records.json记录六个原始记录和OID字节。
+  physiology-remaining/extract_quality_records.py可复跑：只读固定SHA的ELF，校验六项名称、NID、40字节步长与共同基址，再解码OID。未加载目标程序。
+
+二、旧清单其余“看起来未闭合”的项目 [Q2–Q5]
+
+Q2. 00207cf0的间接跳转警告仍未消除，但它不构成一个已定位的生理候选。
+输入是Sensor对象和状态整数；函数记录stateChange、写状态字段、停计时器；0/1/2分支涉及disconnectSensor、重置串口、power cycle、reboot。未恢复的0x00207fd0位于“旧state=0、新state=2”的reboot分支，给虚方法的参数是固定全局命令对象PTR_DAT005dfe80，不是采样数组。现有调用者在refs中为00208180/002082a4/00208390。
+本轮不宣称已经恢复该虚方法全部实现，也不宣称其下游绝无任何计算；但没有证据把复位分支升格为多通道压电HR/RR入口，因此不为追算法而重新扩展这套设备状态机。
+证据：physiology/seeds/00207cf0.c:18–66、:73–149；同名.refs.txt。
+
+Q3. 001fd6d0的未知tail-call，在本次piezo调用上下文已由vtable限定。
+现有伪代码在方法地址!=001f02b0时才走未知虚调；已审caller的vtable0058eb48+0x10恰为001f02b0，走逐16-bit值编码分支。它是CBOR封装的多态扩展口，不是一个已发现却漏追的频谱/滤波器。其他未枚举调用者或运行期改表不能由此一概排除。
+证据：physiology/trace6/001fd6d0.c:15–38；同名.asm.txt:8–22、:38–42；physiology/selected-data-pointers.txt:1–3。
+
+Q4. 原002097a0分派缺口已解决，不能再作为“可能有算法藏在缺失分支”的同一待办。
+physiology/legacy-fixed/002097a0.c是有界39槽jumptable修复后的版本，旧trace2导出只覆盖前段，不能作为最终分析。已恢复的16-bit piezo、extADC、capSense/capSense2分支均有接收→缓冲→原始CBOR出口。这个覆盖只针对已恢复分支，未推论所有未识别入口。
+证据：LOCAL_PHYSIOLOGY_AUDIT.txt第二至四节；scripts/FixLegacySensorSwitch.java；physiology/legacy-fixed/function-index.txt。
+
+Q5. filter/min/avg/max等已有正向归属，不重开同一候选。
+BIO to Core filter已追到OpenSSL BIO method创建；cap_sense min/avg/max和sampling avg rates位于00282920的regex规则构建，002825b4把regex、时间间隔与日志回调登记，输入是文本规则，不是压电样本窗口。此处不能提供生理统计producer；也不把日志出现min/avg/max扩大成“所有MCU完全不做统计”。磁场阈值、TTC事件和校准状态的设备用途已在原报告与后续MCU报告分开说明，本轮没有重新扫其整条机械链。
+证据：physiology/seeds/002fe500.c、physiology/trace2/00298e60.c；physiology/seeds/00282920.c:156–173、:182–200、:244–260；physiology/trace3/002825b4.c:43–50、:92–116。
+
+三、剩余覆盖边界与真正阻塞
+
+1. 已有Stealth路线的输入是0x3c内ADC/IMU原始数值，消费者已追到单/双侧loader、CBOR编码和raw NATS发布；时间补点、sentinel、gain名义元数据和缺槽处理不是HR/RR/睡眠结果。ADC0..7在已审loader未输出也不等同没有采样或没有任何别的消费者。
+2. 当前没有来自Frank的可核对HR/RR/HRV/睡眠阶段结果schema、结果publisher或模型入口地址。缺失的是“可以从具体值/引用反向追到算法”的锚点，不能用重复搜索无意义filter/quality词弥补。
+3. 未穷尽全部12,869函数、所有间接调用/外部共享库、其他进程和运行时订阅者；静态xref不是完整动态调用图。已审原始数据路径不生产所问结果，不代表整个系统没有实现。
+4. MCU前端DSP、按键/旧tap计算与云端算法是不同样本/层级；本报告不拿它们填充Frank本地生理推理证据。也不从MT8365推断Pod代际或SKU。
+5. 后续若有同版本具体结果字段/订阅者、模型加载路径、尚未审计而确定消费波形的函数地址，可从该锚点继续；当前不需要请求账户、不主动扩大云API、不运行目标固件。此处是证据边界，不是工具失效或需要用户授予权限。
+
+本轮新增：8个唯一函数导出（均为quality表读取者）、六记录ELF静态提取脚本/结果、独立inventory。
+SignalHost以-noanalysis -readOnly运行且已关闭；没有修改项目、原主报告或manifest。未执行固件或实机测试。
+证据清单：physiology-remaining/inventory.json（输入报告与相关证据SHA256、行数、导出函数地址）。

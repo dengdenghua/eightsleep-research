@@ -1,0 +1,136 @@
+FUNCTION 0003122e BODY [[0003122e, 000312db]]
+
+void FUN_0003122e(short *param_1,int param_2)
+
+{
+  short sVar1;
+  code *pcVar2;
+  undefined1 local_28 [4];
+  short *local_24;
+  undefined4 local_20;
+  undefined1 local_1c;
+  int local_18;
+  
+  sVar1 = *param_1;
+  if (sVar1 == 0x10) {
+    FUN_000264be(local_28,0x14);
+    local_28[0] = 7;
+    local_24 = param_1 + 4;
+    local_20 = CONCAT22(local_20._2_2_,param_1[2]);
+    pcVar2 = *(code **)(param_2 + 0x48);
+    if (pcVar2 == (code *)0x0) {
+      return;
+    }
+  }
+  else {
+    if (sVar1 == 0x1b) {
+      FUN_000264be(local_28,0x14);
+      if ((char)param_1[4] != '\x01') {
+        return;
+      }
+      if (*(int *)(param_2 + 0x48) == 0) {
+        return;
+      }
+      local_28[0] = 4;
+      local_24 = (short *)CONCAT31(local_24._1_3_,(char)param_1[4]);
+    }
+    else {
+      if (sVar1 == 0x1d) {
+        FUN_000310e4(param_2,param_1 + 4);
+        return;
+      }
+      if (sVar1 != 0x20) {
+        return;
+      }
+      FUN_000264be(local_28,0x14);
+      if (*(int *)(param_2 + 0x48) == 0) {
+        return;
+      }
+      local_28[0] = 5;
+      local_24 = *(short **)(param_1 + 4);
+      local_20 = *(undefined4 *)(param_1 + 6);
+      local_1c = (undefined1)param_1[8];
+    }
+    pcVar2 = *(code **)(param_2 + 0x48);
+  }
+  local_18 = param_2 + 0x3a;
+  (*pcVar2)(local_28);
+  return;
+}
+
+
+INSN 0003122e 70b5 push {r4,r5,r6,lr}
+INSN 00031230 0d46 mov r5,r1
+INSN 00031232 0146 mov r1,r0
+INSN 00031234 01f10802 add.w r2,r1,#0x8
+INSN 00031238 0c1d adds r4,r1,#0x4
+INSN 0003123a 2846 mov r0,r5
+INSN 0003123c 0988 ldrh r1,[r1,#0x0]
+INSN 0003123e 3a35 adds r5,#0x3a
+INSN 00031240 86b0 sub sp,#0x18
+INSN 00031242 1029 cmp r1,#0x10
+INSN 00031244 35d0 beq 0x000312b2 REF[CONDITIONAL_JUMP:000312b2]
+INSN 00031246 1b29 cmp r1,#0x1b
+INSN 00031248 1fd0 beq 0x0003128a REF[CONDITIONAL_JUMP:0003128a]
+INSN 0003124a 1d29 cmp r1,#0x1d
+INSN 0003124c 17d0 beq 0x0003127e REF[CONDITIONAL_JUMP:0003127e]
+INSN 0003124e 2029 cmp r1,#0x20
+INSN 00031250 42d1 bne 0x000312d8 REF[CONDITIONAL_JUMP:000312d8]
+INSN 00031252 0646 mov r6,r0
+INSN 00031254 1421 movs r1,#0x14
+INSN 00031256 6846 mov r0,sp
+INSN 00031258 241d adds r4,r4,#0x4
+INSN 0003125a f5f730f9 bl 0x000264be REF[UNCONDITIONAL_CALL:000264be]
+INSN 0003125e b06c ldr r0,[r6,#0x48]
+INSN 00031260 0028 cmp r0,#0x0
+INSN 00031262 39d0 beq 0x000312d8 REF[CONDITIONAL_JUMP:000312d8]
+INSN 00031264 0520 movs r0,#0x5
+INSN 00031266 8df80000 strb.w r0,[sp,#0x0] REF[WRITE:Stack[-0x28]]
+INSN 0003126a 0495 str r5,[sp,#0x10] REF[WRITE:Stack[-0x18]]
+INSN 0003126c 2068 ldr r0,[r4,#0x0]
+INSN 0003126e 0190 str r0,[sp,#0x4] REF[WRITE:Stack[-0x24]]
+INSN 00031270 6068 ldr r0,[r4,#0x4]
+INSN 00031272 0290 str r0,[sp,#0x8] REF[WRITE:Stack[-0x20]]
+INSN 00031274 207a ldrb r0,[r4,#0x8]
+INSN 00031276 8df80c00 strb.w r0,[sp,#0xc] REF[WRITE:Stack[-0x1c]]
+INSN 0003127a b16c ldr r1,[r6,#0x48]
+INSN 0003127c 2ae0 b 0x000312d4 REF[UNCONDITIONAL_JUMP:000312d4]
+INSN 0003127e 06b0 add sp,#0x18
+INSN 00031280 1146 mov r1,r2
+INSN 00031282 bde87040 pop.w {r4,r5,r6,lr}
+INSN 00031286 fff72dbf b.w 0x000310e4 REF[UNCONDITIONAL_CALL:000310e4]
+INSN 0003128a 0646 mov r6,r0
+INSN 0003128c 1421 movs r1,#0x14
+INSN 0003128e 6846 mov r0,sp
+INSN 00031290 241d adds r4,r4,#0x4
+INSN 00031292 f5f714f9 bl 0x000264be REF[UNCONDITIONAL_CALL:000264be]
+INSN 00031296 2078 ldrb r0,[r4,#0x0]
+INSN 00031298 0128 cmp r0,#0x1
+INSN 0003129a 1dd1 bne 0x000312d8 REF[CONDITIONAL_JUMP:000312d8]
+INSN 0003129c b06c ldr r0,[r6,#0x48]
+INSN 0003129e 0028 cmp r0,#0x0
+INSN 000312a0 1ad0 beq 0x000312d8 REF[CONDITIONAL_JUMP:000312d8]
+INSN 000312a2 0420 movs r0,#0x4
+INSN 000312a4 8df80000 strb.w r0,[sp,#0x0] REF[WRITE:Stack[-0x28]]
+INSN 000312a8 0495 str r5,[sp,#0x10] REF[WRITE:Stack[-0x18]]
+INSN 000312aa 2078 ldrb r0,[r4,#0x0]
+INSN 000312ac 8df80400 strb.w r0,[sp,#0x4] REF[WRITE:Stack[-0x24]]
+INSN 000312b0 e3e7 b 0x0003127a REF[UNCONDITIONAL_JUMP:0003127a]
+INSN 000312b2 0646 mov r6,r0
+INSN 000312b4 1421 movs r1,#0x14
+INSN 000312b6 6846 mov r0,sp
+INSN 000312b8 f5f701f9 bl 0x000264be REF[UNCONDITIONAL_CALL:000264be]
+INSN 000312bc 0720 movs r0,#0x7
+INSN 000312be 8df80000 strb.w r0,[sp,#0x0] REF[WRITE:Stack[-0x28]]
+INSN 000312c2 201d adds r0,r4,#0x4
+INSN 000312c4 0190 str r0,[sp,#0x4] REF[WRITE:Stack[-0x24]]
+INSN 000312c6 2088 ldrh r0,[r4,#0x0]
+INSN 000312c8 adf80800 strh.w r0,[sp,#0x8] REF[WRITE:Stack[-0x20]]
+INSN 000312cc 0495 str r5,[sp,#0x10] REF[WRITE:Stack[-0x18]]
+INSN 000312ce b16c ldr r1,[r6,#0x48]
+INSN 000312d0 0029 cmp r1,#0x0
+INSN 000312d2 01d0 beq 0x000312d8 REF[CONDITIONAL_JUMP:000312d8]
+INSN 000312d4 6846 mov r0,sp
+INSN 000312d6 8847 blx r1
+INSN 000312d8 06b0 add sp,#0x18
+INSN 000312da 70bd pop {r4,r5,r6,pc}

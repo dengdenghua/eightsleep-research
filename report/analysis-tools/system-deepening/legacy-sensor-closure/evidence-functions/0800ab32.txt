@@ -1,0 +1,70 @@
+FUNCTION 0800ab32 FUN_0800ab32 BODY [[0800ab32, 0800ab79]]
+INCOMING 0800cdb0 UNCONDITIONAL_CALL
+INCOMING 0800cdbc UNCONDITIONAL_CALL
+INCOMING 0800cdc8 UNCONDITIONAL_CALL
+INCOMING 0800cdec UNCONDITIONAL_CALL
+
+undefined8 __stdcall_softfp FUN_0800ab32(int *param_1,undefined4 param_2,int *param_3)
+
+{
+  int iVar1;
+  uint uVar2;
+  int *local_18;
+  undefined4 local_14;
+  
+  local_18 = param_1;
+  local_14 = param_2;
+  iVar1 = FUN_08005158(param_2);
+  local_18 = (int *)(iVar1 + 1);
+  local_14 = param_2;
+  uVar2 = FUN_0800aa7e(param_1,&local_18);
+  iVar1 = 0;
+  if (uVar2 != 0) {
+    if ((uVar2 < (uint)param_1[1]) && ((*(byte *)(*param_1 + uVar2) & 0xe0) == 0)) {
+      iVar1 = FUN_0800a840(param_1,uVar2,&local_18);
+      if (iVar1 != 0) {
+        *param_3 = (int)local_18;
+      }
+    }
+    else {
+      iVar1 = 0;
+    }
+  }
+  return CONCAT44(local_18,iVar1);
+}
+
+
+ASSEMBLY
+0800ab32 push {r0,r1,r4,r5,r6,lr} BYTES 73b5
+0800ab34 movs r4,r0 BYTES 0400
+0800ab36 movs r0,r1 BYTES 0800
+0800ab38 movs r6,r1 BYTES 0e00
+0800ab3a movs r5,r2 BYTES 1500
+0800ab3c bl 0x08005158 BYTES faf70cfb REF UNCONDITIONAL_CALL=08005158
+0800ab40 adds r0,#0x1 BYTES 0130
+0800ab42 str r0,[sp,#0x0] BYTES 0090 REF WRITE=Stack[-0x18]
+0800ab44 mov r1,sp BYTES 6946
+0800ab46 movs r0,r4 BYTES 2000
+0800ab48 str r6,[sp,#0x4] BYTES 0196 REF WRITE=Stack[-0x14]
+0800ab4a bl 0x0800aa7e BYTES fff798ff REF UNCONDITIONAL_CALL=0800aa7e
+0800ab4e cmp r0,#0x0 BYTES 0028
+0800ab50 beq 0x0800ab74 BYTES 10d0 REF CONDITIONAL_JUMP=0800ab74
+0800ab52 ldr r3,[r4,#0x4] BYTES 6368
+0800ab54 cmp r0,r3 BYTES 9842
+0800ab56 bcs 0x0800ab76 BYTES 0ed2 REF CONDITIONAL_JUMP=0800ab76
+0800ab58 movs r2,#0x1f BYTES 1f22
+0800ab5a ldr r3,[r4,#0x0] BYTES 2368
+0800ab5c ldrb r3,[r3,r0] BYTES 1b5c
+0800ab5e bics r3,r2 BYTES 9343
+0800ab60 bne 0x0800ab76 BYTES 09d1 REF CONDITIONAL_JUMP=0800ab76
+0800ab62 movs r1,r0 BYTES 0100
+0800ab64 mov r2,sp BYTES 6a46
+0800ab66 movs r0,r4 BYTES 2000
+0800ab68 bl 0x0800a840 BYTES fff76afe REF UNCONDITIONAL_CALL=0800a840
+0800ab6c cmp r0,#0x0 BYTES 0028
+0800ab6e beq 0x0800ab74 BYTES 01d0 REF CONDITIONAL_JUMP=0800ab74
+0800ab70 ldr r3,[sp,#0x0] BYTES 009b REF READ=Stack[-0x18]
+0800ab72 str r3,[r5,#0x0] BYTES 2b60
+0800ab74 pop {r1,r2,r4,r5,r6,pc} BYTES 76bd
+0800ab76 movs r0,#0x0 BYTES 0020
+0800ab78 b 0x0800ab74 BYTES fce7 REF UNCONDITIONAL_JUMP=0800ab74

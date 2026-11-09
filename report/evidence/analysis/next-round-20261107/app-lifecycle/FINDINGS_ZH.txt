@@ -1,0 +1,72 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+C04：App 离线资料在启动、退出和认证失败时的生命周期
+2026-11-07；官方国行 7.63.5-cn-tencent APK 静态分析。
+APK SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+复用四 DEX 完整 Smali 工作区及 index 462a22f663ae482ea93bab3130b96eaf；JADX 仍为 partial，不能把其重复/不可达伪代码当实际控制流。本轮关键顺序以 Smali 确认。没有运行 App、连接账号、读取缓存/密钥或调用设备。
+
+结论
+本轮闭合了“退出账号后为什么不能依赖原离线缓存”的实际清理链：用户退出先清认证 token，主界面的 token 观察链在 InvalidAuthTokenCacheException 分支启动数据清理；清理先删除包括 offline_mode_data 在内的 Room 表，再断开缓存中的 BLE peripheral、取消其 scope、清内存表，随后主界面返回 LandingPage。
+这与单纯断网不同。普通网络异常不是该删除分支的判据，且 token 时间到期本身也不是本轮已证的直接清库条件。另一方面，认证器重试/刷新失败存在主动 logout 路径，不能把“旧 BLE 密钥可以继续用”理解为 App 永久离线。
+C04 状态：部分闭合，不标整体完成。清理链与认证失败分支已恢复；整个冷启动到温控 UI 的全部依赖、系统清缓存/清数据的运行效果与协程异常竞态仍未穷尽。
+
+1. 用户退出 → token 清理 [L01–L05,L29]
+SettingsProfileViewModel$onUiAction$5.invokeSuspend 设置 LOGOUT loading，取 D9.k，实际 cast 到 D9.l 后调用 AuthRepository.logout。
+AuthRepository.logout 取消已存在的 token refresh job，再调用 H9.f.g(null)。它本身没有直接调用 Room 或 Keystore 清理。
+H9.f.h 的 null 分支经 DataStore updateData/H9.d，构造空的 AuthTokenProto；缓存读取层把空 accessToken 映射成 null。A9.j 收到 null 后输出 Error(InvalidAuthTokenCacheException)；非 null 分支则安排刷新并输出 Success。
+因此不能把 AuthRepository.logout 单个返回值当作全部 BLE 状态已经清除的证明；完整清理由活跃观察链后续执行。
+补充锚点：A9/d.java:730–756、A9/d.smali:785–880 的 AuthTokenProto.getAccessToken/空串比较；该大合并类的核心 token 分支已与 Smali核对，未导出个人 token。
+
+2. token 观察 → MainViewModel 清理 [L06–L10,L20,L21,L26,L27]
+MainViewModel.startNormalStartup 在 normalStartupStarted 为 false 时设标记，随后启动 le.O。该协程从 D9.s 所持 AuthRepository.getToken 取流，经 P2.q.u/Hb.h 处理；Hb.h 对 Error 保留同一 Throwable，不把 token 错误变成普通成功。
+le.O 实际 collect 到 le.N；le.N 先处理 Success，再经 ya.j.c 把 Error 送 le.M。
+le.M 仅对 InvalidAuthTokenCacheException 调 MainViewModel.logout；其他错误分支设置 getHomeRoute(null)。后一分支不等于所有冷启动都必然进入可操作温控 UI，但明确没有在该分支调用 logout。
+MainViewModel.logout 正常执行顺序：
+  appUser = null
+  cancel(finishRegistrationJob)
+  cancel(offlineDataJob)
+  withContext(DataCleanupUseCase dispatcher, fe.c)
+  更新 widget
+  更新视图状态、登出数据平台用户、setInitialRoute(LandingPage)
+依赖注入证据：ce.Z0.e 从 ce.l.q 获取 AppDatabase，组装 fe.d；ce.Y0 对应 MainViewModel provider 将该 fe.d 作为 dataCleanupUseCase 传入创建链。不是仅看到一个未被使用的清理函数。
+
+3. 清理程序实际删除了什么 [L10–L13]
+fe.c.invokeSuspend 的初始分支先调用数据库 d()；AppDatabase_Impl.d 在事务中依次 DELETE 全部相关表，其中包含 offline_mode_data（Smali:1853）、device、sensor_info、device_peripheral 等。正常提交后进行 WAL checkpoint / 条件 VACUUM。
+接着 fe.c 调 hb.b.a → OfflineRepository.cleanup：
+  清理其共享请求管理器 Ya.B
+  读取 hubPeripheralMemCache 当前成功值中的 Map
+  对每个 EightPeripheral 调 peripheral.disconnect
+  随后取消该 peripheral 的 scope
+  全部遍历正常结束后，将 Map 改为空 Success
+这条顺序已用 Smali 修正 Java 反编译中错误的 if/循环结构。删除数据库先于 BLE cleanup；它们不是跨数据库与蓝牙连接的一笔原子事务。
+若数据库清理抛异常、协程取消，或某个 disconnect 失败，不能保证后续断开、清内存、更新界面全部完成。反过来，即便后续步骤中断，已经提交的表删除也不因该后续错误自动恢复。本轮没有模拟实际设备或 Android 生命周期竞态。
+
+4. Room 缓存与 AndroidKeyStore 不是同一份状态 [L14,L23,L28]
+offline_mode_data 被清空后，旧 securityKey 记录不再能从这张表按 deviceId 读取，即便 AndroidKeyStore 的包装密钥还在，也不能据此恢复已删除的 BLE 凭据。
+已识别的 room_encryption_key 静态初始化只做 containsAlias、缺失时生成、getKey；全四 DEX Smali 对 room_encryption_key 和 KeyStore.deleteEntry 的精确文本搜索，仅找到此 alias 初始化及 Iterable SDK 的另一个删除入口。后者删除 iterable_encryption_key，与本链不同。
+这是有界静态结论：已追 logout/cleanup 链未见删除 room_encryption_key，不能扩大成系统卸载、清除应用数据或所有反射路径绝不会删除它。
+kb.e.i(null,deviceId) 支持单设备记录删除，但当前直接调用点审计中主要是保存新 OfflineModeData 的路径；主退出清理通过全表 DELETE 完成，不能因为没见直接调用单条删除就说退出保留缓存。
+
+5. 登录过期、认证失败与断网的区别 [L15–L19]
+A9.i 的正常刷新调度：若 expiresAtMs 在未来，delay(remaining - remaining/10)，然后请求新 token；已到期则不等待。约剩余时间 90% 的延时不是 BLE 缓存有效期。
+这条定时任务收集者 A9.h.emit 本身不执行 logout，因此不能说“到期时钟一到就删离线表”。刷新成功另经 A9.g 保存新 token。
+OkHttp EightAuthenticator（f5.s.authenticate）是另一条路径：当 priorResponse 的 priorResponse 已存在时，停止继续重试并 launch C9.b → AuthRepository.logout。尚可重试时经 C9.f 获取新 token，C9.e 把错误交给 C9.d；后者在错误不是 InvalidCacheException 时记录刷新失败并 logout。所处调用情境是认证器重试/刷新，不是“任意无网络”回调。
+这些 logout 成功清空 token 后，若 MainViewModel 的观察链仍活跃且正常执行，就可触发上面的数据库与 BLE 清理。定时刷新失败、主流程的普通网络错误、认证器失败不能混为同一个分支。
+
+6. BLE 功能门控仍独立存在 [L22,L25，既有 offline-boundary 报告]
+OfflineRepository 构造只初始化依赖和空 peripheral 内存缓存，没有在构造函数中删除 Room 数据。持久缓存能在后续 hydrate 按设备读取，但不证明冷启动全部 UI/设备状态都可用。
+cb.g0 先核对既有功能开关组合，然后调用 canRunOfflineCommandFlow；缓存/密钥、蓝牙权限、设备选择和实际可达性仍各有条件。本轮未完整复原该 flow 下游全部设备能力/界面门控，仍由 C04 后续任务承担，不能据缓存未删保证“断网重开一定能调温”。
+系统设置里的“清缓存”与“清除应用数据”不是同一操作；本轮没有执行任何一种，也不把 App 内全表清理的结果套给 Android 系统行为。
+
+剩余任务及停止条件
+- 补齐 normalStartup 前的中国版 consent/启动分支及 ensureAppUser、household/device 路由到温控可操作状态的全部条件。
+- 从 canRunOfflineCommandFlow 的状态生产者追权限、型号、选中设备及错误回退；实际远程 flag 值仍需设备。
+- 将认证器 logout 与 Main observer 并发/生命周期条件单列；没有实机测试不能给退出耗时、清理一定完成或固定离线天数。
+- 系统清缓存/清数据、数据库损坏和 Keystore 失效的实际恢复结果待运行验证。已确认退出删除路径不需要再次重复关键词搜索。
+
+证据交付
+SOURCE_EXCERPTS.json：29 个方法/区间，含原始 Smali、精确行号与 SHA256。
+REA_EVIDENCE_INDEX.json：6 个真实 rea-deep 不可变查询/读取记录及 evidence_id。
+KEYSTORE_SEARCH.txt：四 DEX 已解码文件中 alias 与 deleteEntry 的有界匹配。
+VALIDATION.json / build_evidence.py：方法唯一性、删除/断开顺序和关键指令断言；不是实机测试。

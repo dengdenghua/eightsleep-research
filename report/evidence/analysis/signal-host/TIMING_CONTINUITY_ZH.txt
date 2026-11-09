@@ -1,0 +1,157 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+MTK 主机：时间映射、双侧归并与缺样连续性
+2026-11-07；静态分析，未执行固件或使用真实采样。
+
+对象：mediatek/rootfs-selected/opt/eight/bin/frankenfirmware
+SHA256 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+本文件路径相对于 analysis/signal-host。Ghidra .c 为伪代码，关键算式另以 .asm.txt 核对。
+本报告补充 SIGNAL_HOST_ANALYSIS.txt 第5节；不把数据归并等同于生理分类或云端去伪影。
+
+1. MCU tick 到主机时间：整秒锚点，固定斜率
+
+SensorTiming 状态中 +0x20 为前一个 MCU tick，+0x24 为初始化标志，
++0x28 为检查计数，+0x2c 为 anchor_epoch_seconds，+0x30 为 anchor_tick_ms，
++0x38 为频率，+0x3c 为 expected_step_ms，+0x40 为检查计数阈值。
+0021a6d0 设置 step=floor(1000/frequency)、检查阈值=2*frequency；
+USB 多通道启动路径 0027a980 使用 frequency=500，所以分别为2ms和1000次调用。
+证据：pass10/0021a6d0.c；pass9/0027a980.c:38。
+
+首次 updateRefMarker 取 system_clock::now()/1e9 的整数秒，并同时保存当前 MCU tick。
+后续 sample 的基本映射为：
+  relative_ms = uint32(tick - anchor_tick)
+  epoch_seconds = anchor_epoch_seconds + floor(relative_ms/1000)
+  秒内位置 = relative_ms % 1000
+其中整秒加法由 USB caller 完成。不是把 MCU uptime 直接当 Unix 时间。
+证据：pass5/00252b10.c；timing/0021a370.asm.txt 0021A394..0021A3B4；
+timing/0021a5c0.asm.txt 0021A630..0021A648；
+timing/caller/0027e7b0.asm.txt 0027F1B8..0027F1F4。
+
+这里没有恢复到通过估计 ppm 改变采样斜率或重采样波形的算法：审阅 mapper 使用
+整数除法和重新设置锚点。锚点本身只有秒分辨率，另有传输/排队延迟；因此这条链
+不能证明双侧 ADC 具有毫秒级绝对 UTC 同步，更不能推出物理 ADC 相位相同。
+这不是对实际同步误差作数值测量。
+
+2. 漂移检查与重建，日志中的 ms 不应照抄
+
+已初始化且 MCU tick 未回退时，每1000次映射才再次检查参考时间，名义500Hz下
+约2秒；这是调用次数条件，不是独立高精度定时器。tick 回退会提前进入检查。
+预测时间 = anchor_epoch + uint32(tick-anchor_tick)/1000。
+与当前 system_clock 整数秒之差的绝对值 >2 时重建 anchor。
+日志字符串虽为 drift ...ms，这个比较实际使用秒：阈值是超过2个整数秒，不是2ms。
+另有共享同步位触发的重建，参数为空时不执行这条路径。计数/日志门控的5/14
+阈值与最终 >2 的重建条件是不同判断。
+证据：timing/0021a5c0.asm.txt 0021A5FC..0021A62C、0021A6A0..0021A6B0；
+timing/0021a370.asm.txt 0021A414..0021A470、0021A4B4..0021A4FC、0021A50C..0021A55C。
+
+tick 回绕的日志并不意味着每次回绕都会重建：差值使用 uint32 减法，重建仍受
+上述偏差/同步条件控制。未对实机 NTP 调时、重启、长期运行进行测量。
+
+3. 仅一个缺失位置时复制当前值；没有恢复该缺失样本
+
+0021a5c0 比较 uint32(current_tick-last_tick) 和 expected_step。
+只有差值恰为2*step且上次tick非零时返回补点标志；正常一步或其他间隙不补。
+USB caller 明确传 w4=1 启用该检查（0027F170），实际 call 在0027F1B8。
+超过一步且不等于两步时记录计数；不会按 gap 长度线性插值或生成一串估计值。
+证据：timing/0021a5c0.asm.txt 0021A5E8..0021A5FC、0021A660..0021A698。
+
+补点内容是当前完整 sample，包括同一 ADC 数值和附带 IMU block，先以
+relative_ms-step 入队，再恢复 relative_ms 入队当前点。它是复制，不是对前后
+样本取平均，也不能视为原始采集值。CBOR 中没有恢复到独立的逐点“复制补点”标记。
+证据：timing/caller/0027e7b0.asm.txt 0027F1FC..0027F230及state14恢复路径；
+pass3/001e20d0.c、pass4/001e6aa0.c仅转交sample指针，未重新计算时间。
+
+4. 新发现：跨秒补点没有同步回退 epoch 字段
+
+汇编确认 caller 先将 floor(relative_ms/1000) 加到 sample.epoch，
+随后在补点支路只减 sample.relative_ms；没有同时更改 epoch：
+  0027F1E4 add w4,w4,w1
+  0027F1F4 str w4,[x19,#0x278]    // sample epoch
+  0027F20C sub w6,w6,w7
+  0027F210 str w6,[x21,#4]        // sample relative_ms
+  0027F220 bl 001E20D0
+001fdec0 又直接以 sample.epoch 作秒桶键，以(relative_ms%1000)/2作500Hz槽号，
+没有在这一层归一化“秒字段”和“相对毫秒字段”的不一致。
+证据：timing/001fdec0.asm.txt 001FDF98..001FE048。
+
+有界算例：anchor_epoch=E、anchor_tick=10000，前样本tick=10996，
+当前tick=11000，step=2，且没有在此时重建anchor。缺失位置应为(E,998ms)。
+代码先得到当前点(E+1,relative=1000)，复制时仅改relative=998，因而送入
+秒桶(E+1,slot499)，而不是(E,slot499)。当前真点随后放入(E+1,slot0)。
+这个入队结果以通过容量/已消费水位门控为前提；门控丢弃的输入不会写槽。
+非跨秒的缺口则没有这一秒键差异。
+
+这是由已恢复指令支持的静态边界问题，不是设备上已复现的故障或发生率估计。
+后续真正属于(E+1,998ms)的数据可能覆盖错放副本；最终输出还取决于到达/flush
+时机。不能由这个算例断言每晚必有一秒错位、整个波形移位或睡眠分期准确率下降。
+它指出的是补点分支在特定边界没有把缺失点写到预期秒桶。
+
+5. 左右归并用秒桶和样本槽，不按波形相关性配准
+
+每侧维护以epoch秒为键的有序容器，每桶500个124-byte内部sample。
+该桶尚未消费且通过入队门控时，同侧同秒同槽再次到来直接覆盖124 bytes，未见平均或多值保留。
+索引为 floor((relative_ms%1000)/2)；奇数毫秒也落入相邻的同一2ms槽。
+证据：timing/001fdec0.asm.txt 001FDFCC..001FE048；pass5/001fdec0.c。
+
+调用者001ea774的flush条件按“已有秒桶数量”：
+  单侧启用：该侧已有至少3桶；
+  双侧启用：两侧均已有至少3桶，或任一侧达到10桶。
+tryEnqueue在要新建桶且已有10桶时返回false，caller可flush后重试。
+3/10是桶数，不是保证等待3/10秒的定时器；缺秒/乱序会改变覆盖时间。
+证据：pass5/001ea774.c:34-64、98-108；timing/001fdec0.asm.txt 001FE0C0..001FE0D0。
+
+双侧loader从桶较多侧选取最早秒键（桶数相等选side index0），查另一侧是否有相同秒键；存在则配对，
+否则回退单侧loader，缺侧用sentinel。没有在这些loader中按BCG峰、互相关、
+心跳相位或人体位置估计双侧偏移。它保证的是已赋时间标签下的归并格式。
+证据：timing/001ffa70.c起始选树/查键和末尾fallback；timing/001fee40.c。
+
+6. 迟到数据与大幅时间回退
+
+loader消费过秒桶后，epoch<=已消费秒桶最大秒键（水位）的样本直接跳过；函数返回true，不让caller
+将这类旧样本当成“buffer已满”重试。该返回值不能泛化为“样本已写入”。
+同侧早于当前最早待处理桶的输入也直接跳过。
+当落后该水位超过30秒时，累计这类入队尝试；计数超过499即清空两侧容器、
+重置水位，并记住当前秒，继续跳过该秒直到不同秒到来。正常新时间输入清计数。
+500是调用数，不一定是500个不同采样点，也不能无条件换算成恰好1秒。
+水位由loader在erase桶后取max更新，不是云端上传成功或ACK水位，也不一定等于
+最后一次处理的桶键。证据另见001ffa70.c:613-617、001fee40.c:469-478。
+证据：timing/001fdec0.asm.txt 001FDEF0..001FDF78、001FE090..001FE0A0、
+001FE1A0之后重置分支；pass5/001fdec0.c:25-90。
+
+7. 新发现：单侧loader在中间缺槽处可能提前结束，随后删除整桶
+
+原ELF的0046BE48与00472F20两处默认124-byte sample已直接读取确认：
+epoch=0、relative_ms=0，16路ADC为0x7fffffff，24个IMU值为0x7fff，freq=500、flags=1。
+001fdec0用此记录初始化500槽；001fdcc0仅复制4-byte桶键+500×124-byte记录，
+没有将桶键填入每条默认sample的epoch。只有实际入队的槽被覆盖。
+证据：timing/default-samples.json、extract_default_samples.py（校验原ELF哈希并按PT_LOAD映射）；
+timing/001fdec0.asm.txt 001FE10C..001FE18C；timing/bucket/001fdcc0.asm.txt 001FDD04..001FDD10。
+
+单侧loader若已经处理有效sample E!=0，使buzzer目标buffer.epoch=E，再遇到未填的
+默认槽(epoch=0)，会进入epoch不同的early-break分支；此前没有跳过sentinel或修正
+该槽时间。某些分支先尝试处理当前槽的IMU/兼容通道，但最终不继续遍历该秒桶后续槽，
+随后删除整桶并更新已消费水位。
+证据：timing/001fee40.asm.txt 001FEFF8..001FEFFC、001FF078..001FF088、
+001FF69C及001FF640/001FF850至001FF658；对应.c:319-345、465-478。
+
+因此，若桶中slot0为有效E，slot1未填，而后续slot3等已有有效数据，单侧loader
+可因slot1的默认epoch0提前结束，后面的有效记录随桶删除而未进入该轮buzzer输出。
+这比“缺失位置保留sentinel，其余位置全部保留”的概括更严格，需修正早期摘要。
+适用前提是这条单侧loader路径与上述buffer状态：前导缺槽且目标epoch仍为0不一定
+触发此分支；末尾缺槽没有额外的后续有效记录损失。未据此断言双侧loader行为相同，
+也没有测得实机触发概率、云端补偿或对睡眠结果的影响。
+
+8. IMU 100Hz与ADC 500Hz标签的关系
+
+MCU callback每次快照一条ADC内部记录，每第五次再将48-byte IMU cache入独立队列。
+wire包携带五个ADC frame和一个IMU block，host先把该IMU block复制进五个内部sample；
+loader随后每五个500Hz槽取一次，填100Hz输出槽。不能称为500Hz独立IMU测量，也没有
+在该loader中做五点平均。缓存采集时刻、寄存器DRDY和物理轴延迟不是这个包头能够回答的。
+证据：../sensor-mcu/frontend/080233f4.txt 08023456..08023494；
+pass1/0027e7b0.c:383-418；timing/001fee40.c:215起、timing/001ffa70.c相应IMU分支。
+
+剩余边界
+未测量ADC/IMU真实时钟、USB延迟、双侧物理相位、NTP跳变、运行中的丢样率；
+未恢复云端如何重新对齐、屏蔽复制点/缺样或选择空间通道；本报告不能代替分期模型。
+跨秒算例尚未用真实数据或原固件执行复现。独立反汇编复核确认了关键加/减/入队顺序。

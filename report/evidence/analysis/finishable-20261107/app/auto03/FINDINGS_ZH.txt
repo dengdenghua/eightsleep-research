@@ -1,0 +1,51 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+AUTO-03 — 推荐温度的间接消费者、首页 CTA 与 blanket 链
+2026-11-07；仅官方国行 APK 7.63.5-cn-tencent 静态分析；不连接账号、不运行 App、不向设备/云端发命令。
+
+结论
+本轮把此前未闭合的三个具体消费者追到实际动作：blanket 建议页会在用户接受后写温度；POD_6_FINALIZE 完成流程在严格门控下会自动采用首夜推荐，并同步已有 bedtime schedules；首页 FirstNight 卡片里的点击只是进入对应编辑页面。三条链不能合并成“所有展示的推荐都会自动下发”。这都是 App 对已获得推荐值的选择、格式转换及调度，未找到在这些消费者内重新计算云端推荐值的模型/优化器。
+状态：本轮列出的 blanket、ChapterList、FirstNight 首页 CTA 静态验收已完成。AUTO-03 不代表服务器温控生产算法已恢复；服务端数值生成、运行时 flags/当前设备命中条件仍需新证据。
+
+证据约定
+A01–A49 为本目录自定义审阅标签，不是 REA evidence_id。SOURCE_LEDGER.tsv 为每项源文件、SHA256、准确 Smali 行号；SOURCE_EXCERPTS.json 保存逐字片段。REA_BLANKET_SELECTION.json 是实际 rea-deep 输出，含真实 evidence_id/evidence_file、APK hash/index hash。
+APK SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+沿用 analysis/android-findings/APP_TEMPERATURE_SUGGESTIONS_ZH.txt 中已核对的 level-suggestions、TapBanner、Pillow 和旧 onboarding 链，本轮没有用重复阴性检索冒充新进展。
+
+1. blanket：API → 选择一组结果 → 展示 → 接受写入
+1.1 TemperatureRecommendationsRepository.getTemperatureRecommendation(userId, hasBlanket) 调用 sd.E0 → ud.h.n：GET v1/users/{USER_ID}/recommendations/blanket。hasBlanket 没有出现在此请求参数中，而是传给后续 sd.F0 作本地响应选择。[A01–A04]
+1.2 TemperatureRecommendationsResponse.toDomain 只取 insights 第一条；Im.r.b1 明确为列表非空 get(0)、空列表返回 null。第一条不存在或 recommendations=null，整个结果就是 null；不会继续搜索第二条有效 insight。[A05,A06]
+1.3 current 始终取 recommendations.current；hasBlanket=true 取 addBlanket，false 取 removeBlanket；这两个名字表示服务器给出的两套推荐，并非本地在 current 上自行加减固定温度。[A05]
+1.4 Fd.X/W 取得选中用户及显示设置后调用仓库；Fd.V 仅将 current/recommended 分别通过温度显示转换 .g(displaySettings)，输出 Cd.b。[A07–A09]
+1.5 ViewModel 的 hasBlanket 来自 household.selectedDeviceSet.h()。h() 检查任一设备满足 v0.F；这个检测实际依赖 primary sensor/传感器版本字段 n>=5、非 PILLOW 类型及 blanket 状态字段，不是根据用户文案猜测。v0.F 的第一条分支还允许设备 a() 为真且 primary sensor 版本>=5直接通过。这里记录完整字节码条件，不把版本字段擅自命名为 Pod 代数。[A10–A12]
+1.6 结果 null 会设置“No temperature recommendation available”错误；不是以初始 UI 的 0 当作有效推荐。非空才将 current/recommended 转为三阶段 C8.H，并按 hasBlanket 选择 subtitle。[A13,A14,A49]
+1.7 Ae.S 点击回调将 Di.f.d（recommendedTemperatures）装入 Ci.n；ViewModel onUiAction(Ci.n) 调用 applyChanges。Ci.o/Ci.p 只返回上一页。[A46,A15]
+1.8 applyChanges 把 C8.H.a/c/b 分别写入 Ga.n 的 bedtime/night/dawn，构建 jd.B(smart=Ga.n, source="blanket")，交给 SetTemperatureSettingsUseCase。默认掩码 0xe 将 BLEcommand/userId/deviceType 均设为 null；H0.d 再经 Ja.S.O 解析当前选择上下文。不能把这次调用描述为显式固定 POD，也不能据此认定离线 BLE 温控必定可用——此处并没有提供 TemperatureBleCommand。[A16–A18]
+
+2. ChapterList：真正的首夜自动采用路径
+2.1 完成章节后 nextChapter=null 才进入最终链；appliesFirstNight 同时要求 currentChapterName="POD_6_FINALIZE"、非 speedrun、存在 onboarding state、type 属于 FULL/SOLO_COVER_PAIR、Lc.c.a()=true。Lc.c.a() 的具体判定是 lastOnboardTimestamp/testDriveCompletedTimestamp/pod5TestDriveCompletedTimestamp 三项均为空。[A19,A22,A23]
+2.2 顺序是 markOrdersSetUp → markTestDriveComplete → refreshHouseholdAndGoHome(appliesFirstNight)。这不是打开首页就无条件应用首夜推荐。[A19–A21]
+2.3 refreshHouseholdAndGoHome 先刷新 household 再 focusCurrentDeviceSet；仅 appliesFirstNight=true 且成功获得 focusedHousehold 时，执行最多10000ms的 applyFirstNightTemperatures。传入 focusedHousehold.h 对应用户；并非遍历家庭里每个人。超时记录日志，随后仍导航 HomeGraph。没有 device set 则日志说明跳过。[A24,A25]
+2.4 applyFirstNightTemperatures 观察 UserDaysSleptRepository 对应计数，经 Fd.E0 转为 count<1。只在非 Loading 的结果值严格等于 Boolean.TRUE 时继续；错误/null同样会跳过，日志统一为 member has slept，不能将这条日志反推用户一定睡过。[A26–A30]
+2.5 以 forceRefresh=true 获取 level suggestions；通过 cj.l0.E 选择第一条 FirstNight 且 pod!=null 的温度，若没有则回退首条旧 Cohort。没有推荐即日志并结束；不是用 CohortV2 的统计分布在本地重新估温。[A26,A31]
+2.6 构建 jd.B(smart=推荐三阶段温度,source="first-night-recommendation")；此调用明确指定 DeviceType.POD、该 userId，BLEcommand=null。[A26]
+2.7 写温度成功链再获取 bedtime schedules。列表非空时逐个复制每一条：仅把 startSettings 的温度换为推荐 bedtime；不筛选 enabled、日期或“今天”，其他 schedule 字段和起始设置字段通过 copy 掩码保留。全部提交 UpdateBedtimeScheduleUseCase，然后 RefreshTemperatureSettingsUseCase。[A32–A36]
+2.8 schedule 列表为空时直接成功返回，不进入列表更新/后续刷新分支。最后业务 Error 记录 first-night temperatures not applied；上层超时可中断等待。整个过程不是跨温度和日程的原子事务：先前写入已完成但后一步失败/超时，不等于自动回滚。[A33,A36,A37,A24]
+
+3. 首页 FirstNight 卡片：推荐参与显示，点击不等于接受
+3.1 Ff.v.v 使用同一 cj.l0.E 选择温度，并拼接已有 bedtime/alarm 数据为 FirstNightScheduleUiModel Ff.S。Wf.l0.a 展示开机方式、bedtime、bedtime/night/dawn 温度及 alarm。[A38,A39]
+3.2 实际 UI factory Mf.x 对 Ff.S 分支创建 Lh.c case8、case9 和 Lf.b case14，传给 Wf.l0.a。[A41]
+3.3 bedtime 行：Lh.c case8 → of.Y2 → TemperatureBottomSheet(BedtimesList)。[A42,A45]
+3.4 温度行：Lh.c case9 → of.Z2 → 默认 TemperatureBottomSheet。没有把 Ff.S.c 推荐温度作为写入 payload 交给该路由。[A42,A45]
+3.5 alarm 行：To.y 从 Ff.L 取已有 alarmId，没有则null；Lf.b case14 → of.X2 → AlarmBottomSheet(alarmId)。[A40,A43–A45]
+3.6 因此这些点击的直接效果是打开编辑界面；自动采用推荐应归到第2节已证实的 ChapterList 流程，而不是把首页显示误认成下发。
+
+4. 额外确认：DynamicHome 的 AI insight 接受动作
+DynamicHome$acceptTemperatureRecommendation$1 先提交该 insight 的 accepted=true feedback；成功 Flow 链才执行 $1$1，通过 UpdateSmartTemperatureSettingsUseCase 替换所选 BEDTIME/NIGHT/DAWN 一个阶段，另两个从当前 sleepPhaseTemps 保留。这里没有重新求推荐值。[A47,A48]
+这条 AI insight 接受链与 level-suggestions FirstNight/blanket API 是不同入口，不互相代替其覆盖范围。
+
+5. 本轮验收与仍需材料的部分
+已闭合：上述3条具体间接消费路径，关键条件均用 Smali，而非 JADX 错误反编译判断；49段源片段可逐项复核，实际 REA证据保留。
+不能由此闭合：线上是否向这台设备发这些建议、当前 flags、服务器如何生成 FirstNight/Cohort/blanket/AI 建议、生产 Autopilot 每夜调温策略。需要获授权运行观测或服务器实现材料；当前已拥有 APK 的静态消费链无需再以此为借口搁置。
+后续如做运行验证：先只读保存一次对应建议响应及 UI 展示上下文，核对选中用户/设备/hasBlanket，再在用户明确计划修改温度时观察各请求顺序。无须为验证展示链主动向当前设备写温度。

@@ -1,0 +1,127 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方中国版 App：实时压电引导与用户事件处理
+日期：2026-11-07；仅静态分析，未连接任何设备、账户或生产事件流。
+
+结论
+本次找到一个实际消费 piezo samples 的客户端计算，而不只是类名或字符串：
+安装引导对 combine 下游输出的 piezo 事件取 samples 最大值，再累加、除以阈值显示进度；计时 tick 可重放最近事件，达到阈值后调用步骤成功回调。
+本报告具体调用入口名为 Pod5TestDriveViewModel，不能将其阈值或数据形状直接认定为 Pod6 的物理传感阵列；后续通用入口已单列 APP_GENERIC_TEST_DRIVE_ZH.txt。
+这条 HTTP 实时传感流与另一条用户 WebSocket 事件流分开；后者具有按事件类筛除旧时间并合并、150ms 延时、温度设置刷新等本地逻辑。
+两条链都尚未给出压电波形到心搏/呼吸/睡眠分期、或分期到 Autopilot 温度目标的服务器算法。
+
+样本及复核方式
+样本：官方腾讯应用宝 com.eightsleep.eight 7.63.5-cn-tencent，versionCode 1007063005。
+APK SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+索引：462a22f663ae482ea93bab3130b96eaf；索引 SHA256：4a6a63564ae05b2404ebdd218a5c579798c3486a83ddbf92bc913274641843a4。
+工作区：analysis/android-volume/cn-7.63.5，Java 与 Smali 都是该 APK 的派生表示。
+JADX 整体为 partial。本报告依 Smali 修正/确认 reader、max、流绑定、比较条件、延时与刷新 gate；没有将不完整 Java 当原源码。
+以下方括号为 live-results/SOURCE_LEDGER.json 的 claim key；该文件列出查询标签、完整 REA evidence_id、不可变 evidence 文件、源文件 SHA256 和实际行范围。
+
+1. HTTP 实时传感流：来源及消费字段 [live_http_contract]
+Da.E 打开 env.getBaseUrl("app-api") + "v1/devices/{deviceId}/live"。
+它使用 HttpURLConnection、Authorization: Bearer <运行时 token>、Accept: text/event-stream。
+Da.K 的依赖注入使用既有 CHINA AppEnvironment；结合 APP_RUNTIME_AND_HARDWARE_ZH.txt 的编译期 provider 证据，地址为：
+https://app-api-proxy.8slp.net.cn/v1/devices/{deviceId}/live
+这是从编译代码还原的客户端请求路径，未验证服务当前是否返回、或实际载荷长什么样。
+
+Da.D -> Da.I 是实际 reader。Da.I Smali:210–389 按行读取，只将 startsWith("{") 的行送入 Moshi。
+该分支不剥离标准 SSE 的 "data:" 前缀，因此不能仅凭 Accept 头把它描述为完整标准 SSE parser。
+JSON 解析异常被记录并跳过；非空 DTO 经 toDomain 后 emit 到 SharedFlow。
+SensorEventResponse 的多态注册包含 tap、button、piezo；piezo adapter 明确消费：
+  samples: List<Float>（字段必需且非 null；列表长度未在此限制）
+  timestamp: Instant（字段必需且非 null）
+  type: SensorEventType（PIEZO 默认值）
+toDomain 保留 samples 列表，将 timestamp 按 systemDefaultZone 转 LocalDateTime。
+此 DTO 未消费 channelId、采样率、增益、左右侧或物理电极坐标；未知 JSON 字段可被跳过，不能据此宣称服务器绝不发送额外字段。
+
+主要锚点：Da/E.smali:142–241；Da/I.smali:210–389；SensorEventResponse_PiezoJsonAdapter.smali:109–193；SensorEventResponse$Piezo.smali:374–408。
+
+2. 实际压电计算：安装引导进度 [live_piezo_calibration]
+入口链：
+  Pod5TestDriveViewModel.startAutoTask
+  -> $startAutoTask$1 -> Ja.C.a -> Da.K 的传感 SharedFlow
+  -> A9.e case12 / A9.d case29，只放行 Ga.k（piezo domain event）
+  -> TestDriveViewModel.listenForSensorEvents
+  -> $listenForSensorEvents$2 -> $2$5。
+listenForSensorEvents 同时调用 startSensorEventStream；该调用最终到 Da.K.b(deviceId,...)。
+Smali 已确认流对象和 $2$5 collector 的实际绑定，避免依赖 Java 中无法抵达的反编译片段。
+
+对于这里的 piezo 分支，等价核心计算为：
+  level = 0.0f                         // 本次监听创建的 Ref.FloatRef
+  对每次 combine 下游输出的 piezo 事件 e：
+    level += max(e.samples)
+    displayedProgress = min(level / piezoThreshold, 1.0f)
+    若 level >= piezoThreshold 且尚未成功：
+      successful = true
+      onSuccess()
+      cancel(该监听的 coroutine scope)
+
+关键纠正：Im.r.q1(List) 的 Smali 是逐项 Math.max，不是 sum/mean/RMS。
+因此单次处理取 samples 最大值，不对列表全部值求和。
+2026-11-07 补正：共享监听将 sensorFlow 与 1..timeoutDuration 的计时流 combine，transform 丢弃 tick、只返回最近传感事件；每次 tick 可再次累计同一 piezo 事件。zo.f 是可取消包装，不是去重。combine 也可合并紧邻更新，不能说每条网络消息严格计算一次。详见 APP_GENERIC_TEST_DRIVE_ZH.txt 的 GTR3/GTR4。
+该分支没有 abs、平方、低通/带通、FFT、峰间期或按 timestamp 积分；progress 只有上限 1，没有下限 0。
+max(emptyList) helper 会抛 NoSuchElementException；这里没有证明生产流会发送空列表。
+不能从此公式推定 samples 是多通道同一时刻、单通道连续时间点，或经过何种服务器预处理。
+
+具体 Pod5 命名入口覆盖默认阈值：
+  CALIBRATION_INSTRUCTIONS: piezoThreshold=700f，timeoutDuration 参数=30。
+  CALIBRATION_IN_PROGRESS: piezoThreshold=2000f，timeoutDuration 参数=40。
+基础方法有 3000f 默认值，但上述两个调用明确覆盖它。Smali 的 default mask 为 0x88/0x8，均未设置替换 threshold 的 bit0x4 或替换 timeout 的 bit0x10。现已追完计时 helper：每次迭代先 delay(1000ms)，30/40 分别是 30/40 个迭代；调度/回压可延长耗时。计时正常完成只调用回退回调，本身不保证取消仍活跃的传感流。
+成功回调只在已追代码中标记布尔值并推进 onStepComplete；超时/错误回调也可推进步骤。
+所以“用户进入下一步”不单独证明压电阈值已通过，更不证明某套物理增益/标定系数已写入硬件。
+
+主要锚点：Pod5TestDriveViewModel.java:650–668、395–418及Smali:3621–3723；TestDriveViewModel.smali:1019–1085；$listenForSensorEvents$2.smali:255–454；$2$5.smali:399–533；Im/r.smali:2946–3005。
+范围：发现真实客户端引导处理，但不是睡眠分期实现。该 Pod5 命名入口及其 700/2000 阈值没有绑定成 Pod6 常规路径；另已闭合显式 TEST_DRIVE 的非 POD5 分支到通用 Pod4 命名视图，其校准使用 3000f/20 次计时，见新报告。
+
+3. 用户 WebSocket 事件：另一套协议 [live_ws_contract]
+Kb.O0 通过 env.getBaseUrl("app-api","wss://") 拼接 "v1/users/{userId}/events"；Na.o.c 实际调用 OkHttp.newWebSocket。
+CHINA 编译期环境对应：wss://app-api-proxy.8slp.net.cn/v1/users/{userId}/events。
+入口有 household/device 及 feature gate；flag 名 android-web-socket-enabled-2，编译默认值 true，运行时远程配置值未取得。
+Na.m 仅接受当前 WebSocket 的 onMessage，Na.l emit 文本；Da.s/Da.r 解析 PodEventResponse 并 toDomain(currentDeviceId)，再送 channel。
+currentDeviceId 是调用端当前设备参数，不能把它误记成所有事件 JSON 自带的设备标识。
+
+eventType 多态注册仅在此链看到 generic、alarm、base-preset、temp-dial 四种。
+temp-dial 携带 userId、timestamp 和 event{currentLevel,currentState,reason}；nullable currentLevel 被包成原始温度 level domain 值。
+generic/alarm 也有独立 domain 对象。尚未完整追 alarm/base-preset 的全部 UI 消费。
+这里注册的四种事件没有 sleep-stage 类型；这只说明已恢复的该版本合同，不能推广成服务器绝无其他实时睡眠消息。
+
+主要锚点：Kb/O0.smali:155–229；Na/o.smali:437–489；ce/l.smali:10339–10395；Da/r.java:39–56。
+
+4. 手机上的排序与 150ms 合并 [live_ws_coalescing]
+Da.u 按事件的 KClass 维护 lastEvent 和 pendingJob 两张 map。
+新事件只有在该类没有旧事件，或 new.localTimestamp.isAfter(old.localTimestamp) 时才更新；相等/更早事件不替换。
+时间已由 DTO 转为本地 LocalDateTime，此处不是直接比较原始 Instant。
+更新后取消该类旧 job，启动 Da.t；delay(150ms) 后从 map 取该类最新事件并 emit 到 SharedFlow。
+map 中 lastEvent 不因这次 emit 被清掉。它不是每条事件固定发送一次，也不是固定频率采样。
+这是客户端通知顺序/合并策略；不能将 150ms 解释为压电采样周期、模型窗口或睡眠 epoch。
+主要锚点：Da/u.smali:154–288 和 g:34–65；Da/t.smali:76–184。
+
+5. 温度消费者：事件通知触发完整设置刷新 [live_temp_refresh]
+TemperatureRepository 构造时启动 gd.z -> access$observeTempDialEvents，过滤 Ia.d 后交给 gd.U。
+消费者使用 event.userId 标记 refreshDeferredByWrite，再调用 refreshUnlessWriting。
+Smali 中 gate 的完整行为：
+  若 writesInFlight.containsKey(userId)：返回，保留 deferred 标记；
+  否则若 deferredSet.remove(userId) 成功：refreshTemperatureSettings(userId)。
+刷新链是 refreshTemperatureSettings -> Ya.B.b(userId, gd.g0) -> gd.e0 -> fd.b.m：
+  GET /v1/users/{userId}/temperature/all。
+fd.b 的 API 环境绑定沿用 APP_THERMAL_CONTROL_ZH.txt；这是 app-api-proxy 主机。
+Ya.B 会建立共享流并启动收集者 Ya.A（Smali zo.s.l 证实 collect），因此不只是构造一个无人订阅的 cold flow。
+存在按 key 共享/并发管理，不能表述为“每一个原始 WS 事件必定对应一个 GET”。
+
+本地调温写入路径在流开始时合并 userId 计数 +1；完成处理将计数减1，大于0时保留，否则 compute 返回 null 移除。
+计数归零后启动 gd.l0，再走同一个 refreshUnlessWriting；没有 deferred 标记时不由此额外刷新。
+本报告这个 temp-dial 消费者没有把 event.currentLevel/currentState 直接当作完整设置覆盖缓存，而是重新读取设置。
+reason 为 pregnancy-mode/postpartum 时还触发对应通知并刷新 pregnancyMode。
+这说明同步与并发策略；不说明服务端如何计算温度目标，也没有证明 WS 会重算睡眠指标。
+
+主要锚点：gd/U.java:45–70；TemperatureRepository.smali:444–477；TemperatureRepository.java:241–242、256–260；gd/e0.java:47；fd/b.java:42–43；Ch/d3.java:133–143；Xe/l1.java:95–102。
+
+未闭合内容 [live_boundaries]
+- Pod6 物理压电通道数量、布置、每通道时序/标定，以及 samples 与固件 0x3c 各槽位的映射。
+- 实时 samples 在服务器是否滤波、合并或重采样，及其单位、频率、消息长度与数据连续性。
+- 压电/IMU 融合到 HR/RR/HRV、睡眠五类、健康评分的生产算法与权重。
+- Autopilot 将睡眠结果、偏好、环境数据转成温度目标的策略。
+- 当前账号开关、网络成功行为、真实消息以及全部事件消费者的运行时表现。
+本轮有可复核的新算法和请求链，整体“分析完整”目标仍未达成。

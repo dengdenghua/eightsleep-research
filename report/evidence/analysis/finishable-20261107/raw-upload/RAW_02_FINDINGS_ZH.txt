@@ -1,0 +1,72 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+RAW-02：RAM 额度来源、满载丢弃策略与转盘入口
+2026-11-07；仅本地静态分析，无联网、设备操作或目标程序执行。
+
+已完成的结论
+1. 旧报告中的 R 已确定是 TOML [jetstream].mem_max_mb；缺省值为 0，0 选择自动计算。它不是 CLI 单字母参数，也不是“0 字节 RAM”。
+2. 本包 raw_mem 新建配置会实际序列化为 discard:"old"。新增抽取本包 nats-server 的机器码和 Go 类型表，确认服务器把 old 解为 0；在这项配置生效时，RAM 流超额会循环删最早消息。
+3. 本包 uploader 的 rawmem→rawdisk 转换/发布调用链从 --dump 一次性模式进入。恢复到的正常在线上传路径与服务器满载删除路径都不是连续溢写到磁盘的路径。不能继续用磁盘 raw 的 24 小时限额保证断网波形可完整保存 24 小时。
+上述是镜像的配置目标与条件执行逻辑；仍不能声称这台 Pod 当前 stream info 与目标一致。
+
+一、R 参数来源和默认
+002E02C8 的 JetstreamConfig 反序列化分支把字段 mem_max_mb 存入成功结果的第 7 个 qword；剥掉 8 字节结果标签后对应 Config+0x30。
+003E39E4 是缺省工厂。它从 Ghidra VA 00791D40 读 16 字节到 Config+0x30，原字节独立取出后是两个 uint64：(0,6144)，分别为 mem_max_mb=0 与 max_mb=6144。max_age_hours 则为 24。
+001D4C3C 的 ensure-streams 分支取 puVar21[6] → 00318254；普通初始化 001D1090 的 JetstreamConfig 位于 param2+0x120，取 param2[0x2a]（相对该配置 +0x30）→ 00318254。00318254 读 /proc/meminfo 后，以 x2=R 调 003E57A4。
+随包 /etc/jetstream-uploader.toml 未写 mem_max_mb，因此此文件成功加载且无外部修改时走 0/自动分支。不能把源码缺省值替代为实机加载值。
+UPLOADER_DEFAULTS.json 记录字段字节、默认常量与参数链；audit_raw.py 从原 ELF 重新提取并断言。
+
+额度算式沿用前轮已经按机器指令恢复的计算器，现已把外部参数补齐：
+  R!=0：B = u64 饱和乘法(R * 2^20)。
+  R==0 且 MemTotal=M 可读：B=max(min(M/32,100MiB), min(max(M-1536MiB,0),512MiB))。
+  M 不可用或结果 B=0：B=32MiB。
+  写入 JetStream max_bytes 时再上限裁到 INT64_MAX。
+9 个边界演算通过，包含 M=0/1GiB/1.5GiB/2GiB/8GiB、显式 R 覆盖、u64 饱和。
+NATS 全局 max_mem:1G 是另一层总额；不能据某一层限额断言实际内存分配或保留时长。
+
+二、discard 已从零字节补成完整的跨程序证据链
+Uploader：
+  raw_mem 构造 003E5CF8 在 Config+0x280 开始写入 0x00010000，因此 discard(+0x280)=0、discard_new_per_subject(+0x281)=0、storage(+0x282)=1。
+  raw 文件流构造 003B030C 对该区域写 0，discard 同为 0。
+  002BF458 的实际 JSON 序列化读取 Config+0x280；位 0 为零时用长度 3 的 "old"，否则 "new"。这是明确 JSON 值，不是枚举名猜测。
+  另一实际序列化路径 003C1E18 → 00389E84 同样将值 0 写成 "old"。
+  注意 Ghidra 将字面量显示成 "ol"/"ne"，代码传入长度为 3；以原 ELF 连续字节及服务器解析对照，不把伪代码显示长度误当截断后的协议。
+
+本包 NATS 服务器：
+  从同一已验证 SWU 的 eightsleep-mtk-image-mt8365-8sleep.tar.gz 提取 usr/bin/nats-server。
+  SHA256=a09b65d82ef7c3dcf18b01400c24f762a6401118aa07c9e2cc6df64e002d00ca。
+  该 ELF 虽 stripped，Go pclntab 仍恢复出 14,865 函数；Go 反射字段表恢复了 StreamConfig、memStore、StreamState 三个结构。不是网上找的近似版本。
+  server.(*DiscardPolicy).UnmarshalJSON，ELF VA 0x580F00：将带引号的 "new" 存为 1，"old" 存为 0，其他输入走错误。
+  字段表：memStore.cfg=+24；StreamConfig.Discard=+112，合起来 memStore+0x88。
+  memStore.state=+312；StreamState.Bytes=+8、FirstSeq=+16，合起来 +0x140/+0x148；MaxBytes 合起来 +0x68。
+  memStore.storeRawMsg(0x4A9AB0) 在消息入库后调用 enforceMsgLimit(0x4AF780)、enforceBytesLimit(0x4AF840)。
+  enforceBytesLimit：Discard 非零立即返回；Discard=0 且 MaxBytes>0、当前 Bytes>MaxBytes 时，取 state.FirstSeq 调 removeMsg，循环直到不超额。
+  removeMsg(0x4B3D80) 减少消息数/字节数、更新 FirstSeq、从内存消息表删除；这条限制回收链没有把正文写入 raw 文件流。
+  因而在该目标配置生效的正常 raw_mem 路径，结论是“超额淘汰最老消息”。等于限额尚不淘汰；新消息使总额超出后可能连续淘汰多条旧消息。4 个边界演算与机器码分支一致。
+
+仍须保留的限定：
+  原设备已有流的配置、配置更新失败、全局资源不足、其他拒收原因均未实测。
+  003B0660 的配置差异检查没有单独比较 discard；已有流不一定因 discard 不同而更新。因此不能把“新建配置 old”写成对全部已部署流的强制纠正。
+  本轮没有运行 NATS；测试是从本包机器码得到的分支模型，不是服务器吞吐/真实丢包试验。
+
+三、RAM 连续转盘边界，本轮查到了哪里
+rawmem topic 转为 rawdisk 的完整正向链：
+  001D4C3C 的 --dump 模式 → 001C7708
+  → 003E53E8 → 003835EC → 003E13CC → 003E4CB4（subject 转换、头处理）
+  → 001C66DC（向本机 JetStream 发布并等待 PubAck）
+  → 连续成功前缀 purge → syncfs。
+本轮用函数交叉引用确认：003E4CB4 的直接调用者只有 003E13CC；后者只有 003835EC；后者只有 003E53E8；后者只有 001C7708；001C7708 的程序调用点在 001D4C3C 的 --dump 状态路径。
+--dump 由随包 systemd nats-server 停止钩子触发；普通 jetstream-uploader.service 的 ExecStart 没有 --dump。
+普通 uploader 的 direct/drain 表示读 RAM 或读取已有磁盘 backlog 上传；不是 RAM 满时进行 spill。实际 NATS 超额分支现已确认走 removeMsg，进一步排除了把“内存回收”误认成“后台落盘”的解释。
+这不是形式化证明整个包不存在任何动态插件、外部命令或修改配置后的新路径；但当前固件样本提供的发布方、uploader 调用链、systemd 配置和服务器回收实现已足以说明：没有建立连续 RAM→disk 的保证，也不能依赖这个保证去导出全天原始数据。
+
+复跑/产物
+  python3 analysis/finishable-20261107/raw-upload/audit_raw.py
+RAW_02_VALIDATION.json：9 个额度场景、4 个淘汰边界及静态提取结果。
+UPLOADER_DEFAULTS.json：默认值与 R 绑定。
+nats-functions.json / nats-type-fields.json：本包 Go 符号和字段偏移。
+memStore.*.asm.txt / DiscardPolicy.*.asm.txt：实际服务器指令，分支调用已标注恢复的函数名。
+uploader-pass1..3：本轮补导的反编译、指令、交叉引用。
+NATS_EXTRACTION.json、SOURCE_MANIFEST.json：来源与 hash。
+现有镜像能完成的 RAW-02 静态验收项已完成。要确认实机实际额度/策略，需在线后只读获取 /proc/meminfo、实际 TOML 与 stream info；不需要为了补静态结论再次猜参数。

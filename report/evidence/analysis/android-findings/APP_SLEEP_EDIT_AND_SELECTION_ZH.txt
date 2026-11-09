@@ -1,0 +1,101 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方 Android 7.63.5-cn-tencent：睡眠编辑、删除、停止与会话选择
+静态审计；2026-11-07；范围限本 APK 已追的 MetricsTrends/编辑器/首页/分期详情消费者。
+
+0. 结论与边界
+已闭合 UI→请求→成功回调→缓存刷新→显示消费链。用户可手动修改入床、入睡、醒来、离床四个时刻；App 上送 ts 和 awake/asleep/awake 三段时长，不是 REM/light/deep 的手工分类器。编辑、删除、停止成功分支都会请求当天 trends；编辑与删除还触发汇总刷新。因此展示结果既可能含服务器结果，也受用户时间修正、会话选择及本地显示计算影响。
+没有实际网络响应，也没有后台源码，不能据此断言“编辑后服务器必然重跑分期模型”、重新算出的具体阶段、删除是否影响训练集、或分数会改变多少。processing 字段不是模型执行的证明。此报告不新增固定 epoch、准确率或 Pod6 专属模型主张。
+
+1. 样本与方法
+原样本 SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+REA workspace：analysis/android-volume/cn-7.63.5。
+index_id：462a22f663ae482ea93bab3130b96eaf。
+index_sha256：4a6a63564ae05b2404ebdd218a5c579798c3486a83ddbf92bc913274641843a4。
+所有证据和源文件副本列入 sleep-edit/EVIDENCE_LEDGER.json；相对 Java/Smali 路径、行号、哈希和查询原文可复核。源文件未修改。没有启动 App、登录、调用 API 或访问用户睡眠数据。
+JADX 工作区 partial（exit 3 / 350 errors）；关键枚举、条件、请求实参、选择与刷新分支以 Smali 互证。未重做上一轮首尾 600 秒显示裁剪。
+
+2. 编辑入口、可编辑对象与本地时间约束 [SED-01]
+实际入口：MetricsHomeViewModel.onUiAction(tg.F)→Route.EditSleepSession(selectedDate)，不是只有一个未引用 DTO。
+EditSleepSessionViewModel.onUiAction 接收四种编辑时间动作，updateTime(sessionId,time) 修改匹配记录；tg.g 保存，tg.c 显示删除确认，tg.b 执行删除。证据 edit-route、edit-ui-action-smali:1162–1334。
+EditSleepSessionViewModel$1$3 的初始化只将以下会话加入编辑表单：incomplete=false，且 sleepStart/sleepEnd/presenceEnd 都非空。字段 processing 不在这一筛选条件内；不能写成所有 processing 会话都不可编辑。表单四时刻分别来自 Session.ts/sleepStart/sleepEnd/presenceEnd。证据 edit-load-smali:119–183。
+updateTime 使用该会话 timezone 对应的 offset 调整被选时间，再用 getErrorRes 校验编辑列表。canSave=(error==null)，showError=(error!=null)。这是界面输入约束，不是服务端验证证明。
+校验依次要求：入床不早于 minDateTime；入睡≥入床；醒来≥入睡；离床≥醒来；离床≤maxDateTime；四时刻均不在未来；离床距当前至少 5 分钟。相等允许通过时序比较，不能把三段都描述为严格正时长。OUT_OF_BED_MIN_AGE=Duration.ofMinutes(5)，完整 Smali 在 minimum-age-smali、edit-validator-smali1/2。
+边界构造：anchor=new Ga.s(selectedDate)，min=anchor−Duration.ofDays(1)，max=anchor+Duration.ofDays(1) 后以 Ga.s.r 设置 LocalTime(12,0)。这是代码中的界限构造；本报告不额外假定用户 timezone 在夏令时边界的运行效果。edit-load-dates-smali:312–372。
+
+3. 保存实际发送的内容 [SED-02]
+EditSleepSessionViewModel$saveSession$1 把当前模型转换为 rc.j(sessionId,inBed,asleep,wake,outOfBed)，传给 uc.t1；uc.s1 调用 MetricsTrendsRepository.updateSession。
+pc.m0.invokeSuspend 完整 Smali:107–207 明确构造：
+  ts = inBed.Instant
+  stages = [
+    {stage: "awake",  duration: int(Duration.between(inBed, asleep).getSeconds())},
+    {stage: "asleep", duration: int(Duration.between(asleep, wake).getSeconds())},
+    {stage: "awake",  duration: int(Duration.between(wake, outOfBed).getSeconds())}
+  ]
+这里的 duration 是秒；getSeconds 的 long 被转成 int。不是前一轮响应 enum awake/rem/light/deep/out。
+重要反编译限制：UpdateSleepSessionStageName.java 没显示 @Json 字段注解；原 Smali:43–52 明确 ASLEEP→"asleep"、AWAKE→"awake"。UpdateSleepSessionRequestJsonAdapter 写 ts/stages；Stage adapter 写 stage/duration，使用 Moshi 的枚举名适配。此处小写标签有字节码依据，不从 Java 常量拼写猜测。
+Loc/c.e 的 Retrofit 注解为 PUT v1/users/{USER_ID}/intervals/{SESSION_ID}，返回 Response<Unit>，不是分期对象。该 Loc/c 沿既有 DI→Z3/client-api，在本中国包静态域名配置为 https://client-api-proxy.8slp.net.cn/ 。未实际请求。
+由此确定：保存表达用户指定的粗睡眠区间。它不会在这条发送链本地推断新的 REM/light/deep，也没有在 body 中提交这些细分标签。
+
+4. 更新成功、缓存与后续汇总 [SED-03]
+MetricsTrendsRepository.updateSession 将 pc.m0 的 API 调用交给 P2.q.u；Hb.h 的该分支仅在 ya.g 成功值及谓词通过时运行后续 pc.n0；错误值沿错误 flow 传递。repo-update-smali + flow-success-smali:617–665。
+pc.n0：读取用户 cache.d 的首个 flow 值，在缓存条目的 RawDailyTrends.sessionIds 中寻找目标 sessionId；找到后用该缓存日期同时作 from/to，ZoneId.systemDefault()，consistentRead=true 调用 fetchTrends。update-refresh-smali:116–209。
+若缓存找不到该 session，它返回 “Failed to find cached trend for session …” 错误；此时前面的 PUT 可能已经成功。这不是一个本地数据库事务，不能把回到页面或错误提示等同于服务端修改未发生。
+fetchTrends→pc.b0/pc.Z 构造 GET trends（include-main=false、include-all-sessions=true、model-version=v3、上述 consistent-read=true）；pc.a0 将服务端 days 经 toEntity 写入 daily_trends 缓存，再由既有 observe/RawDailyTrends 映射进 UI。引用上一轮同一 index 的 prior-trends-call、prior-trends-cache、prior-raw-to-display、prior-state-*。
+随后 uc.r1→oe.y.D→m9.A 刷新所选日期、会话 timezone 下的所有 AggregateMetricType 与 AggregateMetricPeriod（传入布尔实参 true），不是在手机上用旧分数加减修正值。edit-aggregate-all-correct-smali:259–292 + aggregate-refresh-entry。
+保存 UI 的成功消费者调用 onBackPressed，错误分支显示保存错误；完成这一消费者需经过上述 flow。没有观察到本链直接将新四时刻替换原细阶段数组、或立即重算 SFS/SQS/SRS。
+consistent-read 是请求参数名与实参，不保证从静态样本得知服务器完成重算的时间或一致性实现。
+
+5. 删除、排除和停止记录的区别 [SED-04, SED-05]
+删除：编辑器确认后→uc.f/uc.e→MetricsTrendsRepository.deleteSession→pc.W→Loc/c.c，DELETE 相同 interval 路径。响应也是 Unit。成功 pc.Y 找所属缓存日期并刷新 trends（consistent-read=true），pc.X 返回该日期；uc.d 随后刷新该日 DailySummaries（oj.D→MetricsRepository.fetchDailySummaries）和所有聚合（oe.y.D）。成功 UI 隐藏删除确认并返回上一页。
+已追路径是服务器 DELETE 请求加结果刷新；不是只在手机屏蔽这条曲线。不能从此判定服务端物理删除、恢复策略、原始信号保留或模型训练数据排除。
+本次所追 Loc/c/编辑界面没有一个独立 exclude-from-score 或 merge/reprocess 请求。该范围内的移除操作就是上述 delete；不把这一有界检查扩大为整 App/整系统从无其他排除功能。
+停止：MetricsHome 的 EndTracking 横幅 primary action→stopSleepSession→uc.l1/uc.k1→repository.stopSession→pc.j0→Loc/c.b，以 PUT 同一路径发送 StopSleepSessionRequest，默认 edit="stop"；pc.k0 成功后同样找缓存日期、consistent-read=true 刷新 trends。stop 不发送四时刻三段，不能与编辑、删除互换。
+Session.edit 是返回的字符串。本次已闭合的 DailyTrends.e() 消费：取 sessions 中 deviceTimeAtUpdate 最大的会话，再比较该会话 edit 是否等于 "stop"；相等时间保持列表中较早者；空列表为 false。daily-stop-selector-smali:418–512。
+该布尔值送到 EndTracking UiModel 的 loading，不能解释成“所有曾编辑的会话”、不能由 processing 推导 edit，也不是 sleep-stage enum。
+
+6. incomplete 与 processing 实际影响什么 [SED-06]
+DailyTrends.a() 返回列表里第一个 incomplete=true 的 Session；d() 返回第一个 processing=true 的 Session；c() 则按 mainSessionId 匹配（见下节）。这些是不同查找器。
+MetricsHome 的状态构造首先检查 a()：只要存在 incomplete 会话，就进入 EndTracking 分支；缺省选中的 sessionId 来自首个 incomplete 会话（代码也保留 mainSessionId 回退），已有非空 selectedSessionId 则保留。横幅的 lastUpdatedTime、持续小时/分钟来自首个 incomplete 会话；图表则从选中 id 找对应 session，取其 sleepStart/sleepEnd/stages/shortAwakes。横幅对象与图表对象不必是同一个会话。home-incomplete-smali1/2。
+普通结果分支仍保留全天 SFS/SQS/SRS 分数对象；daily.processing=true 且 d()!=null 才把首个 processing 会话的 deviceTimeAtUpdate 作为 SleepFitnessUiModel.processingLastUpdatedTime，否则为 null。Smali:1045–1062；Bg.z0 在该字段非空时显示 processing_last_updated 文本，否则显示日期文本，processing-renderer-smali:1395–1429。
+JADX 错误特别记录：MetricsHomeViewModel$updateContentView$1$2.java:474 的 if(daily.processing || d()==null) 与字节码相反；此处以 Smali 的 if-eqz processing→null 为准。不能直接引用那行 Java 解释显示条件。
+已追这些条件没有生成新 stage、置信度或固定 epoch；也不能用 processing/incomplete 证明某个后台算法版本正在执行，或保证处理完成后数据一定变化。
+
+7. 主会话、用户选中会话与多会话汇总 [SED-07, SED-08]
+MetricsHomeViewModel$selectSession$1 仅向 selectedSessionFlow.emit(sessionId) 写本地选择状态。这条消费者没有发“设置主会话”网络请求。
+DailyTrends.c() 取首个 Session.id==DailyTrends.mainSessionId 的对象，缺失返回 null；不是寻找最长时长，也不是无条件第一项。mainSessionId 的源头沿既有 DailyTrendsResponse/RawDailyTrends 映射来自返回结果。
+MetricsHome 的 P2.I.H(daily,selectedId)：先找 selectedId，找不到调用 daily.c()；图表的阶段数组、sleepStart/end、shortAwakes 仅来自这一会话；所有 sessions 被另外转换成可选择的列表。这里没有把多个 stage 数组拼接成一条曲线。chart-selection-smali1/2 完整覆盖该方法。
+但同一个图表组件旁的 Deep/REM/睡眠总时长小结来自 daily.sleepQualityScore（b/f/g），不是所选会话的 stage 数组求和。Deep/REM 比例在本地按日汇总时长/日总睡眠秒数求比，再经 round(x*100)/100；0.15/0.20 只生成 UI 布尔状态。它们不是分类阈值。上层 SFS/SQS/SRS 总分同样取日对象，切换 session 不在本链重算总分。
+所以不能把“选会话时曲线改变”解释成“模型/全天summary重新计算”，也不能把所有显示值都称作逐session指标。
+分期详情另有不同回退：SleepStagesViewModel.getSleepStageBreakdown 在 DAY 分支先找传入 sessionId；为空或未匹配时取 sessions.firstOrNull（Im.r.b1），不调用 mainSessionId 查找器；成功后消费该 Session.stageSummary 的 REM/light/deep 时长与比例。breakdown-fallback-smali:182–328。应保留此作用域差异，不把所有页面归纳成统一选择规则。
+实际服务端怎样选 mainSessionId、是否将午睡/跨日会话纳入 summary、合并/拆分规则，都不能由上述 UI 选择和 daily summary 字段倒推出。
+
+8. 可核验的分层伪代码 [SED-09]
+# 界面编辑，非分期推理
+edited = four_user_times
+validate_editor(edited)
+PUT interval(sessionId, ts=edited.inBed,
+             stages=[awake(seconds(inBed,asleep)),
+                     asleep(seconds(asleep,wake)),
+                     awake(seconds(wake,out))])
+on_success:
+    day = first_cached_day_containing(sessionId) or emit_error
+    GET trends(day, day, consistent_read=true)
+    cache.replace_days(response.days)
+    refresh_aggregates(selectedDate, sessionTimezone)
+# DELETE 多刷新 daily summaries；stop 只发送 {edit:"stop"}，都复用结果刷新链
+
+# 显示选择
+home_session = find(selectedId) or find(server_mainSessionId)
+home_curve = home_session.stages if home_session else []
+home_small_summary = daily.SQS   # 部分比例/格式在本地计算
+stage_detail_session = find(selectedId) or sessions.firstOrNull()
+stage_detail_breakdown = stage_detail_session.stageSummary
+# 服务端返回的模型标签、用户提供的粗时间、缓存状态和本地UI运算不可混为同一来源
+
+9. 未回答事项 [SED-10]
+后台收到三段 coarse edit 后，如何与原阶段/原始信号合成或重新分期；是否运行特定模型；是否保留细阶段；summary更新规则和时延：未知。
+服务器主会话选择、跨会话合并、删除对聚合/训练集/第三方导出的影响：未知；本报告只证明请求与本地刷新行为。
+没有用户修改前后样例，所以不声称实测任何分数、epoch或阶段发生变化；没有后台权重、分类器或端侧原始信号→分期实现的新恢复。
+全 APK 的其他动态分支、JNI、远端功能开关与未来版本不在本报告穷尽范围内。现有 App 静态消费者结论也不能反推某台 Pod6 的实际配置。

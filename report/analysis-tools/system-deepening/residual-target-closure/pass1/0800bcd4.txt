@@ -1,0 +1,66 @@
+TARGET 0800bcd4 function=0800bcd4
+REF_TO 08008d6e UNCONDITIONAL_CALL
+REF_TO 08008e28 UNCONDITIONAL_CALL
+REF_TO 08008dc8 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800bcd4, 0800bd1b]]
+
+undefined4 FUN_0800bcd4(undefined4 *param_1,uint param_2)
+
+{
+  undefined4 uVar1;
+  uint *puVar2;
+  char *pcVar3;
+  
+  pcVar3 = (char *)((int)param_1 + 0x41);
+  uVar1 = 2;
+  if ((*pcVar3 == ' ') && (*(char *)(param_1 + 0x10) != '\x01')) {
+    *pcVar3 = '$';
+    puVar2 = (uint *)*param_1;
+    *puVar2 = *puVar2 & 0xfffffffe;
+    uVar1 = 0;
+    *puVar2 = *puVar2 & 0xffffefff;
+    *puVar2 = *puVar2 | param_2;
+    *puVar2 = *puVar2 | 1;
+    *pcVar3 = ' ';
+    *(char *)(param_1 + 0x10) = '\0';
+  }
+  return uVar1;
+}
+
+
+INSN 0800bcd4 f0b5 push {r4,r5,r6,r7,lr}
+INSN 0800bcd6 0400 movs r4,r0
+INSN 0800bcd8 4134 adds r4,#0x41
+INSN 0800bcda 2278 ldrb r2,[r4,#0x0]
+INSN 0800bcdc 0300 movs r3,r0
+INSN 0800bcde 0f00 movs r7,r1
+INSN 0800bce0 0220 movs r0,#0x2
+INSN 0800bce2 d6b2 uxtb r6,r2
+INSN 0800bce4 202a cmp r2,#0x20
+INSN 0800bce6 18d1 bne 0x0800bd1a REF[CONDITIONAL_JUMP:0800bd1a]
+INSN 0800bce8 1d00 movs r5,r3
+INSN 0800bcea 4035 adds r5,#0x40
+INSN 0800bcec 2a78 ldrb r2,[r5,#0x0]
+INSN 0800bcee 012a cmp r2,#0x1
+INSN 0800bcf0 13d0 beq 0x0800bd1a REF[CONDITIONAL_JUMP:0800bd1a]
+INSN 0800bcf2 2422 movs r2,#0x24
+INSN 0800bcf4 2270 strb r2,[r4,#0x0]
+INSN 0800bcf6 1b68 ldr r3,[r3,#0x0]
+INSN 0800bcf8 233a subs r2,#0x23
+INSN 0800bcfa 1968 ldr r1,[r3,#0x0]
+INSN 0800bcfc 0748 ldr r0,[0x0800bd1c] REF[READ:0800bd1c=ffffefff]
+INSN 0800bcfe 9143 bics r1,r2
+INSN 0800bd00 1960 str r1,[r3,#0x0]
+INSN 0800bd02 1968 ldr r1,[r3,#0x0]
+INSN 0800bd04 0140 ands r1,r0
+INSN 0800bd06 0020 movs r0,#0x0
+INSN 0800bd08 1960 str r1,[r3,#0x0]
+INSN 0800bd0a 1968 ldr r1,[r3,#0x0]
+INSN 0800bd0c 3943 orrs r1,r7
+INSN 0800bd0e 1960 str r1,[r3,#0x0]
+INSN 0800bd10 1968 ldr r1,[r3,#0x0]
+INSN 0800bd12 0a43 orrs r2,r1
+INSN 0800bd14 1a60 str r2,[r3,#0x0]
+INSN 0800bd16 2670 strb r6,[r4,#0x0]
+INSN 0800bd18 2870 strb r0,[r5,#0x0]
+INSN 0800bd1a f0bd pop {r4,r5,r6,r7,pc}

@@ -1,0 +1,41 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+SEN-02 — USB 对象入口、公共虚调用与 DeviceAPI 补查
+2026-11-07；仅静态反汇编、原 ELF 字节及本地文件分析。
+
+样本与地址
+Frank SHA256 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+本文 Frank 地址使用 Ghidra 基址 0x00100000；ELF 原 VA 减去此基址。SOURCE_MANIFEST.json 绑定原样本、JS 与每份导出。
+
+验收结论
+已把此前剩余的三个具体入口向下追完：DeviceAPI setsettings、两个全局 USB 实例及其 adapter、公共 SubsystemNew 虚表首槽。在这些可识别生产路径中，未定位为新 USB 创建 0x2B 的代码；发现一条真正可携带任意既有 opcode 的重试虚调用，但它从 pending 表复制旧命令，不是增益生产者。
+这满足“说明实际调用和接不上的步骤”的有界静态验收；不等于已经找到了 USB 增益端到端控制，也不证明实机永远没有 0x2B。后续必须保留请求、ACK、寄存器读回和 Stealth 元数据四个独立层次。
+
+1. DeviceAPI 到 IPC 8 的实参链，不会自动改成 USB 命令
+app/device_api.js 的 /f handler 提取 /f/<name> 和 request.query，交给 funcHandler。loop_coordinator.js:221 起用固定 funcNameToFrankenCommand 表映射；utils.js:95、115 明确 setsettings→SET_SETTINGS→字符串“8”。vibration_proxy.js 对非 VIBRATE 原样转发；franken_server.js:35–39 仅移除参数中的换行，然后发送“8\n<参数>”，外层以双换行分帧。
+Frank 0024FB60 用函数号8注册0024FF80；后续十六进制CBOR→0024F5D0→gl/gr callback 的既有链不变。旧callback00205940的对象仍是固定005E5E28，不是下面的USB实例。此次确认的是静态调用链，没有向 /f 发请求。
+固定映射中没有通用“发任意 LSP opcode”入口。SSH 是独立 DAC 功能，不能把存在 SSH 功能等同当前已获命令执行权限或已存在生产者；本轮未使用它。
+证据：app/五份原始JS；native/virtual/0024fb60.*；此前 next-round-20261107/usb-gain/exports/00205940.* 与 signal-host/gain/final/0024ff80.c、0024f5d0.c。
+
+2. 全局 USB 对象确实可定位，设置回调没有经拓扑替换它们
+0017A7B0分配两个0x3D30字节对象，分别以left/right调用0019E7F0，保存到005E36A0/005E36A8。已识别的全局引用全部列在native/references.txt：构造/adapter绑定、初始化00185920、周期循环0018A510。
+00185920分别以5/6调用0027D5D4，后者解析路径并启动USB连接管理。0018A510把两个对象分别传给00233350；后者创建执行002349F0的协程，明确将USB this保存到协程+0x48。
+adapter另有两层vptr：005E3A90/005E3AA8使用0058DAF8，+0x10槽0058DB08→001999F0；其内部保存adapter+8的地址。底层0058DAD0的+0x10槽0058DAE0→00190040，后者直接把adapter+8对象交给00278270。00278270是振动命令0x2C，不是gain。不能把这些adapter的首槽析构函数当成SubsystemNew首槽sendCommand。
+证据：native/roots/0017a7b0.*,00185920.*,0018a510.*,00199e40.*；native/adapters/001999f0.*,00190040.*,00233350.*；native/constants.json。USB本体vptr005C79F8→002336A0的既有绑定见上一轮字节复核。
+
+3. 真正遗漏过的间接发送：pending 重试
+002349F0从this+0x3AC8的pending表构造24字节临时command：旧opcode、响应标记0、原payload指针、原长度。一般命令超过2000ms才重试；opcode0x12/0x13用30000ms。记录龄达到600001ms的路径安排删除，不继续复制到重试列表。时间差按unsigned计算，不能简化成任何运行条件都精确到这些墙钟时间。
+00234F18..00234F28汇编：x0=协程+0x48的USB对象，x2=**x0，x1保持当前临时command，blr x2；这就是USB虚表首槽002336A0的实际间接调用。
+若某个0x2B已入表，此处可重发0x2B；但它不解析gl/gr、不生成新的gain payload、不读Stealth gain表。其输入仍要求上游有一次原始发送。因此不能把这一循环冒充此前缺失的生产者。
+证据：native/adapters/002349f0.c:73–164及asm00234B4C..00234F3C；原始指令和ELF hash见台账。
+
+4. 公共状态机与升级器的首槽命令已分型
+00232180→固定0x04（硬件信息后请求固件信息）；00232674/00234394→0x01；002326C0/00235544→0x02；002326E4→0x10；00235544另有0x05。
+SubsysFirmwareUpdate：00219BC0→0x12；00219F34等结束/取消分支→0x14；成功完成0021A1D4→0x04；分块数据0x13走+8的原始发送槽，不从gain设置构造。所有固定对象经ELF RELATIVE重定位取地址后读取24字节原文，见native/constants.json。
+上述路径没有隐藏的0x2B常量。旧Sensor的00204940确实通过自己的首槽发0x2B，但其已识别调用仍来自旧启动00207A14，不是这两个USB对象。
+
+5. 覆盖与不能外推的范围
+除上一轮18个直接sendCommand调用点，此轮保存了应用地址区00170000..00281000的3165个blr/br上下文；经保守的短程寄存器传递筛出119个“target=load(load(x0))”首槽调用，位于88个函数，逐函数导出。其余首槽大类是事件注册/取消、文件/流写入、CBOR/JSON输出、旧Sensor、Frozen、升级器和本节新状态机；不是仅按“gain”字符串筛选。
+脚本采用12条指令上下文，用于寻找可识别虚调用，不是全程序指针别名证明；未声称3165处全部已证明不可产生gain。保存原始候选、筛选脚本、88函数导出，便于复核遗漏。新查到的实际USB首槽重试已回溯输入，不再留作“未查虚调用”。
+现有材料下没有一个已指认、尚未追的USB gain生产函数。可执行的下一步是：取得对应版本运行日志或只读USB流记录，核对是否出现0x2B及首次发送栈/源对象；或者获得另一版本/维护组件后对新增入口做差分。没有这些材料，不用重复同一直接xref或关键词来制造进展。

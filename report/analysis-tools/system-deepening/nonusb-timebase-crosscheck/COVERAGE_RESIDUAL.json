@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-08",
+  "scope": "G0 USB 5.5.34.0 and nonUSB 5.5.34.0 software timebase; startup bytes and integer arithmetic only",
+  "byte_checks": 46,
+  "byte_checks_failed": 0,
+  "closed": [
+    "nonUSB independent SysTick vector, handler, tick increment/read and 32-bit tick RAM",
+    "nonUSB .data copy mapping and byte-verified default clock/step/priority",
+    "nonUSB q/N/LOAD integer formula and conditional nominal millisecond unit",
+    "Side-by-side USB/nonUSB comparison with separate evidence for each row",
+    "Documentation state correction: prior 'nonUSB not checked' statements are historical, not current gaps"
+  ],
+  "remaining_static": [
+    {
+      "id": "nonusb-clock-writers",
+      "target": "nonusb",
+      "detail": "Identify the writers of clock_frequency_variable 0x20000250 and their callers; USB has three (0x08014C8C/0x08014D40/0x08015218) but none are established for nonUSB.",
+      "kind": "available-static"
+    },
+    {
+      "id": "nonusb-config-entries",
+      "target": "nonusb",
+      "detail": "Bind the actual configuration entry points and their error paths; USB found 0x08019FD0/0x0801A084 and error halt 0x08010C04.",
+      "kind": "available-static"
+    },
+    {
+      "id": "error-helper-side-effects",
+      "target": "both",
+      "detail": "USB 0x08012430 side effects not followed; nonUSB equivalent not identified. External watchdog/reset behavior unknown.",
+      "kind": "available-static"
+    },
+    {
+      "id": "all-upstream-config-selections",
+      "target": "both",
+      "detail": "Range checks that choose 16/32/8 MHz configurations are not bound to a marketing model or physical oscillator.",
+      "kind": "available-static"
+    },
+    {
+      "id": "switch-transition",
+      "target": "both",
+      "detail": "Time between clock source switch and SysTick reconfiguration, lost or slowed ticks, and relation to sampling peripheral clocks.",
+      "kind": "available-static-plus-measurement"
+    }
+  ],
+  "remaining_measurement": [
+    "Physical core clock and PLL lock",
+    "Interrupt latency, masked-interrupt regions and wall-clock send deadlines",
+    "ADC CLKIN / DRDY and achieved sample rate; 0x3c frequency=500 is not a measurement",
+    "Current installed firmware and board type"
+  ],
+  "explicitly_excluded": [
+    "Shared log formatting/reentrancy (a separate prior task was stopped by an automatic safety check and is not retried or rephrased)",
+    "Malformed frames, corruption or exploit development",
+    "Device/account/API access, vendor binary execution, online confirmation"
+  ],
+  "prior_records_left_unchanged": [
+    "report/analysis-tools/system-deepening/sensor-timebase/FINDINGS_ZH.txt",
+    "workspace/algorithm-opportunities/sensor-clock/FINDINGS_ZH.txt",
+    "report/analysis-tools/system-deepening/sensor-nonusb-dispatch/FINDINGS_ZH.txt"
+  ]
+}

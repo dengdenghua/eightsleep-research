@@ -1,0 +1,111 @@
+Eight Sleep MTK 原厂包：传感 MCU 采集链分析
+日期：2026-11-07；静态分析，未运行目标固件、连接床垫或刷写设备。
+
+结论与适用范围
+本样本恢复出两组最多 8 通道 ADS ADC、四组 6 轴 IMU 的采集程序，500 Hz ADC / 100 Hz IMU 的发送节奏，以及 ADC SPI→MCU 缓存→0x3c 数据包→MTK 主机的对应关系。
+这不是“每侧 16 个压电传感器”的证明。16 是协议里的 ADC 槽数；实际主机 Stealth 路径使用其中 5 路 piezo-buzzer 和 4 组 IMU，旧分支还输出另外 2 路 piezo-multi-channel。官方每侧 9 个 biometric sensors 与 5+4 数量吻合，但还缺 BOM/原理图/实机资料，不能认定为已证实的物理构成。
+本报告针对一个官方发布包中的具体固件及硬件修订分支，不代表所有中国销售 Pod 6，也不代表所有旧代产品。
+
+1. 样本、地址和复现
+原样本：../../mediatek/rootfs-selected/opt/eight/lib/subsystem_updates/firmware-sensor-g0-usb.bbin
+大小 140828 bytes；SHA256 1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563。
+BBIN 头 128 bytes，版本原始字节 05 05 22 00，即十进制 5.5.34.0；不要写成 5.5.22。
+完整 BBIN 映射地址 0x08010000，初始 SP 0x20024000，reset 向量 0x08029AD5（Thumb）。头/正文 CRC 检查通过，见 bbin-inventory.json。
+同包还含 non-USB G0、legacy sensor、pillow 和 frozen 固件，不能混用地址。non-USB G0 虽版本相同，SHA 和加载地址不同，未把本报告逐函数结论自动套过去。
+
+Ghidra 持久项目：ghidra/sensor.gpr。主要最新证据在 resolved/，每文件同时保留伪代码和带常量注解的汇编；较早 targets/、repaired/ 是过程文件。
+处理过 Cortex-M0 长分支被识别为假函数、只读常量传播、共享尾部和三个命令 switch 表。RecoverSensorSwitches.java、RepairSensorLongBranches.java、MarkSensorFlash.java、ExportSensor.java 保存修复方法。修复并非源代码复原，重要结论仍与汇编/发送接收两端交叉核对。
+证据编号及路径见 evidence-ledger.json。函数地址皆属于上述 SHA 的映像。
+
+2. 硬件修订与实例化
+0x08027834 读取制造信息中的 hwrev，并依次应用阈值不高于当前修订的配置回调。表 0x0802FBC8 包括 0x000、0x805、0x900、0xA00、0xA05、0xA10、0xA30、0xA33、0xA34、0xA35、0xA36、0xA37、0xA87、0xA90。
+命名函数按高位加字母 A 生成：0xA00=K00、0xA30=K30、0xA32=K32；不能因为数值含 A 就叫 A00/A30。这些是 sensor board 修订，不等同 Linux 主板 I00/I21，也不是销售地区编码。
+主初始化 0x0801F0D0 对 hwrev>=0xA00 走多通道路径：尝试两个 ADS 实例、四个 LSM 实例。ADC 成功标志放在发送 flags 的 bit8/bit9，IMU 成功标志放在 bit12..15。初始化失败的设备不会因协议保留了槽位就变成实际有效传感器。
+多通道路径请求 ADC PGA=100（1x），软件倍率第一组 1、第二组 4。旧修订分支使用两通道配置和 PGA=400（4x）；应区分模拟 PGA 与读出后的整数乘法。
+驱动日志中的 left/right 在此层是两个 ADC 实例标签，不能直接当成床的左右侧。MTK 主机通过 USB 拓扑把每个逻辑 sensor 设备分配到一侧，详见 ../signal-host/SIGNAL_HOST_ANALYSIS.txt。
+
+3. ADC 寄存器、格式与有效样本
+0x0801DAB8：ID 解析的通道数接受 2..8；对 2、4、8 通道分别写 CLOCK 寄存器 0x031A、0x0F1A、0xFF1A。其低位是 HR 模式和 OSR=8192，高位是通道启用掩码。寄存器布局与 TI ADS131M0x 家族一致；八通道实例对应 ADS131M08 的寄存器模型。
+0x0801D940：请求值 100→gain code 0（1x）；依次跨 200/400/800/1600/3200/6400/12800 门限得到 code 1..7（2/4/8/16/32/64/128x）。GAIN1/GAIN2 以每通道 4-bit 字段写入。
+0x0801D7DC：每 SPI 帧为 (N+2)*3 bytes，即 24-bit status、N 个 24-bit 样本、24-bit CRC word。status 的前两字节按 BE 解释，低 8 位为新样本有效掩码。仅更新有效通道，没有更新的槽保留先前值。
+每样本由三字节 BE 有符号 24 位符号扩展至 int32，再乘软件倍率，最后按 channel map 写入目标槽。不是把三个字节无符号拼起来，也没有在此函数换算为伏特、力或体动强度。
+改变配置后的短暂阶段，计时器小于 8 时回用缓存；正常路径先检查数据就绪，再读 SPI。采样开始/增益变化会清空队列并 resync，另有约 300000ms 的周期重同步路径。时序作用见 0x08026810、0x080268C8 与主循环。
+0x0801D228 / 0x08029218：SPI CRC 开启时对整帧检查余数为 0；poly 0x1021、初值 0xFFFF、MSB-first。这个初值与外层 LSP 的 0x1D0F 不同。
+
+4. 通道重映射
+两个 ADC 各有 8-byte destination map，默认 identity；制造/板级配置可覆盖默认表。
+恢复的命令表明确 opcode 0x47→0x080215C2→0x08026130。此 opcode 属于传感 MCU，不能与其他 MCU 的同号命令混淆。
+payload：[op, adc_index, optional_map...]；adc_index 只能 0/1。
+op=0、长度2：读取。op=1、长度2：重置 identity。
+op=1、长度6：设置低4通道索引（每项0..3），高4项强制4..7。
+op=1、长度10：设置全部8项（每项0..7）。成功响应带 ADC index 和 8-byte map；形状错误返回6，字段错误返回9。
+代码未要求 map 是排列，重复目的索引合法，后处理的源通道会覆盖前者。因此线上的槽顺序不能直接当成传感器空间坐标。
+K32 配置还可能依据制造字段对 IMU 配置记录重新排序，见 0x0801CC7C 中 0x0802FD4C/0x0802FD4F 表；这进一步限制“第几组就是床上哪一块”的推断。
+
+5. 500 Hz 的三组证据
+直接代码：0x080268C8 把 callback 0x080233F4 和频率参数 500 交给板级 timer installer。K30 installer 0x0801CC04 按 10000/freq-1 配定时器；名义回调间隔 2ms。
+发送与接收：主循环发送头中频率为 0x01F4；ADC 每五帧组合一次，主机每帧的相对时间加 2ms，双方相符。
+寄存器条件推导：0x0801CC7C 写 Si5351 的四份配置表；MCU 软件 HSE 参考值为32MHz或16MHz，但其与 Si5351 CLKIN 的物理连线未证。假设参考一致，gm1启用输出索引5/7，gm启用2/3，gm1_ss及16mhz变体仅启用7。索引5/2/3对应表内的分频与R divider可算出8.192MHz；索引7的整数分频寄存器91=108，但最终R divider寄存器92没有写入这几张表，且厂商给出的reset内容未指定，不能默认R=1。
+因此尤其对两份ss配置，实际输出仍是8.192MHz/R；只有R=1且该输出确实给ADC供时钟，才由ADS HR fMOD=fCLK/2、OSR8192得到500SPS。提取脚本 extract_clock_profiles.py 和 clock-profiles.json 已按活动输出逐项记录，未知的final频率为null。不能拿未启用MS5的分频代替活动输出7。
+审阅记录见 AUDIT.txt。这是对早期“时钟表独立证明500SPS”的勘误；带spread-spectrum的配置也不能声称瞬时间隔恒定。实际PCB连线、NVM/先前寄存器状态和示波器数据仍缺失。
+主采样回调的 500Hz 请求/0x3c 包中 500Hz 字段是直接代码事实；ADC 实际持续时钟及丢样率仍属于运行时未知。
+
+6. IMU 家族、速率与数据处理
+0x08024D60 读 WHO_AM_I 寄存器 0x0F，要求 0x70。寄存器集与 ST LSM6DSV 家族相符，但 LSM6DSV16X 等兼容型号可能共用此标识；没有封装丝印/BOM 时不锁定精确料号。
+0x080219D0 最终 CTRL1(0x10)=0x16、CTRL2(0x11)=0x16、HAODR(0x62)=2；依 ST LSM6DSV datasheet 表19，HAODR selection 2、ODR code6 对应 100Hz。CTRL3(0x12)=0x44 包含 BDU 与地址自增配置。
+0x0801EF68：读 STATUS_REG(0x1E) 和 DRDY，只有加速度/陀螺仪对应就绪时才更新该组；SPI 发 0xA2，从输出寄存器0x22连续读12字节。原数据是6个 int16 LE，顺序 gyro x/y/z、accel x/y/z，写入 MCU 发送缓存时改成 BE16。
+正饱和 32767 被压到 32766，为 0x7FFF 缺样标记留空间；负32768保留。没有在这条输出路径转为 g 或 dps，报告/解析器保留原始 counts。
+0x0802177C 的五样本平均属于启动自检用的 on/off 差分检查，不能算作呼吸/心率特征提取或正式输出路径的5点低通。
+主循环维护四个实例，各12字节。虽然ADC批里附有一份IMU块，不能把该块在五个ADC记录中重复携带理解成IMU本身采样500Hz。
+
+7. MCU 队列和线协议
+0x080233F4 每次定时回调入队一个80-byte ADC内部记录，含时间/状态和16个int32；每第五次还入队一个48-byte IMU记录。队满增加overflow计数，不能保证连续无丢帧。
+主循环 0x0801F900..0x0801F9AA 等待 ADC队列>=5 且 IMU非空，再发送一次 0x3c。
+
+0x3c payload，所有多字节整数字段均 BE：
+offset 0    uint32 MCU tick(ms)
+offset 4    uint16 flags：bit8/9 ADC组；bit12..15 IMU组
+offset 6    uint16 frequency=500
+offset 8    5 × 16 × int32 ADC，共320 bytes
+offset 328  4 × 6 × int16 IMU，共48 bytes
+总376-byte payload；加opcode为377-byte LSP body。
+发送编码 0x080266DC 对16路逐个用 BE32 写入；IMU 已在读出函数形成 BE16，所以用memcpy保留。
+批次名义周期10ms；实际调度延迟、USB传输和缓存堆积未经观测。
+
+外层 LSP（从主机接收与MCU发送互证）：0x7E | escaped(length_BE | body | CRC16_BE)。0x7D 后字节 XOR0x20，CRC覆盖body，poly1021初值1D0F；运行固件长度2字节，bootloader路径1字节。没有必需的尾部0x7E分隔符。body首字节低7位是opcode，高bit保留为flag，不擅自赋予ACK/方向语义。
+
+8. 与 MTK 主机对齐后的含义
+每 USB 逻辑设备分配一侧，不是ADC0..7属于左侧、8..15属于右侧。
+已恢复 Stealth raw loaders 的路由：
+ADC0..7：包内存在，但这几个已审阅 raw loader 未消费。
+ADC8..12：5路 piezo-buzzer，500Hz。
+ADC13：旧 extADC，并在旧输出中重复到两个兼容槽。
+ADC14..15：2路 piezo-multi-channel，500Hz，仅 all-types 分支输出。
+四组 IMU：每组gyro/accel XYZ，100Hz。
+主机 sinfo rev>=0xA00启用该路线；0xA00..0xA2F 启用 all-types，>=0xA30只输出buzzer与IMU。0xA00和0xA30的命名分别为K00/K30；中间范围保留数值比较，不凭命名函数生成不存在的K2F标签。
+NATS raw.x.sens.stealth 的一个消息是多个 CBOR 对象串接；CBOR元数据按CBOR规则编码，样本 byte string 是宿主小端 int32/int16。version/lver/rver源自flags，不能按名字当作固件版本。
+主机添加墙钟锚点、处理一格间隙/缺样哨兵并重新组织通道；详情和地址在信号主机报告。本报告不重复所有logger实现。
+
+9. 信号处理能说明到哪里
+已恢复采集输出路径包括ADC自身过采样/数字滤波配置、PGA、符号扩展、倍率、有效位/缓存、映射、时间同步、序列化、缺样处理。没有在这条已审阅数据流中发现呼吸/心率/HRV/睡眠分期模型的执行。
+这只是该路径的有界结论，不是整包任意代码都不做信号处理的证明。主机后续以原始传感数据上传；云端空间分离、去伪影、HR/HRV/RR估计、分期模型与参数不在本固件的已恢复内容里。不能拿通用BCG算法补成Eight Sleep实装。
+服务器边界与本地模型盘点见 ../sleep-pipeline/REPORT.txt；官方“9个传感器”的描述不是芯片BOM。
+
+10. 离线工具与验证
+adc_spi_decoder.py：解析ADS SPI接收帧、CRC、signed24、倍率、有效位和通道映射，默认缺样用None，不假装初始零值就是测量。
+test_adc_spi_decoder.py：7项合成测试，含标准CRC oracle、负数边界、部分更新、重复映射覆盖、损坏CRC、PGA门限和长度错误。
+../signal-host/host_signal_parser.py：LSP/0x3c/CBOR序列离线解析，12组自测。
+test_signal_integration.py：新增3项跨层合成测试；用Python标准库独立CRC构造两组SPI数据，按MCU的×1/×4路由合成5帧LSP，再用主机解析器还原；验证转义、负数/端序、5路与2路路由、时间戳回绕、禁用组与损坏SPI CRC。
+所有测试均通过。合成fixture验证字节计算的一致性，没有使用实机capture，也没有运行目标固件。不能据此证明噪声水平、准确率或硬件时序。
+
+11. 仍需外部证据的问题
+实体各传感单元类型/封装/床上坐标、ADC0组接线及未使用槽来源、修订与零售SKU/地区的对应；真实运行map/PGA、ADC参考电压/模拟前端、物理量标定、接触质量与串扰；实际丢样、晶振误差和时钟连线。
+云端如何使用各通道、空间分离与特征提取、睡眠模型结构/权重/窗长/后处理；本包不提供其完整实现。没有把这些未知标为完成。
+
+原厂技术参考（寄存器解释，不是实机BOM证据）
+TI ADS131M08 datasheet：https://www.ti.com/lit/ds/symlink/ads131m08.pdf
+ST LSM6DSV datasheet：https://www.st.com/resource/en/datasheet/lsm6dsv.pdf
+ST LSM6DSV16X datasheet：https://www.st.com/resource/en/datasheet/lsm6dsv16x.pdf
+Skyworks AN619：https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/application-notes/AN619.pdf
+Skyworks AN1234：https://www.skyworksinc.com/-/media/Skyworks/SL/documents/public/application-notes/an1234-si5351-16qfn-register-map.pdf
+Eight Sleep Pod6传感器官方介绍（2026-09-23）：https://www.eightsleep.com/blog/more-accurate-than-ever-the-sensors-in-pod-6

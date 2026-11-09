@@ -1,0 +1,72 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+睡眠结果人工反馈、算法版本元数据与研发在床标签
+分析日期：2026-11-07
+
+对象与范围
+官方腾讯分发中国 Android 包 7.63.5-cn-tencent，APK SHA-256
+8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+REA 索引 462a22f663ae482ea93bab3130b96eaf。仅静态分析；没有执行 APK、登录、调用账户接口或制造标签。
+来源与环境绑定沿用 APP_RUNTIME_AND_HARDWARE_ZH.txt、ANDROID_SLEEP_RESULTS_ZH.txt。
+逐项源文件哈希、查询证据、行范围见 physiology-quality/SOURCE_LEDGER.json。
+
+结论
+1. answers.dataQuality 的 high/low 是用户正/负反馈分支写入的固定字符串，不是该链计算出的压电信噪比、分期置信度或有效通道数。
+2. Session 的 sleepAlgorithmVersion、presenceAlgorithmVersion、hrvAlgorithmVersion 在这里被附加到反馈，未在该链用于加载或选择本地模型。
+3. App 确有由界面动作创建 presence-in、presence-out、going-to-bed 标签的功能；编译默认隐藏，并被命名为 R&D Truth Tags。接口与本地表已闭合，服务器使用方式未知。
+4. DeviceSideResponse 的 expected/connected 使用 SidePresence=COVER/PILLOW/NONE，描述附件配置，不能当作人的在床检测结果。
+
+一、用户质量反馈的实际入口
+MetricsHomeViewModel.selectFeedback(boolean, model) 先取消旧提交任务；存在普通睡眠内容模型 wg.b0 时，正向调用 submitPositiveFeedback，负向打开反馈弹窗。负向提交再收集问题回答。
+正向 coroutine 读取 selectedDate 对应 DailyTrends，进入 submitPositiveFeedback$1$1；负向对应 submitNegativeFeedback$1$1$1$1。
+两支共同调用 Im.G.w 构造基础 answers，再合并：
+  正向：dataQuality = "high"
+  负向：用户问题回答 + dataQuality = "low"
+Im.G.w 还加入 sentAt（当前时间按 UTC yyyy-MM-dd'T'HH:mm:ss'Z' 格式）、sessionDay、sessionIds。日期优先来自 DailyTrends，缺少时采用所选日期；缺少 sessionIds 时为空列表。
+这解释了这里的“质量”语义：是对已经显示的睡眠结果提交意见。没有从样本数组计算 high/low 的步骤。
+证据：feedback-select-compiled 4560–4663；feedback-compiled-mappers 两个完整 invokeSuspend；feedback-compiled-completion 162–311 与 feedback-compiled-collect-tail 303–327；feedback-base-answer-map 2865–2908。
+
+二、算法版本与 POST 合同
+Im.G.x 从 DailyTrends.c() 返回的主 Session 读取三种版本字符串，拷入 MetricsFeedback。它还附加 complete、processing、lagMinutes、remainingProcessingTime、sfsCalculator 等处理状态。
+这些是反馈溯源数据，不足以推导模型层数、权重、训练方法或端侧执行位置。
+完整索引中对 Session.m/n/o 三个版本字段的直接 Smali 读取搜索共 18 条，无截断；除 Session 生成方法/适配器外，观察到的外部消费者是 Im.G.x。该结论仅限这些具体字段的直接读取，不等于全应用不存在其他版本路径。
+链路：
+  MetricsHomeViewModel 的用户反馈分支
+  → Im.G.w / Im.G.x → uc.Y0 → uc.X0
+  → MetricsFeedbackProperties → MetricsFeedbackRequest(properties)
+  → MetricsTrendsRepository.sendFeedback → pc.i0 → oc.c.a
+  → POST client-api-proxy /v1/users/{USER_ID}/feedback
+client-api 归属由既有睡眠结果报告的 oc.c→ce.l.Z3 依赖注入证据确定，不能因为另一个功能使用 app-api 就混用主机。
+Properties 序列化包含 sleep_health_version、type、answers，三种 camelCase 算法版本字段，以及上述处理状态、defaultBranch、showHypnogramDetail、hasSnoreDetection、hasHealthCheck。
+领域对象默认 sleepHealthVersion="v3"、type="metrics"、defaultBranch="production"；这些常量在本处是反馈元数据，不证明具体生产模型架构。
+正向提交成功结果 ya.g 后，会保存所选日期为 last sleep data feedback date，然后 updateContentView。Smali 证明立即完成和协程恢复都走这一更新；JADX 的提前 return 外观不能照抄。这个回调不返回新的分期数组。
+证据：version-consumer-compiled 10820–10992；version-feedback-domain-fixed；feedback-send-mapper；feedback-send-repo；feedback-http-call；feedback-api-compiled 57–84；feedback-tojson 413–449；feedback-compiled-completion 158–249。HTTP 成功不证明后台已训练或重新分期。
+
+三、研发在床/上床标签：有实际创建入口，运行时开关未知
+Wc.b 的两个服务端可见性开关是：
+  presence-truth-tags：R&D Presence Truth Tags
+  going-to-bed-truth-tags：R&D Going To Bed Tags
+两者编译默认均 HIDE。ControlsViewModel.initializePresenceTagging 在任一值为 SHOW 时订阅标签，否则清空相应界面状态并返回。没有获取实际账户的远程开关值，不能断言普通用户已启用。
+ControlsViewModel 对 of.C0 界面动作调用 createPresenceTag(type)，以 Instant.now() 建标签，并生成临时 id "new_tag_" + currentTimeMillis()；初始界面会追加该临时标签。类型分别映射至 yd.o / yd.p / yd.n。
+实际调用为 createPresenceTag$2 → Fd.k → Fd.j → PresenceTagsRepository.createPresenceTag → sd.q → ud.b.b。
+请求领域对象将时间和类型转换为 PresenceTagsRequest(tag=RawNewPresenceTag(timestamp, value))。类型的编译 @Json 值为 presence-in、presence-out、going-to-bed。RawNewPresenceTag 没有单独生成适配器，Moshi 注册了 KotlinJsonAdapterFactory；请求嵌套字段按 DTO/反射合同判断，没有捕获运行时请求字节。
+POST app-api-proxy /v1/users/{userId}/truth-tags。
+主机绑定：PresenceTagsRepository 的 ud.b 来自 ce.k → androidx.fragment.app.d0.g → ce.l.X3（app-api）。这与上一节反馈的 client-api 是两条独立 API 链。
+接口同时声明 GET 列表、PUT 单个标签、DELETE 单个标签；本节深追的是创建与读取，未声称完整验证所有编辑/删除失败分支。
+证据：presence-featureflags-exact 197–219；presence-compiled-create-and-gate 三个完整方法；presence-ui-create-dispatch 2535–2552；presence-create-actual 672–723；presence-create-final-usecase；presence-create-wire；presence-tag-request-builder；presence-tag-raw；presence-type-wire 44–59；presence-di-binding 与 app-api-factory-helper。
+
+四、返回、缓存与界面读回
+创建返回 PresenceTagNetwork(id, timestamp, value)。sd.r 将其转为带 userId 的实体，写入 Id.h 缓存；后者在 Room 事务中通过 El.c 分支 3、Jd.f 的 Jd.a 分支 1 执行：
+  INSERT OR REPLACE INTO presence_tags (id,user_id,timestamp,value) VALUES (?,?,?,?)
+读取为 SELECT * FROM presence_tags WHERE user_id = ?，再经过 PresenceTagsRepository.observePresenceTags、Fd.J0 / I0、ControlsViewModel 的订阅回调，按三个类型分组生成界面模型。
+回调另有一个 16 小时判断：若 going-to-bed 列表含 timestamp > Instant.now()-16h 的标签，传给 UI 模型的相应布尔值为 false；无此标签则为 true。这里没有限定时间必须小于现在，不能把它改写成严格的“过去 16 小时”范围查询。未将此 UI 布尔值推断成自动睡眠检测、模型窗口或训练周期。
+JADX 将该循环反编译成了似乎最终总是 true；已用 Smali 的 isAfter、分支跳转和传参复核，报告采用编译指令语义。
+创建流的错误处理 lambda 参数是 Throwable，会显示错误并重新 initializePresenceTagging；文件名中的 $1$1 本身不表示成功回调。
+证据：presence-cache-result；presence-tag-network；presence-compiled-cache 144–266；presence-insert-callable 869–888；presence-dao-constructor 180–184；presence-dao-sql 277–283；presence-cache-impl 34–41；presence-observe-map；presence-domain-list-map；presence-ui-time-compiled 与 presence-ui-time-tail；presence-create-success（该查询标签名称沿用早期定位名，内容实际为错误回调）。
+
+五、与传感器自动识别的边界
+DeviceSideResponse.expected / connected → SidePresence.fromWire，只接受 cover、pillow、none；字段的这条用途是床罩/枕头附件配置。用户所在侧、附件连接、人工 presence 标签、服务器 presenceAlgorithmVersion 是不同概念。
+此次没有发现或还原“原始多通道压电 → 占床检测 → 睡眠阶段”的模型实现；不能把 truth-tags 名称直接当成训练管线证据，也不能把反馈 high/low 当成自动质量门限。
+对用户目标仍未解决的内容：服务器如何把反馈/标签与原始信号对齐、是否用于训练或在线修正、跨通道融合、睡眠分期权重/特征/epoch、以及 MT8365 不变时 Pod5/Pod6 传感结构的具体差异。
+这些未知项不会因为客户端有版本字符串和标签接口而消失。

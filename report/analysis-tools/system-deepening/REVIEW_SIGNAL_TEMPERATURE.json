@@ -1,0 +1,66 @@
+{
+  "reviewer": "report_language_finish",
+  "scope": "Targeted temperature math and output policy review; not full signal bundle review",
+  "date": "2026-11-08",
+  "issues": [
+    {
+      "severity": "substantive_formula",
+      "status": "Owner corrected report, contracts generator and model; reviewer re-read corrected formula and added discriminating assertion.",
+      "function": "08028b3c",
+      "claim_before": "u=W(c,a,r); W(a,b,max(b,u))",
+      "corrected_formula": "u=W(c,a,r); W(u,b,max(b,u))",
+      "evidence": "08028BD4 overwrites r4 with u; both final branches reach 08028B7A/7C setting r1=b,r0=r4 before final call 08028BA8.",
+      "affected": "FINDINGS line102 and model merge() all-valid branch"
+    }
+  ],
+  "verified_selected_claims": [
+    "W=(max+.2min+.1reference)/1.3 uses double arithmetic then float output",
+    "Window accepts 2..60 inclusive and returns -100 when none",
+    "Host stealthTemps validity masks differ from compatibility average",
+    "Compatibility output uses three f32*100 then signed16 before signed division by 3"
+  ],
+  "sources": [
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-signal-closure/FINDINGS_ZH.txt",
+      "sha256": "2c66c3d67e06234920f20193730eaf28537b797954da6cae1347853452673a57"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-signal-closure/model/fdc_temperature_contracts.py",
+      "sha256": "a2350c21ae33feb19e8eac1f7a24837e3aa737d65f354938abd5729528190a36"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-signal-closure/mcu-pass10/0802241c.txt",
+      "sha256": "3c7d250040555b61a9491cdc5eb5c1aee0cb3e280f63d6cee6a6ac2c30c7ab63"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-signal-closure/mcu-pass8/08028b3c.txt",
+      "sha256": "3612f85cd8e98221c2396e4ccfaf5c6ea8311b32260047208a83a9f3a8ac8ada"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-signal-closure/mcu-pass11/08028bf4.txt",
+      "sha256": "48a19eccab09df7eb806e220d11ca10d43dea9126accb46f3dd62d3e4b537cee"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-signal-closure/pass5/001f4140.txt",
+      "sha256": "192ddd8a4f49c4d4b1a3b25b7171d5bd3644d8e275bc579454cdfc44f464479c"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-signal-closure/pass6/001f3940.txt",
+      "sha256": "91734193f01528fb5c12ccfdd568ecbf2b26c8f4e2e1a3bed4ad5eda1ed462e9"
+    }
+  ],
+  "resolution_sources": [
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-signal-closure/FINDINGS_ZH.txt",
+      "sha256": "2c66c3d67e06234920f20193730eaf28537b797954da6cae1347853452673a57"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-signal-closure/model/fdc_temperature_contracts.py",
+      "sha256": "a2350c21ae33feb19e8eac1f7a24837e3aa737d65f354938abd5729528190a36"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-signal-closure/FDC_TEMPERATURE_MODEL_RESULTS.json",
+      "sha256": "64e248ab9b23e657b753c09dccaf836abe2ce3fce2bdd0c94234fe01920daed9"
+    }
+  ]
+}

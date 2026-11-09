@@ -1,0 +1,75 @@
+TARGET 0002f2b0 function=0002f2b0
+REF_TO 000309f4 UNCONDITIONAL_CALL owner=0003098c
+FUNCTION_BODY [[0002f2b0, 0002f2f5]]
+
+void FUN_0002f2b0(uint param_1)
+
+{
+  int iVar1;
+  uint uVar2;
+  uint uVar3;
+  int iVar4;
+  uint uVar5;
+  
+  iVar1 = DAT_0002f2f8;
+  uVar3 = 0;
+  iVar4 = 0;
+  do {
+    if ((param_1 & 1) != 0) {
+      uVar3 = uVar3 | 1 << (0x1fU - iVar4 & 0xff);
+    }
+    param_1 = param_1 >> 1;
+    iVar4 = iVar4 + 1;
+  } while (iVar4 < 0x20);
+  uVar5 = 0;
+  do {
+    iVar4 = 0;
+    uVar2 = uVar5;
+    do {
+      if ((uVar2 & 1) == 0) {
+        uVar2 = uVar2 >> 1;
+      }
+      else {
+        uVar2 = uVar3 ^ uVar2 >> 1;
+      }
+      iVar4 = iVar4 + 1;
+    } while (iVar4 < 8);
+    *(uint *)(iVar1 + uVar5 * 4) = uVar2;
+    uVar5 = uVar5 + 1;
+  } while ((int)uVar5 < 0x100);
+  return;
+}
+
+
+INSN 0002f2b0 70b5 push {r4,r5,r6,lr}
+INSN 0002f2b2 0021 movs r1,#0x0
+INSN 0002f2b4 2023 movs r3,#0x20
+INSN 0002f2b6 0a46 mov r2,r1
+INSN 0002f2b8 0125 movs r5,#0x1
+INSN 0002f2ba c407 lsls r4,r0,#0x1f
+INSN 0002f2bc 04d0 beq 0x0002f2c8 REF[CONDITIONAL_JUMP:0002f2c8]
+INSN 0002f2be 9e1a subs r6,r3,r2
+INSN 0002f2c0 761e subs r6,r6,#0x1
+INSN 0002f2c2 05fa06f4 lsl.w r4,r5,r6
+INSN 0002f2c6 2143 orrs r1,r4
+INSN 0002f2c8 4008 lsrs r0,r0,#0x1
+INSN 0002f2ca 521c adds r2,r2,#0x1
+INSN 0002f2cc 9a42 cmp r2,r3
+INSN 0002f2ce f4db blt 0x0002f2ba REF[CONDITIONAL_JUMP:0002f2ba]
+INSN 0002f2d0 094c ldr r4,[0x0002f2f8] REF[READ:0002f2f8=20003770]
+INSN 0002f2d2 0022 movs r2,#0x0
+INSN 0002f2d4 1046 mov r0,r2
+INSN 0002f2d6 0023 movs r3,#0x0
+INSN 0002f2d8 c507 lsls r5,r0,#0x1f
+INSN 0002f2da 02d0 beq 0x0002f2e2 REF[CONDITIONAL_JUMP:0002f2e2]
+INSN 0002f2dc 81ea5000 eor.w r0,r1,r0, lsr #0x1
+INSN 0002f2e0 00e0 b 0x0002f2e4 REF[UNCONDITIONAL_JUMP:0002f2e4]
+INSN 0002f2e2 4008 lsrs r0,r0,#0x1
+INSN 0002f2e4 5b1c adds r3,r3,#0x1
+INSN 0002f2e6 082b cmp r3,#0x8
+INSN 0002f2e8 f6db blt 0x0002f2d8 REF[CONDITIONAL_JUMP:0002f2d8]
+INSN 0002f2ea 44f82200 str.w r0,[r4,r2,lsl #0x2] REF[WRITE:20003770]
+INSN 0002f2ee 521c adds r2,r2,#0x1
+INSN 0002f2f0 ff2a cmp r2,#0xff
+INSN 0002f2f2 efdd ble 0x0002f2d4 REF[CONDITIONAL_JUMP:0002f2d4]
+INSN 0002f2f4 70bd pop {r4,r5,r6,pc}

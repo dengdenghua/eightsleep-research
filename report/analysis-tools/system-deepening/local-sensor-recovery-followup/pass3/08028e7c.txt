@@ -1,0 +1,71 @@
+TARGET 08028e7c function=08028e7c
+REF_TO 0801ef20 UNCONDITIONAL_CALL owner=0801ef0c
+REF_TO 0801ef3e UNCONDITIONAL_CALL owner=0801ef2e
+REF_TO 080218ea UNCONDITIONAL_CALL owner=080218d0
+REF_TO 08021914 UNCONDITIONAL_CALL owner=080218d0
+REF_TO 080290e0 UNCONDITIONAL_CALL owner=08028ec4
+FUNCTION_BODY [[08028e7c, 08028ec1]]
+
+undefined8 FUN_08028e7c(undefined4 *param_1,undefined4 param_2,undefined4 param_3)
+
+{
+  int iVar1;
+  uint uVar2;
+  undefined4 *local_20;
+  undefined4 local_1c;
+  undefined4 uStack_18;
+  
+  local_20 = param_1;
+  local_1c = param_2;
+  uStack_18 = param_3;
+  iVar1 = (*(code *)param_1[3])(*(undefined1 *)(param_1 + 5),param_1[4]);
+  uVar2 = 0;
+  if (iVar1 != 0) {
+    local_20 = (undefined4 *)0x0;
+    local_1c = 0;
+    (*(code *)*param_1)(1);
+    iVar1 = (*(code *)param_1[1])(param_2,&local_20,2);
+    (*(code *)*param_1)(0);
+    if (iVar1 == 0) {
+      FUN_0802ad68(param_2,&local_20,2);
+    }
+    uVar2 = (uint)(iVar1 == 0);
+  }
+  return CONCAT44(local_20,uVar2);
+}
+
+
+INSN 08028e7c f7b5 push {r0,r1,r2,r4,r5,r6,r7,lr}
+INSN 08028e7e 0500 movs r5,r0
+INSN 08028e80 0e00 movs r6,r1
+INSN 08028e82 007d ldrb r0,[r0,#0x14]
+INSN 08028e84 eb68 ldr r3,[r5,#0xc]
+INSN 08028e86 2969 ldr r1,[r5,#0x10]
+INSN 08028e88 9847 blx r3
+INSN 08028e8a 0028 cmp r0,#0x0
+INSN 08028e8c 18d0 beq 0x08028ec0 REF[CONDITIONAL_JUMP:08028ec0]
+INSN 08028e8e 0027 movs r7,#0x0
+INSN 08028e90 0120 movs r0,#0x1
+INSN 08028e92 2b68 ldr r3,[r5,#0x0]
+INSN 08028e94 0097 str r7,[sp,#0x0] REF[WRITE:Stack[-0x20]]
+INSN 08028e96 0197 str r7,[sp,#0x4] REF[WRITE:Stack[-0x1c]]
+INSN 08028e98 9847 blx r3
+INSN 08028e9a 6b68 ldr r3,[r5,#0x4]
+INSN 08028e9c 0222 movs r2,#0x2
+INSN 08028e9e 6946 mov r1,sp
+INSN 08028ea0 3000 movs r0,r6
+INSN 08028ea2 9847 blx r3
+INSN 08028ea4 2b68 ldr r3,[r5,#0x0]
+INSN 08028ea6 0400 movs r4,r0
+INSN 08028ea8 3800 movs r0,r7
+INSN 08028eaa 9847 blx r3
+INSN 08028eac bc42 cmp r4,r7
+INSN 08028eae 04d1 bne 0x08028eba REF[CONDITIONAL_JUMP:08028eba]
+INSN 08028eb0 0222 movs r2,#0x2
+INSN 08028eb2 6946 mov r1,sp
+INSN 08028eb4 3000 movs r0,r6
+INSN 08028eb6 01f057ff bl 0x0802ad68 REF[UNCONDITIONAL_CALL:0802ad68]
+INSN 08028eba 6342 rsbs r3,r4
+INSN 08028ebc 5c41 adcs r4,r3
+INSN 08028ebe e0b2 uxtb r0,r4
+INSN 08028ec0 febd pop {r1,r2,r3,r4,r5,r6,r7,pc}

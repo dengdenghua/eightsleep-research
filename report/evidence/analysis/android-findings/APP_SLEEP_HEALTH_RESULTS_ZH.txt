@@ -1,0 +1,184 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方中国 Android 7.63.5：干扰、打鼾、缓解统计与健康结果链
+调查日：2026-11-07；全部为静态观察，没有启动 App、执行 APK、访问业务 API 或取得真实用户数据。
+
+1. 样本、范围和结论层级
+
+APK：analysis/sleep-pipeline/distribution-followup/com.eightsleep.eight_7.63.5-cn-tencent.apk
+SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04
+REA workspace：analysis/android-volume/cn-7.63.5
+index_id：462a22f663ae482ea93bab3130b96eaf
+index SHA256：4a6a63564ae05b2404ebdd218a5c579798c3486a83ddbf92bc913274641843a4
+索引仍是同一代。JADX 存在 350 个错误，workspace partial；本报告关键数组格式、小时求和、阈值、片段累计、期间减法和等待状态均另读 Smali。没有重新 prepare。
+
+已恢复的实际链是：远端 trends/aggregate 结果 → DTO → daily_trends 缓存/显示模型 → 手机端分组、求和、百分比换算、片段时间拼接、阈值比较 → UI state。
+这些是手机上的真实计算，但输入已经是 health/snoring 结果，不是 Pod ADC、压电波形或麦克风音频。本轮没有恢复从原始信号识别心搏/呼吸干扰、打鼾强度或生成 wellbeing 的服务器算法、模型权重、训练集，也没有取得真实响应验证其时序约定。
+
+路径缩写均相对上述 workspace：
+J/ = java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/
+S/ = decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/
+S1/ = 同一 decoded APK 目录下的 smali/。
+Hxx = health-results/queries/xx-*.response.json；每项原始 REA evidence_id 与来源 SHA256 在 health-results/SOURCE_LEDGER.json，文末另列证据索引。行号为已保留反编译/Smali 文件行号。
+
+2. 请求、持久化和生产可达性
+
+沿用已闭合的真实调用：Loc/c.d 是 GET v1/users/{USER_ID}/trends；pc/Z.invokeSuspend 实际传 tz/from/to、include-main=false、include-all-sessions=true、model-version="v3"、consistent-read。ce/l.Z3 的 Retrofit 给出 CHINA client-api-proxy.8slp.net.cn，因此本请求绝对地址是 https://client-api-proxy.8slp.net.cn/v1/users/{USER_ID}/trends。这里只从注解/DI 得到地址，没有请求它。
+MetricsTrendsResponse.days → pc/a0 → DailyTrendsResponse.toEntity → daily_trends 存储；读取时 RawDailyTrends.a(displaySettings) 构造 DailyTrends，健康字段在其 L 槽。
+共享证据：deep_89121d561d033070f27304fd2e6565909eaed99b3e8e806a8bbc2f1bb7ee2d27（实参），deep_b2dca3fce1cf594659c51a3b708434886808d50308ada8e6af4e7d7aa8fb1a89（缓存），deep_f350d3f06163b78383daf18247021cf0e0c04ec760a8bdbeb41797a3d5a1c374（DI），deep_28d028d96f9bd03dfbe1c51d5d9a6020ef12673cf1962443ad86ccf825b8c4b1 / deep_ef33aac046c5fae9fe34a7de644535c1165a96c61a5e5d41a7dc3e839adf7909（三 Retrofit / CHINA base URL）。
+
+DailyTrendsResponse.java:556–621 的实际 toDomain/toEntity 保留 health、打鼾比例与缓解计数；RawDailyTrends.java:252、262–267、331 将 Session.snoring、mitigationEvents 和健康值传入显示模型。[H20,H21]
+各干扰 ViewModel 构造器把 DAY、相应 processor、HEARTBEAT/BREATHING metric type 交给 BaseMetricChartViewModel；SnoringViewModel 请求 SNORE、SNORE_PERCENT、SNORE_HEAVY、SNORE_HEAVY_PERCENT。公共 Base/aggregate 请求缓存路径已在 APP_CARDIORESPIRATORY_PIPELINE_ZH.txt 恢复；aggregate 使用 app-api Retrofit，不能把它与 client-api trends 域名互换。[H10,H15,H16]
+健康首页真实观察者 HealthCheckHomeViewModel$2$3.java:34–42 从 HealthCheckCalculationData 取 trends、aggregate 列表最后项、tags、pregnancyMode，调用 access$updateContent；Smali 调用图也找到这个调用者。不是只发现一个未引用 DTO。[H53,H64]
+
+3. health 的 wire schema 与数值来源
+
+DailyTrendsResponse.health 可空；HealthScoreResponse 的 breathing、heartbeat、wellbeing 三项也可空。breathing/heartbeat 的 HealthScoreStatResponse 必须具备 value(double)、rating、ranges、timeseries；生成 adapter 对四项缺失/null 抛错，timeseries 本身可为空列表。[H07,H08,H11,H19]
+
+HealthScoreStatTimeseriesEntryJsonAdapter.fromJson 是有序的二元 JSON 数组：beginArray → nextString → Instant adapter → nextDouble → endArray。即 ["时间字符串", 数值]。这与上轮 HR 的 MetricPoint 自定义读法不同，不能套同一解析器。它的 toJson 也写数组。ce/l.m3 把该 adapter 加进 Moshi 注册集合，已核对生产配置。[J/com/eightsleep/data_metrics/data/adapters/HealthScoreStatTimeseriesEntryJsonAdapter.java:7–27；对应 S/…smali:41–99；S/ce/l.smali:8472–8509；H06,H34,H41]
+
+rating 的枚举 wire 名经 Smali 注解核实为 inRange / outOfRange / unknown；这里的 UNKNOWN 是明确枚举值，不据此声称任意未识别字符串都会自动回退。ranges 有 inRange / outOfRange，子范围 min/max 为可空 Integer；本轮已追的详细图阈值路径并不读取这些返回范围。[H14,H27,H44]
+
+HealthScoreStatResponse.toDomain:99–108 透传 value/rating/ranges，映射各 timeseries 项；RawHealthScoreStat.a:29–37 做显示模型转换而不重新计算健康分值。RawHealthScoreStatTimeSeriesEntry.withDisplaySettings:67–69 将同一 Instant 和 ClockSystem 包进 Ga.s，value 不变；Ga.s(Instant,ClockSystem):234–240 保留 Instant，ClockSystem 是显示时钟制式，不是重采样或推理。[H07,H18,H56,H65]
+
+wellbeing 的必要字段为 value、rating、ranges、abnormalities、dayCount、daysUntilAvailable、daysUntilCalibrated；toDomain:136–137 七项透传给 rc/m。该转换没有根据 HR/HRV/RR 在手机重算 wellbeing。[H35,H36,H47]
+
+4. 干扰日图：实际小时分组、求和、边界
+
+HeartbeatDisturbancesMetricDataProcessor 与 BreathingDisturbancesMetricDataProcessor 的完整 transformDayData 已逐段读 Smali。[S/…/HeartbeatDisturbancesMetricDataProcessor.smali:76–421；Breathing…smali:76–423；H23–H26]
+
+共同操作：
+  a. 通过 P2.a.P(dailyTrends, selectedSessionId) 选择 Session，取 Session.e 起点和 Session.t duration；缺起点/Session 则返回 null。
+  b. hours = ChronoUnit.HOURS.between(start.Instant, start.plusMillis(duration.toMillis()).Instant)。这是完整小时数量，末尾不足一小时不再生成一个桶。
+  c. heartbeat 读取 DailyTrends.L.b.timeseries，breathing 读取 L.a.timeseries。遍历整个选中的日级健康 timeseries，按各点 Instant 经 Ya.d.f 的 getHour() 分组；该 key 只有 0–23，没有日期。
+  d. 对 i = 0…hours−1，输出时间为 start + i 小时，以该时刻的本地小时查组，把组内所有 value(double) 相加。没有这一小时的组、健康字段缺失或列表为空，sum 都走 0.0。
+  e. heartbeat 构造 wg/q(sum, sum<=3.0, time)；breathing 构造 wg/p(sum, sum<=14.0, time)。这是显示数据/布尔标记，不是原始信号检测。
+
+时区细节：分组用 Ya/C2102d.f:68–74 的 ZoneId.systemDefault()；输出 lookup 在 heartbeat 用 Ga.s.l:167–174、breathing 再用 Ya.d.f，二者也都取 systemDefault。它们不是直接按 Session.timezone 分组。[H32,H33]
+在上述方法范围内，没有按 selectedSession 的完整起止区间过滤健康序列，也没有以日期+小时作 key。Session 选择改变输出起点和桶数，不改变输入为日级 health 的事实。
+
+静态语义算例（不是实包、不是执行 App）：若起点 23:30、时长 2 小时 30 分，则输出桶时间只有 23:30 与次日 00:30；同一本地 23 点的 23:05 与 23:55 两个输入点都会被归入 key=23。若响应含不同日期的相同小时，它们也会落在同一个组。真实服务是否总是提供已裁剪且唯一日期的序列未知，故此处不是实机错误复现结论。
+
+单位边界：资源 breathing_disturbances_rate_format 为 “%.1f /h”（中文“每小时%.1f次”），heartbeat_disturbances_rate_format 为 “%.1f %%”。因此不能把心搏数值 3 或被求和的 double 一概叫作“3 次心搏事件”。本报告只记录代码阈值及产品显示单位，不作临床解释。[H54；values/strings.xml:781,1874；values-zh-rCN/strings.xml:769,1832]
+
+期间图的规则另有差异：transformPeriodData 从服务聚合 Sample.double map 直接选 HEARTBEAT 或 BREATHING，仍比较 <=3 / <=14；缺值则保留 null，不像日图缺小时变 0。没有从期间原始波形重新识别干扰。[H67；Heartbeat…smali:423–491，Breathing…smali:425–493]
+
+5. headline、健康卡片和等待状态并非同一种判断
+
+详细图 ViewModel.packageMetricData 用当前日期 DailyTrends.health 对应 value 作 primary，用 AggregatePeriod.doubleAvg[对应类型] 作 secondary；primaryGood 是 primary<=3 或 <=14。它不与 secondary 作比较，也不以返回 rating/ranges 决定这一个布尔值。health/字段不存在则 primary 和 primaryGood 为 null。[H15,H16,H66,H68,H69；HeartbeatViewModel.smali:269–347；Breathing…:258–336]
+
+健康摘要卡片 P2.D.u(rc/a) 则直接用各项的 rating==IN_RANGE 构造 wg/G；UNKNOWN 与 OUT_OF_RANGE 在此比较均为 false。缺字段不构造对应项；数组交给 Im.n.h0。MetricsHomeViewModel$updateContentView$1$2.smali:1101–1155 真正调用该 helper，并对结果 stats.isEmpty 做分支。因此“健康首页颜色”不能笼统归结为详细图的 3/14 阈值。[H30,H43,H52；S1/P2/D.smali:8175–8283]
+
+HealthCheckHomeViewModel.updateContent$lambda$12 还会对返回 value 选本地文案：呼吸依次判断 0、<10、<=14、其余；心搏依次判断 0、<2、<3、==3、其余。对应标尺参数分别为 10/14/31 与 2/3/12。这是 UI 层分档和标尺，不是已恢复的服务器 health 分类算法。
+精确细节：呼吸标题的 10/14 比较前存在 double→float→double，推荐文案分支直接比较 double；非常接近界值时不可把两段强行写成完全相同函数。[H40,H57–H59；HealthCheckHomeViewModel.smali:2911–3472]
+
+wellbeing 等待状态有真实消费者：updateContent.smali:1999–2063 读取 rc/m.f（daysUntilAvailable），与 0 比较，>0 时构造 wg/N(daysUntilAvailable)，其 toString 明确 Pending(daysUntilAvailable=…)。该计数由服务器 DTO 透传，不能把它写成手机根据信号质量自行训练或判断已校准；daysUntilCalibrated 虽保存在模型中，本轮未把它的所有 UI 消费者闭环。[H46,H47,H55]
+
+缺数据边界必须分开：有效 Session + 缺 health 在日图 processor 内可生成 sum=0，但 headline 仍可 null。Ag/b0.smali:528–565 对 DAY 且 primary 非 null 才构造一个附加日视图 lambda，主图 lambda 在:618–628 另行构造。本轮未穷尽公共 Compose 容器所有显示/遮罩分支，不能声称这些 0 一定出现在真实屏幕上；也不能仅由 headline 为 null 推断所有图形都被隐藏。[H42,H48,H49]
+以上是字段可用性、时间桶和显示状态，没有恢复与 Pod6 多通道 ADC 绑定的 SNR、通道权重、传感器置信度门限或质量融合规则。
+
+6. 打鼾：服务器分段、手机时间累计和期间减法
+
+SessionResponse.snoring 是可空 List<SnoringResponse>，每项需要 intensity 与 duration(int)。enum wire 名为 none/light/medium/heavy；MEDIUM 和 LIGHT 的 labelResId 相同。toDomain 将 duration 按秒转 Duration；SessionResponse.toDomain:356–365 把缺列表转空列表，保留每项强度，不在此重新检测打鼾。[H12,H13,H22,H29,H45]
+
+SnoringMetricDataProcessor.transformDayData 取被选 Session.k 与 Session.e，交给 Tb.a.m0。m0 的第一个片段从 Session 起点开始；后续片段 start=前一片段 start+duration。输出 intensity/duration 保留，日片段 percent 字段统一为 0.0。响应每项没有在这个 DTO 中携带独立绝对 timestamp，日图由顺序与时长重建连续时间；不能把 UI 重建时间当成设备原始检测时间戳。[H09,H17,H34；S/Tb/a.smali:7598–7713；SnoringMetricDataProcessor.smali:73–126]
+
+期间图只取聚合值：SNORE、SNORE_PERCENT、SNORE_HEAVY、SNORE_HEAVY_PERCENT。duration 缺失默认 ZERO，比例缺失默认 0；百分数除 100。构造 LIGHT duration=总量−HEAVY，LIGHT fraction=总比例−HEAVY比例，另外保留 HEAVY。该方法没有在减法后 clamp，所以不能先假设不一致响应一定被修正；本轮没有真实不一致响应。[H37；SnoringMetricDataProcessor.smali:128–295]
+
+SnoringViewModel 当前 summary duration 来自 DailyTrends.sleepQualityScore.snoringDurationSeconds.current，非累计日图片段；DAY 基线取该 metric.inclusive7DayAverage，其他周期取 AggregatePeriod.durationAvg[SNORE]，缺基线默认 ZERO。
+summary snore fraction 来自 DailyTrends.snorePercent/100，period 比例来自 AggregatePeriod.doubleAvg[SNORE_PERCENT]/100；本地 primaryGood 比较 fraction<=0.1。这个 10% 是显示比较值，不是音频/压电打鼾检测门限，也不证明 summary 与片段必定相等。[H10,H38,H39,H62,H63；SnoringViewModel.smali:277–476]
+
+7. 缓解结果能恢复到什么程度
+
+DailyTrendsResponse 提供下列可空 Integer，并在 toDomain→RawDailyTrends→DailyTrends 保留：
+  mitigationEvents、stoppedSnoringEvents、reducedSnoringEvents、ineffectiveExtendedEvents、cancelledEvents、elevationDuration、theoreticalSnorePercent、snoringReductionPercent、elevationAutopilotAdjustmentCount。
+字段被缓存不等于手机实现它们的统计公式；本轮没有把 theoreticalSnorePercent 或 snoringReductionPercent 还原成一个本地计算公式。elevationDuration 在这条转换中是原样 Integer，也未据名称自行指定单位。[H19–H21,H60]
+
+SessionResponse.mitigationEvents 是 List<Object>，在已追转换中保留至 Session.l。本轮对当前索引所有 Smali 的直接 iget-object 引用搜索只有 Session 的 equals/hashCode/toString 和 SessionJsonAdapter 写出；未恢复一个具有已知字段的 typed mitigation-event 消费器。这是精确字段引用范围内的未闭合项，不是证明整个产品不使用缓解事件。[H29,H50]
+
+DailyTrends.m（mitigationEvents 数量）有明确非序列化消费者：P2.k.B 构造 loading_intelligent_snoring_mitigation 的参数文案，只有计数>0 时加入。邻近分支把 SQS snoringDurationSeconds 转整数分钟、把 snorePercent 用于 analyzing/processing 文案；这里的 processing 字眼不能当成检测算法正在手机运行的证据。[H31,H61；S1/P2/k.smali:615–697]
+对 m…u 字段的直接读取检索还包含大小写相近的 M/N/O，审阅时已按实际小写字段过滤；该检索未恢复其余缓解计数的独立显示公式。[H51；保留完整未截断检索，不能用关键字阴性做产品级否定]
+
+Autopilot recap 的展示关联由另一份报告闭合：AutopilotViewModel$observeAutopilotRecap$1$2.java:64–116 取主 Session.snoring，仍用 Tb.a.m0，按 elevationAdjustment.timestamp 是否落入片段匹配强度，默认 NONE，再构造 UI 模型。那是返回 recap 与打鼾分段的展示合并，不会据此在本地触发抬升动作。
+共享证据：deep_475e1f0e8ba133d25f6d3870b62fad3924c3b6b6e6febb783cf760a0d09921f6、deep_8ea29de1c03f950b8b16005f98d2ae3f4a3a5eda646cf5c5c9f2089c420c9712、deep_d61bb2058b4f33d5aeb5b5fa730591e59fcbc186ecbbfc35beccd4cdebe6270d。配置写入、远端抬升策略和设备执行链不由这三个显示证据替代。
+
+8. 可复用结论和未闭合边界
+
+已回答：health/snore 响应字段与数组格式；trends 缓存/转换的生产路径；干扰日图小时分组、整小时桶数、缺小时默认值、期间缺值规则；两套 rating/阈值显示规则；打鼾时间拼接/期间减法/summary 来源；daysUntilAvailable 的 Pending 消费者；缓解计数的存储与一处文案消费者。
+部分回答：UI 最终所有可用性/遮罩分支；wellbeing abnormalities/ranges 在全部页面上的消费者；全部校准状态字段；缓解结果对象的内部 schema 和其它统计公式。
+未回答：从原始传感数据到这些结果的检测算法、窗口/特征、模型权重、心搏与呼吸干扰的服务端定义/筛选、打鼾强度判定、缓解有效性计算、Pod6 各传感通道质量权重以及后台推理的版本绑定。本 APK 的正向已恢复链明确从远端结果开始，不能以此断言“整个 App 没有任何算法”或“所有平台/机型都只在云端处理”。
+
+本报告属于静态源码/Smali 观察。时间桶算例只是由已读条件推导的例子；没有合成响应冒充实包，没有把资源说明当医学结论。
+
+9. 本轮保留证据索引
+
+H02 02-heart-processor deep_301d0356fc82bc23598e8a98fc0a65e18f726d23775812d295fcf5e33efb498a
+H03 03-breath-processor deep_82ad5ae8f8a72f6e1eb4da830d04536c7b911818353a0418aa6cacff51bee399
+H04 04-health-models deep_5aaa9beb777839dcd291048eab38179b7462cd17044446daa798ea78942a2866
+H06 06-health-series-adapter deep_5ab147b4e2068d06346811121bbae4cc43d5000466c49f401f2fcb96997de61a
+H07 07-health-stat-model deep_a9ab90d8b27b1b8f9c57bf45fb3250949561f7af559a2bb3ceb008f0a34f70fc
+H08 08-health-top-model deep_650e9b9c7bbeffa02d3a4aeada3f43d6b38776db0c6fe864b20c43c44dac4fcf
+H09 09-snore-processor deep_d1e7606fdd385438b1a24d58023f2b5867df8bc0d46c8f4f080b25f151488c82
+H10 10-snore-viewmodel deep_ba583fb7f53d883ff4b24a92b8ae4eb7603646a225b86e8660545e95295ee3d3
+H11 11-health-stat-adapter deep_5a50d13e9c8a8d040e16c1ae6d83c721e276108b65ef1f8bb31993b69231d73c
+H12 12-snore-response deep_76459319bf672cda81de59a584a67b1380851828da1bde5f82b0a80da9a92165
+H13 13-snore-adapter deep_cfff9fef2e867f9a9f88683a39cfa292de1379f7beb7c602214fd2f27f707045
+H14 14-health-range deep_04ba5066ece13da1d3d89c257290c02a30f2234eee6c19865a39f88a0a3a68a7
+H15 15-heart-viewmodel deep_8f6a2cc4dd9ce3eb5f3d014589e9046e920b6cf68673b6f510fcd4ab628d801c
+H16 16-breath-viewmodel deep_094dfa616b70b47eadb1fb9bdf6a5aa2958e177edf056defde2d117daf73f6a8
+H17 17-snore-time-map deep_98997c530aab6364511be21ab15f64e826104d34e6545973c364c844dc8db827
+H18 18-health-display-map deep_d4baf44622a4cb00cf67e9fdc1c3b531f1417b2b21c33c8974c2944d4a69edf1
+H19 19-daily-fields deep_62534f29d9d324ebad30c7363eaa1e4d0bbeeefc835c0d2c8d869ae0cf21c1fd
+H20 20-daily-response-map deep_a9c452c835f0d2d8e9da9cb90f0d3c9665ad33a04707a7edbc2a18c989cc7476
+H21 21-daily-display-map deep_5d4c6b0a18c324cd8e20ae8fe2101c130c54e875f1a45d66d61f52bd52d3a901
+H22 22-snore-intensity deep_e8e519b75d535f723aa201f34d0b60a84b58d7440a5d9ef7f4ab808107d71181
+H23 23-heart-smali-first deep_420ae0a38f67c850524358a9f935c6aa2ef700b6d2dc0ddb07f19dde0603c4f8
+H24 24-heart-smali-tail deep_2343a5638504c7c3e6e3211ec6e8b7fad269cf7fdca37737dd696a7a5c038c4c
+H25 25-breath-smali-first deep_a7a586d11026a3ead614639314999cef79057515571f05e31f354b2116dc63bc
+H26 26-breath-smali-tail deep_252a31b597d819f98f0408e6d2830ffef67a03463e0a8245d00eb5121c38d587
+H27 27-health-range-adapter deep_721705500a12f11421d1faf9de5f9ede523575f2cc0ce38f57b4fd0114f514b7
+H28 28-health-rating deep_31bdf71e77a32c1911381c687be43493bf5fc59ed46df26c1d6b419f7dae335d
+H29 29-session-snoring deep_d3be58a247bf666931051fcf830dd63f58af8539b21ded08a63612797a4c052f
+H30 30-health-card deep_6ce8c576e7b9062aaf1af0dd211a06d46260b6028179c7b2376de56d4bd15f45
+H31 31-mitigation-summary deep_002798898e69a9360640c3406191d8e52130ad8131f690cd21cdfece35b9d17a
+H32 32-timezone deep_287bfa973fef69df32945e78bcfcd67fd3a31f23a1022e816744b41a0f77fa17
+H33 33-clock-helper deep_7ffe62f1bdd8e8c712f1621d3422245b5682f9d226ce68df086362a8b825a079
+H34 34-parser-snore-compiled deep_6da98e591fdfda6213555156d941c1d2ab2bdf65ade598ffd467ad4affca1e78
+H35 35-wellbeing-response deep_e953fd978c51a840a667e4c845120052e72f086f2a58e99f5c74b4ba1d3f67af
+H36 36-wellbeing-adapter deep_9e4ce7719bd23303cbb41ee8a2daa03d3d391dced608135fd2ce9b0dcbca27af
+H37 37-snore-period deep_04c0600c7d1a4d832a433af07d2842403604ab2fabca17ecd1c7929c2609b5e1
+H38 38-snore-period-map deep_f81d82881084deae277520a969545c5320c3b4ae1db6798bf4e4eba75c0a626e
+H39 39-metric-field deep_b7180489389916783276b5475aea2161383079887ae5ab52ec6eb0f755590535
+H40 40-home-health-state deep_e06092ac2108717fb7fb6135890b0e468fa7c18073e5e4e1af0caf4bb0ce5ff2
+H41 41-adapter-registration deep_4e3ef41b2b95064319d1e50ae05866c6f89ef5a54981073ed138bf62e8725064
+H42 42-heart-screen deep_ea3a99b94f1e67832f07bea641f90baace04b0a7b955bacf74125e7627011a53
+H43 43-health-card-caller deep_8905120aa96b84b1844ef47d1993e5d31135bedad797721a6a0241820b85b1b3
+H44 44-rating-wire deep_d65398b9adac06bb1e227609c0e61aa879b1e1dc9272ea64319d17bf80cbd3cb
+H45 45-snore-wire deep_d84ed6839ace6f5005842c34fa6531d727bb4c9fd275fc015dae43b5c954573d
+H46 46-health-calibration deep_745465697085e4234f1ce2d3c914955b5c94dc366b690cd694122c9f64e9b98c
+H47 47-health-domain deep_a96d616084fff0a17d17b5b2e03001dfda5bf6df903e674552e9537f3e4fe676
+H48 48-heart-ui-smali deep_4f2eef95158f009a84db875e3c2b5404472c8aafd8d9e94062769a302bb82671
+H49 49-ui-summary-value deep_caa6101a6368eb289acd7a8e0f9f36a532081c7de5bf11f27f506c18a9a2b276
+H50 50-mitigation-list-reads deep_6603ab1b3e7ef8f86098271bc38e0ed7df61f80526e99e8be749fc209afe1c8f
+H51 51-mitigation-counter-reads deep_8ec6d3dc5cb43a3db3bc6c33f295f60be9b7aac7b7f28677acf6b371d6a7a011
+H52 52-health-card-smali deep_be175beed92c1d61b319aaab9763baafe1d27ff50bea24dfcf1ea13b7f679a73
+H53 53-health-entry-callers deep_12b5a11568cc818871e30f302b325687249001b0a5da3908472e1da1745f4c41
+H54 54-health-format deep_b964809499fe9a7cde3b9f71275491427f0d04ace7df89c978dd40a1756b8669
+H55 55-health-pending deep_90a640b1f91e50282ce3c9e36d483574c94ddbf0e20954ad9d2fcd6956f93e69
+H56 56-health-entry-time deep_f900a24bb8982f36960eee94bf2cff7ee9345a8d9c7e364d37fe8418c9c715b1
+H57 57-home-threshold-smali1 deep_e6e4e4ccdd7da008e977ae502fa578f610c7277665ee6f488473ddb9e0207b1e
+H58 58-home-threshold-smali2 deep_75ecebf617d330fdac2b9f7e06b3cabe1b63d9a23750f9e4fddb660fc357d53b
+H59 59-home-threshold-smali3 deep_7363abd1429789bda0f179d4c5102207c9cdeceec5d3f08b95ba90fae7efea26
+H60 60-daily-field-identity deep_aacc6a01fc9dfa7e03552f1a46a3dfca916dfd68d066edb27e7b7ec6386d9b6a
+H61 61-mitigation-message-smali deep_a99ea630b8111a3600a2d46af78a5993e4d928a91feef469aa1b7ded02fb34c1
+H62 62-snore-summary-smali1 deep_4b258be02b3b29d967e23026a9b634389966f518b5c9077bea4b2b1f6ee7208e
+H63 63-snore-summary-smali2 deep_60255b78c8be18b74c0997973354f134089efbd0723148218a732e44eed87970
+H64 64-home-observer deep_ea36a3e9f364f7fc29fa75aac82993e04e1d728010313e6c8a8d8ddc0370b470
+H65 65-time-wrapper deep_bce2d518c53e840bb1bb56a25447bacb4075f3995ca27d85a923b71cc4a94cf2
+H66 66-heart-summary-compiled deep_b6a3bf724ace2137def11ce7f6a459bce8a305ac05a8e9d1fe6e666f9fa4fca9
+H67 67-period-compiled deep_78b4792452df691edfc738d8374bb5438afbbdb90ce567e1dad335a263b69e45
+H68 68-heart-summary-tail deep_d4117e2bf0dd200814a935d607949280cb90d0332100d1c9f4d382e0c114e85b
+H69 69-breath-summary-tail deep_0d7e29f190ae2c9724f223306ff7bdb38f2456cd905e3648137c8e7ed90cf878
+
+00/01 为早期glob不匹配的搜索，05 为错误文件名读取；失败记录保留，但不用于阴性结论。

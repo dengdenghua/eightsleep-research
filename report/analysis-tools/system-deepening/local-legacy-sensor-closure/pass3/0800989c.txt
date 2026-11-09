@@ -1,0 +1,45 @@
+TARGET 0800989c function=0800989c
+FUNCTION_BODY [[0800989c, 080098d3]]
+
+undefined8 analyst_normal_entry_0800989c(int param_1)
+
+{
+  undefined4 uVar1;
+  int iVar2;
+  
+  uVar1 = DAT_200001f8;
+  FUN_08008f0c(0);
+  FUN_08008f0c(1);
+  iVar2 = FUN_080097fc(param_1);
+  if (iVar2 == 0) {
+    *(int *)(param_1 + 0x30) = *(int *)(param_1 + 0x30) + 1;
+  }
+  return CONCAT44(uVar1,param_1);
+}
+
+
+INSN 0800989c 7fb5 push {r0,r1,r2,r3,r4,r5,r6,lr}
+INSN 0800989e 0d4b ldr r3,[0x080098d4] REF[READ:080098d4=200001f8] REF[PARAM:200001f8]
+INSN 080098a0 0400 movs r4,r0
+INSN 080098a2 0020 movs r0,#0x0
+INSN 080098a4 1e68 ldr r6,[r3,#0x0] REF[READ:200001f8]
+INSN 080098a6 fff731fb bl 0x08008f0c REF[UNCONDITIONAL_CALL:08008f0c]
+INSN 080098aa 0500 movs r5,r0
+INSN 080098ac 0120 movs r0,#0x1
+INSN 080098ae fff72dfb bl 0x08008f0c REF[UNCONDITIONAL_CALL:08008f0c]
+INSN 080098b2 01a9 add r1,sp,#0x4
+INSN 080098b4 c880 strh r0,[r1,#0x6]
+INSN 080098b6 8d80 strh r5,[r1,#0x4]
+INSN 080098b8 638d ldrh r3,[r4,#0x2a]
+INSN 080098ba 2000 movs r0,r4
+INSN 080098bc 0b81 strh r3,[r1,#0x8]
+INSN 080098be a38d ldrh r3,[r4,#0x2c]
+INSN 080098c0 0196 str r6,[sp,#0x4]
+INSN 080098c2 4b81 strh r3,[r1,#0xa]
+INSN 080098c4 fff79aff bl 0x080097fc REF[UNCONDITIONAL_CALL:080097fc]
+INSN 080098c8 0028 cmp r0,#0x0
+INSN 080098ca 02d1 bne 0x080098d2 REF[CONDITIONAL_JUMP:080098d2]
+INSN 080098cc 236b ldr r3,[r4,#0x30]
+INSN 080098ce 0133 adds r3,#0x1
+INSN 080098d0 2363 str r3,[r4,#0x30]
+INSN 080098d2 7fbd pop {r0,r1,r2,r3,r4,r5,r6,pc}

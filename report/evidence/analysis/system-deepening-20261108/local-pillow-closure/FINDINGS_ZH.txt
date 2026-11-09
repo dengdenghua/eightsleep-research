@@ -1,0 +1,55 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+枕头子固件：正常本地采样、数值处理与 Frank 消费闭合
+2026-11-08；静态代码与规范有限模型；未运行原厂程序、未连接账号或设备。
+
+一、物料与范围
+输入为当前MTK包的 firmware-pillow.bbin，90220B，SHA256 1344d170a6c74f0aa0e38195b89d687ea9f69105980db0a83ddb5e3ee68661d1。它不是Frozen，也不是传感垫G0的同一映像。
+BBIN含128B头；向量在文件0x80，线性映射VA=0x08008000+文件偏移。Reset=080172ed(Thumb)，主循环08014298。INPUT.json、RAW_TABLES.json保存原始头、向量、速率表、初始化data和对应位置，不凭文件名猜版本。
+Frank是同包AArch64 ELF，SHA256 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。Host地址按Ghidra基址00100000加ELF VA；验证脚本按PT_LOAD映射回文件。
+新Pillow工程独立放外盘。初次自动分析把main内部远跳误识别为多个函数，并将新建SRAM标成只读；修复脚本只修改新分析数据库的函数边界/控制流标记/SRAM可写属性，原输入字节未变。before-repair、repair-main.log保留前后证据。后续导出采用-readOnly -noanalysis；未以最初Reset反编译伪代码推导RAM行为。
+
+二、六路ICM：主循环读数→缓存→定时快照→0x38
+1367c逐个初始化6对象，要求三个平台回调均非空、WHOAMI=0x47；成功置对象+1 enabled。正常主循环检查enabled和DRDY回调后调用12cbc。
+12cbc在对象+0x14..+0x1f保留连续12字节，来自温度读数之后六个16bit SPI读数；主循环不将这12字节换成物理单位。对象+0x30的内部温度另按signed16/132.48+25生成。初始化后前50tick分支轮询状态/刷新计时，不代表新六轴读数。
+138ec按请求选择[(>=1000,1000,ODR6),(>=500,500,15),(>=200,200,7),(>=100,100,8),(>=50,50,9),(其余,25,10)]。1399c对enabled器件各尝试最多3次；成功保存频率及1000/freq。启动快照回调110d8还要求selftest状态>3且有效selection!=0。命令42由13554将请求mask与6个enabled位相交、清队列、按上述门控重启；命令29清selection。Host正常连接21f720先请求200，再startSampling；设备版本条件选择启动命令，不能因此宣称某实机已启动。
+110d8构造84B记录：版本0、当前tick、频率、selection、6×12B缓存槽。仅复制mask选中的槽。队列容量20条；10a2a在count==20拒绝新记录，计入overflow；未证明每次快照之前每个器件都完成新SPI读数。
+主循环14cb2..14d36在count>=10时先pop1，再循环10次复制每个selected槽的12B，且每轮末尾再pop。0x38 body为10B头(含opcode)+10×12×选中数，六路时730B。header=38,version,u32BE tick,u16BE freq,u16BE selection；数据保持SPI得到的字节顺序。
+这段正常顺序是11次pop尝试、10行编码。若恰好10条，末次pop失败不改输出；若进入时至少11条且按模型不插入新callback，末次成功取出的第11条未进入该body。有限模型单列10/11条两种正常队列状态，不声称实机发生比例或CPU调度时长。
+
+三、0x38进入Frank：不等于睡眠姿势算法
+Pillow事件入口21dfd0创建20590；opcode38调用2872b0取version/tick/freq/mask，287330对每个选中器件读取6个BE signed16。原值32767被夹为32766，为缺值32767保留空间。
+20590按max(1,floor(1000/freq))推进每行相对tick；21a5c0负责与主控时间锚映射，遇到已实现的时间不连续会进行额外提交。这里只用稳定锚点/正常顺序模型，不伪装其所有时间分支的运行测试。
+1e1220→1e82b0→1ec6d4按side选择raw logger+10e8(left)或+10f0(right)，秒变化先flush。1f8070固定slot=floor((tick%1000)/5)，6器件×6轴×200个signed16槽；初始和编码后均以0x7fff填空。即使可请求其它采样频率，当前编码器仍写freq=200，不能把它解释成自动重采样算法。
+1fd210输出CBOR type=pillow-accel，ts/part/vers/selection及side对象中imu0..imu5的accel{x,y,z}、gyro{x,y,z}；每轴400B小端原始int16数组。mask0x200/0x400分别进raw.pillow.laccel/raw.pillow.raccel，随后复用已审预发布队列。这里没有把轴值换成人体体位标签、睡眠阶段或呼吸/心率。
+
+四、FDC：四通道测量与自适应CAPDAC，只发送两通道
+main初始化4个channel，初始CAPDAC=4；1296c在I2C完成后组合高低寄存器signed24并乘2^-19，完整绑定由main保存回调地址1296d、触发读寄存器、完成标志与主循环消费构成。
+main1647c..16b30四槽计算corrected=float32(raw+CAPDAC*3.125)。负数记−1；有效值更新缓存。原量raw<=−12.875减CAPDAC，raw>12.875正常加1、grace期间加3，限制0..31。CAPDAC>24在相应门控下回到4并进入grace；grace持续到elapsed>4999。缓存读取11048要求age<5500，超时返回−1。
+这是四通道内部校正/控制；0x3a定时器周期500、初始1000tick，只取缓存槽0/1。body18B=3a,u32BE MCUtick,u16BE status=0,u8 version=1,两条(u8 id,float32BE)，ID0/1。不能把另外两槽说成也发送，更不能把status=0解释成已完成G0的railed/locked判定。
+Host20590→223a50解析17B payload，按ID放两float；随后用252b10的主控now覆盖MCUtick。1e1d90→1e5c40→1eaf44存+13e0，mask200000→1f2180 type=pillow-capsense、side/status/values[2]→raw.pillow.capsense。−1.0按float传递，没有转换为null。电容单位、板级电极位置及在床含义未从这些软件槽号推出。
+
+五、LIS缓存均值与敲击：两条不同输出
+12f7c完成回调对三个原始signed16先乘1/4，再按c6量程位选择比例0.244/0.488/0.976/1.952附近的float常量，保存X/Y/Z和Z历史环。代码日志用mg/lsb；本报告保留软件数值，不以此替代实际器件/轴向标定。
+main的5tick定时器累加当时缓存XYZ并增加count；1000tick定时器将三项各除count，发0x3b，随后清sum/count。两个定时器初始延迟10000tick。该均值是读取缓存次数的平均，没有独立新样本计数。
+0x3b body14=3b,version0,3×floatBE。Host20590取三个float、使用Hostnow，1e1f30→1e5f04→1eabe4存+1418，mask400000→1f2ec0 type=pillow-orientation→raw.pillow.orientation。输出是XYZ，未发现本链的人体姿势分类器。
+敲击候选来自LIS标志；main在事件和20次相关轮询条件满足后用13408读取最多96条Z历史，count>19才给max−min。此Pillow版本算出幅度相关阈值后日志明确false，所审普通分支仍将候选timestamp入队；没有套用G0另一套range否决逻辑。13360在500tick静默后统计队列增量，count!=1时调用绑定callback并发0x36三字节(side,count)，清候选队列。
+按钮另外使用GPIO计数缓存和静默计时；符合阈值后也发36。Host20590将side依Pillow对象校正，记录tap-gesture并进入已审TTC/闹钟门控21d610/21e320。没有把一次GPIO/LIS通知直接称为用户已成功调温或云端手势识别。
+
+六、温度、湿度与0x43查询
+SHT40正常命令FD→延后读取6B→12300；两项CRC都通过后，T=175*rawT/65535−45+offset，RH=125*rawRH/65535−6；offset初始化0，本函数没有0..100夹取。CRC失败仅记计数/标志、不覆盖旧温湿度值。CRC算法10904保留完整导出。
+TMP1075读reg0经10d50将BE12bit有符号值乘0.0625，初始−100。main首次/后续读数由age和总tick门控；它不是每个ICM样本都重新读温度。
+MCU温度10880使用ADC与工厂校准点：((adcTemp*VREFCAL/adcRef−TS_CAL1)*80/(TS_CAL2−TS_CAL1))+30。main1000tick触发ADC，当前值与校准参考差>1重新校准。该处没有套用G0的0<T<100门控。
+命令43由13a64/107bc输出version1、当前有效selection，再列(id,i16BE×100)；id0..5=6个ICM内部温度，0x10=ambient(SHT40温度)，0x11=humidity，0x12=MCU，0x13=TMP1075 board（后四个ID为十六进制，对应十进制16..19）。普通温度缺值−100→8000；湿度缺值−100的该分支→00ff。它们是固件编码约定，不能统一写成同一种null。
+Host正常43回复21f0c0→21b730，将i16/100恢复float，按selection建立ICM数组、主控now赋时；1e1710→1e3da4→1ebca4存左+11e8/右+1250；1f63b0输出pillowTemp，side含amb/hu/board/mcu/temps，进raw.pillow.ltemp/rtemp。Host可空值包装编码器另有valid字段门控；不把−327.68或2.55擅自解释成真温湿度。
+
+七、本地自检与振动控制也保留，不当作生产信号算法
+启动自检按500/2500/4500/6500tick阶段累计六轴signed16均值，切gyro/accel selftest；比对on/off响应与OTP trim，记录状态0/1/2。结束置mode4；有效selection非零才启动110d8。main完整原指令保留，既无真实自检结果也不据此推断硬件通过。
+命令2c/40准备本地振动模式、power和duration；1349c仅在当前inactive且power非零时启动、模式>6改0；13508停止。main按7个描述符和phase/step计时，选三路门控的最大幅度，135fc以power/100交平台回调。7模式的全部正常静态step表保存ALARM_TABLES.json，并有startup .data映射证据。
+10766返回请求power；10798返回100；1115c为随elapsed上升且至少5的幅度函数；1076c按platform编号切换step的通道标志。没有借软件pattern名称推断机械强度、人体效果或实际PWM校准。
+
+八、覆盖及剩余
+已沿本件main的正常数值路径闭合6×ICM快照、FDC、SHT40、TMP1075、MCU温度、LIS均值/候选敲击、按钮、启动自检与振动表，并绑定主控38/3a/3b/43消费者和CBOR去向。普通通信框架、升级器和错误分支全组合不冒充新信号算法；没有继续任何被中止的共享日志任务。
+尚不可由当前静态物料回答：实机是否安装本Pillow固件、各平台GPIO/传感器板级位置与轴向、电极单位和标定、实际DRDY与timer相位/数据新鲜度/队列积压频率、信号到生理指标的外部生产算法。完整物料与完整主链审计不等于获得全部云模型。
+MODEL_RESULTS保留8个规范有限例：选择mask布局、10/11条正常队列消费、32767夹取、3a缓存、SHT40、TMP1075、LIS缓存均值、FDC缓存年龄。均为人工构造正常值；无实机trace、无原厂二进制执行。BYTE_VALIDATION与SOURCE_MANIFEST分别记录原字节身份和交付文件完整性。

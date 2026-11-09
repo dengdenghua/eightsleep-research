@@ -1,0 +1,69 @@
+TARGET 0002b704 function=0002b704
+FUNCTION_BODY [[0002b704, 0002b755]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void candidate_0002b704(void)
+
+{
+  bool bVar1;
+  int iVar2;
+  int iVar3;
+  uint uVar4;
+  int iVar5;
+  
+  iVar3 = _DAT_0002b75c;
+  iVar2 = _DAT_0002b758;
+  uVar4 = 0;
+  bVar1 = false;
+  do {
+    *(undefined4 *)(iVar3 + uVar4 * 4) = *(undefined4 *)(iVar2 + uVar4 * 0x28);
+    if (*(char *)(iVar2 + uVar4 * 0x28 + 0x19) != '\x02') {
+      bVar1 = true;
+    }
+    uVar4 = uVar4 + 1 & 0xff;
+  } while (uVar4 < 4);
+  if ((!bVar1 && *_DAT_0002b760 == '\0') &&
+     (iVar5 = candidate_0002f410(0xffffffff,_DAT_0002b75c,0x18), iVar2 = _DAT_0002b764,
+     *(int *)(iVar3 + 0x1c) != iVar5)) {
+    *(int *)(iVar3 + 0x1c) = iVar5;
+    *(undefined1 *)(iVar2 + 0x74) = 0;
+  }
+  return;
+}
+
+
+INSN 0002b704 70b5 push {r4,r5,r6,lr}
+INSN 0002b706 0020 movs r0,#0x0
+INSN 0002b708 134a ldr r2,[0x0002b758] REF[READ:0002b758=20003bc0]
+INSN 0002b70a 144c ldr r4,[0x0002b75c] REF[READ:0002b75c=20003c60]
+INSN 0002b70c 0146 mov r1,r0
+INSN 0002b70e 00bf nop
+INSN 0002b710 00eb8003 add.w r3,r0,r0, lsl #0x2
+INSN 0002b714 52f83350 ldr.w r5,[r2,r3,lsl #0x3]
+INSN 0002b718 02ebc303 add.w r3,r2,r3, lsl #0x3
+INSN 0002b71c 44f82050 str.w r5,[r4,r0,lsl #0x2]
+INSN 0002b720 5b7e ldrb r3,[r3,#0x19]
+INSN 0002b722 022b cmp r3,#0x2
+INSN 0002b724 00d0 beq 0x0002b728 REF[CONDITIONAL_JUMP:0002b728]
+INSN 0002b726 0121 movs r1,#0x1
+INSN 0002b728 401c adds r0,r0,#0x1
+INSN 0002b72a c0b2 uxtb r0,r0
+INSN 0002b72c 0428 cmp r0,#0x4
+INSN 0002b72e efd3 bcc 0x0002b710 REF[CONDITIONAL_JUMP:0002b710]
+INSN 0002b730 0b48 ldr r0,[0x0002b760] REF[READ:0002b760=200030f9]
+INSN 0002b732 0078 ldrb r0,[r0,#0x0]
+INSN 0002b734 0143 orrs r1,r0
+INSN 0002b736 0dd1 bne 0x0002b754 REF[CONDITIONAL_JUMP:0002b754]
+INSN 0002b738 1822 movs r2,#0x18
+INSN 0002b73a 0849 ldr r1,[0x0002b75c] REF[READ:0002b75c=20003c60]
+INSN 0002b73c 4ff0ff30 mov.w r0,#0xffffffff
+INSN 0002b740 03f066fe bl 0x0002f410 REF[UNCONDITIONAL_CALL:0002f410]
+INSN 0002b744 e169 ldr r1,[r4,#0x1c]
+INSN 0002b746 8142 cmp r1,r0
+INSN 0002b748 04d0 beq 0x0002b754 REF[CONDITIONAL_JUMP:0002b754]
+INSN 0002b74a 0649 ldr r1,[0x0002b764] REF[READ:0002b764=20003f40]
+INSN 0002b74c e061 str r0,[r4,#0x1c]
+INSN 0002b74e 0020 movs r0,#0x0
+INSN 0002b750 81f87400 strb.w r0,[r1,#0x74]
+INSN 0002b754 70bd pop {r4,r5,r6,pc}

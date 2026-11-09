@@ -1,0 +1,153 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+undefined8 FUN_08021204(uint param_1,uint param_2,int param_3,int param_4)
+
+{
+  short sVar1;
+  int iVar2;
+  uint uVar3;
+  undefined4 uVar4;
+  uint local_20;
+  
+  uVar3 = 0;
+  local_20 = param_1;
+  if ((param_1 != 0) && (uVar3 = 0, param_2 < *(byte *)(param_1 + 0x230))) {
+    iVar2 = param_1 + param_2 * 0x44;
+    uVar3 = (uint)*(byte *)(iVar2 + 0x1c);
+    if (uVar3 != 0) {
+      if (param_3 == 0) {
+        *(undefined4 *)(iVar2 + 0x2c) = 0x80211ad;
+        *(undefined1 *)(iVar2 + 0x30) = 4;
+        FUN_08016fce(iVar2 + 0x34,*(undefined4 *)(iVar2 + 0x28));
+        local_20 = (uint)*(byte *)(iVar2 + 0xf);
+        *(byte *)(iVar2 + 0x3c) = *(byte *)(iVar2 + 0xf);
+        uVar4 = *(undefined4 *)(iVar2 + 0x24);
+        *(undefined2 *)(iVar2 + 0x3e) = 0;
+        sVar1 = FUN_08010160(uVar4,*(undefined4 *)(iVar2 + 0x28));
+        *(short *)(iVar2 + 0x40) = sVar1;
+        if (sVar1 != 0) {
+          FUN_08017634("[pwm_pumps] ramping down from %u%% to 0%% over %ums (%u steps)",local_20,
+                       uVar4,sVar1);
+          goto LAB_0802127a;
+        }
+        *(undefined **)(iVar2 + 0x2c) = &DAT_0801e849;
+        *(undefined1 *)(iVar2 + 0x30) = 0;
+      }
+      else {
+        if (*(char *)(iVar2 + 0x10) != '\0') {
+          if (param_4 == 0) {
+            FUN_080210e0(iVar2);
+          }
+          else {
+            *(undefined1 **)(iVar2 + 0x2c) = &LAB_08021140_1;
+            *(undefined1 *)(iVar2 + 0x30) = 1;
+            *(int *)(iVar2 + 0x40) = param_4;
+            FUN_08017484(iVar2 + 0x34);
+            FUN_08017006(iVar2 + 0x34);
+            FUN_08017634("[pwm_pumps] scheduled ramp to %u%% after %ums delay",
+                         *(undefined1 *)(iVar2 + 0x10),param_4);
+          }
+          goto LAB_0802127a;
+        }
+        *(undefined **)(iVar2 + 0x2c) = &DAT_0801e849;
+        *(undefined1 *)(iVar2 + 0x30) = 0;
+      }
+      FUN_08020fbc(iVar2);
+    }
+  }
+LAB_0802127a:
+  return CONCAT44(local_20,uVar3);
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08021204 f7b5 push {r0,r1,r2,r4,r5,r6,r7,lr}
+08021206 1e00 movs r6,r3
+08021208 051e subs r5,r0,#0x0
+0802120a 0192 str r2,[sp,#0x4]
+0802120c 35d0 beq 0x0802127a
+0802120e 8c23 movs r3,#0x8c
+08021210 9b00 lsls r3,r3,#0x2
+08021212 c35c ldrb r3,[r0,r3]
+08021214 0025 movs r5,#0x0
+08021216 8b42 cmp r3,r1
+08021218 2fd9 bls 0x0802127a
+0802121a 4423 movs r3,#0x44
+0802121c 4b43 muls r3,r1
+0802121e c418 adds r4,r0,r3
+08021220 257f ldrb r5,[r4,#0x1c]
+08021222 002d cmp r5,#0x0
+08021224 29d0 beq 0x0802127a
+08021226 002a cmp r2,#0x0
+08021228 29d1 bne 0x0802127e
+0802122a 274b ldr r3,[0x080212c8]
+0802122c 2700 movs r7,r4
+0802122e e362 str r3,[r4,#0x2c]
+08021230 2600 movs r6,r4
+08021232 0423 movs r3,#0x4
+08021234 3037 adds r7,#0x30
+08021236 3b70 strb r3,[r7,#0x0]
+08021238 3436 adds r6,#0x34
+0802123a 3000 movs r0,r6
+0802123c a16a ldr r1,[r4,#0x28]
+0802123e f5f7c6fe bl 0x08016fce
+08021242 e37b ldrb r3,[r4,#0xf]
+08021244 3372 strb r3,[r6,#0x8]
+08021246 666a ldr r6,[r4,#0x24]
+08021248 0093 str r3,[sp,#0x0]
+0802124a 019b ldr r3,[sp,#0x4]
+0802124c a16a ldr r1,[r4,#0x28]
+0802124e e387 strh r3,[r4,#0x3e]
+08021250 3000 movs r0,r6
+08021252 eef785ff bl 0x08010160
+08021256 a31c adds r3,r4,#0x2
+08021258 81b2 uxth r1,r0
+0802125a d987 strh r1,[r3,#0x3e]
+0802125c 0029 cmp r1,#0x0
+0802125e 06d1 bne 0x0802126e
+08021260 1a4b ldr r3,[0x080212cc]
+08021262 e362 str r3,[r4,#0x2c]
+08021264 3970 strb r1,[r7,#0x0]
+08021266 2000 movs r0,r4
+08021268 fff7a8fe bl 0x08020fbc
+0802126c 05e0 b 0x0802127a
+0802126e 83b2 uxth r3,r0
+08021270 3200 movs r2,r6
+08021272 1748 ldr r0,[0x080212d0]
+08021274 0099 ldr r1,[sp,#0x0]
+08021276 f6f7ddf9 bl 0x08017634
+0802127a 2800 movs r0,r5
+0802127c febd pop {r1,r2,r3,r4,r5,r6,r7,pc}
+0802127e 217c ldrb r1,[r4,#0x10]
+08021280 0029 cmp r1,#0x0
+08021282 05d1 bne 0x08021290
+08021284 114b ldr r3,[0x080212cc]
+08021286 e362 str r3,[r4,#0x2c]
+08021288 2300 movs r3,r4
+0802128a 3033 adds r3,#0x30
+0802128c 1970 strb r1,[r3,#0x0]
+0802128e eae7 b 0x08021266
+08021290 002e cmp r6,#0x0
+08021292 14d0 beq 0x080212be
+08021294 0f4b ldr r3,[0x080212d4]
+08021296 2700 movs r7,r4
+08021298 e362 str r3,[r4,#0x2c]
+0802129a 2300 movs r3,r4
+0802129c 0122 movs r2,#0x1
+0802129e 3033 adds r3,#0x30
+080212a0 3437 adds r7,#0x34
+080212a2 1a70 strb r2,[r3,#0x0]
+080212a4 3800 movs r0,r7
+080212a6 2664 str r6,[r4,#0x40]
+080212a8 f6f7ecf8 bl 0x08017484
+080212ac 3800 movs r0,r7
+080212ae f5f7aafe bl 0x08017006
+080212b2 3200 movs r2,r6
+080212b4 217c ldrb r1,[r4,#0x10]
+080212b6 0848 ldr r0,[0x080212d8]
+080212b8 f6f7bcf9 bl 0x08017634
+080212bc dde7 b 0x0802127a
+080212be 2000 movs r0,r4
+080212c0 fff70eff bl 0x080210e0
+080212c4 d9e7 b 0x0802127a

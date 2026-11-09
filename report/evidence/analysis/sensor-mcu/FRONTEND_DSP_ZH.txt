@@ -1,0 +1,142 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+传感 MCU 前端滤波、校准与运行时配置补充分析
+2026-11-07；静态分析；版本 5.5.34.0
+
+样本：mediatek/rootfs-selected/opt/eight/lib/subsystem_updates/firmware-sensor-g0-usb.bbin
+SHA256：1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563
+地址基准：包含 BBIN 头的文件偏移 + 0x08010000。
+本报告只新增 sensor-mcu/frontend/ 中的证据，不修改主报告、主 manifest 或原样本。
+
+结论
+
+1. ADS131M08 路径真正配置了抽取滤波所需的 CLOCK/OSR 和 PGA，但没有找到对直流阻断、相位、offset/gain calibration 寄存器的配置写入。初始化先发 RESET，再写 CLOCK、GAIN1、GAIN2。因此正常初始化成功后，这些未改写字段应处于数据手册复位值；这是“代码 + 芯片复位语义”的推导，不是实机逐寄存器读回结果。校准运算块始终参与、系数为零偏置与单位增益，不能写成“校准模块关闭”。
+2. IMU 自检与正式采集之间有一次完整复位。自检用 ±4 g / ±2000 dps，不是最终采集量程。按已匹配的 LSM6DSV / LSM6DSV16X 共同寄存器模型，最终采集为复位默认 ±2 g / ±125 dps；额外 gyro LPF1、accel LPF2、高通、用户偏置补偿未启用。加速度第一阶段滤波仍在，不能写成完全无滤波。
+3. 运行时可改压电 ADC 的两组 PGA 与通道映射；未找到经现有命令表进入 ADS offset/gain/phase/DCBLOCK 或 IMU 量程/滤波寄存器的命令。温度触发的“adc recalibrated”是 STM32 内部测温 ADC 校准，与外置压电 ADC 不同。
+4. 还存在 FDC 电容前端的 CAPDAC/增益 setter。CAPDAC 有实际寄存器同步路径；增益目前只证实写入 RAM shadow，已审阅的同步链未下发 GAIN_CAL，不能把日志当成已生效的硬件增益校准。
+
+证据等级
+
+O：反汇编/控制流直接观察；D：由 O 与厂商寄存器语义推导；U：仍缺实物、寄存器快照或更远路径证据。
+frontend/ 中每个地址文件同时包含伪代码、调用引用及带常量的指令清单。C 伪代码中仍有函数原型/日志可变参数噪声；下面的寄存器值均用调用前的 R0/R1/R2 或栈字节交叉核对。
+
+一、ADS131M08：实际写入的边界
+
+[O] 0x0801D228 是 24-bit word SPI 传输封装，已识别直接入口只有：
+  0x0801D2F8：命令编码器 0x0801D2C0；
+  0x0801D842：采样读取 0x0801D7DC，发送缓冲区先清零，属于 NULL/read，不构造 WREG。
+
+[O] 0x0801D2C0 的调用者全部已审阅：
+  0x0801D356、0x0801D368：RREG + NULL；
+  0x0801D3B6、0x0801D3D6：WREG + NULL；
+  0x0801DB82、0x0801DBB0、0x0801DBCC、0x0801DCB2：初始化 RESET 0x0011、NULL、NULL、WAKEUP 0x0033。
+  WREG helper 0x0801D380 构造 0x6000 | ((register & 0x1ff) << 7)，一次写一个寄存器。
+  其唯一直接入口是 0x0801D42A；0x0801D420 随后读回，调用者比较值。
+
+[O] 0x0801D420 的全部已识别直接调用：
+  0x0801D98A：register 0x04 GAIN1，动态 PGA nibble；
+  0x0801DA44：register 0x05 GAIN2，动态 PGA nibble；
+  0x0801DC44：register 0x03 CLOCK，2/4/8 通道分别为 0x031A/0x0F1A/0xFF1A。
+  0x0801DAB8 初始化在写这些寄存器前发 RESET 0x0011 并等待 10 ms。
+  没有在此写路径找到 register 0x06、0x08 或 0x09..0x30 的 WREG。
+
+此处“未找到”覆盖了上述已识别直接调用、命令分发、采样读路径。不是对所有可能的间接函数调用、未识别代码、外部引导程序或实机故障后的状态作全局不存在证明。
+
+二、ADS 数字滤波和校准：实际配置与复位默认分开
+
+已证写入 CLOCK 的 HR / OSR=8192 使正常转换使用芯片内部 sinc3(OSR 1024) 后接 sinc1(×8) 的抽取链。[O+D]
+这属于转换器内部滤波，不是 MCU 中恢复出的心率/呼吸频带滤波器；这里也没有发现 MCU 针对压电流运行可配置 FIR/IIR 系数表。
+
+在成功 RESET、仅执行上述写入的前提下，按 TI 寄存器定义得到：[D]
+  register 0x06 CFG：reset 0x0600；GC_EN=0，CD_EN=0。
+  register 0x08 THRSHLD_LSB：reset 0；DCBLOCK[3:0]=0，额外 DC-block 高通关闭。
+  CHn_CFG = 0x09 + 5*n：reset 0；PHASE[15:6]=0；MUX=00；DCBLKn_DIS=0。
+  CHn_OCAL = 0x0A/0x0B + 5*n：24-bit 默认 0。
+  CHn_GCAL = 0x0C/0x0D + 5*n：24-bit 默认 0x800000，乘数 1。
+  n=0..7。OCAL/GCAL 硬件运算始终存在，默认系数不产生用户校正。
+  上电/复位的首两次转换可走器件 fast-settling 路径，之后为上述正常抽取链。
+
+依据：[TI ADS131M08 datasheet Rev. B](https://www.ti.com/lit/ds/symlink/ads131m08.pdf)，§8.3.7–8.3.11、§8.5.3 RESET、register map。以上只采用与固件实际写序列相关的字段，未把器件支持的其他功能当成固件已启用。
+
+[U] 没有逐片出厂标定系数、压电元件灵敏度、模拟增益/耦合电路、传感垫机械传递函数。单位增益校准寄存器不意味着整机“没有校准”，也不能把 ADC 计数直接换成压力/位移。
+[U] Si5351 输出 7 的 register 92 R-divider 仍未知，HSE→CLKIN 连线及具体有效输出→ADC 连线未由样本证明。故本报告不新增无条件的物理采样率、滤波截止频率或绝对延迟结论；此前主报告中的条件式时钟结论保持有效。
+
+三、运行时 PGA、通道映射和切换处理
+
+[O] 传感 MCU opcode 0x2B，表项 0x08021082 → 0x080213C6：payload 长度须为 4，解析两组 BE16 gain 请求。某组为 0 时使用该组当前请求值。随后 0x08026758：
+  请求 >99 且变化时，写入该组 8 个 channel 的 gain 请求并设置 dirty flag；
+  两组各自共用一个请求值，不是 16 个独立的校准系数；
+  0x0801D940 将请求按 100、200、400、800、1600、3200、6400、12800 门限量化为 PGA code 0..7。
+  这些是 PGA 设置，不是 CHn_GCAL。1..99 的非零请求不会更新。命令处理在 0x080213F6 调 setter 后，0x08021400/04/06 立即构造正常回复及两组请求值回显，没有等待主循环的硬件写入/读回；因此回显只说明请求处理，不能证明 PGA 已生效。
+
+[O] 主循环以两组 dirty flag 的半字非零进入处理块（0x0801F23E/40/42）。活动 ADS 的 0x0801F25A/0x0801F27C 调用写 GAIN1/2 并读回比较；函数返回成功才清相应 flag，失败保留 dirty 供后续重试。0x0801D940 对未启用的 ADS 对象会直接返回成功而不写寄存器，故“返回成功”也须结合对象可用状态解释。
+[O] 0x0801F296 的 0x08026722 清 ADC/IMU 软件队列，0x0801F2AC 的 0x08026810 同步/排空，位于整个 dirty 处理块的共同尾部：无论某组写入/读回成功或失败，只要本轮进入该块，都会执行。失败保留 dirty 可使后续循环再次尝试并再次清队列/同步；不能写成“仅在成功切换后清队列”，也不能用清队列推断新 PGA 已落实。
+[O] 0x0801D940 在写增益前重启 object+0x90 计时器；0x0801D7DC 在计时 <8 ms 时复制旧的 8 通道缓存，达到门限才读取新 ADC 数据。这是增益切换附近的数据管理，不是滑动平均或 FIR。
+[O] 正常数据转换仍为 24-bit 符号扩展 × 软件整数倍率、再按 channel_map 放入缓冲区。未在此链发现减偏置、逐通道校准乘法、相位移位或轴融合。
+[O] opcode 0x47 → 0x08026130 可读、重置或修改 ADC 通道映射；这是索引置换，详见既有 SENSOR_ANALYSIS_ZH.txt。它不写 ADC 硬件校准寄存器。
+
+四、IMU：必须跨过最后一次 reset 看正式采集配置
+
+[O] 0x0801EF2E 是写 1 byte 后读回验证的寄存器 helper；全部已识别直接调用都位于 0x080219D0 初始化函数。0x08028E7C 是原始双字节 SPI helper，除读写 helper 外，还被 reset 和复位前诊断使用。
+[O] reset 0x080218D0：先发送 [0x12,0x81]，再发送 [0x01,0x04]；轮询 CTRL3 的 SW_RESET/BOOT 和 FUNC_CFG_ACCESS 的复位位，最多 100 次 1 ms，超时返回失败。最后正常初始化在 0x0802204E 再调用它。
+
+正式采集阶段，最后 reset 之后的全部寄存器写入：[O]
+  0x08022062：0x0D ← 0x03，INT1 加速度/陀螺仪 data-ready。
+  0x08022074：0x12 ← 0x44，BDU + IF_INC。
+  0x0802209A：0x03 ← 0x10/0x00，交替 10 次检查 DRDY 极性响应。
+  0x080220B2 / 0x080220E4：0x03 ← 0，错误分支/正常分支恢复 IF_CFG。
+  0x08022104：0x10 ← 0x10。
+  0x08022122：0x11 ← 0x10。
+  0x08022134：0x62 ← 0x02。
+  0x08022146：0x11 ← 0x16。
+  0x08022158：0x10 ← 0x16。
+  后五项是此前已恢复的 HAODR / 100 Hz 配置；这里没有另写量程或额外滤波寄存器。
+
+依据上述 reset 与未改写字段，DSV 和 DSV16X 的共同模型给出：[D]
+  CTRL6 0x15=0：gyro full-scale ±125 dps。
+  CTRL7 0x16=0：可选 gyro digital LPF1 未启用；不等价于所有内部滤波关闭。
+  CTRL8 0x17=0：accel full-scale ±2 g，DualC=0。
+  CTRL9 0x18=0：低通路径、第一阶段输出；额外 LPF2/高通/用户 offset correction 未启用。
+  第一阶段 accel 带宽按 HAODR 模式为 ODR/2，对配置的 100 Hz 对应标称 50 Hz。
+  CTRL10 0x19=0：正常模式，无 self-test 激励。
+  X/Y/Z_OFS_USR 0x73..0x75 未见写入；没有固件提供的逐轴 offset 补偿证据。
+
+依据：[ST LSM6DSV DS13476 Rev. 5](https://www.st.com/resource/en/datasheet/lsm6dsv.pdf)，CTRL3、CTRL6–CTRL10；以及 [LSM6DSV16X DS13510 Rev. 4](https://www.st.com/resource/en/datasheet/lsm6dsv16x.pdf)，§9.19–9.23 / Figure 32。WHO_AM_I=0x70 仍只能支持这一寄存器家族，不能唯一锁定具体封装/料号。标称带宽不是实机频响测量。
+
+五、IMU 自检、轴顺序与恢复路径
+
+[O] self-test 参数 arg8!=0 时，0x080219D0 先 reset，再临时写 0x17=1（accel ±4 g）；另一次 reset 后写 0x15=4（gyro ±2000 dps）。0x19=1 与 0x19=4 分别进入正向自检激励。
+[O] 0x0802177C 每次取 5 个三轴样本求均值，供自检差值检查。它的全部已识别调用在自检代码；不能把这段平均当成正常 100 Hz 采样的在线滤波。
+[O] 随后 0x0802204E 的 reset 清除这些临时设置。对正常范围的推导必须以这次 reset 为起点。
+[O] 0x0801EF68 从 0x22 连续读取 12 bytes，保持 Gx,Gy,Gz,Ax,Ay,Az 的顺序，16-bit little-endian 值转为输出的 big-endian。唯一明显数值修改为正饱和值 32767→32766，以保留标志值；未见轴交换、符号旋转、矩阵校准或姿态融合。每轴变化计时器用于 flatline 监测，不修改采样值。
+[O] 0x08024DCC 监测轴数据长时间不变/无 DRDY；满足条件时用 arg8=0 重新调用 0x080219D0，跳过自检但仍执行正式 reset/config。这不是在线 bias estimation。
+[O] raw SPI helper 的额外调用 0x080290E0 位于 0x08028EC4 reset 流程：先清多个 ready flags，向四个 IMU 写 [0x10,0x60]，读 CTRL1/CTRL2 并打印 canary，随后进入断电/时钟握手流程。它证明“所有 IMU 写入仅在初始化”这个说法过强；但它不是正常输出流的量程/滤波选择，也没有写 offset 寄存器。对日志里的旧式 CTRL1_XL 名称/预期值不能直接套用旧型号位定义。
+[U] 这些是芯片坐标轴；四颗 IMU 在传感垫上的方向、位置、安装误差以及物理轴到床体坐标的变换仍无证据。芯片自带工厂修调也不等价于整机安装标定。
+
+六、另两条校准旁支，防止错误归入压电 DSP
+
+A. STM32 内部测温 ADC [O]
+  主循环记录 [therm] adc recalibrated 前调用 0x080121E8 和 0x08012274，参数是 handle 0x2000075C。
+  0x080108F0/0x0801A9E4 明确把该 handle 的首字段设为 0x40012400，属于 MCU 内存映射 ADC。
+  0x08012274 对 CR+0x08 的 bit31 发起校准，等待清除，读取 CALFACT+0xB4 低 7 bits，重复 8 次并把平均值写回；控制流与 ST HAL_ADCEx_Calibration_Start 的八次平均实现相符。
+  0x08027790 的 MCU 温度换算还读取 0x1FFF75A8 / 0x1FFF75AA / 0x1FFF75CA 工厂区域。
+  这条路径真实存在，不能因外部 ADS 未配 OCAL 而说“固件没有运行时校准”。
+  [ST 官方 HAL v1.4.6](https://github.com/STMicroelectronics/stm32g0xx-hal-driver/blob/v1.4.6/Src/stm32g0xx_hal_adc_ex.c)，用于识别该外围驱动模式，不据此声称固件精确链接了该 tag。
+
+B. FDC 电容前端 [O，有限延伸]
+  opcode 0x41 → 0x0802607C → 0x08024C14。解析连续 6-byte records：channel、CAPDAC、BE16 字段、BE16 gain。setter 实际使用 CAPDAC 与最后的 gain，未使用中间 BE16 字段。
+  CAPDAC<32 时改变测量配置 shadow bits9:5。gain<4000 时把 gain/1000 编为 Q2.14 写入 gain shadow；这是固件 setter 的实际行为，尚不等价于芯片生效。
+  0x08023D28 读取 device ID 0x1004，初始化 CAPDAC=4，写 0x08..0x0B 测量配置；0x0801E07C 比较目标/读回 shadow 并通过 0x0801DF2A 下发更改。
+  0x080240E4 有自动 CAPDAC 更新，测量集合开始时会用自动状态覆盖目标配置，因此不能保证外部 CAPDAC 命令长期保留。
+  关键限制：已恢复的 0x0801E07C 同步循环只调度 0x08..0x0B 与 0x0C；0x0801DF2A 所有已识别写入口也未找到 0x11..0x14 GAIN_CAL 下发。callback 0x0801DF84 能处理这些寄存器的读回类型，只说明解析器支持，不证明存在发起读取/写入路径。此分支的 gain 硬件生效目前未闭环，不能宣传为已启用的 calibration。
+  [TI FDC1004 datasheet Rev. C](https://www.ti.com/lit/ds/symlink/fdc1004.pdf)，§6.6.1.2、§6.6.1.5：CAPDAC 在测量配置中，GAIN_CAL 为 0x11..0x14 / Q2.14。此节没有恢复整个电容前端状态机，也不将其转换为“压电传感算法”。
+
+七、范围、复现与剩余缺口
+
+已完成：外部 ADS write encoder/传输封装的已识别调用覆盖；对应 RESET/CLOCK/PGA/默认 calibration 推导；IMU 所有寄存器 helper 调用和额外 raw write 的分类；正式/self-test/recovery 配置分离；与命令 0x2B/0x41/0x46/0x47/0x48 的交叉检查。0x46 是状态读取，0x48 是 SHT40 heater 会话，不是 IMU/ADS DSP 控制。
+仍不能从样本独立解决：模拟前端、真实采样时钟连线/输出7 R-divider、实机寄存器最终快照、板上料号与安装坐标、个体校准记录、压电 counts→物理量。FDC gain setter 的硬件生效没有证据；本报告明确保留该缺口。
+本任务不产生睡眠分期模型或生理指标算法的新结论，不把器件滤波等同于睡眠算法。
+
+复现：frontend/ExportFrontend.java、AnnotateFrontend.java、CreateFrontend.java 仅在 analyzeHeadless -readOnly 会话工作；日志 export3/4/5/6/7/8/10.log 记录成功导出。export2/9.log 是保留的失败日志，不作为结论依据。CreateFrontend 只临时为原有 callback 0x0801DF84 建函数；没有改原样本或保存 Ghidra 项目。
+frontend/build_frontend_ledger.py 可从现有导出重新生成 frontend/evidence-ledger.json，并复算样本 SHA256；不执行固件。

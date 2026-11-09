@@ -1,0 +1,60 @@
+TARGET 0002faac function=0002faac
+FUNCTION_BODY [[0002faac, 0002fae5]]
+
+void analyst_selected_0002faac(char *param_1)
+
+{
+  int iVar1;
+  char *pcVar2;
+  undefined4 uStack_10;
+  undefined4 uStack_c;
+  
+  iVar1 = ((uint)((int)PTR_DAT_0002fae8 - (int)PTR_DAT_0002faec) >> 3) * 0x10000 + 3;
+  if (*(int *)(param_1 + 4) != 0) {
+    FUN_00035f44(iVar1,PTR_s___>_Event_received__ERROR_while_e_0002faf0,0);
+    return;
+  }
+  if (*param_1 == '\x01') {
+    uStack_c = *(undefined4 *)(param_1 + 8);
+    uStack_10 = *(undefined4 *)(param_1 + 0x10);
+    pcVar2 = "--> Event received: wrote %d bytes at address 0x%x.";
+  }
+  else {
+    if (*param_1 != '\x02') {
+      return;
+    }
+    uStack_c = *(undefined4 *)(param_1 + 8);
+    uStack_10 = *(undefined4 *)(param_1 + 0x10);
+    pcVar2 = "--> Event received: erased %d page from address 0x%x.";
+  }
+  FUN_00035f44(iVar1,pcVar2,&uStack_10,2);
+  return;
+}
+
+
+INSN 0002faac 0146 mov r1,r0
+INSN 0002faae 4368 ldr r3,[r0,#0x4]
+INSN 0002fab0 0d48 ldr r0,[0x0002fae8] REF[READ:0002fae8=37c38]
+INSN 0002fab2 0e4a ldr r2,[0x0002faec] REF[READ:0002faec=37b98]
+INSN 0002fab4 801a subs r0,r0,r2
+INSN 0002fab6 c008 lsrs r0,r0,#0x3
+INSN 0002fab8 0322 movs r2,#0x3
+INSN 0002faba 02eb0040 add.w r0,r2,r0, lsl #0x10
+INSN 0002fabe 13b1 cbz r3,0x0002fac6 REF[CONDITIONAL_JUMP:0002fac6]
+INSN 0002fac0 0b49 ldr r1,[0x0002faf0] REF[READ:0002faf0=37130]
+INSN 0002fac2 03f0b7b8 b.w 0x00032c34 REF[UNCONDITIONAL_JUMP:00032c34]
+INSN 0002fac6 0a78 ldrb r2,[r1,#0x0]
+INSN 0002fac8 012a cmp r2,#0x1
+INSN 0002faca 07d0 beq 0x0002fadc REF[CONDITIONAL_JUMP:0002fadc]
+INSN 0002facc 022a cmp r2,#0x2
+INSN 0002face 09d1 bne 0x0002fae4 REF[CONDITIONAL_JUMP:0002fae4]
+INSN 0002fad0 8b68 ldr r3,[r1,#0x8]
+INSN 0002fad2 0a69 ldr r2,[r1,#0x10]
+INSN 0002fad4 07a1 adr r1,[0x2faf4]
+INSN 0002fad6 00bf nop
+INSN 0002fad8 03f0b7b8 b.w 0x00032c4a REF[UNCONDITIONAL_JUMP:00032c4a]
+INSN 0002fadc 8b68 ldr r3,[r1,#0x8]
+INSN 0002fade 0a69 ldr r2,[r1,#0x10]
+INSN 0002fae0 12a1 adr r1,[0x2fb2c]
+INSN 0002fae2 f9e7 b 0x0002fad8 REF[UNCONDITIONAL_JUMP:0002fad8]
+INSN 0002fae4 7047 bx lr

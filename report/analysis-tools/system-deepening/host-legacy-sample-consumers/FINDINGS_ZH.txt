@@ -1,0 +1,126 @@
+正常 0x34 / 0x35 采样包：producer → 旧式 Sensor → 本地输出
+日期：2026-11-08（Asia/Shanghai）
+范围：本地原件静态分析与两个规范格式的有限模型；没有运行原厂程序、连接设备或账号。
+
+一、结论与适用范围
+
+1. 这份 Frank 同时保留不同 Sensor 处理路径。已绑定实际 UsbSensor 对象的 0027e7b0 对 opcode 0x34/0x35 走普通完成分支，没有调用本轮两个采样解码器。不能把 MCU 中存在这些 producer 直接写成“当前 Pod 的 USB 数据沿此路径上传”。
+2. 旧式 Sensor（全局对象 005e3688）有规范包消费者：0x34 → 0021a960/0021aa70 → raw_ext_adc_buffer → 条件选择 piezo-dual 编码 → raw.sens.piezo；0x35 → 0021c210/0021c2c0 → raw_lps_sample_buffer → lps 编码 → raw.sens.lps。主题是设备内 raw 发布入口，不能据此认定云端接收成功、存储位置或生理算法。
+3. 正常 216 字节 0x34 / tag=0x42 包，在所审旧式调用方式下有明确的最后一行行为：调用方执行 25 次，解码器只更新 24 次；最后 remaining=8 时解码器返回 8 而不改输出，调用方再提交上一次输出。稳定时基、无补点及顺序完成条件下，是再次写入第 24 个位置，第 25 行 wire 数据不进入这一 buffer。此结论仅限指定旧式消费者与正常 producer 格式，不是实机抓包或当前部署判定。
+4. 正常 176 字节 0x35 包的 10 行均解码。输出四路数组与 producer record 字段的排列已闭合；temp/pres/lps/left/right 是原代码的键名，不证明物理传感器、温度/压力单位、床侧接线或校准比例。
+
+二、原件、方法与来源
+
+INPUTS.json 保存三个原件身份：
+- firmware-sensor-g0-usb.bbin，140828 B，SHA-256 1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563；文件 offset = VA − 0x08010000，包含原 BBIN 头。
+- firmware-sensor-g0.bbin，132896 B，SHA-256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891；文件 offset = VA − 0x08008000；本轮只保留旧 0x35 对照片段。
+- frankenfirmware，5060488 B，SHA-256 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375；Ghidra 地址减 0x00100000 得 ELF VA，再依 PT_LOAD 映射文件偏移。
+
+REA 命名空间本轮不可用，复用既有 SignalHost 工程和 Ghidra 12.1.4 readOnly/noanalysis 导出，不生成虚构 REA Evidence ID。五轮日志均完成。持久化工程中 002097a0 函数体缺少协程 switch 的部分路径；pass4 在只读会话内用既有脚本恢复 39 个原始 switch 目标和有界函数体，然后导出。RAW_TABLES.json 保留该 78 字节表及全部目标；不修改 ELF，不保存工程。pass1 不完整导出保留，主要旧式 caller 结论以 pass4 的原指令为准。
+
+BYTE_VALIDATION.json：11808 条唯一指令、42832 字节与三个原件逐字节匹配；1640 次直接分支目标核验、278 次 MCU 文件内 literal 值核验；18 份复用来源与保留副本 SHA 一致。另核对 5 个输出字段原始字符串和 39 项 switch 表。这些数字是保留导出覆盖，不代表整个固件恢复完成。
+
+三、入口与 transport：哪些链可以相接
+
+A. 当前所审 UsbSensor 对象链
+source/host/0017ae00_0017afb0.txt 的全局初始化分配两个 0x3d30 对象，0019e7f0 安装 vptr 005c79f8，原 ELF RTTI 为 9UsbSensor，分别写入 005e36a0 / 005e36a8。pass5/0018a510.txt 将这两个对象传给 00233350。先前接收链完整证据保留为 source/prior/USB_ROUTE_FINDINGS_ZH.txt 与 USB_ROUTE_RAW_TABLES.json；本轮直接复核相关构造/分派源字节。
+
+通用 00219b34 提取 opcode 的低 7 位、头部高位标志，并把 body+1/len−1 交给命令层。00236174 只在相应事件标志为 0、对象运行状态为 2 时沿 vtable 进入 00278c00 → 0027e7b0。对 0x34 和 0x35，实际指令分支均为：0027eb40（低于 0x39）→0027eb4c（非 0x36）→0027eb54（非 0x37）→0027ef98（非 0x33）→0027eac8→0027e968 完成。这里没有调用 0021aa70 或 0021c2c0。这是对两个规范 opcode 的有界阴性，不代表所有 USB 功能缺失。
+
+B. 保留的旧式 Sensor 链
+pass5/00185920.txt：配置对象 +0x28 的 string 长度（+0x30）非零才对 005e3688 调用 00205a20；传入该配置字符串和 +0xe8 的另一配置串。pass5/0018a510.txt 同样在 +0x30 非零时将 005e3688 的 00205520 update 协程接入任务集合。
+
+00205a20 设置设备对象 +0x2340/+0x2360 的字符串，调用 00237470(handle=1, baud_request=0x9600, configured_endpoint, 1)，并把读包装 00202a50 装入 LSP 接收器。00202a50 调用 00237a60(handle=1, buffer, length)。00237470 来自 uart.cpp，按配置打开端点并设置 termios，也包含 USB tty 名称解析支路。因此可以称“旧式 Sensor 的 handle 1 字节流/UART 抽象”；不能称已确认物理 UART、固定设备节点或当前实机端口。此轮未展开 00237a60 的底层 read 实现，实际配置值、打开结果和固件运行模式未知。
+
+00205520 创建 0020b574，保存该 Sensor 对象；0020b574 调用通用 LSP parser 001d9bc0，成功 body 经 00219b34 成为 command，再由 0020b400 创建 002097a0。后者在相应命令标志分支、Sensor+0x2088 运行状态为 2 时选择 0x34/0x35 解码。+0x2088 是对象运行状态；不要与协程帧 +0x3a 的 resume 状态混为一谈。
+
+本轮按 wire 格式将 MCU producer 与该兼容消费者对照；没有证明该 MCU 分支、旧式配置和现场设备同时启用。上游配置/产品模式选择留作实机或完整配置材料验证。
+
+四、0x34：规范 producer 与消费者
+
+producer：source/usb/main-full.txt，0801f2d0..0801f374 附近的 mode=0 分支，队列计数 >24；先取首 record，再编码 25 行。以下偏移从包含 opcode 的 body 起算，所有多字节 wire 数为大端：
+
+body +0       1 B   opcode 0x34
+body +1       1 B   固定 tag 0x42
+body +2       4 B   固定频率字段 500（软件标称值，不是实测采样率）
+body +6       4 B   首条 record+0x00，tick
+body +10      4 B   首条 record+0x04，增益字段 1
+body +14      2 B   首条 record+0x08 的低 16 位，增益字段 2
+body +16+8*i  4 B   record[i]+0x30，以下记 A[i]
+body +20+8*i  4 B   record[i]+0x0c，以下记 B[i]；i=0..24
+
+body 共 216 B；去掉 opcode 后 payload 215 B。gain 来自 record 中保存的请求/状态字段，不能据字段名认定实际模拟增益已经稳定。采样回调副本 source/usb/080233f4.txt 保留 record 字段来源；本轮不重新验证其物理 ADC 通道。
+
+0021a960 从 payload 读出 tag/rate/tick/gain，因 tag&0x3e 非零，头长度为 15。caller 用整数 1000/500 得 tick 步长 2。0021aa70 的 mode 参数在 0020a408 明确为 0；进入更新路径先要求 remaining>=16。tag>>6=1 的有效更新只消耗 8 字节：A 写 output+0x14，B 写 output+0x0c，再复制成 [B,B,A,A]（output+0x0c/+0x10/+0x14/+0x18）。这四个内存槽并不代表四个独立采样。
+
+正常最后一行的核对：
+- 0020a3e4 每轮只清帧 +0x444 的补点标志。
+- 0020a3ec 每轮传同一个输出对象（协程帧 +0x41c）；没有逐轮将其清零或重建。
+- 0021aa78..0021aa9c 在 mode=0、remaining=8 时跳到返回，x23 仍为输入 remaining；返回 8，不触碰输出对象和时间字段。
+- 0020a410..0020a424 的 tick_offset += 2 与 0020a42c 的 payload_pos += decoder_return 是两个独立更新；返回值不是时间步长。
+- 0020a440 的补点标志为 0，于是沿 00209e38 再调用 001e01b0，提交同一旧输出。此前已有 24 个完整更新，故这里复用的是本包第 24 行（0-based 23），不是假设初始内存为零。
+
+在模型固定稳定时基下：25 次循环、24 次解码更新、25 次 enqueue、24 个唯一槽位，最后再次写槽 23，槽 24 留 0x7fffffff。若有时基重同步或补点，位置/次数需按对应路径另算；本轮不将该有限模型推广为实机丢样比例。
+
+五、0x35：规范 producer 与消费者
+
+producer：source/usb/08025324.txt（队列计数 >9）及 source/nonusb/0801b42c_0801b4c8.txt 对照。以 body 为起点：
+
+body +0        1 B   opcode 0x35
+body +1        1 B   固定 version 2
+body +2/4/6/8  2 B   四个固定零值 metadata（不是此处读取的温度测量）
+body +10       2 B   固定频率字段 200（软件标称值）
+body +12       4 B   首条 record+0x00，tick
+body +16+16*i  4 B   record[i]+0x0c = W0
+body +20+16*i  4 B   record[i]+0x10 = W1
+body +24+16*i  4 B   record[i]+0x14 = W2
+body +28+16*i  4 B   record[i]+0x18 = W3；i=0..9
+
+body 共 176 B；payload 175 B，header 15 B。0021c210 读 header；0021c2c0 每行消耗 16 B，输出 +0x0c/+0x10/+0x14/+0x18 为 [W3,W1,W2,W0]。caller 的 tick 步长为 1000/200=5，10 行均更新。
+
+四个 wire metadata 的原始序列为 m0..m3；decoder 将 output+0x1c/+0x1e/+0x20/+0x22 写成 [m2,m3,m0,m1]，version 写 output+0x24。本规范 producer 的 m0..m3 均为 0，故不能通过它们推导真实温度量。
+
+六、时间、内存 buffer 与本地输出
+
+共同时间映射：两个 decoder 都调用 0021a5c0(time_mapper, first_tick+caller_offset, &epoch, &relative, 1)。它返回 mapper+0x2c 的 epoch 和 tick−mapper+0x30 的 relative；存在 0021a370 重锚和间隔统计分支，不能把 tick 直接当 Unix 时间。mapper 恰好检测到两倍预期间隔时可返回补点标志；caller 会先把当前数值放到 relative−step，再恢复并提交当前位置。这里是数值复制的补点，不是插值。两个有限模型都显式不启用这个分支。
+
+0x34 的 001e01b0→001e7960 将 epoch+relative/1000 与其余字段重排后交给 001eef70。raw logger 为 005e40b0，buffer 位于 +0x10e0，四个 500×int32 数组初始化 0x7fffffff。槽号为 (relative%1000)>>1，实际数组顺序 [B,A,B复制,A复制]。enqueue 计数不是唯一槽位数，重复位置也会计数。
+
+0x35 的 001e0350→001e7c64→001eeaf0 使用 raw logger+0x10f8，四个 200×int32 数组，槽号为 (relative%1000)/5，数组顺序 [W3,W2,W1,W0]。新 buffer 的 +0xc90（编码键 adc）初始化为 1；所审 enqueue 没有将 wire version=2 写入此字段。只能说“新分配且无其他写入者介入时为 1”，不宣称已排除全程序的其他写入者。
+
+两个 enqueue 在已有非空 bucket 与新 epoch bucket 不同等条件下，经协程锁/门控请求 001e9390 flush，随后放入当前值。不是“每满一个 MCU 包立即上传”；单包不足一秒的未填位置仍是 sentinel。此轮不枚举定时 flush 的所有其他来源。
+
+001e9390→00200960 的 mask 选择与编码输出：
+
+0x34 mask=0x10：先检查 raw logger+0x10d8 的另一缓冲。只有该缓冲为空且 +0x10e0 存在，才选 001fb0b0。故下面是所选 raw_ext_adc_buffer 编码契约，不是所有运行配置的唯一选择。
+  type="piezo-dual", ts, freq=500, adc=0x42, gain=gain1,
+  version=2, left:{gain:gain1}, right:{gain:gain2},
+  left1 = record+0x0c；right1 = record+0x30。
+  tag=0x42 只发这两个数组，不发内部复制的 left2/right2；各 500 个 int32、2000 B，按主控小端原内存作为 CBOR byte string。没有在此做浮点换算。
+  001e9390 的对应本地主题为 raw.sens.piezo。
+
+0x35 mask=0x80：00200960→001fce40。
+  type="lps", ts,
+  temp:{left1:m2,left2:m3,right1:m0,right2:m1},
+  pres:{adc:<buffer+0xc90>,freq:200,
+        left1:record+0x18,left2:record+0x10,
+        right1:record+0x14,right2:record+0x0c}。
+  pres 四个数组各 200 个 int32、800 B，001fcdb0/001fcde0 直接构造 span 并写 byte string，不是此处缩放后的物理量。5 个关键字符串已直接从 ELF 校验（RAW_TABLES.json）。
+  对应本地主题为 raw.sens.lps。
+
+两者只追到 raw body 及本地发送队列入口。已有 prepublish-queue 研究说明队列入队/发布返回不等于云端持久化；本轮未重演发布、未证云端模型，也未建立这些包的文件落盘路径。
+
+七、有限复现与停止点
+
+model/normal_contracts.py：两个规范布局，8 组检查；完整断言通过，MODEL_RESULTS.json 保存结果和产物 SHA。model/results 保存人工标号 record、按真实字段排列的 216 B/176 B body、每次 decoder 调用/返回/来源行及 buffer 字节。
+
+0x34 使用 25 行不同 A/B 值，核对 24 行的 48 个独立数值如何进入最终左右数组，以及最后一次旧值复用。0x35 使用 10 行×4 个不同值，核对 40 个值的输出键顺序。无畸形输入、无并发调度、无固件执行、无 native CBOR 序列化或发布；输出 schema 是源码契约映射。时基锚点 100000、无 gap/重锚、协程顺序完成和所述 buffer 选择均为显式模型前提。
+
+当前闭合：正常 producer 字段、旧式 decoder/caller、按秒内存 buffer、条件编码 schema 与两个本地主题；当前 UsbSensor 对两个 opcode 的分支差异。尚缺：
+- 实机配置/运行状态证明旧式 Sensor 或对应 MCU producer 分支确实启用；具体端点与打开结果。
+- 旧式 transport 的 00237a60 底层 read 全函数和更上游配置生成者，本轮停止在已绑定 handle 1 读 callback。
+- raw logger+0x10d8 替代 buffer 是否在目标配置共存；没有把条件编码选择当唯一部署路径。
+- record 各值的板级通道、单位、左右物理含义、标定与真实采样时序。
+- 云端接收、存储、算法消费与当前 Pod 固件版本匹配。
+
+这些是剩余证据边界，不影响本轮两个规范格式的有界静态契约结论。没有继续其他历史 opcode、畸形 payload 或被中止的共享日志任务。

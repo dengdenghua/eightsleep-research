@@ -1,0 +1,24 @@
+TARGET 0800a430 function=0800a430
+REF_TO 080170d8 UNCONDITIONAL_CALL
+REF_TO 080128bc UNCONDITIONAL_CALL
+REF_TO 08008c06 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800a430, 0800a441]]
+
+void FUN_0800a430(void)
+
+{
+  DataSynchronizationBarrier(0xf);
+  DataSynchronizationBarrier(0xf);
+  do {
+                    /* WARNING: Do nothing block with infinite loop */
+  } while( true );
+}
+
+
+INSN 0800a430 bff34f8f dsb #0xf
+INSN 0800a434 034b ldr r3,[0x0800a444] REF[READ:0800a444=e000ed00]
+INSN 0800a436 044a ldr r2,[0x0800a448] REF[READ:0800a448=5fa0004]
+INSN 0800a438 da60 str r2,[r3,#0xc] REF[WRITE:e000ed0c]
+INSN 0800a43a bff34f8f dsb #0xf
+INSN 0800a43e c046 mov r8,r8
+INSN 0800a440 fde7 b 0x0800a43e REF[UNCONDITIONAL_JUMP:0800a43e]

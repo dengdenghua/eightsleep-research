@@ -1,0 +1,166 @@
+Eight Sleep sensor MCU 5.5.34.0：tap/TTC 输入、特征与事件上传
+静态分析；2026-11-07；仅本样本，不把手势检测当作睡眠分期。
+
+样本与证据范围
+  mediatek/rootfs-selected/opt/eight/lib/subsystem_updates/firmware-sensor-g0-usb.bbin
+  SHA256 1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563
+  140828 字节，BBIN 映射基址 0x08010000。仅静态读取，未执行/刷写样本。
+  复用 sensor Ghidra 项目，所有新增导出均使用 -noanalysis -readOnly。
+  frontend/tap-export1.log 至 tap-export7.log 保留导出日志。
+  frontend/TAP_EVIDENCE.json 为证据账本；frontend/tap_pseudocode.c 为解释性伪代码。
+  地址引用优先指 frontend/同地址.txt；初始化大函数引用 resolved/08027834.txt。
+
+结论
+  此固件有两条互斥的输入链，不能用旧 LIS/压电检测描述所有 Pod6/K 系列：
+  1. hwrev < 0x0900：LIS 加速度计的单 tap 硬件候选 + MCU Z 轴峰峰值和压电波动排除，
+     然后按 500 ms 静默窗口合并计数，上传 0x36。
+  2. hwrev >= 0x0900：buttons 路径，输入已经是按下/释放事件，MCU 识别长按/连按，上传 0x37。
+     0x0900..0x09ff 配置使用 TCA8418 GPI FIFO；>=0x0a00 的 K 系列配置使用 MCU GPIO EXTI。
+     在已闭合的 buttons 生产链中，没有读取 16 路 ADC 或 4 组新 IMU 波形。
+  这些是本固件的硬件修订分支；它们本身不证明精确零售代际、国家/地区或某台设备运行状态。
+
+一、分支选择有代码证据，不靠字符串归类
+  resolved/08027834 在 memset SensorState 后读 hwrev=*(u16*)0x2000213c：
+    hwrev<0xa00 时，state[0x378d]=(hwrev>0x8ff)；0x900..903、0x950..953 特例写
+    state[0x378c:0x378e]=0x0101，结果仍是 state[0x378d]=1。
+    >=0xa00 分支写 0x0100 到同一半字，结果也是 state[0x378d]=1。
+  0801f0d0 主循环 0801f482 附近以该字节分流：0 才调用 080253c8/0802988c；
+  非 0 调用 08025534。初始化也相应选择两次 08024938(LIS) 或 buttons 队列。
+  0x0802fbc8 的 14 项累积配置表按 hwrev 阈值应用；0xa00 对应 08018fb0，
+  把 config[0x5a] 设为 08018de9。之后的已审阅 Kxx 修订不清除此字段。
+  该函数指针非空时跳过 TCA8418 轮询，建立 12 项、每项 3 字节的 GPIO 事件队列。
+
+二、新硬件：GPIO/外设事件 → 500 ms 状态机 → 0x37
+  2.1 K 系列 GPIO 输入边界
+  08018de8 把队列地址存入 0x2000191c；它不是波形处理器。
+  0801a66c 配置 GPIOE(0x50001000) mask 0x02 和 GPIOD(0x50000c00) mask 0x84，
+  Mode=0x00310000（双边沿外部中断），Pull=0。HAL/寄存器意义由 ST 官方源码互证。
+  08012cd4 读取 EXTI RPR1(0x4002180c) / FPR1(0x40021810)，清除标志并分别调用：
+    rising → 0801c3bc：release=0；falling → 0801c3f8：press=1。
+  两个回调按 mask 映射：0x02→button0/top，0x80→button1/middle，0x04→button2/bottom；
+  其他值变成 index3 并被上层视作 unknown。0x10 falling 是 ADC 采样触发的独立分支，
+  在 0801c3f8 中明确绕过按钮队列，不应把“共用 EXTI handler”误当成同一检测算法。
+  队列元素是 {u16 button_index_le, u8 pressed}，不是 ADC/IMU 数值。
+  回调到队列之间没有峰值、能量、频谱、软件去抖、基线跟踪或学习门限。
+  仅能证明 MCU 收到数字输入；GPIO 上游的物理感应元件、模拟门限、板上去抖电路尚未知。
+  因而不能仅凭这些代码断言它是机械按钮、电容触摸或某种压电比较器。
+
+  2.2 0x0900..0x09ff 的 TCA8418 输入边界
+  08023090 初始化 I2C 地址字段 0x34，先写零寄存器影子到 0x01..0x2f，随后应用
+  0x08031cbc 的 18 项配置并回读核验。主要实际值：
+    CFG01=80；KP_GPIO17/18/19=00；GPIO_INT_EN1(1a)=07、EN2(1b)=01；
+    GPI_EM1(20)=07、EM2(21)=01；DIR1(23)=00、DIR2(24)=01；
+    DEBOUNCE_DIS1(29)=07；GPIO_PULL2(2d)=01；其余此初始化影子为零。
+  因此使用 GPI 事件，不是扫描一个三键矩阵；前三行作为输入事件，ROW0..2 的
+  芯片内去抖被显式禁用。不能把数据手册的“具备 50 µs 去抖”写成此固件实际启用。
+  08029850 每 16 ms 定时到期且 I2C 空闲时启动 reg0x02..0x04 三字节读取。
+  启动回调 08022bd4 丢弃/排空旧 FIFO，系统 tick>500 ms 且 FIFO 空后切换 080232ac。
+  080232ac 取 KEY_EVENT_A 的 bit7 为 press/release，低7位97/98/99→row0/1/2，
+  入队 {column,row,pressed}；剩余多个事件会继续读取。队列容量6，每项3字节。
+  08025534 消费时取 row 为按钮索引，column 不参与手势判断。
+  这是外设数字事件 FIFO；固件内没有从该外设获取连续加速度/压电波形来重建按键。
+
+  2.3 两种输入汇合到同一个 08025534
+  index0/top 与 index2/bottom：press 启动计时；持续 >=500 ms 上传一次 long，
+  同时停表；release 在计时尚活动时上传一次 short，之后停表。
+  因长按触发时已停表，同一次长按在 release 时不会再生成 short。
+  index1/middle：press 启动持有时间记录；每次 release 计数+1并重启连按静默计时；
+  距最后一次 release 严格 >500 ms 时一次性上传该 count 并清零。
+  中键不通过 top/bottom 的长按循环，持有再久仍由 release/计数逻辑处理。
+  这里 500 ms 是识别窗口，不是电气去抖时间。未见最小按压宽度或连续采样稳定性判定。
+  本链可承载短/长按和多击，不是心搏/呼吸特征提取器。
+
+  08023a14 直接构造四字节负载（含操作码）：
+    [0x37, side, index | (long?0x80:0), count]
+  GPIO单逻辑设备入口调用 side=0；TCA左右入口分别调用0/1。不能把 GPIO payload 的0
+  直接解释成整张床的物理左侧，主机还拥有当前 USB 设备/side 配置。
+  包中没有原始 MCU tick、ADC 波形或 IMU 波形。
+  主机互证：signal-host/buttons/0020d2b0.c 与 tables.txt 解码低7bit为top/middle/bottom，
+  bit7为short/long；signal-host/pass6/0027e360.c 的 handleButtonEvent 才处理动作：
+  top/bottom short 被忽略，long 分别进入温升/温降；middle 根据 count、闹钟与
+  B12Configuration 分流至床架/闹钟等。不要把旧“2/3 tap”直接覆盖到此分支。
+  主机时间字段由 00252b10 提供 Unix 秒，不是这份 MCU 消息携带的原始采样时间。
+
+三、旧硬件：LIS 硬件候选与 MCU 波形排除
+  以下全部仅对应 state[0x378d]==0，不能作为 K 系列现行多 IMU 管线的处理说明。
+
+  3.1 实际 LIS 配置与硬件检测
+  08024938 要求 WHO_AM_I(0x0f)==0x44；先 self-test，再 0801e5e0(obj,0,1) 正常配置。
+  这与 LIS2DW12 寄存器家族一致，但没有通过芯片丝印独立确认具体订货号。
+  正常配置先写 CTRL2=0x40 软复位并等待100 ms，再写/回读下列寄存器：
+    21=0c；25=cc；22=12；23=01；24=00；3f=20；2e=00；
+    33=06；30=0d；31=6d；32=2d；20=64。
+  对照 ST：200 Hz、高性能14bit、±2g、low-noise；输出选 HP 路径，带宽档ODR/20。
+  32=2d 只启用 Z tap；阈值 code13（±2g 解释下约812.5 mg）。INT_DUR=06 对应
+  shock 2×8/ODR=80 ms、quiet 1×4/ODR=20 ms。single tap 候选来自芯片硬件引擎，
+  不是 MCU 从零开始检出所有加速度峰。23=01 路由 DRDY，MCU读状态位发现 tap。
+  0801e1e8 I2C 完成回调检查 STATUS(27) bit3，置 obj+114 候选；读3b时bit2也可置位。
+  这是芯片手势状态，不是睡眠状态。这里的sleep/inactivity寄存器名更不代表人类睡眠分期。
+
+  3.2 MCU 特征：Z峰峰值，按批次消费的96项FIFO
+  同一完成回调读 XYZ 有符号16位输出，乘0.25，再乘由CTRL6 full-scale解码出的mg/LSB。
+  正常±2g比例约0.244 mg/14bit count；X/Y/Z会保存，但压入tap特征FIFO的只有Z(float mg)。
+  0801c47e 的 FIFO 容量96；满时先弹出最旧一项，再加入最新Z。
+  候选置位后 0802988c 启动读次数计数，计数达到20时评估。它按DRDY/读循环递增，
+  不是20 ms定时；200 Hz正常供数时是约0.1秒尺度，调度和I2C行为会影响实际延迟。
+  0801ecb8 调 0801959c 最多取96项；0801959c 会推进read index，即消费本批数据。
+  因此不是固定96样本滑窗：样本数取决于上次评估至本次之间的供数，并被96容量截断。
+  少于20项返回0；否则 feature=max(Z)-min(Z)。没有平方能量、FFT或矢量模长运算。
+  满额96项在200 Hz供数下覆盖约480 ms，但不能把每次评估都写成恒定480 ms窗。
+
+  3.3 独立压电支路：16点均值 → 25点峰峰 → 两路取大
+  0801f0d0 在2 ms快照定时器完成后每10次调用 080253c8，标称每20 ms一次。
+  该函数只读取80字节ADC快照的偏移0x0c/0x10/0x2c/0x30，即通道0/1/8/9。
+  对每个通道保存16个快照，int32求和后算术右移4，得到16点均值；
+  再保留25个均值，逐通道算 max-min；
+    leftSwing=max(ptp(ch0),ptp(ch1)); rightSwing=max(ptp(ch8),ptp(ch9))。
+  这些是固件缓存数值单位的 ADC counts，不是伏特、压力或经标定的物理能量。
+  初始化零填充，固定除16；此处没有自适应baseline或不同有效样本数的归一化。
+  20 ms调度顺利时，16/25两个层级分别对应320/500 ms的名义样本窗；
+  不能把它们当成整个系统未知物理采样时钟或精确连续时间滤波测量。
+
+  3.4 固定分档门限与候选排除
+  0802988c 用Z峰峰值分档；080105b0/0802d770的比较关系已按汇编核对为 >=：
+    Z_pkpk <1500 mg：piezoLimit=2,000,000 counts
+    1500<=Z_pkpk<=2000 mg：piezoLimit=4,000,000 counts
+    Z_pkpk >2000 mg：piezoLimit=UINT32_MAX（本次不因piezo swing排除）
+  当对应侧 piezoSwing > piezoLimit，记录 ignoring tap 并拒绝该候选；否则接受。
+  这是按另一个特征分档的固定门限，不是学习得到的用户模型或动态噪声统计。
+  大压电波动可排除较弱加速度tap，强加速度tap则绕过该veto；不能把方向描述反了。
+
+  3.5 计数、上传和原始信号诊断
+  接受候选时，把当前tick加入容量5、元素8字节的tap队列，并重启quiet计时。
+  0801ec10 在最后一次接受后 >=500 ms 结算队列计数：count==1不上传；
+  count>=2调用本地alarm callback，再发送 [0x36, side, count]，最后清空队列。
+  side由L/R tag映射0/1。队列满后的失败路径不增加计数，也不重启quiet计时。
+  这说明主机收到的是已归并的计数；0x36消息本身同样没有候选tick或波形。
+  08025324另有0x35诊断发送路径，不应与0x36动作消息或新0x3c生物信号帧混同。
+
+四、可支持与不能支持的判断
+  已支持：旧分支的真实轴选择、硬件滤波档、峰峰特征、均值/峰峰窗口、固定分档门限、
+  候选后延迟、计数与上传；新分支的GPIO/GPI边界、输入极性、长按/连按与消息格式。
+  已排除的过度推断：Kxx tap/TTC必定融合16ADC+4IMU；所有机型使用2/3次tap同一检测器；
+  96项FIFO必定等时滑窗；TCA默认去抖能力必定启用；这些手势代码可证明睡眠分期算法。
+  仍未知：数字按钮上游物理换能方式/模拟整形/板级去抖、精确零售机型对应、真实佩戴/床垫
+  安装轴向、实际信号和误触发率、原厂算法设计意图。静态阈值不能替代实机波形验证。
+  Si5351 CLK7 reg92 与实际布线缺口保持不变；本报告不借200Hz LIS或2ms软件timer补证该时钟。
+
+五、复现与反编译局限
+  frontend/PrepareTap.java 仅在 -readOnly 内存会话建立明确回调函数入口，不保存项目修改。
+  Ghidra对memcpy、softfloat以及间接初始化callback的参数推断有省略/extraout变量；
+  80字节copy、Z入队、0x37四字节、GPIO三字节、>=阈值与初始化queue参数均已核对对应汇编。
+  本文的语义名称为分析者赋予，并非原始符号；tap_pseudocode.c不是可烧录固件。
+  新增导出与既有resolved目录共同构成证据，不用仅含关键词的字符串列表代替调用关系。
+
+原厂参考（查阅2026-11-07；只用来解释已观测寄存器，不把芯片能力当启用事实）
+  ST LIS2DW12 DS11811 Rev9，寄存器20/25/27/30..34：
+    https://www.st.com/resource/en/datasheet/lis2dw12.pdf
+  ST AN5038 Rev6，tap硬件路径与时间窗：
+    https://www.st.com/resource/en/application_note/dm00401877-lis2dw12-alwayson-3d-accelerometer-stmicroelectronics.pdf
+  TI TCA8418 SCPS215G，GPI事件表、FIFO、DEBOUNCE_DIS1：
+    https://www.ti.com/lit/ds/symlink/tca8418.pdf
+  ST GPIO HAL实现与结构/常量：
+    https://raw.githubusercontent.com/STMicroelectronics/stm32g0xx-hal-driver/master/Src/stm32g0xx_hal_gpio.c
+    https://raw.githubusercontent.com/STMicroelectronics/stm32g0xx-hal-driver/master/Inc/stm32g0xx_hal_gpio.h
+  ST STM32G0 CMSIS，GPIO端口基址及EXTI RPR1/FPR1布局（不据此单独认定MCU精确料号）：
+    https://raw.githubusercontent.com/STMicroelectronics/cmsis-device-g0/master/Include/stm32g0b1xx.h

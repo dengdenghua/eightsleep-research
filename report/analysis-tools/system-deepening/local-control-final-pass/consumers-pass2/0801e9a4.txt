@@ -1,0 +1,110 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_0801e9a4(undefined4 *param_1)
+
+{
+  undefined4 *puVar1;
+  char cVar2;
+  undefined4 uVar3;
+  undefined4 uVar4;
+  undefined4 *puVar5;
+  undefined4 uVar6;
+  
+  param_1[0xb] = &DAT_0801e84b;
+  *(undefined1 *)(param_1 + 0xc) = 3;
+  uVar6 = param_1[1];
+  puVar5 = *(undefined4 **)*param_1;
+  puVar1 = (undefined4 *)FUN_0801e822(puVar5,uVar6);
+  uVar3 = 0;
+  if (puVar1 != (undefined4 *)0x0) {
+    uVar3 = *puVar1;
+  }
+  if (puVar5 == (undefined4 *)0x40012c00) {
+    cVar2 = '\x01';
+    uVar4 = _DAT_40012c44;
+  }
+  else if (puVar5 == (undefined4 *)0x40014000) {
+    cVar2 = '\x0f';
+    uVar4 = _DAT_40014044;
+  }
+  else if (puVar5 == (undefined4 *)0x40000400) {
+    cVar2 = '\x03';
+    uVar4 = 0;
+  }
+  else {
+    cVar2 = (puVar5 == (undefined4 *)0x40000800) * '\x04';
+    uVar4 = 0;
+  }
+  FUN_08017634("[pwm_pumps] running TIM%d@%p ch=%lu duty=%u%% (ARR=%lu CCR=%lu) CR1=0x%lx CCER=0x%lx BDTR=0x%lx"
+               ,cVar2,puVar5,uVar6,*(undefined1 *)((int)param_1 + 0xf),puVar5[0xb],uVar3,*puVar5,
+               puVar5[8],uVar4);
+  return;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+0801e9a4 1f4b ldr r3,[0x0801ea24]
+0801e9a6 f0b5 push {r4,r5,r6,r7,lr}
+0801e9a8 c362 str r3,[r0,#0x2c]
+0801e9aa 0300 movs r3,r0
+0801e9ac 0322 movs r2,#0x3
+0801e9ae 3033 adds r3,#0x30
+0801e9b0 1a70 strb r2,[r3,#0x0]
+0801e9b2 0368 ldr r3,[r0,#0x0]
+0801e9b4 4668 ldr r6,[r0,#0x4]
+0801e9b6 1c68 ldr r4,[r3,#0x0]
+0801e9b8 0500 movs r5,r0
+0801e9ba 3100 movs r1,r6
+0801e9bc 2000 movs r0,r4
+0801e9be 89b0 sub sp,#0x24
+0801e9c0 fff72fff bl 0x0801e822
+0801e9c4 e76a ldr r7,[r4,#0x2c]
+0801e9c6 021e subs r2,r0,#0x0
+0801e9c8 00d0 beq 0x0801e9cc
+0801e9ca 0268 ldr r2,[r0,#0x0]
+0801e9cc 236a ldr r3,[r4,#0x20]
+0801e9ce 9c46 mov r12,r3
+0801e9d0 2368 ldr r3,[r4,#0x0]
+0801e9d2 0793 str r3,[sp,#0x1c]
+0801e9d4 144b ldr r3,[0x0801ea28]
+0801e9d6 9c42 cmp r4,r3
+0801e9d8 1ed0 beq 0x0801ea18
+0801e9da 144b ldr r3,[0x0801ea2c]
+0801e9dc 9c42 cmp r4,r3
+0801e9de 18d0 beq 0x0801ea12
+0801e9e0 134b ldr r3,[0x0801ea30]
+0801e9e2 9c42 cmp r4,r3
+0801e9e4 1bd0 beq 0x0801ea1e
+0801e9e6 134b ldr r3,[0x0801ea34]
+0801e9e8 e118 adds r1,r4,r3
+0801e9ea 4b42 rsbs r3,r1
+0801e9ec 5941 adcs r1,r3
+0801e9ee 0023 movs r3,#0x0
+0801e9f0 8900 lsls r1,r1,#0x2
+0801e9f2 0593 str r3,[sp,#0x14]
+0801e9f4 6346 mov r3,r12
+0801e9f6 0493 str r3,[sp,#0x10]
+0801e9f8 079b ldr r3,[sp,#0x1c]
+0801e9fa 0292 str r2,[sp,#0x8]
+0801e9fc 0393 str r3,[sp,#0xc]
+0801e9fe 0197 str r7,[sp,#0x4]
+0801ea00 eb7b ldrb r3,[r5,#0xf]
+0801ea02 2200 movs r2,r4
+0801ea04 0093 str r3,[sp,#0x0]
+0801ea06 0c48 ldr r0,[0x0801ea38]
+0801ea08 3300 movs r3,r6
+0801ea0a f8f713fe bl 0x08017634
+0801ea0e 09b0 add sp,#0x24
+0801ea10 f0bd pop {r4,r5,r6,r7,pc}
+0801ea12 0f21 movs r1,#0xf
+0801ea14 636c ldr r3,[r4,#0x44]
+0801ea16 ece7 b 0x0801e9f2
+0801ea18 0121 movs r1,#0x1
+0801ea1a 636c ldr r3,[r4,#0x44]
+0801ea1c e9e7 b 0x0801e9f2
+0801ea1e 0023 movs r3,#0x0
+0801ea20 0321 movs r1,#0x3
+0801ea22 e6e7 b 0x0801e9f2

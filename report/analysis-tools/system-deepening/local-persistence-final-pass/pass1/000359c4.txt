@@ -1,0 +1,23 @@
+FUNCTION 000359c4 BODY [[000359c4, 000359cf]]
+REF_TO 0003688a UNCONDITIONAL_CALL
+REF_TO 0003686c UNCONDITIONAL_CALL
+
+void FUN_000359c4(void)
+
+{
+  if (*(code **)(DAT_000359d0 + 0x18) != (code *)0x0) {
+                    /* WARNING: Could not recover jumptable at 0x000359cc. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    (**(code **)(DAT_000359d0 + 0x18))();
+    return;
+  }
+  return;
+}
+
+
+INSN 000359c4 0249 ldr r1,[0x000359d0] REF[READ:000359d0=20004c24]
+INSN 000359c6 8969 ldr r1,[r1,#0x18] REF[READ:20004c3c]
+INSN 000359c8 0029 cmp r1,#0x0
+INSN 000359ca 00d0 beq 0x000359ce REF[CONDITIONAL_JUMP:000359ce]
+INSN 000359cc 0847 bx r1
+INSN 000359ce 7047 bx lr

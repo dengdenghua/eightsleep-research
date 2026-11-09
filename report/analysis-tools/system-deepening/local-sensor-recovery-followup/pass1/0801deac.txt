@@ -1,0 +1,67 @@
+TARGET 0801deac function=0801deac
+REF_TO 0801defe UNCONDITIONAL_CALL owner=0801defa
+REF_TO 0801dffe UNCONDITIONAL_CALL owner=none
+REF_TO 0802424e UNCONDITIONAL_CALL owner=080240e4
+REF_TO 0801e13c UNCONDITIONAL_CALL owner=0801e07c
+FUNCTION_BODY [[0801deac, 0801def9]]
+
+uint FUN_0801deac(undefined4 *param_1,undefined1 param_2)
+
+{
+  int iVar1;
+  uint uVar2;
+  
+  iVar1 = FUN_0801c4c0(param_1 + 10);
+  if ((iVar1 == 0) || (iVar1 = FUN_0801c4c0(param_1 + 3), iVar1 == 0)) {
+    uVar2 = 0;
+  }
+  else {
+    *(undefined1 *)param_1[5] = param_2;
+    param_1[4] = 1;
+    param_1[0xb] = 2;
+    iVar1 = FUN_0801d128(*param_1,param_1 + 2);
+    uVar2 = 0;
+    if (iVar1 != 0) {
+      uVar2 = FUN_0801d128(*param_1,param_1 + 9);
+    }
+    uVar2 = uVar2 & 1;
+  }
+  return uVar2;
+}
+
+
+INSN 0801deac 70b5 push {r4,r5,r6,lr}
+INSN 0801deae 0400 movs r4,r0
+INSN 0801deb0 2830 adds r0,#0x28
+INSN 0801deb2 0d00 movs r5,r1
+INSN 0801deb4 fef704fb bl 0x0801c4c0 REF[UNCONDITIONAL_CALL:0801c4c0]
+INSN 0801deb8 0028 cmp r0,#0x0
+INSN 0801deba 01d1 bne 0x0801dec0 REF[CONDITIONAL_JUMP:0801dec0]
+INSN 0801debc 0020 movs r0,#0x0
+INSN 0801debe 70bd pop {r4,r5,r6,pc}
+INSN 0801dec0 2000 movs r0,r4
+INSN 0801dec2 0c30 adds r0,#0xc
+INSN 0801dec4 fef7fcfa bl 0x0801c4c0 REF[UNCONDITIONAL_CALL:0801c4c0]
+INSN 0801dec8 0028 cmp r0,#0x0
+INSN 0801deca f7d0 beq 0x0801debc REF[CONDITIONAL_JUMP:0801debc]
+INSN 0801decc 6369 ldr r3,[r4,#0x14]
+INSN 0801dece 2100 movs r1,r4
+INSN 0801ded0 1d70 strb r5,[r3,#0x0]
+INSN 0801ded2 0123 movs r3,#0x1
+INSN 0801ded4 2361 str r3,[r4,#0x10]
+INSN 0801ded6 db18 adds r3,r3,r3
+INSN 0801ded8 e362 str r3,[r4,#0x2c]
+INSN 0801deda 2068 ldr r0,[r4,#0x0]
+INSN 0801dedc 0831 adds r1,#0x8
+INSN 0801dede fff723f9 bl 0x0801d128 REF[UNCONDITIONAL_CALL:0801d128]
+INSN 0801dee2 0023 movs r3,#0x0
+INSN 0801dee4 9842 cmp r0,r3
+INSN 0801dee6 05d0 beq 0x0801def4 REF[CONDITIONAL_JUMP:0801def4]
+INSN 0801dee8 2100 movs r1,r4
+INSN 0801deea 2068 ldr r0,[r4,#0x0]
+INSN 0801deec 2431 adds r1,#0x24
+INSN 0801deee fff71bf9 bl 0x0801d128 REF[UNCONDITIONAL_CALL:0801d128]
+INSN 0801def2 0300 movs r3,r0
+INSN 0801def4 0120 movs r0,#0x1
+INSN 0801def6 1840 ands r0,r3
+INSN 0801def8 e1e7 b 0x0801debe REF[UNCONDITIONAL_JUMP:0801debe]

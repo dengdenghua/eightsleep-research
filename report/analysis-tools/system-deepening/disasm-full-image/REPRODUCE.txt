@@ -1,0 +1,115 @@
+复现说明｜冻结传感器镜像全量反汇编
+日期 2026-11-09
+
+一、环境
+
+  Python 3.13，capstone 5.0.7（pip install capstone）
+  不需要 arm-none-eabi-objdump / llvm-objdump / pyelftools；macOS 自带的 objdump 是
+  Apple LLVM，不支持 ARM
+  全程离线：不执行固件、不联网、不访问设备、不打开 Ghidra 工程
+
+二、输入
+
+  镜像（唯一字节来源）
+    materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/
+    lib/subsystem_updates/firmware-sensor-g0.bbin
+    132896 字节，SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+    装载基址 0x08008000，VA 与偏移换算 offset = VA - 0x08008000
+
+  导出语料（只作入口候选与对照）
+    report/analysis-tools/system-deepening 下 5633 个 .txt，其中 2758 个含 INSN 行
+    语料整体指纹记录在 SOURCE_MANIFEST.json 的 export_corpus.aggregate_sha256
+
+  兄弟镜像（仅用于装载基址探测）
+    firmware-sensor-g0-usb.bbin 140828、firmware-sensor.bbin 42292、
+    firmware-sensor-legacy.bbin 39704、firmware-frozen.bbin 143612、
+    firmware-pillow.bbin 90220、balloon-g0 143360、posture-g0 60476
+
+三、执行顺序
+
+  1. python3 scripts/write_source_manifest.py
+     记录 9 个输入的 SHA256 与语料整体指纹，产出 SOURCE_MANIFEST.json
+
+  2. python3 model/disasm_image.py
+     产出 EXPORT_IDENTITY.json、DISASM_STATS.json、FUNCTION_INDEX.json、
+     IMAGE_MAP.json、CROSSCHECK.json、DISPATCH_TABLES.json、RESIDUAL_14.json、
+     MODEL_RESULTS.json；末行打印 assertions=34 failures=0
+     运行时间约 6 秒
+
+  3. python3 scripts/verify_round14.py
+     不 import 模型、只读镜像字节与模型产出的 JSON，用自己的遍历重算解码摘要；
+     末行打印 checks=60 failures=0 status=PASS，产出 VERIFICATION.json
+     运行时间约 3 秒
+
+  两次重跑 decode_digest 必须一致：
+  68add813d1c44d44…（完整值见 DISASM_STATS.json 的 coverage.decode_digest）
+
+四、关键口径
+
+  覆盖 = 不同字节数（按 set 统计），不是指令尺寸之和。两者相等当且仅当没有任何
+  指令与另一条指令重叠，DISASM_STATS.json 的 overlap_check.overlapping_bytes 必须为 0。
+  报告两个分母：整镜像 132896 字节（78.16%）与代码区 0x08008000–0x08024000 的
+  114688 字节（90.26%）。不得与以块为单位的 71.14% 口径混用。
+
+  导出行的字节比较规则：16 位行按字节序；32 位行的前两字节按字节序、后两字节在半字
+  值里书写，比较前折算回磁盘字节序。
+
+五、取数坑
+
+  1. capstone 的 ins.groups 是整数分组编号，不是名字。写成 'call' in ins.groups 永远
+     为假，会把整个调用图漏掉。必须用 capstone.arm 的 ARM_GRP_CALL / ARM_GRP_JUMP。
+     这一条曾把覆盖率锁在 27%，改正后跳到 72%。
+
+  2. bl 同时带 call 与 jump 分组且 cc=15。若先判 jump 再判 call，解码会进入被调函数
+     且永不返回，调用方剩余部分整段丢失。必须先判 call。
+
+  3. pop {…,pc} 不带 ret/jump 分组，只能靠助记符加操作数判断；bx lr 同理。
+
+  4. 导出的 INSN 行第三个字段对 32 位 Thumb-2 指令是 8 位十六进制。正则写成 {4} 会
+     静默丢掉所有 bl，表现为「指令数少一条」「bl 断言为假」。应为 {4,8}。
+
+  5. 导出的 TARGET 行地址不一定等于函数入口，真正的入口在 function= 字段。把 TARGET
+     当地址用会得到一批落在大指令中间的假入口（0x08008618 即一例）。
+
+  6. 导出里的 REF_TO … UNCONDITIONAL_CALL 不是入口证据：镜像内 7237 个这种地址中
+     4802 个落在已知函数体内，是函数内部的 bl 目标。只能作为解码种子，不能当作函数入口。
+
+  7. 语料混装了多个二进制与两种装载基址。必须先做行级字节核对再使用；0x08010000
+     基址下同址同偏移的现象来自 g0-usb 镜像，不是数据损坏。
+
+  8. 对寄存器操作数读 op.mem 会取到联合体的垃圾值。做字段位移扫描时必须先判
+     op.type == ARM_OP_MEM，并排除 PC 相对寻址（op.mem.base != ARM_REG_PC），否则
+     ldr r1,[pc,#0x2a0] 会被当成 0x2a0 字段访问。
+
+  9. bl __gnu_thumb1_case_uqi（0x0800814C）之后没有顺序执行：返回地址处是字节表。
+     把表字节当指令解会产生「bl 到自己内部」这类不可能指令，并连带丢掉整个 case 体。
+     该调用必须当终结处理，并把每个 case 体作为新入口。
+
+  10. 指针表按指令解码是可以通过试探解码的自证检查的（它会走到某个终结符）。必须
+      额外加数据形态守卫：4 字节对齐、连续 ≥4 个词、每词是镜像内奇数地址或 RAM 地址，
+      落在窗口内的指令一律撤销。该守卫撤销了 380 条指令。
+
+  11. 扫描指针窗口时步长必须是 4 字节。用 2 字节步长会让 off % 4 != 0 的位置误判为
+      窗口中断，结果一个窗口都识别不出来。
+
+  12. 覆盖统计若在同一个 dict 上先跑一遍再累加，会把两轮的尺寸重复计入，得到虚高的
+      91%。必须先跑完再统计，并同时报告重叠字节数。
+
+  13. 除顺序执行外还要防「落在大指令中间」的种子：仅判 pc in decoded 不够，必须另存
+      已覆盖字节集合，并对跨度做冲突检查。这两个守卫是把重叠降到 0 的原因。
+
+  14. 解码摘要可以作为核验目标的前提是结果与遍历顺序无关。已实测：栈式后进先出、
+      先进先出、种子逆序三种遍历产出完全相同的 decode_digest 与指令数。
+
+六、文件对应
+
+  EXPORT_IDENTITY.json   2758 个含指令行导出文件的逐文件字节一致率与基址归属
+  DISASM_STATS.json      分档种子、四轮迭代、覆盖率、终结符直方图、解码摘要
+  FUNCTION_INDEX.json    784 个入口的跨度、指令数、调用者、被调用者、终结方式
+  IMAGE_MAP.json         132896 字节的区域划分与最大未定段
+  CROSSCHECK.json        与导出的行级对照，含一致率分档与漂移最严重的文件
+  DISPATCH_TABLES.json   5 处 case 表、36 个目标、3 处 mov pc、3 处被丢弃块
+  RESIDUAL_14.json       0x10f0 窗口、0x027C 空洞、3e01 空洞、状态 4 分派区
+  SOURCE_MANIFEST.json   9 个输入 SHA256 与语料整体指纹
+  VERIFICATION.json      60 项独立核验的逐项账本
+  MODEL_RESULTS.json     34 条断言的账本

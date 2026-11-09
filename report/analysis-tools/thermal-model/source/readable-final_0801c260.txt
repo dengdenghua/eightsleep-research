@@ -1,0 +1,996 @@
+ENTRY 0801c260 FUN_0801c260 body=[[0801c260, 0801c5d1] [0801c5fc, 0801c801]]
+
+int FUN_0801c260(int *param_1)
+
+{
+  undefined2 uVar1;
+  uint uVar2;
+  int iVar3;
+  void *sensor;
+  void *pvVar4;
+  int iVar5;
+  float a;
+  char *pcVar6;
+  char cVar7;
+  undefined *puVar8;
+  int iVar9;
+  float *pfVar10;
+  float fVar11;
+  float *pfVar12;
+  int *piVar13;
+  float fVar14;
+  float fVar15;
+  bool bVar16;
+  double dVar17;
+  double dVar18;
+  double dVar19;
+  undefined8 local_48;
+  undefined4 local_40;
+  undefined4 local_3c;
+  char cStack_33;
+  char cStack_2f;
+  char cStack_2b;
+  
+  iVar9 = *(int *)(*param_1 + 0x11c);
+  if ((iVar9 == 0) || (*(char *)(iVar9 + 0x74) == '\0')) {
+    *(undefined1 *)((int)param_1 + 0x11) = 0;
+    *(undefined1 *)((int)param_1 + 0x12) = 0;
+  }
+  else {
+    if ((char)param_1[4] == '\0') {
+      pfVar12 = (float *)(iVar9 + 0x18);
+      pfVar10 = (float *)(iVar9 + 0x28);
+      if (*(char *)((int)param_1 + 0x11) == '\0') goto LAB_0801c4c2;
+LAB_0801c29a:
+      fVar15 = 60.0;
+      fVar11 = fVar15;
+      if (*(char *)((int)param_1 + 0x12) != '\0') goto LAB_0801c2a6;
+LAB_0801c4ce:
+      fVar14 = 65.0;
+      fVar11 = fVar15;
+    }
+    else {
+      pfVar12 = (float *)(iVar9 + 0x20);
+      pfVar10 = (float *)(iVar9 + 0x30);
+      if (*(char *)((int)param_1 + 0x11) != '\0') goto LAB_0801c29a;
+LAB_0801c4c2:
+      fVar11 = 65.0;
+      fVar15 = 65.0;
+      if (*(char *)((int)param_1 + 0x12) == '\0') goto LAB_0801c4ce;
+LAB_0801c2a6:
+      fVar14 = 60.0;
+    }
+    iVar9 = FUN_0800edc8(pfVar12);
+    bVar16 = false;
+    if (iVar9 != 0) {
+      iVar9 = fp_gt(*pfVar12,fVar11);
+      bVar16 = iVar9 != 0;
+    }
+    *(bool *)((int)param_1 + 0x11) = bVar16;
+    iVar9 = FUN_0800edc8(pfVar10);
+    bVar16 = false;
+    if (iVar9 != 0) {
+      iVar9 = fp_gt(*pfVar10,fVar14);
+      bVar16 = iVar9 != 0;
+    }
+    *(bool *)((int)param_1 + 0x12) = bVar16;
+  }
+  fVar11 = (float)param_1[0xd];
+  iVar9 = param_1[0xe];
+  uVar2 = millis();
+  iVar3 = overcurrent_step(param_1 + 0xe,fVar11,uVar2);
+  cVar7 = (char)param_1[0xe];
+  if ((char)iVar9 != cVar7) {
+    if (cVar7 == '\x03') {
+      if ((char)param_1[4] == '\0') {
+        pcVar6 = "left";
+      }
+      else {
+        pcVar6 = "right";
+      }
+      fw_log("[over_current] %s confirmed: the current fell once the TEC was cut. Side stays off until the pod is power cycled."
+             ,pcVar6);
+    }
+    else if (cVar7 == '\x04') {
+      if ((char)param_1[4] == '\0') {
+        pcVar6 = "left";
+      }
+      else {
+        pcVar6 = "right";
+      }
+      dVar17 = fp_to_double((float)param_1[0xd]);
+      fw_log("[over_current] %s still reads %.1fA with the TEC cut, so the current sense is not believable. Guard disarmed for this boot; side released."
+             ,pcVar6,SUB84(dVar17,0),(int)((ulonglong)dVar17 >> 0x20));
+    }
+    else if (cVar7 == '\x02') {
+      if ((char)param_1[4] == '\0') {
+        pcVar6 = "left";
+      }
+      else {
+        pcVar6 = "right";
+      }
+      dVar17 = fp_to_double((float)param_1[0xd]);
+      fw_log("[over_current] %s TEC off: %.1fA over the %.1fA limit for %ums. Verifying.",pcVar6,
+             SUB84(dVar17,0),(int)((ulonglong)dVar17 >> 0x20),0,0x403e0000,500);
+    }
+  }
+  if (iVar3 != 0) {
+    return 0xb;
+  }
+  if (((char *)param_1[3] == (char *)0x0) || (*(char *)param_1[3] != '\0')) {
+    pvVar4 = temp_sensor((void *)*param_1,(uint)((char)param_1[4] != '\0'));
+    sensor = temp_sensor((void *)*param_1,7 - ((char)param_1[4] == '\0'));
+    piVar13 = param_1 + 5;
+    iVar9 = temp_valid(sensor);
+    if (iVar9 == 0) {
+      if ((char)param_1[7] != '\0') {
+        iVar9 = FUN_08021d3c(piVar13);
+        param_1[8] = iVar9 + param_1[8];
+      }
+      FUN_08021d3c(param_1 + 9);
+      cVar7 = (char)param_1[0xc];
+    }
+    else {
+      fVar11 = *(float *)((int)sensor + 0xc);
+      iVar9 = temp_valid(pvVar4);
+      if (iVar9 == 0) {
+        local_48._0_4_ = -99.0;
+      }
+      else {
+        local_48._0_4_ = *(float *)((int)pvVar4 + 0xc);
+      }
+      pvVar4 = temp_sensor((void *)*param_1,7 - ((char)param_1[4] == '\0'));
+      iVar9 = temp_valid(pvVar4);
+      if (iVar9 == 0) goto LAB_0801c708;
+      fVar15 = *(float *)((int)pvVar4 + 0xc);
+      iVar3 = fp_lt(fVar15,11.0);
+      if (iVar3 == 0) {
+        pvVar4 = temp_sensor((void *)*param_1,(uint)((char)param_1[4] != '\0'));
+        iVar3 = temp_valid(pvVar4);
+        fVar14 = *(float *)((int)pvVar4 + 0xc);
+        iVar5 = fp_lt(fVar15,14.0);
+        if (iVar5 != 0) {
+          if (iVar3 != 0) {
+            a = fp_sub(fVar14,fVar15);
+            iVar3 = fp_gt(a,5.0);
+            if (iVar3 == 0) {
+              iVar9 = fp_gt(fVar15,50.0);
+              if (iVar9 != 0) goto LAB_0801c5b4;
+              goto LAB_0801c708;
+            }
+          }
+          goto LAB_0801c628;
+        }
+        iVar9 = fp_gt(fVar15,50.0);
+        if (iVar9 != 0) {
+          if (iVar3 != 0) {
+LAB_0801c5b4:
+            fVar15 = fp_sub(fVar15,fVar14);
+            iVar9 = fp_gt(fVar15,5.0);
+            if (iVar9 == 0) goto LAB_0801c708;
+          }
+          iVar9 = 0;
+          bVar16 = false;
+          goto LAB_0801c62a;
+        }
+LAB_0801c708:
+        if ((char)param_1[7] != '\0') {
+          iVar9 = FUN_08021d3c(piVar13);
+          param_1[8] = iVar9 + param_1[8];
+        }
+        if ((char)param_1[0xb] == '\0') {
+          FUN_08021d28();
+          cVar7 = (char)param_1[0xc];
+          goto LAB_0801c372;
+        }
+        uVar2 = FUN_08021d6c(param_1 + 9);
+        if (599999 < uVar2) {
+          if ((char)param_1[0xc] != '\0') {
+            if ((char)param_1[4] == '\0') {
+              pcVar6 = "left";
+            }
+            else {
+              pcVar6 = "right";
+            }
+            fw_log("[noflow_guard] TEC on %s (%s)",pcVar6,"clean");
+          }
+          FUN_08021d08(piVar13);
+          param_1[8] = 0;
+          FUN_08021d08(param_1 + 9);
+          *(undefined1 *)(param_1 + 0xc) = 0;
+          *(undefined1 *)((int)param_1 + 0x31) = 0;
+          goto LAB_0801c378;
+        }
+      }
+      else {
+LAB_0801c628:
+        bVar16 = true;
+LAB_0801c62a:
+        FUN_08021d3c(param_1 + 9);
+        if ((char)param_1[7] == '\0') {
+          FUN_08021d28(piVar13);
+          if ((char)param_1[0xc] != '\0') {
+            return 10;
+          }
+          iVar3 = param_1[8];
+          iVar5 = 0;
+          if ((char)param_1[7] != '\0') goto LAB_0801c646;
+        }
+        else {
+          if ((char)param_1[0xc] != '\0') {
+            return 10;
+          }
+          iVar3 = param_1[8];
+LAB_0801c646:
+          iVar5 = FUN_08021d6c(piVar13);
+        }
+        if (59999 < (uint)(iVar5 + iVar3)) {
+          *(undefined1 *)(param_1 + 0xc) = 1;
+          *(char *)((int)param_1 + 0x31) = (char)iVar9;
+          pvVar4 = temp_sensor((void *)*param_1,3);
+          if ((char)param_1[4] == '\0') {
+            pcVar6 = "left";
+          }
+          else {
+            pcVar6 = "right";
+          }
+          if (bVar16) {
+            puVar8 = &DAT_0802b588;
+          }
+          else {
+            puVar8 = &DAT_0802b590;
+          }
+          dVar17 = fp_to_double(fVar11);
+          dVar18 = fp_to_double((float)local_48);
+          iVar9 = temp_valid(pvVar4);
+          if (iVar9 == 0) {
+            local_48 = -99.0;
+          }
+          else {
+            local_48 = fp_to_double(*(float *)((int)pvVar4 + 0xc));
+          }
+          uVar2 = param_1[8];
+          if ((char)param_1[7] != '\0') {
+            iVar9 = FUN_08021d6c(piVar13);
+            uVar2 = uVar2 + iVar9;
+          }
+          fVar11 = uint_to_fp(uVar2);
+          fVar11 = fp_div(fVar11,60000.0);
+          dVar19 = fp_to_double(fVar11);
+          local_40 = SUB84(dVar17,0);
+          local_3c = (undefined4)((ulonglong)dVar17 >> 0x20);
+          fw_log("[noflow_guard] TEC off %s %s wb=%.1fC water=%.1fC amb=%.1fC regime=%.1fmin",pcVar6
+                 ,puVar8,local_40,local_40,local_3c,dVar18,(float)local_48,local_48._4_4_,dVar19);
+        }
+      }
+      cVar7 = (char)param_1[0xc];
+    }
+LAB_0801c372:
+    if (cVar7 != '\0') {
+      return 10;
+    }
+  }
+  else {
+    if ((char)param_1[0xc] != '\0') {
+      if ((char)param_1[4] == '\0') {
+        pcVar6 = "left";
+      }
+      else {
+        pcVar6 = "right";
+      }
+      fw_log("[noflow_guard] TEC on %s (%s)",pcVar6,"session end");
+    }
+    FUN_08021d08(param_1 + 5);
+    param_1[8] = 0;
+    FUN_08021d08(param_1 + 9);
+    *(undefined1 *)(param_1 + 0xc) = 0;
+    *(undefined1 *)((int)param_1 + 0x31) = 0;
+  }
+LAB_0801c378:
+  uVar1 = FUN_0801dc84(*param_1);
+  if ((char)uVar1 == '\0') {
+    cStack_33 = (char)((ushort)uVar1 >> 8);
+    if (cStack_33 == '\0') {
+      uVar1 = FUN_0801ddd0(*param_1,(char)param_1[4]);
+      if ((char)uVar1 != '\0') goto LAB_0801c4a2;
+      cStack_2f = (char)((ushort)uVar1 >> 8);
+      if (cStack_2f == '\0') {
+        uVar1 = FUN_0801de90(*param_1,(char)param_1[4]);
+        pvVar4 = temp_sensor((void *)*param_1,7 - ((char)param_1[4] == '\0'));
+        iVar9 = temp_valid(pvVar4);
+        cStack_2b = (char)((ushort)uVar1 >> 8);
+        if ((iVar9 == 0) && ((char)uVar1 != '\0')) goto LAB_0801c4a2;
+        if (cStack_2b == '\0') {
+          pvVar4 = temp_sensor((void *)*param_1,7 - ((char)param_1[4] == '\0'));
+          iVar9 = temp_valid(pvVar4);
+          if (iVar9 != 0) {
+            fVar11 = *(float *)((int)pvVar4 + 0xc);
+            iVar9 = fp_lt(fVar11,11.0);
+            if (iVar9 != 0) {
+              return 7;
+            }
+            pvVar4 = temp_sensor((void *)*param_1,(uint)((char)param_1[4] != '\0'));
+            iVar9 = temp_valid(pvVar4);
+            fVar15 = *(float *)((int)pvVar4 + 0xc);
+            iVar3 = fp_lt(fVar11,14.0);
+            if (iVar3 == 0) {
+              iVar3 = fp_gt(fVar11,50.0);
+              if (iVar3 == 0) goto LAB_0801c46c;
+              if (iVar9 == 0) {
+                return 9;
+              }
+            }
+            else {
+              if (iVar9 == 0) {
+                return 8;
+              }
+              fVar14 = fp_sub(fVar15,fVar11);
+              iVar9 = fp_gt(fVar14,5.0);
+              if (iVar9 != 0) {
+                return 8;
+              }
+              iVar9 = fp_gt(fVar11,50.0);
+              if (iVar9 == 0) goto LAB_0801c46c;
+            }
+            fVar11 = fp_sub(fVar11,fVar15);
+            iVar9 = fp_gt(fVar11,5.0);
+            if (iVar9 != 0) {
+              return 9;
+            }
+          }
+LAB_0801c46c:
+          iVar9 = FUN_08019260(param_1[1]);
+          if (iVar9 == 0) {
+            return 3;
+          }
+          if (((char *)param_1[2] != (char *)0x0) && (*(char *)param_1[2] == '\0')) {
+            return 4;
+          }
+          if (*(char *)((int)param_1 + 0x11) == '\0') {
+            return (-(uint)(*(char *)((int)param_1 + 0x12) == '\0') & 0xfffffffa) + 6;
+          }
+          return 5;
+        }
+      }
+    }
+    iVar9 = 2;
+  }
+  else {
+LAB_0801c4a2:
+    iVar9 = 1;
+  }
+  return iVar9;
+}
+
+
+0801c260  push {r4,r5,r6,r7,lr}
+0801c262  mov r7,r10
+0801c264  mov lr,r11
+0801c266  mov r6,r9
+0801c268  mov r5,r8
+0801c26a  movs r3,#0x8e
+0801c26c  push {r5,r6,r7,lr}
+0801c26e  ldr r2,[r0,#0x0]
+0801c270  lsls r3,r3,#0x1
+0801c272  ldr r4,[r2,r3]
+0801c274  sub sp,#0x44
+0801c276  movs r7,r0
+0801c278  cmp r4,#0x0
+0801c27a  beq 0x0801c2da
+0801c27c  subs r3,#0xa8
+0801c27e  ldrb r3,[r4,r3]
+0801c280  cmp r3,#0x0
+0801c282  beq 0x0801c2da
+0801c284  ldrb r3,[r0,#0x10]
+0801c286  movs r5,r4
+0801c288  cmp r3,#0x0
+0801c28a  bne 0x0801c28e
+0801c28c  b 0x0801c4b6
+0801c28e  ldrb r3,[r7,#0x11]
+0801c290  adds r5,#0x20
+0801c292  adds r4,#0x30
+0801c294  cmp r3,#0x0
+0801c296  bne 0x0801c29a
+0801c298  b 0x0801c4c2
+0801c29a  ldr r3,[0x0801c5d4] [0801c5d4=42700000]
+0801c29c  mov r8,r3
+0801c29e  ldrb r3,[r7,#0x12]
+0801c2a0  cmp r3,#0x0
+0801c2a2  bne 0x0801c2a6
+0801c2a4  b 0x0801c4ce
+0801c2a6  ldr r6,[0x0801c5d4] [0801c5d4=42700000]
+0801c2a8  movs r0,r5
+0801c2aa  bl 0x0800edc8
+0801c2ae  cmp r0,#0x0
+0801c2b0  beq 0x0801c2be
+0801c2b2  mov r1,r8
+0801c2b4  ldr r0,[r5,#0x0]
+0801c2b6  bl 0x0800a4fc
+0801c2ba  subs r3,r0,#0x1
+0801c2bc  sbcs r0,r3
+0801c2be  strb r0,[r7,#0x11]
+0801c2c0  movs r0,r4
+0801c2c2  bl 0x0800edc8
+0801c2c6  cmp r0,#0x0
+0801c2c8  beq 0x0801c2d6
+0801c2ca  adds r1,r6,#0x0
+0801c2cc  ldr r0,[r4,#0x0]
+0801c2ce  bl 0x0800a4fc
+0801c2d2  subs r3,r0,#0x1
+0801c2d4  sbcs r0,r3
+0801c2d6  strb r0,[r7,#0x12]
+0801c2d8  b 0x0801c2e0
+0801c2da  movs r3,#0x0
+0801c2dc  strb r3,[r7,#0x11]
+0801c2de  strb r3,[r7,#0x12]
+0801c2e0  movs r4,#0x38
+0801c2e2  ldr r5,[r7,#0x34]
+0801c2e4  ldrb r6,[r7,r4]
+0801c2e6  bl 0x0801ffc8
+0801c2ea  movs r2,r0
+0801c2ec  movs r0,r7
+0801c2ee  adds r1,r5,#0x0
+0801c2f0  adds r0,#0x38
+0801c2f2  bl 0x0801c174
+0801c2f6  ldrb r3,[r7,r4]
+0801c2f8  movs r5,r0
+0801c2fa  cmp r6,r3
+0801c2fc  beq 0x0801c310
+0801c2fe  cmp r3,#0x3
+0801c300  bne 0x0801c304
+0801c302  b 0x0801c6f4
+0801c304  cmp r3,#0x4
+0801c306  bne 0x0801c30a
+0801c308  b 0x0801c50a
+0801c30a  cmp r3,#0x2
+0801c30c  bne 0x0801c310
+0801c30e  b 0x0801c5fc
+0801c310  cmp r5,#0x0
+0801c312  beq 0x0801c316
+0801c314  b 0x0801c4b2
+0801c316  ldr r3,[r7,#0xc]
+0801c318  cmp r3,#0x0
+0801c31a  beq 0x0801c324
+0801c31c  ldrb r3,[r3,#0x0]
+0801c31e  cmp r3,#0x0
+0801c320  bne 0x0801c324
+0801c322  b 0x0801c4d2
+0801c324  ldrb r1,[r7,#0x10]
+0801c326  ldr r0,[r7,#0x0]
+0801c328  subs r3,r1,#0x1
+0801c32a  sbcs r1,r3
+0801c32c  uxtb r1,r1
+0801c32e  bl 0x0801dc78
+0801c332  ldrb r1,[r7,#0x10]
+0801c334  movs r5,r0
+0801c336  subs r3,r1,#0x1
+0801c338  sbcs r1,r3
+0801c33a  ldr r0,[r7,#0x0]
+0801c33c  adds r1,#0x6
+0801c33e  movs r6,r7
+0801c340  bl 0x0801dc78
+0801c344  adds r6,#0x14
+0801c346  movs r4,r0
+0801c348  bl 0x0801df24
+0801c34c  cmp r0,#0x0
+0801c34e  beq 0x0801c352
+0801c350  b 0x0801c528
+0801c352  ldrb r3,[r7,#0x1c]
+0801c354  cmp r3,#0x0
+0801c356  beq 0x0801c366
+0801c358  movs r0,r6
+0801c35a  bl 0x08021d3c
+0801c35e  ldr r3,[r7,#0x20]
+0801c360  mov r12,r3
+0801c362  add r0,r12
+0801c364  str r0,[r7,#0x20]
+0801c366  movs r0,r7
+0801c368  adds r0,#0x24
+0801c36a  bl 0x08021d3c
+0801c36e  movs r3,#0x30
+0801c370  ldrb r3,[r7,r3]
+0801c372  cmp r3,#0x0
+0801c374  beq 0x0801c378
+0801c376  b 0x0801c704
+0801c378  ldr r0,[r7,#0x0]
+0801c37a  bl 0x0801dc84
+0801c37e  add r3,sp,#0x10
+0801c380  strh r0,[r3,#0x24]
+0801c382  uxtb r0,r0
+0801c384  cmp r0,#0x0
+0801c386  beq 0x0801c38a
+0801c388  b 0x0801c4a2
+0801c38a  movs r2,#0x25
+0801c38c  add r3,sp,#0x10
+0801c38e  adds r3,r3,r2
+0801c390  ldrb r3,[r3,#0x0]
+0801c392  cmp r3,#0x0
+0801c394  beq 0x0801c398
+0801c396  b 0x0801c5ce
+0801c398  ldrb r1,[r7,#0x10]
+0801c39a  ldr r0,[r7,#0x0]
+0801c39c  bl 0x0801ddd0
+0801c3a0  add r3,sp,#0x10
+0801c3a2  strh r0,[r3,#0x28]
+0801c3a4  uxtb r0,r0
+0801c3a6  cmp r0,#0x0
+0801c3a8  bne 0x0801c4a2
+0801c3aa  movs r2,#0x29
+0801c3ac  adds r3,r3,r2
+0801c3ae  ldrb r3,[r3,#0x0]
+0801c3b0  cmp r3,#0x0
+0801c3b2  beq 0x0801c3b6
+0801c3b4  b 0x0801c5ce
+0801c3b6  ldrb r1,[r7,#0x10]
+0801c3b8  ldr r0,[r7,#0x0]
+0801c3ba  bl 0x0801de90
+0801c3be  ldrb r1,[r7,#0x10]
+0801c3c0  add r4,sp,#0x3c
+0801c3c2  subs r3,r1,#0x1
+0801c3c4  sbcs r1,r3
+0801c3c6  strh r0,[r4,#0x0]
+0801c3c8  adds r1,#0x6
+0801c3ca  uxtb r5,r0
+0801c3cc  ldr r0,[r7,#0x0]
+0801c3ce  bl 0x0801dc78
+0801c3d2  bl 0x0801df24
+0801c3d6  ldrb r3,[r4,#0x1]
+0801c3d8  cmp r0,#0x0
+0801c3da  beq 0x0801c49e
+0801c3dc  cmp r3,#0x0
+0801c3de  beq 0x0801c3e2
+0801c3e0  b 0x0801c5ce
+0801c3e2  ldrb r1,[r7,#0x10]
+0801c3e4  ldr r0,[r7,#0x0]
+0801c3e6  subs r3,r1,#0x1
+0801c3e8  sbcs r1,r3
+0801c3ea  adds r1,#0x6
+0801c3ec  bl 0x0801dc78
+0801c3f0  movs r4,r0
+0801c3f2  bl 0x0801df24
+0801c3f6  cmp r0,#0x0
+0801c3f8  beq 0x0801c46c
+0801c3fa  ldr r4,[r4,#0xc]
+0801c3fc  ldr r1,[0x0801c5d8] [0801c5d8=41300000]
+0801c3fe  adds r0,r4,#0x0
+0801c400  bl 0x0800a4d4
+0801c404  movs r3,r0
+0801c406  movs r0,#0x7
+0801c408  cmp r3,#0x0
+0801c40a  bne 0x0801c4a4
+0801c40c  ldrb r1,[r7,#0x10]
+0801c40e  ldr r0,[r7,#0x0]
+0801c410  subs r3,r1,#0x1
+0801c412  sbcs r1,r3
+0801c414  uxtb r1,r1
+0801c416  bl 0x0801dc78
+0801c41a  movs r5,r0
+0801c41c  bl 0x0801df24
+0801c420  ldr r1,[0x0801c5dc] [0801c5dc=41600000]
+0801c422  movs r6,r0
+0801c424  adds r0,r4,#0x0
+0801c426  ldr r5,[r5,#0xc]
+0801c428  bl 0x0800a4d4
+0801c42c  cmp r0,#0x0
+0801c42e  bne 0x0801c432
+0801c430  b 0x0801c7da
+0801c432  cmp r6,#0x0
+0801c434  bne 0x0801c438
+0801c436  b 0x0801c7f2
+0801c438  adds r1,r4,#0x0
+0801c43a  adds r0,r5,#0x0
+0801c43c  bl 0x0800aed8
+0801c440  ldr r1,[0x0801c5e0] [0801c5e0=40a00000]
+0801c442  bl 0x0800a4fc
+0801c446  cmp r0,#0x0
+0801c448  beq 0x0801c44c
+0801c44a  b 0x0801c7f2
+0801c44c  ldr r1,[0x0801c5e4] [0801c5e4=42480000]
+0801c44e  adds r0,r4,#0x0
+0801c450  bl 0x0800a4fc
+0801c454  cmp r0,#0x0
+0801c456  beq 0x0801c46c
+0801c458  adds r1,r5,#0x0
+0801c45a  adds r0,r4,#0x0
+0801c45c  bl 0x0800aed8
+0801c460  ldr r1,[0x0801c5e0] [0801c5e0=40a00000]
+0801c462  bl 0x0800a4fc
+0801c466  cmp r0,#0x0
+0801c468  beq 0x0801c46c
+0801c46a  b 0x0801c7fe
+0801c46c  ldr r0,[r7,#0x4]
+0801c46e  bl 0x08019260
+0801c472  cmp r0,#0x0
+0801c474  bne 0x0801c478
+0801c476  b 0x0801c7d6
+0801c478  ldr r3,[r7,#0x8]
+0801c47a  cmp r3,#0x0
+0801c47c  beq 0x0801c486
+0801c47e  ldrb r3,[r3,#0x0]
+0801c480  cmp r3,#0x0
+0801c482  bne 0x0801c486
+0801c484  b 0x0801c7fa
+0801c486  ldrb r3,[r7,#0x11]
+0801c488  cmp r3,#0x0
+0801c48a  beq 0x0801c48e
+0801c48c  b 0x0801c7f6
+0801c48e  ldrb r0,[r7,#0x12]
+0801c490  rsbs r3,r0
+0801c492  adcs r0,r3
+0801c494  movs r3,#0x5
+0801c496  rsbs r0,r0
+0801c498  bics r0,r3
+0801c49a  adds r0,#0x6
+0801c49c  b 0x0801c4a4
+0801c49e  cmp r5,#0x0
+0801c4a0  beq 0x0801c3dc
+0801c4a2  movs r0,#0x1
+0801c4a4  add sp,#0x44
+0801c4a6  pop {r2,r3,r4,r5}
+0801c4a8  mov r8,r2
+0801c4aa  mov r9,r3
+0801c4ac  mov r10,r4
+0801c4ae  mov r11,r5
+0801c4b0  pop {r4,r5,r6,r7,pc}
+0801c4b2  movs r0,#0xb
+0801c4b4  b 0x0801c4a4
+0801c4b6  ldrb r3,[r7,#0x11]
+0801c4b8  adds r5,#0x18
+0801c4ba  adds r4,#0x28
+0801c4bc  cmp r3,#0x0
+0801c4be  beq 0x0801c4c2
+0801c4c0  b 0x0801c29a
+0801c4c2  ldr r3,[0x0801c5e8] [0801c5e8=42820000]
+0801c4c4  mov r8,r3
+0801c4c6  ldrb r3,[r7,#0x12]
+0801c4c8  cmp r3,#0x0
+0801c4ca  beq 0x0801c4ce
+0801c4cc  b 0x0801c2a6
+0801c4ce  ldr r6,[0x0801c5e8] [0801c5e8=42820000]
+0801c4d0  b 0x0801c2a8
+0801c4d2  adds r3,#0x30
+0801c4d4  ldrb r3,[r7,r3]
+0801c4d6  cmp r3,#0x0
+0801c4d8  beq 0x0801c4ec
+0801c4da  ldrb r3,[r7,#0x10]
+0801c4dc  cmp r3,#0x0
+0801c4de  beq 0x0801c4e2
+0801c4e0  b 0x0801c774
+0801c4e2  ldr r1,[0x0801c5ec] [0801c5ec=8029648] [08029648=7466656c]
+0801c4e4  ldr r2,[0x0801c5f0] [0801c5f0=802b6e0] [0802b6e0=73736573]
+0801c4e6  ldr r0,[0x0801c5f4] [0801c5f4=802b6ec] [0802b6ec=666f6e5b]
+0801c4e8  bl 0x08021be0
+0801c4ec  movs r0,r7
+0801c4ee  adds r0,#0x14
+0801c4f0  bl 0x08021d08
+0801c4f4  movs r4,#0x0
+0801c4f6  movs r0,r7
+0801c4f8  str r4,[r7,#0x20]
+0801c4fa  adds r0,#0x24
+0801c4fc  bl 0x08021d08
+0801c500  movs r3,#0x30
+0801c502  strb r4,[r7,r3]
+0801c504  adds r3,#0x1
+0801c506  strb r4,[r7,r3]
+0801c508  b 0x0801c378
+0801c50a  ldrb r3,[r7,#0x10]
+0801c50c  cmp r3,#0x0
+0801c50e  beq 0x0801c512
+0801c510  b 0x0801c726
+0801c512  ldr r4,[0x0801c5ec] [0801c5ec=8029648]
+0801c514  ldr r0,[r7,#0x34]
+0801c516  bl 0x0800ce54
+0801c51a  movs r2,r0
+0801c51c  movs r3,r1
+0801c51e  ldr r0,[0x0801c5f8] [0801c5f8=802b654] [0802b654=65766f5b]
+0801c520  movs r1,r4 [08029650=68676972]
+0801c522  bl 0x08021be0
+0801c526  b 0x0801c310
+0801c528  ldr r3,[r4,#0xc]
+0801c52a  movs r0,r5
+0801c52c  mov r8,r3
+0801c52e  bl 0x0801df24
+0801c532  cmp r0,#0x0
+0801c534  bne 0x0801c538
+0801c536  b 0x0801c72a
+0801c538  ldr r3,[r5,#0xc]
+0801c53a  str r3,[sp,#0x20]
+0801c53c  ldrb r1,[r7,#0x10]
+0801c53e  ldr r0,[r7,#0x0]
+0801c540  subs r3,r1,#0x1
+0801c542  sbcs r1,r3
+0801c544  adds r1,#0x6
+0801c546  bl 0x0801dc78
+0801c54a  movs r5,r0
+0801c54c  bl 0x0801df24
+0801c550  subs r4,r0,#0x0
+0801c552  bne 0x0801c556
+0801c554  b 0x0801c708
+0801c556  ldr r5,[r5,#0xc]
+0801c558  ldr r1,[0x0801c5d8] [0801c5d8=41300000]
+0801c55a  adds r0,r5,#0x0
+0801c55c  bl 0x0800a4d4
+0801c560  cmp r0,#0x0
+0801c562  bne 0x0801c628
+0801c564  ldrb r1,[r7,#0x10]
+0801c566  ldr r0,[r7,#0x0]
+0801c568  subs r3,r1,#0x1
+0801c56a  sbcs r1,r3
+0801c56c  uxtb r1,r1
+0801c56e  bl 0x0801dc78
+0801c572  mov r10,r0
+0801c574  bl 0x0801df24
+0801c578  mov r3,r10
+0801c57a  ldr r3,[r3,#0xc]
+0801c57c  mov r11,r0
+0801c57e  ldr r1,[0x0801c5dc] [0801c5dc=41600000]
+0801c580  adds r0,r5,#0x0
+0801c582  mov r10,r3
+0801c584  bl 0x0800a4d4
+0801c588  cmp r0,#0x0
+0801c58a  bne 0x0801c58e
+0801c58c  b 0x0801c7a6
+0801c58e  mov r3,r11
+0801c590  cmp r3,#0x0
+0801c592  beq 0x0801c628
+0801c594  adds r1,r5,#0x0
+0801c596  mov r0,r10
+0801c598  bl 0x0800aed8
+0801c59c  ldr r1,[0x0801c5e0] [0801c5e0=40a00000]
+0801c59e  bl 0x0800a4fc
+0801c5a2  cmp r0,#0x0
+0801c5a4  bne 0x0801c628
+0801c5a6  ldr r1,[0x0801c5e4] [0801c5e4=42480000]
+0801c5a8  adds r0,r5,#0x0
+0801c5aa  bl 0x0800a4fc
+0801c5ae  cmp r0,#0x0
+0801c5b0  bne 0x0801c5b4
+0801c5b2  b 0x0801c708
+0801c5b4  mov r1,r10
+0801c5b6  adds r0,r5,#0x0
+0801c5b8  bl 0x0800aed8
+0801c5bc  ldr r1,[0x0801c5e0] [0801c5e0=40a00000]
+0801c5be  bl 0x0800a4fc
+0801c5c2  cmp r0,#0x0
+0801c5c4  bne 0x0801c5c8
+0801c5c6  b 0x0801c708
+0801c5c8  movs r4,#0x0
+0801c5ca  movs r5,#0x0
+0801c5cc  b 0x0801c62a
+0801c5ce  movs r0,#0x2
+0801c5d0  b 0x0801c4a4
+0801c5fc  ldrb r3,[r7,#0x10]
+0801c5fe  cmp r3,#0x0
+0801c600  bne 0x0801c604
+0801c602  b 0x0801c730
+0801c604  ldr r4,[0x0801c804] [0801c804=8029650]
+0801c606  ldr r0,[r7,#0x34]
+0801c608  bl 0x0800ce54
+0801c60c  movs r3,r1
+0801c60e  movs r1,#0xfa
+0801c610  movs r2,r0
+0801c612  movs r0,#0x0
+0801c614  lsls r1,r1,#0x1
+0801c616  str r1,[sp,#0x8]
+0801c618  ldr r1,[0x0801c808] [0801c808=403e0000]
+0801c61a  str r0,[sp,#0x0]
+0801c61c  str r1,[sp,#0x4]
+0801c61e  movs r1,r4 [08029648=7466656c]
+0801c620  ldr r0,[0x0801c80c] [0801c80c=802b594] [0802b594=65766f5b]
+0801c622  bl 0x08021be0
+0801c626  b 0x0801c310
+0801c628  movs r5,#0x1
+0801c62a  movs r0,r7
+0801c62c  adds r0,#0x24
+0801c62e  bl 0x08021d3c
+0801c632  ldrb r3,[r7,#0x1c]
+0801c634  cmp r3,#0x0
+0801c636  bne 0x0801c63a
+0801c638  b 0x0801c778
+0801c63a  movs r3,#0x30
+0801c63c  ldrb r3,[r7,r3]
+0801c63e  cmp r3,#0x0
+0801c640  bne 0x0801c704
+0801c642  ldr r3,[r7,#0x20]
+0801c644  mov r10,r3
+0801c646  movs r0,r6
+0801c648  bl 0x08021d6c
+0801c64c  ldr r3,[0x0801c810] [0801c810=ea5f]
+0801c64e  add r0,r10
+0801c650  cmp r0,r3
+0801c652  bls 0x0801c6ee
+0801c654  movs r3,#0x30
+0801c656  movs r2,#0x1
+0801c658  strb r2,[r7,r3]
+0801c65a  adds r3,#0x1
+0801c65c  strb r4,[r7,r3]
+0801c65e  movs r1,#0x3
+0801c660  ldr r0,[r7,#0x0]
+0801c662  bl 0x0801dc78
+0801c666  ldrb r3,[r7,#0x10]
+0801c668  mov r10,r0
+0801c66a  cmp r3,#0x0
+0801c66c  beq 0x0801c670
+0801c66e  b 0x0801c7d0
+0801c670  ldr r3,[0x0801c814] [0801c814=8029648]
+0801c672  mov r11,r3
+0801c674  cmp r5,#0x0
+0801c676  bne 0x0801c67a
+0801c678  b 0x0801c7ca
+0801c67a  ldr r3,[0x0801c818] [0801c818=802b588] [0802b588=646c6f63]
+0801c67c  mov r9,r3
+0801c67e  mov r0,r8
+0801c680  bl 0x0800ce54
+0801c684  str r0,[sp,#0x28]
+0801c686  str r1,[sp,#0x2c]
+0801c688  ldr r0,[sp,#0x20]
+0801c68a  bl 0x0800ce54
+0801c68e  movs r4,r0
+0801c690  mov r0,r10
+0801c692  movs r5,r1
+0801c694  bl 0x0801df24
+0801c698  cmp r0,#0x0
+0801c69a  bne 0x0801c69e
+0801c69c  b 0x0801c7c0
+0801c69e  mov r3,r10
+0801c6a0  ldr r0,[r3,#0xc]
+0801c6a2  bl 0x0800ce54
+0801c6a6  str r0,[sp,#0x20]
+0801c6a8  str r1,[sp,#0x24]
+0801c6aa  ldr r3,[r7,#0x20]
+0801c6ac  mov r10,r3
+0801c6ae  ldrb r3,[r7,#0x1c]
+0801c6b0  cmp r3,#0x0
+0801c6b2  beq 0x0801c6bc
+0801c6b4  movs r0,r6
+0801c6b6  bl 0x08021d6c
+0801c6ba  add r10,r0
+0801c6bc  mov r0,r10
+0801c6be  bl 0x0800b334
+0801c6c2  ldr r1,[0x0801c81c] [0801c81c=476a6000]
+0801c6c4  bl 0x0800a8c4
+0801c6c8  bl 0x0800ce54
+0801c6cc  ldr r2,[sp,#0x20]
+0801c6ce  ldr r3,[sp,#0x24]
+0801c6d0  str r0,[sp,#0x18]
+0801c6d2  str r1,[sp,#0x1c]
+0801c6d4  str r2,[sp,#0x10]
+0801c6d6  str r3,[sp,#0x14]
+0801c6d8  str r4,[sp,#0x8]
+0801c6da  str r5,[sp,#0xc]
+0801c6dc  ldr r3,[sp,#0x28]
+0801c6de  ldr r4,[sp,#0x2c]
+0801c6e0  mov r2,r9 [0802b590=746f68]
+0801c6e2  str r3,[sp,#0x0]
+0801c6e4  str r4,[sp,#0x4]
+0801c6e6  mov r1,r11 [08029650=68676972]
+0801c6e8  ldr r0,[0x0801c820] [0801c820=802b70c] [0802b70c=666f6e5b]
+0801c6ea  bl 0x08021be0
+0801c6ee  movs r3,#0x30
+0801c6f0  ldrb r3,[r7,r3]
+0801c6f2  b 0x0801c372
+0801c6f4  ldrb r3,[r7,#0x10]
+0801c6f6  cmp r3,#0x0
+0801c6f8  beq 0x0801c734
+0801c6fa  ldr r1,[0x0801c804] [0801c804=8029650] [08029650=68676972]
+0801c6fc  ldr r0,[0x0801c824] [0801c824=802b5e0] [0802b5e0=65766f5b]
+0801c6fe  bl 0x08021be0
+0801c702  b 0x0801c310
+0801c704  movs r0,#0xa
+0801c706  b 0x0801c4a4
+0801c708  ldrb r3,[r7,#0x1c]
+0801c70a  cmp r3,#0x0
+0801c70c  bne 0x0801c796
+0801c70e  movs r3,#0x2c
+0801c710  movs r4,r7
+0801c712  ldrb r3,[r7,r3]
+0801c714  adds r4,#0x24
+0801c716  movs r0,r4
+0801c718  cmp r3,#0x0
+0801c71a  bne 0x0801c738
+0801c71c  bl 0x08021d28
+0801c720  movs r3,#0x30
+0801c722  ldrb r3,[r7,r3]
+0801c724  b 0x0801c372
+0801c726  ldr r4,[0x0801c804] [0801c804=8029650]
+0801c728  b 0x0801c514
+0801c72a  ldr r3,[0x0801c828] [0801c828=c2c60000]
+0801c72c  str r3,[sp,#0x20]
+0801c72e  b 0x0801c53c
+0801c730  ldr r4,[0x0801c814] [0801c814=8029648]
+0801c732  b 0x0801c606
+0801c734  ldr r1,[0x0801c814] [0801c814=8029648] [08029648=7466656c]
+0801c736  b 0x0801c6fc
+0801c738  bl 0x08021d6c
+0801c73c  ldr r3,[0x0801c82c] [0801c82c=927bf]
+0801c73e  cmp r0,r3
+0801c740  bls 0x0801c6ee
+0801c742  movs r3,#0x30
+0801c744  ldrb r3,[r7,r3]
+0801c746  cmp r3,#0x0
+0801c748  beq 0x0801c75a
+0801c74a  ldrb r3,[r7,#0x10]
+0801c74c  cmp r3,#0x0
+0801c74e  bne 0x0801c7bc
+0801c750  ldr r1,[0x0801c814] [0801c814=8029648] [08029648=7466656c]
+0801c752  ldr r2,[0x0801c830] [0801c830=802b758] [0802b758=61656c63]
+0801c754  ldr r0,[0x0801c834] [0801c834=802b6ec] [0802b6ec=666f6e5b]
+0801c756  bl 0x08021be0
+0801c75a  movs r5,#0x0
+0801c75c  movs r0,r6
+0801c75e  bl 0x08021d08
+0801c762  str r5,[r7,#0x20]
+0801c764  movs r0,r4
+0801c766  bl 0x08021d08
+0801c76a  movs r3,#0x30
+0801c76c  strb r5,[r7,r3]
+0801c76e  adds r3,#0x1
+0801c770  strb r5,[r7,r3]
+0801c772  b 0x0801c378
+0801c774  ldr r1,[0x0801c804] [0801c804=8029650] [08029650=68676972]
+0801c776  b 0x0801c4e4
+0801c778  movs r0,r6
+0801c77a  bl 0x08021d28
+0801c77e  movs r3,#0x30
+0801c780  ldrb r3,[r7,r3]
+0801c782  cmp r3,#0x0
+0801c784  bne 0x0801c704
+0801c786  ldr r3,[r7,#0x20]
+0801c788  movs r0,#0x0
+0801c78a  mov r10,r3
+0801c78c  ldrb r3,[r7,#0x1c]
+0801c78e  cmp r3,#0x0
+0801c790  bne 0x0801c794
+0801c792  b 0x0801c64c
+0801c794  b 0x0801c646
+0801c796  movs r0,r6
+0801c798  bl 0x08021d3c
+0801c79c  ldr r3,[r7,#0x20]
+0801c79e  mov r12,r3
+0801c7a0  add r0,r12
+0801c7a2  str r0,[r7,#0x20]
+0801c7a4  b 0x0801c70e
+0801c7a6  ldr r1,[0x0801c838] [0801c838=42480000]
+0801c7a8  adds r0,r5,#0x0
+0801c7aa  bl 0x0800a4fc
+0801c7ae  cmp r0,#0x0
+0801c7b0  beq 0x0801c708
+0801c7b2  mov r3,r11
+0801c7b4  cmp r3,#0x0
+0801c7b6  beq 0x0801c7ba
+0801c7b8  b 0x0801c5b4
+0801c7ba  b 0x0801c5c8
+0801c7bc  ldr r1,[0x0801c804] [0801c804=8029650] [08029650=68676972]
+0801c7be  b 0x0801c752
+0801c7c0  movs r2,#0x0
+0801c7c2  ldr r3,[0x0801c83c] [0801c83c=c058c000]
+0801c7c4  str r2,[sp,#0x20]
+0801c7c6  str r3,[sp,#0x24]
+0801c7c8  b 0x0801c6aa
+0801c7ca  ldr r3,[0x0801c840] [0801c840=802b590] [0802b590=746f68]
+0801c7cc  mov r9,r3
+0801c7ce  b 0x0801c67e
+0801c7d0  ldr r3,[0x0801c804] [0801c804=8029650]
+0801c7d2  mov r11,r3
+0801c7d4  b 0x0801c674
+0801c7d6  adds r0,#0x3
+0801c7d8  b 0x0801c4a4
+0801c7da  ldr r1,[0x0801c838] [0801c838=42480000]
+0801c7dc  adds r0,r4,#0x0
+0801c7de  bl 0x0800a4fc
+0801c7e2  cmp r0,#0x0
+0801c7e4  bne 0x0801c7e8
+0801c7e6  b 0x0801c46c
+0801c7e8  movs r0,#0x9
+0801c7ea  cmp r6,#0x0
+0801c7ec  beq 0x0801c7f0
+0801c7ee  b 0x0801c458
+0801c7f0  b 0x0801c4a4
+0801c7f2  movs r0,#0x8
+0801c7f4  b 0x0801c4a4
+0801c7f6  movs r0,#0x5
+0801c7f8  b 0x0801c4a4
+0801c7fa  movs r0,#0x4
+0801c7fc  b 0x0801c4a4
+0801c7fe  movs r0,#0x9
+0801c800  b 0x0801c4a4

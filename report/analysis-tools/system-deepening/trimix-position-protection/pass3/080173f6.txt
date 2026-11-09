@@ -1,0 +1,44 @@
+TARGET 080173f6 function=080173f6
+REF_TO 08012cf4 UNCONDITIONAL_CALL owner=08012c20
+FUNCTION_BODY [[080173f6, 08017431]]
+
+void FUN_080173f6(int param_1,uint *param_2)
+
+{
+  *(uint *)(param_1 + 4) =
+       *(uint *)(param_1 + 4) & DAT_08017434 | *param_2 | (uint)(byte)param_2[1] << 8;
+  *(uint *)(param_1 + 8) =
+       *(uint *)(param_1 + 8) & DAT_08017438 | param_2[3] | param_2[2] |
+       (uint)*(byte *)((int)param_2 + 5) << 1;
+  *(uint *)(param_1 + 0x2c) =
+       *(uint *)(param_1 + 0x2c) & 0xff0fffff | ((byte)param_2[4] - 1 & 0xff) << 0x14;
+  return;
+}
+
+
+INSN 080173f6 4268 ldr r2,[r0,#0x4]
+INSN 080173f8 0e4b ldr r3,[0x08017434] REF[READ:08017434=fff0feff]
+INSN 080173fa 1a40 ands r2,r3
+INSN 080173fc 0b68 ldr r3,[r1,#0x0]
+INSN 080173fe 1a43 orrs r2,r3
+INSN 08017400 0b79 ldrb r3,[r1,#0x4]
+INSN 08017402 42ea0322 orr.w r2,r2,r3, lsl #0x8
+INSN 08017406 4260 str r2,[r0,#0x4]
+INSN 08017408 0b4b ldr r3,[0x08017438] REF[READ:08017438=fdf1f7fd]
+INSN 0801740a 8268 ldr r2,[r0,#0x8]
+INSN 0801740c 1a40 ands r2,r3
+INSN 0801740e cb68 ldr r3,[r1,#0xc]
+INSN 08017410 1a43 orrs r2,r3
+INSN 08017412 8b68 ldr r3,[r1,#0x8]
+INSN 08017414 1a43 orrs r2,r3
+INSN 08017416 4b79 ldrb r3,[r1,#0x5]
+INSN 08017418 42ea4302 orr.w r2,r2,r3, lsl #0x1
+INSN 0801741c 8260 str r2,[r0,#0x8]
+INSN 0801741e c26a ldr r2,[r0,#0x2c]
+INSN 08017420 097c ldrb r1,[r1,#0x10]
+INSN 08017422 491e subs r1,r1,#0x1
+INSN 08017424 22f47002 bic r2,r2,#0xf00000
+INSN 08017428 c9b2 uxtb r1,r1
+INSN 0801742a 42ea0151 orr.w r1,r2,r1, lsl #0x14
+INSN 0801742e c162 str r1,[r0,#0x2c]
+INSN 08017430 7047 bx lr

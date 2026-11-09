@@ -1,0 +1,102 @@
+FUNCTION 0002d3fc BODY [[0002d3fc, 0002d48f]]
+
+void FUN_0002d3fc(short *param_1,int param_2)
+
+{
+  short sVar1;
+  int iVar2;
+  
+  sVar1 = *param_1;
+  if (sVar1 == 0x10) {
+    if (*(char *)((int)param_1 + 0xf) == '\x01') {
+      *(short *)(param_2 + 0x248) = param_1[2];
+    }
+  }
+  else if (sVar1 == 0x11) {
+    *(undefined1 *)(param_2 + 0x252) = 0;
+    if ((((param_1[2] == *(short *)(param_2 + 0x248)) && (*(char *)(param_2 + 4) == '\0')) &&
+        (iVar2 = FUN_0002d4b2(param_2,1), iVar2 != 0)) &&
+       (*(code **)(param_2 + 0x38) != (code *)0x0)) {
+                    /* WARNING: Could not recover jumptable at 0x0002d458. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+      (**(code **)(param_2 + 0x38))();
+      return;
+    }
+  }
+  else if (sVar1 == 0x26) {
+    if ((((char)param_1[4] == '\x01') || ((char)param_1[4] == '\x02')) &&
+       ((iVar2 = FUN_0002d4b2(param_2,(*(byte *)(param_2 + 2) + 1) % 5), iVar2 != 0 &&
+        (*(code **)(param_2 + 0x38) != (code *)0x0)))) {
+      (**(code **)(param_2 + 0x38))();
+    }
+    FUN_00032c3c(((uint)(DAT_0002d490 - DAT_0002d494) >> 3) * 0x10000 + 1,"Adv stopped! Reason: %d",
+                 (char)param_1[4]);
+    return;
+  }
+  return;
+}
+
+
+INSN 0002d3fc 70b5 push {r4,r5,r6,lr}
+INSN 0002d3fe 0446 mov r4,r0
+INSN 0002d400 0088 ldrh r0,[r0,#0x0]
+INSN 0002d402 1028 cmp r0,#0x10
+INSN 0002d404 0ad0 beq 0x0002d41c REF[CONDITIONAL_JUMP:0002d41c]
+INSN 0002d406 1128 cmp r0,#0x11
+INSN 0002d408 0fd0 beq 0x0002d42a REF[CONDITIONAL_JUMP:0002d42a]
+INSN 0002d40a 2628 cmp r0,#0x26
+INSN 0002d40c 0cd1 bne 0x0002d428 REF[CONDITIONAL_JUMP:0002d428]
+INSN 0002d40e 207a ldrb r0,[r4,#0x8]
+INSN 0002d410 0d46 mov r5,r1
+INSN 0002d412 0128 cmp r0,#0x1
+INSN 0002d414 21d0 beq 0x0002d45a REF[CONDITIONAL_JUMP:0002d45a]
+INSN 0002d416 0228 cmp r0,#0x2
+INSN 0002d418 1fd0 beq 0x0002d45a REF[CONDITIONAL_JUMP:0002d45a]
+INSN 0002d41a 2ce0 b 0x0002d476 REF[UNCONDITIONAL_JUMP:0002d476]
+INSN 0002d41c e07b ldrb r0,[r4,#0xf]
+INSN 0002d41e 0128 cmp r0,#0x1
+INSN 0002d420 02d1 bne 0x0002d428 REF[CONDITIONAL_JUMP:0002d428]
+INSN 0002d422 a088 ldrh r0,[r4,#0x4]
+INSN 0002d424 a1f84802 strh.w r0,[r1,#0x248]
+INSN 0002d428 70bd pop {r4,r5,r6,pc}
+INSN 0002d42a 0020 movs r0,#0x0
+INSN 0002d42c 81f85202 strb.w r0,[r1,#0x252]
+INSN 0002d430 0d46 mov r5,r1
+INSN 0002d432 a088 ldrh r0,[r4,#0x4]
+INSN 0002d434 b1f84812 ldrh.w r1,[r1,#0x248]
+INSN 0002d438 8842 cmp r0,r1
+INSN 0002d43a f5d1 bne 0x0002d428 REF[CONDITIONAL_JUMP:0002d428]
+INSN 0002d43c 2879 ldrb r0,[r5,#0x4]
+INSN 0002d43e 0028 cmp r0,#0x0
+INSN 0002d440 f2d1 bne 0x0002d428 REF[CONDITIONAL_JUMP:0002d428]
+INSN 0002d442 0121 movs r1,#0x1
+INSN 0002d444 2846 mov r0,r5
+INSN 0002d446 00f034f8 bl 0x0002d4b2 REF[UNCONDITIONAL_CALL:0002d4b2]
+INSN 0002d44a 0028 cmp r0,#0x0
+INSN 0002d44c ecd0 beq 0x0002d428 REF[CONDITIONAL_JUMP:0002d428]
+INSN 0002d44e a96b ldr r1,[r5,#0x38]
+INSN 0002d450 0029 cmp r1,#0x0
+INSN 0002d452 e9d0 beq 0x0002d428 REF[CONDITIONAL_JUMP:0002d428]
+INSN 0002d454 bde87040 pop.w {r4,r5,r6,lr}
+INSN 0002d458 0847 bx r1
+INSN 0002d45a a878 ldrb r0,[r5,#0x2]
+INSN 0002d45c 0521 movs r1,#0x5
+INSN 0002d45e 401c adds r0,r0,#0x1
+INSN 0002d460 b0fbf1f2 udiv r2,r0,r1
+INSN 0002d464 01fb1201 mls r1,r1,r2,r0
+INSN 0002d468 2846 mov r0,r5
+INSN 0002d46a 00f022f8 bl 0x0002d4b2 REF[UNCONDITIONAL_CALL:0002d4b2]
+INSN 0002d46e 10b1 cbz r0,0x0002d476 REF[CONDITIONAL_JUMP:0002d476]
+INSN 0002d470 a96b ldr r1,[r5,#0x38]
+INSN 0002d472 01b1 cbz r1,0x0002d476 REF[CONDITIONAL_JUMP:0002d476]
+INSN 0002d474 8847 blx r1
+INSN 0002d476 0648 ldr r0,[0x0002d490] REF[READ:0002d490=37c38]
+INSN 0002d478 0649 ldr r1,[0x0002d494] REF[READ:0002d494=37b98]
+INSN 0002d47a 227a ldrb r2,[r4,#0x8]
+INSN 0002d47c 401a subs r0,r0,r1
+INSN 0002d47e c008 lsrs r0,r0,#0x3
+INSN 0002d480 bde87040 pop.w {r4,r5,r6,lr}
+INSN 0002d484 0121 movs r1,#0x1
+INSN 0002d486 01eb0040 add.w r0,r1,r0, lsl #0x10
+INSN 0002d48a 03a1 adr r1,[0x2d498] REF[PARAM:0002d498=20766441]
+INSN 0002d48c 05f0d6bb b.w 0x00032c3c REF[UNCONDITIONAL_CALL:00032c3c]

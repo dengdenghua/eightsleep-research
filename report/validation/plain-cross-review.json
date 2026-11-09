@@ -1,0 +1,107 @@
+{
+  "reviewer": "wiki_app_cloud",
+  "status": "needs_small_factual_corrections",
+  "scope": "只读检查通俗化后的流程、算法卡和三份待办数据，核对主侧/采样新鲜度/raw/温控/历史版本/HRV-RMSSD技术边界；不修改文案，不重跑固件或账号请求。",
+  "checked": [
+    {
+      "path": "data/report.json",
+      "sha256": "138521b0bb210b11bf7e4a5bd02894aced0f1fe14b818bfefabd424c816336b4"
+    },
+    {
+      "path": "data/algorithms.json",
+      "sha256": "06c50a8ab6177ccb5a758d30571b1f44257620ae168eedcf9888a5683c048aa8"
+    },
+    {
+      "path": "data/roadmap/cloud.json",
+      "sha256": "e43fff8a1a33141b051b56b447785d3f86426e913a7b2c1b00b1ff5ce3eae23f"
+    },
+    {
+      "path": "data/roadmap/control.json",
+      "sha256": "6d567513405534a0066701252800c0c10b2f58b0ef1ce378cf207f849c01b2f6"
+    },
+    {
+      "path": "data/roadmap/sensor.json",
+      "sha256": "f509a42a8ca31571281a7dfc456237f177b89adfc148265c928cc23aa2e209a2"
+    }
+  ],
+  "coverage": {
+    "flows": 4,
+    "algorithm_cards": 7,
+    "roadmap_tasks": 44
+  },
+  "issues": [
+    {
+      "id": "PLAIN-X-01",
+      "severity": "medium",
+      "file": "data/report.json",
+      "location": "scenarios[primary-hole].condition",
+      "finding": "“第100…104个位置为空”按通常中文顺序计数意味着前面只有99个位置，但模型原始输入是零起始槽号100..104，前面有100个位置。这与后面的保留100条形成一处差一位的歧义。",
+      "recommendation": "改为“编号100…104的位置为空（编号从0开始）”，或“从第101到第105个位置为空”。",
+      "evidence": "analysis/device-side-followup/upload-distortion/FINDINGS_ZH.txt §三明确槽号0..499、缺slot100..104、保留前100点。"
+    },
+    {
+      "id": "PLAIN-X-02",
+      "severity": "low",
+      "file": "data/algorithms.json",
+      "location": "cardio.limit",
+      "finding": "“每300秒返回一个结果”把有限历史中通常相邻点间隔300秒，写成了未限定的固定返回频率。原记录存在600/900秒及更长缺口，且呼吸字段的粒度不同。",
+      "recommendation": "改为“这批历史心率/HRV结果中，相邻点常隔300秒，但不代表一定用了300秒数据计算；其他间隔和缺值也存在”。若空间有限可写“看到300秒的结果间隔，也不能把它当计算时长”。",
+      "evidence": "analysis/account-readonly/history-behavior-followup/FINDINGS_ZH.txt §二；heartRate/hrv通常300秒且有600/900秒间隔，rmssd可更长。"
+    },
+    {
+      "id": "PLAIN-X-03",
+      "severity": "low",
+      "file": "data/roadmap/cloud.json",
+      "location": "ALG-01.acceptance",
+      "finding": "“这些正在提供服务的版本”把0.1.1/3.2.1/1.2.0从已观察的历史结果版本提升成当前生产服务版本。现有证据没有当前部署映射。",
+      "recommendation": "改为“不能拿公开研究模型充当这三个历史结果版本对应的生产实现”。",
+      "evidence": "analysis/account-readonly/historical-version-probe/FINDINGS_ZH.txt 与 version-lineage-followup/FINDINGS_ZH.txt：版本来自同设备历史session，不是当前部署程序/权重。"
+    }
+  ],
+  "checks": [
+    {
+      "topic": "主侧选择",
+      "result": "pass_except_numbering",
+      "note": "通俗化保留参考侧改变输出、并非优选高质量信号；模拟明确指定输入且限定一个代表通道。仅位置编号见PLAIN-X-01。"
+    },
+    {
+      "topic": "新记录不等于新采样",
+      "result": "pass",
+      "note": "signal步骤与cache卡均说明保存记录可沿用旧值，未将回调频率等同实际新转换率。"
+    },
+    {
+      "topic": "raw并非完全未经处理",
+      "result": "pass",
+      "note": "报告同时列出数字转换、倍率、缓存、补点和重排，未说raw与原始模拟信号完全相同；roadmap要求取得原始数据不当成已取得。"
+    },
+    {
+      "topic": "自动目标与本地反馈执行",
+      "result": "pass",
+      "note": "温控流程明确两步骤，自动个体化目标生成缺内部程序；档位与当前水温分开，没有将PID当完整Autopilot。"
+    },
+    {
+      "topic": "计算位置",
+      "result": "pass",
+      "note": "远端边界写明只看返回结果不知道全部计算在哪里，未知生产者未被强行放在云端。"
+    },
+    {
+      "topic": "三个版本",
+      "result": "pass_except_currentness",
+      "note": "卡片明确版本不是公式/模型结构；待办当前性词语需要限定为历史，见PLAIN-X-03。"
+    },
+    {
+      "topic": "HRV与RMSSD",
+      "result": "pass_except_interval_generalization",
+      "note": "字段和实际日图选择保留，未推测SDNN或通用HRV公式；结果粒度不等于窗，固定频率措辞见PLAIN-X-02。"
+    },
+    {
+      "topic": "任务材料和验收",
+      "result": "pass",
+      "note": "需实机/需材料与可离线推进分开；模拟不替代测量、无材料不把DTO当生产链、导出不重复、版本未按芯片名等同。"
+    }
+  ],
+  "limitations": [
+    "本次是JSON文案交叉审阅，没有做新版HTML视觉或交互测试。",
+    "原始证据与精确公式未修改；上述修改建议只针对通俗措辞的范围或编号。"
+  ]
+}

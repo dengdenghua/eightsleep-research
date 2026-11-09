@@ -1,0 +1,72 @@
+FUNCTION 0002ffb8 BODY [[0002ffb8, 00030021]]
+REF_TO 000309b6 UNCONDITIONAL_CALL
+
+/* WARNING: Type propagation algorithm not settling */
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_0002ffb8(void)
+
+{
+  int iVar1;
+  uint uVar2;
+  sbyte local_30;
+  char local_2f [23];
+  
+  FUN_0002648c(&local_30,DAT_00030024,0x14);
+  uVar2 = 0;
+  do {
+    FUN_00032718((&local_30)[uVar2 * 2],1,1,0,0,0);
+    iVar1 = 1 << (&local_30)[uVar2 * 2];
+    if (local_2f[uVar2 * 2] != '\0') {
+      _DAT_50000508 = 1 << (&local_30)[uVar2 * 2];
+      iVar1 = _DAT_5000050c;
+    }
+    _DAT_5000050c = iVar1;
+    uVar2 = uVar2 + 1 & 0xff;
+  } while (uVar2 < 10);
+  FUN_00032718(0x1f,0,0,0,0,0);
+  return;
+}
+
+
+INSN 0002ffb8 2de9f041 push {r4,r5,r6,r7,r8,lr}
+INSN 0002ffbc 88b0 sub sp,#0x20
+INSN 0002ffbe 1422 movs r2,#0x14
+INSN 0002ffc0 1849 ldr r1,[0x00030024] REF[READ:00030024=36bd8] REF[PARAM:00036bd8=100012]
+INSN 0002ffc2 02a8 add r0,sp,#0x8
+INSN 0002ffc4 f6f762fa bl 0x0002648c REF[UNCONDITIONAL_CALL:0002648c]
+INSN 0002ffc8 0024 movs r4,#0x0
+INSN 0002ffca 2646 mov r6,r4
+INSN 0002ffcc 02af add r7,sp,#0x8
+INSN 0002ffce 0125 movs r5,#0x1
+INSN 0002ffd0 4ff0a048 mov.w r8,#0x50000000
+INSN 0002ffd4 17f81400 ldrb.w r0,[r7,r4,lsl #0x1] REF[DATA:Stack[-0x30]]
+INSN 0002ffd8 0122 movs r2,#0x1
+INSN 0002ffda 0096 str r6,[sp,#0x0] REF[WRITE:Stack[-0x38]]
+INSN 0002ffdc 0023 movs r3,#0x0
+INSN 0002ffde 1146 mov r1,r2
+INSN 0002ffe0 0196 str r6,[sp,#0x4] REF[WRITE:Stack[-0x34]]
+INSN 0002ffe2 02f099fb bl 0x00032718 REF[UNCONDITIONAL_CALL:00032718]
+INSN 0002ffe6 07eb4401 add.w r1,r7,r4, lsl #0x1
+INSN 0002ffea 17f81400 ldrb.w r0,[r7,r4,lsl #0x1] REF[DATA:Stack[-0x30]]
+INSN 0002ffee 4978 ldrb r1,[r1,#0x1] REF[READ:Stack[-0x2f]]
+INSN 0002fff0 4246 mov r2,r8
+INSN 0002fff2 0029 cmp r1,#0x0
+INSN 0002fff4 05fa00f1 lsl.w r1,r5,r0
+INSN 0002fff8 10d0 beq 0x0003001c REF[CONDITIONAL_JUMP:0003001c]
+INSN 0002fffa c2f80815 str.w r1,[r2,#0x508] REF[WRITE:50000508]
+INSN 0002fffe 641c adds r4,r4,#0x1
+INSN 00030000 e4b2 uxtb r4,r4
+INSN 00030002 0a2c cmp r4,#0xa
+INSN 00030004 e6d3 bcc 0x0002ffd4 REF[CONDITIONAL_JUMP:0002ffd4]
+INSN 00030006 0022 movs r2,#0x0
+INSN 00030008 1f20 movs r0,#0x1f
+INSN 0003000a 3346 mov r3,r6
+INSN 0003000c 0096 str r6,[sp,#0x0] REF[WRITE:Stack[-0x38]]
+INSN 0003000e 1146 mov r1,r2
+INSN 00030010 0196 str r6,[sp,#0x4] REF[WRITE:Stack[-0x34]]
+INSN 00030012 02f081fb bl 0x00032718 REF[UNCONDITIONAL_CALL:00032718]
+INSN 00030016 08b0 add sp,#0x20
+INSN 00030018 bde8f081 pop.w {r4,r5,r6,r7,r8,pc}
+INSN 0003001c c2f80c15 str.w r1,[r2,#0x50c] REF[WRITE:5000050c]
+INSN 00030020 ede7 b 0x0002fffe REF[UNCONDITIONAL_JUMP:0002fffe]

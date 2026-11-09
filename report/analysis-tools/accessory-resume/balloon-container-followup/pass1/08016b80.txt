@@ -1,0 +1,66 @@
+TARGET 08016b80 function=08016b80
+REF_TO 08020bac UNCONDITIONAL_CALL
+REF_TO 08020bf4 UNCONDITIONAL_CALL
+REF_TO 08020c8e UNCONDITIONAL_CALL
+REF_TO 08020caa UNCONDITIONAL_CALL
+REF_TO 08020cf2 UNCONDITIONAL_CALL
+REF_TO 08020d04 UNCONDITIONAL_CALL
+REF_TO 08020d18 UNCONDITIONAL_CALL
+REF_TO 08020d2c UNCONDITIONAL_CALL
+REF_TO 08021e9e UNCONDITIONAL_CALL
+REF_TO 08021eae UNCONDITIONAL_CALL
+REF_TO 08021ed0 UNCONDITIONAL_CALL
+REF_TO 08021ee0 UNCONDITIONAL_CALL
+REF_TO 08021ef0 UNCONDITIONAL_CALL
+FUNCTION_BODY [[08016b80, 08016bb5]]
+
+undefined8 FUN_08016b80(int *param_1,uint param_2,undefined4 param_3)
+
+{
+  undefined4 uVar1;
+  int iVar2;
+  uint local_14;
+  undefined4 uStack_10;
+  
+  iVar2 = param_1[2];
+  uVar1 = 0;
+  if (iVar2 + 5U <= (uint)param_1[1]) {
+    param_1[2] = iVar2 + 1;
+    local_14 = param_2 << 0x18 | (param_2 >> 8 & 0xff) << 0x10 | (param_2 >> 0x10 & 0xff) << 8 |
+               param_2 >> 0x18;
+    *(undefined1 *)(*param_1 + iVar2) = 0xfa;
+    uStack_10 = param_3;
+    FUN_08027fb8(*param_1 + param_1[2],&local_14,4);
+    uVar1 = 5;
+    param_1[2] = param_1[2] + 4;
+  }
+  return CONCAT44(param_1,uVar1);
+}
+
+
+INSN 08016b80 8368 ldr r3,[r0,#0x8]
+INSN 08016b82 37b5 push {r0,r1,r2,r4,r5,lr}
+INSN 08016b84 4268 ldr r2,[r0,#0x4]
+INSN 08016b86 5d1d adds r5,r3,#0x5
+INSN 08016b88 0400 movs r4,r0
+INSN 08016b8a 0020 movs r0,#0x0
+INSN 08016b8c 9542 cmp r5,r2
+INSN 08016b8e 11d8 bhi 0x08016bb4 REF[CONDITIONAL_JUMP:08016bb4]
+INSN 08016b90 581c adds r0,r3,#0x1
+INSN 08016b92 a060 str r0,[r4,#0x8]
+INSN 08016b94 fa20 movs r0,#0xfa
+INSN 08016b96 2268 ldr r2,[r4,#0x0]
+INSN 08016b98 09ba rev r1,r1
+INSN 08016b9a d054 strb r0,[r2,r3]
+INSN 08016b9c a368 ldr r3,[r4,#0x8]
+INSN 08016b9e 2068 ldr r0,[r4,#0x0]
+INSN 08016ba0 0191 str r1,[sp,#0x4] REF[WRITE:Stack[-0x14]]
+INSN 08016ba2 c018 adds r0,r0,r3
+INSN 08016ba4 0422 movs r2,#0x4
+INSN 08016ba6 01a9 add r1,sp,#0x4
+INSN 08016ba8 11f006fa bl 0x08027fb8 REF[UNCONDITIONAL_CALL:08027fb8]
+INSN 08016bac 0520 movs r0,#0x5
+INSN 08016bae a368 ldr r3,[r4,#0x8]
+INSN 08016bb0 0433 adds r3,#0x4
+INSN 08016bb2 a360 str r3,[r4,#0x8]
+INSN 08016bb4 3ebd pop {r1,r2,r3,r4,r5,pc}

@@ -1,0 +1,875 @@
+{
+  "result": "PASS",
+  "cases_count": 20,
+  "cases": [
+    {
+      "name": "old_Ready_snapshot_after_successful_Disable",
+      "observed": {
+        "ram": {
+          "enabled": true,
+          "left": 1,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 1,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 1,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "states_Null",
+          "CTS_Cancel",
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "caller_may_proceed_to_send_method"
+        ]
+      },
+      "expected": {
+        "ram.enabled": true,
+        "main.enabled": true,
+        "saved.enabled": true,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false
+      }
+    },
+    {
+      "name": "fresh_target_snapshot_preserves_disabled",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 1,
+          "right": 0
+        },
+        "main": {
+          "enabled": false,
+          "left": 1,
+          "right": 0
+        },
+        "saved": {
+          "enabled": false,
+          "left": 1,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "states_Null",
+          "CTS_Cancel",
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "caller_may_proceed_to_send_method"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": false
+      }
+    },
+    {
+      "name": "Disable_is_last_record_replacement",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 1,
+          "right": 0
+        },
+        "main": {
+          "enabled": false,
+          "left": 1,
+          "right": 0
+        },
+        "saved": {
+          "enabled": false,
+          "left": 1,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "caller_may_proceed_to_send_method",
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "states_Null",
+          "CTS_Cancel"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": false,
+        "main.left": 1
+      }
+    },
+    {
+      "name": "Disable_fail_before_serialize",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": true,
+        "saved.enabled": true,
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false
+      }
+    },
+    {
+      "name": "Disable_retry_after_serialize",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "states_Null",
+          "CTS_Cancel"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": false,
+        "saved.enabled": false,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false
+      }
+    },
+    {
+      "name": "target_save_fail_before_serialize",
+      "observed": {
+        "ram": {
+          "enabled": true,
+          "left": 1,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "save_error_caught",
+          "caller_may_proceed_to_send_method"
+        ]
+      },
+      "expected": {
+        "ram.left": 1,
+        "main.left": 0,
+        "saved.left": 0,
+        "locked": false
+      }
+    },
+    {
+      "name": "Disable_fail_before_open_tmp",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": true,
+        "saved.enabled": true,
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false
+      }
+    },
+    {
+      "name": "Disable_retry_after_open_tmp",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "states_Null",
+          "CTS_Cancel"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": false,
+        "saved.enabled": false,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false
+      }
+    },
+    {
+      "name": "target_save_fail_before_open_tmp",
+      "observed": {
+        "ram": {
+          "enabled": true,
+          "left": 1,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "save_error_caught",
+          "caller_may_proceed_to_send_method"
+        ]
+      },
+      "expected": {
+        "ram.left": 1,
+        "main.left": 0,
+        "saved.left": 0,
+        "locked": false
+      }
+    },
+    {
+      "name": "Disable_fail_before_write_tmp",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": {},
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": true,
+        "saved.enabled": true,
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false
+      }
+    },
+    {
+      "name": "Disable_retry_after_write_tmp",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "states_Null",
+          "CTS_Cancel"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": false,
+        "saved.enabled": false,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false
+      }
+    },
+    {
+      "name": "target_save_fail_before_write_tmp",
+      "observed": {
+        "ram": {
+          "enabled": true,
+          "left": 1,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": {},
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "save_error_caught",
+          "caller_may_proceed_to_send_method"
+        ]
+      },
+      "expected": {
+        "ram.left": 1,
+        "main.left": 0,
+        "saved.left": 0,
+        "locked": false
+      }
+    },
+    {
+      "name": "Disable_fail_before_flush_tmp",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": true,
+        "saved.enabled": true,
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false
+      }
+    },
+    {
+      "name": "Disable_retry_after_flush_tmp",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "states_Null",
+          "CTS_Cancel"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": false,
+        "saved.enabled": false,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false
+      }
+    },
+    {
+      "name": "target_save_fail_before_flush_tmp",
+      "observed": {
+        "ram": {
+          "enabled": true,
+          "left": 1,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": {
+          "enabled": true,
+          "left": 1,
+          "right": 0
+        },
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "save_error_caught",
+          "caller_may_proceed_to_send_method"
+        ]
+      },
+      "expected": {
+        "ram.left": 1,
+        "main.left": 0,
+        "saved.left": 0,
+        "locked": false
+      }
+    },
+    {
+      "name": "Disable_fail_before_replace_main",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": true,
+        "saved.enabled": true,
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false
+      }
+    },
+    {
+      "name": "Disable_retry_after_replace_main",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "states_Null",
+          "CTS_Cancel"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": false,
+        "saved.enabled": false,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false
+      }
+    },
+    {
+      "name": "target_save_fail_before_replace_main",
+      "observed": {
+        "ram": {
+          "enabled": true,
+          "left": 1,
+          "right": 0
+        },
+        "main": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": true,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": {
+          "enabled": true,
+          "left": 1,
+          "right": 0
+        },
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "save_error_caught",
+          "caller_may_proceed_to_send_method"
+        ]
+      },
+      "expected": {
+        "ram.left": 1,
+        "main.left": 0,
+        "saved.left": 0,
+        "locked": false
+      }
+    },
+    {
+      "name": "later_success_can_persist_earlier_failed_target",
+      "observed": {
+        "ram": {
+          "enabled": true,
+          "left": 1,
+          "right": 1
+        },
+        "main": {
+          "enabled": true,
+          "left": 1,
+          "right": 1
+        },
+        "saved": {
+          "enabled": true,
+          "left": 1,
+          "right": 1
+        },
+        "tmp": null,
+        "public": "Ready",
+        "cancelled": false,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "save_error_caught",
+          "caller_may_proceed_to_send_method",
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated"
+        ]
+      },
+      "expected": {
+        "main.left": 1,
+        "main.right": 1
+      }
+    },
+    {
+      "name": "unchanged_Disable_skips_IO_but_still_sets_Null_and_Cancel",
+      "observed": {
+        "ram": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "main": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "saved": {
+          "enabled": false,
+          "left": 0,
+          "right": 0
+        },
+        "tmp": null,
+        "public": "Null",
+        "cancelled": true,
+        "locked": false,
+        "trace": [
+          "replace_RAM",
+          "serialize",
+          "open_tmp",
+          "write_tmp",
+          "flush_tmp",
+          "replace_main",
+          "savedJson_updated",
+          "states_Null",
+          "CTS_Cancel",
+          "replace_RAM",
+          "serialize",
+          "skip_unchanged",
+          "states_Null",
+          "CTS_Cancel"
+        ]
+      },
+      "expected": {
+        "ram.enabled": false,
+        "main.enabled": false,
+        "public": "Null",
+        "cancelled": true
+      }
+    }
+  ],
+  "scope": "Finite synthetic method ordering and before-operation exceptions. No real filesystem durability/partial failure, thread memory proof, connection scheduling or hardware actions. Send method marker is not an observed write."
+}

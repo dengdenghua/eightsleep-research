@@ -1,0 +1,51 @@
+TARGET 08018eae function=08018eae
+REF_TO Entry Point EXTERNAL owner=none
+FUNCTION_BODY [[08018eae, 08018eeb]]
+
+void vector_handler_24(void)
+
+{
+  uint uVar1;
+  int iVar2;
+  undefined2 extraout_r2;
+  undefined8 uVar3;
+  
+  uVar1 = FUN_08009d14();
+  iVar2 = FUN_08018fa8(4);
+  if (iVar2 != 0) {
+    FUN_08018fbe(4);
+    uVar3 = FUN_08018f2c(DAT_08018fa4,DAT_08018fa4 + 0x2a,uVar1);
+    *(undefined2 *)((int)((ulonglong)uVar3 >> 0x20) + 2) = extraout_r2;
+    if (*(byte *)((int)uVar3 + 0x36) != uVar1) {
+      FUN_08018f22();
+      FUN_08009f58(1);
+      return;
+    }
+  }
+  return;
+}
+
+
+INSN 08018eae 10b5 push {r4,lr}
+INSN 08018eb0 f0f730ff bl 0x08009d14 REF[UNCONDITIONAL_CALL:08009d14]
+INSN 08018eb4 0446 mov r4,r0
+INSN 08018eb6 0420 movs r0,#0x4
+INSN 08018eb8 00f076f8 bl 0x08018fa8 REF[UNCONDITIONAL_CALL:08018fa8]
+INSN 08018ebc 88b1 cbz r0,0x08018ee2 REF[CONDITIONAL_JUMP:08018ee2]
+INSN 08018ebe 0420 movs r0,#0x4
+INSN 08018ec0 00f07df8 bl 0x08018fbe REF[UNCONDITIONAL_CALL:08018fbe]
+INSN 08018ec4 3748 ldr r0,[0x08018fa4] REF[READ:08018fa4=20007bbc] REF[PARAM:20007bbc]
+INSN 08018ec6 2200 movs r2,r4
+INSN 08018ec8 00f12a01 add.w r1,r0,#0x2a REF[PARAM:20007be6]
+INSN 08018ecc 00f02ef8 bl 0x08018f2c REF[UNCONDITIONAL_CALL:08018f2c]
+INSN 08018ed0 3030 adds r0,#0x30
+INSN 08018ed2 4a80 strh r2,[r1,#0x2]
+INSN 08018ed4 8179 ldrb r1,[r0,#0x6]
+INSN 08018ed6 a142 cmp r1,r4
+INSN 08018ed8 03d0 beq 0x08018ee2 REF[CONDITIONAL_JUMP:08018ee2]
+INSN 08018eda 00f022f8 bl 0x08018f22 REF[UNCONDITIONAL_CALL:08018f22]
+INSN 08018ede 0120 movs r0,#0x1
+INSN 08018ee0 00e0 b 0x08018ee4 REF[UNCONDITIONAL_JUMP:08018ee4]
+INSN 08018ee2 10bd pop {r4,pc}
+INSN 08018ee4 bde81040 pop.w {r4,lr}
+INSN 08018ee8 f1f736b8 b.w 0x08009f58 REF[UNCONDITIONAL_CALL:08009f58]

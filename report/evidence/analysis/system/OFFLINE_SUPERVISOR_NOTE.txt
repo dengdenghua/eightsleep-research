@@ -1,0 +1,43 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+MTK固件：断网监督、OTA回退与数据留存边界
+2026-11-07；只读静态分析，没有运行这些shell脚本。
+
+这里的offline-policy不是睡眠/温度策略
+实际脚本链为defibrillator.sh→heartbeat结果→offline retry loop→offline_reboot_due→网络分类/重启退避。
+它决定网络故障时何时重试Wi-Fi或重启，并维护OTA有效性。没有在所审阅函数中计算睡眠阶段、温度目标或PID；不能仅凭offline/fallback名称把它当作Backup Mode的本地温控算法。
+真正温度日程的另一个候选是frankenfirmware TemperatureScheduler，另行追其代码，不与本文件混同。
+
+代码证据（路径相对调查根目录）
+mediatek/rootfs-selected/opt/eight/bin/defibrillator.sh:25-27
+  MTK首次未联网门限1800秒，本次启动曾恢复联网后门限3600秒。
+  :459-499 断网循环仍处理persistent空间、重试心跳；过门限调用offline_reboot_due。
+  :477-481 Wi-Fi断连/重连是实际网络管理命令；本次只读，没有执行。
+  :238-255 try_reboot在认证禁止重启时返回；STATE_INSTALLED也不重启；其他情况标记原因后走reboot_cleanly。
+mediatek/rootfs-selected/opt/eight/bin/defibrillator-offline-policy.sh:130-134,357-471
+  重启计数梯级0、7200、21600、43200秒，之后保持43200秒；使用/proc/uptime，避免墙钟校准影响退避。
+  WAN不可达但本地网关/路由证明可达时，第一次仍可重启；后续要求连续该分类12小时。
+  其他网络故障走计数梯级。软件OTA状态非OK等分支回到旧的try_reboot路径，仍受上面的禁止条件约束。
+  :483-514 连续恢复300秒后清理本次outage计数；偶发一次成功心跳不立刻清空计数。
+  上述门限是配置与代码，不是观测到某台实机执行了这些重启。
+
+fallback是系统槽回退
+fallback.sh:15-21仅在SERVICE_RESULT=start-limit-hit时调用fall_back。
+globals.sh:178-210把ustate设FAILED、current_slot切OTHER_SLOT并请求干净重启。
+这条路径用于应用服务持续启动失败后的系统回退，不生成温度曲线。
+
+原始数据不承诺无限保存
+globals.sh:82-93：persistent剩余<1000000KiB警告；<512000KiB进入清理；RAW_STREAM_PURGE_KEEP=20000。
+defibrillator-disk-mgmt.sh:41-102：依次清理旧*.RAW（排除SEQNO*）、journal-backup、JetStream raw；每步后重新测剩余空间，脱离evict区即停止。
+最后一步:67-75执行NATS raw stream purge，保留最新20000个消息。它的单位是消息，不是采样点/秒/字节；没有完整运行流量不能换算为固定保留时长。
+断网循环仍调用manage_persistent_storage，因此长时间离线也可能进入此清理路径。不能说“未上传的数据永远不会删除”。
+
+NATS关机落盘是尽力路径
+analysis/sleep-pipeline/config/etc/systemd/system/nats-server.service.d/nats-server-raw-mem.conf：
+  ExecStartPost=-/usr/bin/timeout 20 /opt/eight/bin/jetstream-uploader --ensure-streams
+  ExecStop先清除原设置，再运行-/usr/bin/timeout -k 40 60 /opt/eight/bin/jetstream-uploader --dump，随后SIGUSR2 NATS。
+前导'-'表示该exec失败不直接判该服务操作失败；60秒后TERM、再40秒KILL是配置边界，不证明必定完成数据复制。
+正常关机时的有序dump不能覆盖断电/SIGKILL等没有执行该路径的情况。实际raw_mem/raw层配置与复制/确认/删除顺序，见后续独立native储存报告。
+
+这些结论限定于已下载MTK包SHA256 59eb790b6396dc162b62536615701b4e2774c665bc13b16f70b83a9d76db4532；没有把第三方设备或旧NXP脚本的默认值套用过来。

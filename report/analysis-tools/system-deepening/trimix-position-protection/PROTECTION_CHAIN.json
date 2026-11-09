@@ -1,0 +1,198 @@
+{
+  "scope": "register writes/reads and observed static call edges; normal configured flow only",
+  "producer": {
+    "initializer": "08012c20",
+    "dma_register_base": "40020008",
+    "source": "4001244c",
+    "destination": "20007fe4",
+    "transfers": 5,
+    "control_configured_bits": "000025a0",
+    "control_after_enable": "000025a3",
+    "scan_register_base": "40012400",
+    "scan_field": 1,
+    "continuous_field": 0,
+    "scan_length": 5,
+    "channel_fields_by_rank": [
+      0,
+      5,
+      6,
+      14,
+      4
+    ],
+    "sample_time_field": 0,
+    "source_detail": [
+      "pass2/08012c20.txt",
+      "pass3/08011e1e.txt",
+      "pass3/080173f6.txt",
+      "pass3/08012d9a.txt",
+      "pass4/080173ba.txt",
+      "pass4/080173c4.txt"
+    ]
+  },
+  "irq": {
+    "vector_slot": 27,
+    "handler": "08018cfe",
+    "completion_mask": 2,
+    "status_register": "40020000",
+    "clear_register": "40020004",
+    "consumer_entry": "080145f8",
+    "first_protection_input_load": {
+      "va": "08014602",
+      "occurrences": [
+        {
+          "path": "pass1/0801464e.txt",
+          "line": 165,
+          "bytes": "6888",
+          "text": "ldrh r0,[r5,#0x2] REF[READ:20007fe6]"
+        }
+      ]
+    }
+  },
+  "axes": [
+    {
+      "selector": 1,
+      "rank": 2,
+      "channel_field": 5,
+      "buffer": "20007fe6"
+    },
+    {
+      "selector": 2,
+      "rank": 4,
+      "channel_field": 14,
+      "buffer": "20007fea"
+    },
+    {
+      "selector": 3,
+      "rank": 3,
+      "channel_field": 6,
+      "buffer": "20007fe8"
+    },
+    {
+      "selector": 4,
+      "rank": 5,
+      "channel_field": 4,
+      "buffer": "20007fec"
+    }
+  ],
+  "rearm": {
+    "done_marker": "200074cc",
+    "done_value": 170,
+    "write_after_protection": {
+      "va": "080147ba",
+      "occurrences": [
+        {
+          "path": "pass1/0801464e.txt",
+          "line": 338,
+          "bytes": "2070",
+          "text": "strb r0,[r4,#0x0] REF[WRITE:200074cc]"
+        }
+      ]
+    },
+    "route": [
+      "08018db2 (argument2)",
+      "08018a6c",
+      "080187c2"
+    ],
+    "rule": "if done==0xaa: clear done; 08017350(0x40012400,1) ORs control +8 with0x500000",
+    "sources": [
+      {
+        "va": "080187c6",
+        "occurrences": [
+          {
+            "path": "pass2/08018dd6.txt",
+            "line": 297,
+            "bytes": "0178",
+            "text": "ldrb r1,[r0,#0x0] REF[READ:200074cc]"
+          }
+        ]
+      },
+      {
+        "va": "080187ce",
+        "occurrences": [
+          {
+            "path": "pass2/08018dd6.txt",
+            "line": 301,
+            "bytes": "0170",
+            "text": "strb r1,[r0,#0x0] REF[WRITE:200074cc]"
+          }
+        ]
+      },
+      {
+        "va": "080187d4",
+        "occurrences": [
+          {
+            "path": "pass2/08018dd6.txt",
+            "line": 304,
+            "bytes": "fef7bcfd",
+            "text": "bl 0x08017350 REF[UNCONDITIONAL_CALL:08017350]"
+          }
+        ]
+      },
+      {
+        "va": "08017356",
+        "occurrences": [
+          {
+            "path": "pass3/08017350.txt",
+            "line": 25,
+            "bytes": "41f4a001",
+            "text": "orr.ne r1,r1,#0x500000"
+          }
+        ]
+      }
+    ]
+  },
+  "processed_cache": {
+    "normal_batch_samples": 40,
+    "full_index_marker": 100,
+    "main_consumer": "08014822",
+    "main_call": {
+      "va": "08010952",
+      "occurrences": [
+        {
+          "path": "pass3/080108d8.txt",
+          "line": 94,
+          "bytes": "03f066ff",
+          "text": "bl 0x08014822 REF[UNCONDITIONAL_CALL:08014822]"
+        }
+      ]
+    },
+    "consumer_gate": {
+      "va": "0801482a",
+      "occurrences": [
+        {
+          "path": "pass4/08014822.txt",
+          "line": 97,
+          "bytes": "6428",
+          "text": "cmp r0,#0x64"
+        }
+      ]
+    },
+    "batch_reset": {
+      "va": "0801497e",
+      "occurrences": [
+        {
+          "path": "pass4/08014822.txt",
+          "line": 214,
+          "bytes": "6080",
+          "text": "strh r0,[r4,#0x2] REF[WRITE:200074ce]"
+        }
+      ]
+    },
+    "values": [
+      "200077aa",
+      "200077ac",
+      "200077ae",
+      "200077b0",
+      "200077b2"
+    ],
+    "boundary": "Fast IRQ protection continues while batch is full; endpoint checks can reuse processed cache. Processing helpers not completely audited."
+  },
+  "not_proven": [
+    "milliseconds/Hz",
+    "fresh physical signal rather than stuck values",
+    "simultaneous channels",
+    "all abnormal hardware paths",
+    "physical current/angle/displacement",
+    "all downstream protection actions"
+  ]
+}

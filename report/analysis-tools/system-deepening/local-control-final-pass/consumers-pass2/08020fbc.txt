@@ -1,0 +1,218 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_08020fbc(undefined4 *param_1,uint param_2)
+
+{
+  int *piVar1;
+  char cVar2;
+  undefined4 uVar3;
+  undefined4 *puVar4;
+  byte bVar5;
+  uint uVar6;
+  int iVar7;
+  int iVar8;
+  int local_1c;
+  
+  if (param_2 < 0x65) {
+    uVar6 = 0;
+    if (param_2 == 0) goto LAB_08020fde;
+  }
+  else {
+    param_2 = 100;
+  }
+  uVar6 = (uint)*(byte *)(param_1 + 3);
+  if (uVar6 <= param_2) {
+    bVar5 = *(byte *)((int)param_1 + 0xd);
+    if (param_2 < bVar5) {
+      bVar5 = (byte)param_2;
+    }
+    uVar6 = (uint)bVar5;
+  }
+LAB_08020fde:
+  *(char *)((int)param_1 + 0xf) = (char)uVar6;
+  iVar7 = *(int *)*param_1;
+  iVar8 = *(int *)(iVar7 + 0x2c);
+  local_1c = FUN_08010160(uVar6 * iVar8,100);
+  if (*(char *)((int)param_1 + 0xe) == '\x01') {
+    local_1c = iVar8 - local_1c;
+  }
+  piVar1 = (int *)FUN_0801e822(iVar7,param_1[1]);
+  if (piVar1 != (int *)0x0) {
+    *piVar1 = local_1c;
+  }
+  if (uVar6 == 0) {
+    if (*(char *)((int)param_1 + 0x11) != '\0') {
+      if ((code *)param_1[6] != (code *)0x0) {
+        (*(code *)param_1[6])(param_1);
+      }
+      iVar7 = *(int *)*param_1;
+      uVar3 = 1;
+      *(undefined1 *)((int)param_1 + 0x11) = 0;
+      if ((((iVar7 != 0x40012c00) && (uVar3 = 3, iVar7 != 0x40000400)) &&
+          (uVar3 = 4, iVar7 != 0x40000800)) && (uVar3 = 0, iVar7 == 0x40014000)) {
+        uVar3 = 0xf;
+      }
+      FUN_08017634("[pwm_pumps] stop TIM%d ch=%lu duty=0%%",uVar3,param_1[1]);
+    }
+  }
+  else if (*(char *)((int)param_1 + 0x11) == '\0') {
+    if ((code *)param_1[5] != (code *)0x0) {
+      (*(code *)param_1[5])(param_1);
+    }
+    cVar2 = '\x01';
+    *(undefined1 *)((int)param_1 + 0x11) = 1;
+    puVar4 = *(undefined4 **)*param_1;
+    uVar3 = _DAT_40012c44;
+    if (puVar4 != (undefined4 *)0x40012c00) {
+      if (puVar4 == (undefined4 *)0x40014000) {
+        cVar2 = '\x0f';
+        uVar3 = _DAT_40014044;
+      }
+      else if (puVar4 == (undefined4 *)0x40000400) {
+        cVar2 = '\x03';
+        uVar3 = 0;
+      }
+      else {
+        cVar2 = (puVar4 == (undefined4 *)0x40000800) * '\x04';
+        uVar3 = 0;
+      }
+    }
+    FUN_08017634("[pwm_pumps] start TIM%d@%p ch=%lu duty=%u%% (ARR=%lu CCR=%lu) CR1=0x%lx CCER=0x%lx BDTR=0x%lx"
+                 ,cVar2,puVar4,param_1[1],uVar6,puVar4[0xb],local_1c,*puVar4,puVar4[8],uVar3);
+  }
+  return;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08020fbc f0b5 push {r4,r5,r6,r7,lr}
+08020fbe 0400 movs r4,r0
+08020fc0 0d00 movs r5,r1
+08020fc2 89b0 sub sp,#0x24
+08020fc4 6429 cmp r1,#0x64
+08020fc6 50d8 bhi 0x0802106a
+08020fc8 0029 cmp r1,#0x0
+08020fca 08d0 beq 0x08020fde
+08020fcc 237b ldrb r3,[r4,#0xc]
+08020fce ab42 cmp r3,r5
+08020fd0 4dd8 bhi 0x0802106e
+08020fd2 627b ldrb r2,[r4,#0xd]
+08020fd4 131c adds r3,r2,#0x0
+08020fd6 aa42 cmp r2,r5
+08020fd8 00d9 bls 0x08020fdc
+08020fda 2b1c adds r3,r5,#0x0
+08020fdc ddb2 uxtb r5,r3
+08020fde 2368 ldr r3,[r4,#0x0]
+08020fe0 e573 strb r5,[r4,#0xf]
+08020fe2 1e68 ldr r6,[r3,#0x0]
+08020fe4 6421 movs r1,#0x64
+08020fe6 f76a ldr r7,[r6,#0x2c]
+08020fe8 3800 movs r0,r7
+08020fea 6843 muls r0,r5
+08020fec eff7b8f8 bl 0x08010160
+08020ff0 0790 str r0,[sp,#0x1c]
+08020ff2 a37b ldrb r3,[r4,#0xe]
+08020ff4 012b cmp r3,#0x1
+08020ff6 01d1 bne 0x08020ffc
+08020ff8 3b1a subs r3,r7,r0
+08020ffa 0793 str r3,[sp,#0x1c]
+08020ffc 3000 movs r0,r6
+08020ffe 6168 ldr r1,[r4,#0x4]
+08021000 fdf70ffc bl 0x0801e822
+08021004 0028 cmp r0,#0x0
+08021006 01d0 beq 0x0802100c
+08021008 079b ldr r3,[sp,#0x1c]
+0802100a 0360 str r3,[r0,#0x0]
+0802100c 637c ldrb r3,[r4,#0x11]
+0802100e 002d cmp r5,#0x0
+08021010 37d0 beq 0x08021082
+08021012 002b cmp r3,#0x0
+08021014 27d1 bne 0x08021066
+08021016 6369 ldr r3,[r4,#0x14]
+08021018 002b cmp r3,#0x0
+0802101a 01d0 beq 0x08021020
+0802101c 2000 movs r0,r4
+0802101e 9847 blx r3
+08021020 0121 movs r1,#0x1
+08021022 2368 ldr r3,[r4,#0x0]
+08021024 6174 strb r1,[r4,#0x11]
+08021026 1a68 ldr r2,[r3,#0x0]
+08021028 d36a ldr r3,[r2,#0x2c]
+0802102a 176a ldr r7,[r2,#0x20]
+0802102c 9c46 mov r12,r3
+0802102e 254b ldr r3,[0x080210c4]
+08021030 1668 ldr r6,[r2,#0x0]
+08021032 9a42 cmp r2,r3
+08021034 20d0 beq 0x08021078
+08021036 244b ldr r3,[0x080210c8]
+08021038 9a42 cmp r2,r3
+0802103a 1ad0 beq 0x08021072
+0802103c 234b ldr r3,[0x080210cc]
+0802103e 9a42 cmp r2,r3
+08021040 1cd0 beq 0x0802107c
+08021042 234b ldr r3,[0x080210d0]
+08021044 d118 adds r1,r2,r3
+08021046 4b42 rsbs r3,r1
+08021048 5941 adcs r1,r3
+0802104a 0023 movs r3,#0x0
+0802104c 8900 lsls r1,r1,#0x2
+0802104e 0593 str r3,[sp,#0x14]
+08021050 079b ldr r3,[sp,#0x1c]
+08021052 0497 str r7,[sp,#0x10]
+08021054 0293 str r3,[sp,#0x8]
+08021056 6346 mov r3,r12
+08021058 0396 str r6,[sp,#0xc]
+0802105a 0193 str r3,[sp,#0x4]
+0802105c 0095 str r5,[sp,#0x0]
+0802105e 1d48 ldr r0,[0x080210d4]
+08021060 6368 ldr r3,[r4,#0x4]
+08021062 f6f7e7fa bl 0x08017634
+08021066 09b0 add sp,#0x24
+08021068 f0bd pop {r4,r5,r6,r7,pc}
+0802106a 6425 movs r5,#0x64
+0802106c aee7 b 0x08020fcc
+0802106e 1d00 movs r5,r3
+08021070 b5e7 b 0x08020fde
+08021072 0f21 movs r1,#0xf
+08021074 536c ldr r3,[r2,#0x44]
+08021076 eae7 b 0x0802104e
+08021078 536c ldr r3,[r2,#0x44]
+0802107a e8e7 b 0x0802104e
+0802107c 0023 movs r3,#0x0
+0802107e 0321 movs r1,#0x3
+08021080 e5e7 b 0x0802104e
+08021082 002b cmp r3,#0x0
+08021084 efd0 beq 0x08021066
+08021086 a369 ldr r3,[r4,#0x18]
+08021088 002b cmp r3,#0x0
+0802108a 01d0 beq 0x08021090
+0802108c 2000 movs r0,r4
+0802108e 9847 blx r3
+08021090 0022 movs r2,#0x0
+08021092 2368 ldr r3,[r4,#0x0]
+08021094 0b48 ldr r0,[0x080210c4]
+08021096 1b68 ldr r3,[r3,#0x0]
+08021098 0121 movs r1,#0x1
+0802109a 6274 strb r2,[r4,#0x11]
+0802109c 8342 cmp r3,r0
+0802109e 0cd0 beq 0x080210ba
+080210a0 0a48 ldr r0,[0x080210cc]
+080210a2 0231 adds r1,#0x2
+080210a4 8342 cmp r3,r0
+080210a6 08d0 beq 0x080210ba
+080210a8 0b48 ldr r0,[0x080210d8]
+080210aa 0131 adds r1,#0x1
+080210ac 8342 cmp r3,r0
+080210ae 04d0 beq 0x080210ba
+080210b0 0548 ldr r0,[0x080210c8]
+080210b2 1100 movs r1,r2
+080210b4 8342 cmp r3,r0
+080210b6 00d1 bne 0x080210ba
+080210b8 0f31 adds r1,#0xf
+080210ba 0848 ldr r0,[0x080210dc]
+080210bc 6268 ldr r2,[r4,#0x4]
+080210be f6f7b9fa bl 0x08017634
+080210c2 d0e7 b 0x08021066

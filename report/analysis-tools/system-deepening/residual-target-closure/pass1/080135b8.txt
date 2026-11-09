@@ -1,0 +1,42 @@
+TARGET 080135b8 function=080135b8
+REF_TO 0801b1e0 UNCONDITIONAL_CALL
+FUNCTION_BODY [[080135b8, 080135e3]]
+
+void FUN_080135b8(int *param_1,int param_2)
+
+{
+  int iVar1;
+  
+  iVar1 = param_1[2];
+  *(undefined1 *)(param_1 + 2) = 0;
+  *(char *)(param_1 + 0x11) = (char)param_2;
+  if ((char)iVar1 != '\0') {
+    FUN_08012754("[sht40] heater session ended (%s) after %u pulses",(&PTR_DAT_08025ea8)[param_2],
+                 param_1[0x10]);
+    (**(code **)(*param_1 + 0x1c))(param_1[1]);
+  }
+  return;
+}
+
+
+INSN 080135b8 0022 movs r2,#0x0
+INSN 080135ba 10b5 push {r4,lr}
+INSN 080135bc 037a ldrb r3,[r0,#0x8]
+INSN 080135be 0272 strb r2,[r0,#0x8]
+INSN 080135c0 0200 movs r2,r0
+INSN 080135c2 4432 adds r2,#0x44
+INSN 080135c4 0400 movs r4,r0
+INSN 080135c6 1170 strb r1,[r2,#0x0]
+INSN 080135c8 002b cmp r3,#0x0
+INSN 080135ca 0ad0 beq 0x080135e2 REF[CONDITIONAL_JUMP:080135e2]
+INSN 080135cc 054b ldr r3,[0x080135e4] REF[READ:080135e4=8025ea8] REF[PARAM:08025ea8=8025e52]
+INSN 080135ce 8900 lsls r1,r1,#0x2
+INSN 080135d0 0548 ldr r0,[0x080135e8] REF[READ:080135e8=80246f7] REF[PARAM:080246f7=7468735b]
+INSN 080135d2 c958 ldr r1,[r1,r3] REF[DATA:08025ea8=8025e52]
+INSN 080135d4 226c ldr r2,[r4,#0x40]
+INSN 080135d6 fff7bdf8 bl 0x08012754 REF[UNCONDITIONAL_CALL:08012754]
+INSN 080135da 2368 ldr r3,[r4,#0x0]
+INSN 080135dc 6068 ldr r0,[r4,#0x4]
+INSN 080135de db69 ldr r3,[r3,#0x1c]
+INSN 080135e0 9847 blx r3
+INSN 080135e2 10bd pop {r4,pc}

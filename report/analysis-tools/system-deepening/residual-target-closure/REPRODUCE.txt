@@ -1,0 +1,139 @@
+nonUSB 第十轮复现说明：残余 BL 目标闭合与 trampoline 长尾
+2026-11-09
+只读静态逆向。不执行固件、不改 Ghidra 工程、不访问设备/账号/网络。
+
+============================================================
+一、不依赖 Ghidra 的复核（交付包内自包含）
+============================================================
+
+  cd report/analysis-tools/system-deepening/residual-target-closure
+
+  python3 model/build_round10.py             -> RESIDUAL_LEDGER.json
+                                                CONVERGENCE.json
+                                                MODEL_RESULTS.json
+                                                (39 条断言, 0 失败)
+  python3 scripts/verify_round10.py          -> BYTE_VALIDATION.json
+                                                (27 项, 0 失败)
+  python3 scripts/write_export_targets.py    -> EXPORT_TARGETS.json
+  python3 scripts/write_export_commands.py   -> EXPORT_COMMANDS.json
+  python3 scripts/write_source_manifest.py   -> SOURCE_MANIFEST.json
+
+两个主脚本互不依赖，可任意顺序跑：build_round10.py 产出结构化台账并自带
+断言，verify_round10.py 独立重算字节级事实并自带断言。两者在 124 目标 /
+125 导出 / 1296 flash 目标 / 934 日志调用点 / 165 格式串这五个数字上独立
+吻合。
+
+三个 writer 都从 pass*-export.log 的 COMMAND 行重建 argv。交付根路径含空格
+（/Volumes/My Passport/...），因此用固定 marker
+'/residual-target-closure/<pass> ' 切分目标，用
+'-postScript ExportSensorDiff.java ' 切分输出目录。
+
+============================================================
+二、输入清单
+============================================================
+
+  1. 冻结镜像
+     materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/
+     opt/eight/lib/subsystem_updates/firmware-sensor-g0.bbin
+     132896B
+     SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+     VA -> 文件偏移：offset = VA - 0x08008000
+
+  2. 本目录 pass1..pass8（共 133 份 txt，含 8 份 program.txt）
+     全部是 Ghidra 12.1.4 analyzeHeadless -readOnly -noanalysis 的只读导出。
+     精确 argv 见 pass*-export.log 与 EXPORT_COMMANDS.json。
+     逐目标的对应关系见 EXPORT_TARGETS.json 与 scripts/TARGETS*.txt。
+
+     起始集合不是手工列的，而是上一轮 CALLEE_GRAPH.json 的
+     residual_targets（99 个 flash 内没有任何导出覆盖的 bl/blx 目标）。
+     之后每一轮的目标集合都由「重新扫描全部导出后仍未被覆盖的目标」得出，
+     所以收敛过程本身是可复算的，见 CONVERGENCE.json。
+
+  3. 上游输入（前几轮已交付，本轮只读）
+     report/analysis-tools/system-deepening/post-layout-closure/CALLEE_GRAPH.json
+        起始残余集合（99 个目标）
+     .../report-object-layout/LAYOUT_MAP.json
+        14 个空洞区间与 15880B 主域
+     .../callback-implementations/pass2/0801d888.txt
+        主分派，空洞写入见证的第一来源
+     .../sensor-frame-bounds/pass2/08027834.txt
+        姊妹分派，空洞写入见证的第二来源
+
+  4. 导出器
+     report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts/
+     ExportSensorDiff.java
+     内含 SHA256 守门：镜像 SHA 不等于 51531576...a891 时直接抛异常退出。
+
+============================================================
+三、复核各条结论的最短路径
+============================================================
+
+  124 个新导出函数（体、尺寸、出边、调用者）
+    -> RESIDUAL_LEDGER.json newly_exported
+
+  收敛序列 99 → 18 → 3 → 1 → 1 → 1 → 1 + 1 区间
+    -> CONVERGENCE.json passes / totals
+
+  残余 99 → 0
+    -> RESIDUAL_LEDGER.json metric.residual_target_only（2 个）
+       与 metric.residual_with_ranges（0 个）
+       verify_round10.py 的 closure 组 6 项独立重算
+
+  长尾落在 [08015f00, 08016f00)
+    -> RESIDUAL_LEDGER.json trampoline_cluster
+       verify_round10.py 的 cluster 组 4 项
+
+  区间导出内容
+    -> pass8/08015e00_08017000.txt（496 条已解码指令）
+
+  日志与格式串增量
+    -> verify_round10.py strings 组：934 调用点 / 165 字面量
+
+  描述表引用不变
+    -> verify_round10.py descriptor 组：27 行 / 309 处
+
+  空洞见证只算两个分派函数
+    -> verify_round10.py holes 组 5 项，含一条「假见证确实存在」的对照断言
+
+============================================================
+四、本轮特有的两个坑
+============================================================
+
+  1. param_2 不是同一个对象
+     对所有导出一律扫 `param_2 + 0xNNN` 会给空洞 0x0234..0x0258 造出 3 条
+     假见证，来源是 local-persistence-final-pass/pass1/0002d3fc.txt——
+     那个函数的第二参数也叫 param_2，但属于另一个模块，地址 0x0002d3fc
+     根本不在本镜像 VA 范围内。空洞见证必须限定在 0801d888 与 08027834
+     两个函数体内。
+
+  2. 单点追尾不收敛
+     从 pass3 起每轮只多暴露 1 个地址，且在两个簇之间来回。这不是导出遗漏，
+     而是 stub/派发器互调的结构结果。正确解法是按区间导出该簇，而不是
+     继续加轮次。判据写在 CONVERGENCE.json 的 note 里。
+
+============================================================
+五、产物清单与自校验
+============================================================
+
+  BYTE_VALIDATION.json   27 项字节核验（verify_round10.py 写）
+  MODEL_RESULTS.json     39 条断言 + headline（build_round10.py 写）
+  RESIDUAL_LEDGER.json   覆盖口径、124 个新导出函数、trampoline 簇
+  CONVERGENCE.json       8 轮的目标数与收敛判据
+  EXPORT_TARGETS.json    125 目标 <-> 125 txt 一一对应
+  EXPORT_COMMANDS.json   8 次只读分析的完整 argv
+  SOURCE_MANIFEST.json   154 个输入文件的 SHA256
+  FINDINGS_ZH.txt        结论（中文）
+  REPRODUCE.txt          本文件
+
+SOURCE_MANIFEST.json 排除自身与全部派生 JSON，因此不自引用；路径均相对
+交付根，换挂载点后仍可用。Ghidra 工程不在交付包内，只在需要重跑导出时才需要。
+
+============================================================
+六、本轮明确不做
+============================================================
+
+  1. 不重新反汇编。上一轮记录的 169 个无函数体目标是**大函数内部地址**，
+     补齐它们必须重新分析并改工程，属于越过只读边界。
+  2. 不解析 trampoline 簇里每个 stub 对应哪个 switch case。
+  3. 不把区间导出当成函数级分析。
+  4. 不把代码可达性提升当覆盖率提升：覆盖率仍 11297/15880 = 71.14%。

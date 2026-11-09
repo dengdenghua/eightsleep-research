@@ -1,0 +1,113 @@
+{
+  "schema": "eightsleep.nonusb.pll-sysclk-chain.v1",
+  "date": "2026-11-08",
+  "source": {
+    "file": "/Volumes/EightSleepAPFS/materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/lib/subsystem_updates/firmware-sensor-g0.bbin",
+    "bytes": 132896,
+    "sha256": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+    "image_base": "0x8008000",
+    "mapping": "file offset = VA - 0x08008000"
+  },
+  "method": "Read-only Ghidra exports re-checked byte-for-byte; the two configuration structs are decoded by constant propagation over the exported Thumb instructions; RCC reset value and the writer2 OR-expression are asserted against the frozen image.",
+  "rcc_reset_by_0800c828": {
+    "CR_40021000": "0x100",
+    "CFGR_40021008": "0x0 (SW=HSI)",
+    "CFGR2_4002100c": "0x1000",
+    "clock_variable_20000250": 16000000
+  },
+  "writer2_0800c8dc": {
+    "expression": "CFGR2 = s[8] | s[9] | (old & 0x11c1808c) | s[11] | s[12] | s[13] | (s[10] << 8) | 0x10000000",
+    "preserved_mask": "0x11c1808c",
+    "old_cfgr2": "0x1000",
+    "old_and_mask": "0x0",
+    "cfgr2_values": {
+      "16MHz": "0x56061813",
+      "32MHz": "0x56061833",
+      "8MHz": "0x56061803"
+    }
+  },
+  "config_structs_14_slots": {
+    "16MHz": [
+      "0x9",
+      "0x10000",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x1",
+      "0x2",
+      "0x3",
+      "0x10",
+      "0x18",
+      "0x60000",
+      "0x6000000",
+      "0x40000000"
+    ],
+    "32MHz": [
+      "0x9",
+      "0x10000",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x1",
+      "0x2",
+      "0x3",
+      "0x30",
+      "0x18",
+      "0x60000",
+      "0x6000000",
+      "0x40000000"
+    ],
+    "8MHz": [
+      "0x9",
+      "0x10000",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x0",
+      "0x1",
+      "0x2",
+      "0x3",
+      "0x0",
+      "0x18",
+      "0x60000",
+      "0x6000000",
+      "0x40000000"
+    ]
+  },
+  "sysclk_formula_0800cd24": {
+    "condition": "SWS = (CFGR & 0x38) == 0x10 (PLL)",
+    "pll_input": "HSE software field 0x20000474 when (~CFGR2 & 3)==0, else HSI 16000000",
+    "prediv": "((CFGR2 << 25) >> 29) + 1  == ((CFGR2 & 0x70) >> 4) + 1",
+    "pllmul": "(CFGR2 << 17) >> 25  == (CFGR2 >> 8) & 0x7f",
+    "plldiv": "(CFGR2 >> 29) + 1",
+    "result": "divide((HSE // PREDIV) * PLLMUL, PLLDIV)",
+    "integer_division_helper": "08008174 (Ghidra unsigned division; three callers use the quotient)"
+  },
+  "clock_switch_0800cdb4": {
+    "param_slots": [
+      "7",
+      "2",
+      "0",
+      "0x4000"
+    ],
+    "target_sw": 2,
+    "expected_sws": "0x10 (PLL)",
+    "prescaler_index": "CFGR bits 11:8 = 0 -> table[0] = 0 -> no shift",
+    "after_switch": "DAT_20000250 = 0800cd24() >> table[0]",
+    "systick": "0800995c: q = 1000/step, N = clock_variable/q, LOAD = N-1"
+  },
+  "cfgr2_values": {
+    "16MHz": "0x56061813",
+    "32MHz": "0x56061833",
+    "8MHz": "0x56061803"
+  },
+  "limits": [
+    "HSE 16/32/8MHz is a software input field, not a measured oscillator.",
+    "64MHz is conditional on PLL lock, a successful SW switch, and no fatal error exit.",
+    "Runtime RCC registers may differ from the reset state written by 0800c828.",
+    "Static bytes do not prove a measured core clock, PLL lock or interrupt latency."
+  ],
+  "executes_firmware": false
+}

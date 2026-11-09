@@ -1,0 +1,53 @@
+{
+  "evidence_kind": "static code plus explicit bounded model",
+  "shared": {
+    "data_pointer": "0x200028c4",
+    "slot_status_pointer": "0x200028c8",
+    "offset": "0x2000a8ec",
+    "error": "0x200024a4",
+    "callback": "0x200028c0",
+    "slots": 32,
+    "slot_bytes": 1024,
+    "stride": 1025
+  },
+  "selection": {
+    "status_test": "nonzero",
+    "reserve_before_encoding": false,
+    "reset_offset_at_entry": false,
+    "save_restore_context": false,
+    "status_set_busy": "accept/queue callback 0x0801d6fc"
+  },
+  "normal_irq_entry": {
+    "handlers": [
+      "0x0801be30",
+      "0x0801be54"
+    ],
+    "callback": "0x080233f4",
+    "logger_calls": [
+      {
+        "va": "0x08023440",
+        "condition": "old tick > current tick"
+      },
+      {
+        "va": "0x08023460",
+        "condition": "ADC queue push returns false"
+      }
+    ],
+    "returns": true,
+    "imu_full_log": false
+  },
+  "fault_entry": {
+    "handler": "0x0801bcfe",
+    "logger": "0x0801c968",
+    "log_call": "0x0801ca52",
+    "post_log": "busy loop then AIRCR write and nonreturn",
+    "outer_resume_proved": false
+  },
+  "limitations": [
+    "deployed board/firmware and active timer unknown",
+    "ADC-full state and exact preemption time supplied, not derived from full main scheduling",
+    "no IRQ hardware/priority/USB PMA timing simulation",
+    "model Receiver operates at frame level; cloud and business acceptance not checked",
+    "other masks exist; absence finding only covers examined framer chain"
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "address_convention": "Ghidra VA = ELF VA + 0x100000",
+  "groups": {
+    "shared_construction": [
+      "pass1/0017a7b0.c",
+      "pass1/0019e7f0.c",
+      "pass1/0019edf0.c",
+      "pass1/0019c7f0.c",
+      "pass2/001a5120.c"
+    ],
+    "shared_write_entries": [
+      "../../signal-host/timing/0021a370.c",
+      "../../next-round-20261107/host-model/source/shared-bit-helpers-elf.asm.txt",
+      "pass3/0021a6b4.c"
+    ],
+    "mapping_queue": [
+      "../../signal-host/timing/0021a5c0.c",
+      "../../signal-host/timing/001fdec0.c",
+      "../../signal-host/timing/caller/0027e7b0.asm.txt",
+      "../../signal-host/timing/default-samples.json"
+    ],
+    "four_buffer_loaders": [
+      "../../signal-host/timing/001fee40.c",
+      "../../signal-host/timing/001ffa70.c",
+      "../../signal-host/pass5/001f6920.c"
+    ],
+    "encode_reset_error": [
+      "../../signal-host/pass2/00200960.c",
+      "../../signal-host/pass1/001f1730.c",
+      "../../signal-host/pass3/001f10b0.c",
+      "pass1/001f1bf0.c",
+      "pass1/001fb0b0.c",
+      "pass1/001e9390.c"
+    ],
+    "coroutine_gate": [
+      "../../signal-host/pass5/001ea774.c",
+      "pass1/001f5710.c",
+      "pass1/001f58c0.c",
+      "pass2/001f8d90.c",
+      "pass3/002010f0.c",
+      "pass3/00201820.c",
+      "atomic_gate.asm.txt"
+    ],
+    "previous_model": [
+      "previous_model.py",
+      "previous_cases.py"
+    ],
+    "byte_encoder": [
+      "../cbor-encoder/encode_buffers.py",
+      "../cbor-encoder/host_signal_parser.py",
+      "../cbor-encoder/FINDINGS_ZH.txt"
+    ],
+    "metadata_initialization": [
+      "../../signal-host/pass5/001f6920.c"
+    ]
+  },
+  "writes": [
+    {
+      "object": "sensor shared atomic",
+      "writer": "001a5120 <- 0017a7b0",
+      "operation": "allocate uint32 zero",
+      "consumers": "both 0019e7f0 ->0019c7f0 timing+0x78"
+    },
+    {
+      "object": "pillow shared atomic",
+      "writer": "001a5120 <- 0017a7b0",
+      "operation": "separate allocation uint32 zero",
+      "consumers": "both 0019edf0 ->0019c7f0 timing+0x78"
+    },
+    {
+      "object": "timing shared atomic",
+      "writer": "0021a370 ->004602c0",
+      "operation": "atomic OR notify_mask at timing+0x74"
+    },
+    {
+      "object": "timing shared atomic",
+      "writer": "0021a370 ->00460290",
+      "operation": "atomic AND NOT consume_mask at timing+0x70"
+    },
+    {
+      "object": "timing local fields only",
+      "writer": "0021a6b4",
+      "operation": "reset +0x20/+0x24/+0x28/+0x30; does NOT write shared atomic"
+    }
+  ],
+  "gate": {
+    "create": "001f5710->001f8d90->002010f0",
+    "address": "raw-gate+0x90",
+    "acquire": "00460180 CAS byte expected0 desired1",
+    "busy": "steady_clock::now + 50000 ticks; await then CAS again",
+    "release": "001ea774 states4/6 after stealth and optional extADC flush; store byte0",
+    "exception": "002010f0 timer exception -> coroutine exception result ->001f58c0 rethrow before flush",
+    "destroy": "001ea774 odd states5/7 -> child destructors;001f8d90 odd5 ->00201820 ->002010f0 odd9; no gate release store",
+    "post_encode_throw": "001e9390 explicit std::__throw_bad_alloc after00200960, beforeNATSqueue and beforecaller extADC/release"
+  },
+  "scope": "All writes bound along the identified construction/timing entry paths; not a formal whole-program alias proof."
+}

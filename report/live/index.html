@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>实时采集 · Eight Sleep 系统研究</title>
+  <link rel="stylesheet" href="/live.css">
+  <script defer src="/live.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<aside class="sidebar">
+<!-- REPORT_NAV_START -->
+<a class="brand" href="/report/index.html#overview"><span class="brandmark">8</span><span>EIGHT SLEEP<br><small>系统技术分析</small></span></a>
+<div class="edition">MT8365 / CN · 2026.11.09</div>
+<nav aria-label="主导航" id="nav"><a href="/report/index.html#overview" data-nav="overview"><span>01</span> 报告总览</a><a href="/report/index.html#flows" data-nav="flows"><span>02</span> 系统架构</a><a href="/report/index.html#wiki/local-processing-20261108" data-nav="local-processing"><span>03</span> 信号处理与算法</a><a href="/report/index.html#modules" data-nav="modules"><span>04</span> 模块详解</a><a href="/report/index.html#boundaries" data-nav="boundaries"><span>05</span> 结论与验证</a><a href="/report/index.html#roadmap" data-nav="roadmap"><span>06</span> 研究计划</a><a href="/report/index.html#evidence" data-nav="evidence"><span>07</span> 证据索引</a><a href="/" id="live-capture-link" class="active" aria-current="page"><span>08</span> 实时采集</a><a href="/report/index.html#full-evidence" data-nav="full-evidence"><span>09</span> 原始材料</a></nav>
+<a class="term-nav" href="/report/index.html#terms" data-nav="terms">?　关键术语</a>
+<!-- REPORT_NAV_END -->
+<div class="side-bottom">本地实时采集<small>账号会话与未导出数据<br>保存在本机服务内存中</small><a href="/report/index.html#wiki/live-capture-tool">采集工具说明 →</a></div>
+</aside>
+<div class="live-shell">
+<header class="topbar">
+  <span class="breadcrumb">实时采集</span>
+  <span id="service-badge" class="badge">连接本地服务…</span>
+</header>
+<main id="main">
+  <section class="hero">
+    <div><p class="eyebrow">LIVE CAPTURE / 国行账号</p><h1>实时采集</h1><p class="lead">登录账号，找到绑定设备，再读取一段实时事件。</p></div>
+    <p class="boundary">此入口读取 App live 数据。是否包含压电样本、采样频率及通道含义，以实际响应为准。</p>
+  </section>
+  <div id="demo-banner" class="notice demo" hidden><strong>演示模式 · 非实机数据</strong><span>仅用于验证界面，不连接官方服务或设备。请勿填写真实凭据。</span></div>
+  <div id="message" class="notice" role="status" aria-live="polite" hidden></div>
+  <noscript><div class="notice error">请启用 JavaScript 后使用登录与采集功能。</div></noscript>
+  <div class="workspace">
+    <section class="panel account-panel" aria-labelledby="account-heading">
+      <div class="section-heading"><span class="ordinal">01</span><h2 id="account-heading">账号与设备</h2></div>
+      <div id="config-missing" class="notice warning" hidden>当前电脑缺少国行登录配置，暂时无法登录。请按项目说明启动本地采集服务。</div>
+      <form id="login-form" method="post" action="/api/login">
+        <label for="email">账号邮箱</label><input id="email" type="email" required maxlength="320" autocomplete="username" spellcheck="false" placeholder="在官方 App 中使用的邮箱">
+        <label for="password">密码</label><input id="password" type="password" required maxlength="4096" autocomplete="current-password">
+        <button id="login" class="primary full" type="submit" disabled>登录并查找设备</button>
+        <p class="small muted login-note">通过国行官方服务认证。密码与令牌不写入项目文件；登录会话仅保留在本地服务内存中。</p>
+      </form>
+      <div id="account-session" hidden>
+        <div class="account-summary"><div><span class="small muted">当前账号</span><strong id="account-email">已登录</strong></div><button id="logout" class="subtle" type="button">退出登录</button></div>
+        <div class="device-heading"><label for="device">绑定设备</label><button id="refresh-devices" type="button" class="subtle">刷新</button></div>
+        <select id="device" disabled><option value="">尚未读取设备</option></select>
+        <div id="device-empty" class="device-empty">登录成功后自动查询绑定设备。</div>
+        <dl id="device-details" class="device-details" hidden>
+          <div><dt>连接状态</dt><dd><span id="device-online" class="badge">未知</span></dd></div>
+          <div><dt>型号</dt><dd id="device-model">—</dd></div>
+          <div><dt>固件标记</dt><dd id="device-firmware">—</dd></div>
+          <div><dt>设备 ID</dt><dd id="device-id" class="mono">—</dd></div>
+        </dl>
+        <p id="offline-note" class="small muted" hidden>官方状态为离线。请先让设备通电联网，再刷新设备状态。</p>
+      </div>
+    </section>
+    <section class="panel capture-panel" aria-labelledby="capture-heading">
+      <div class="section-heading"><span class="ordinal">02</span><h2 id="capture-heading">采集控制</h2><span id="capture-badge" class="badge">未开始</span></div>
+      <div class="capture-controls">
+        <div class="duration-field"><label for="duration">采集时长</label><select id="duration"><option value="15">15 秒</option><option value="30">30 秒</option><option value="60">60 秒</option></select></div>
+        <button id="start" class="primary" type="button" disabled>开始采集</button>
+        <button id="stop" type="button" disabled>停止</button>
+      </div>
+      <p id="capture-hint" class="capture-hint">登录并选择设备后开始。不会自动启动采集。</p>
+      <div class="progress-track" aria-hidden="true"><div id="progress-fill"></div></div>
+      <div class="stats">
+        <div><strong id="event-count">0</strong><span>收到事件</span></div>
+        <div><strong id="sample-count">0</strong><span>收到样本</span></div>
+        <div><strong id="elapsed">0.0<span> 秒</span></strong><span>已用时间</span></div>
+      </div>
+      <dl class="capture-meta">
+        <div><dt>HTTP 状态</dt><dd id="http-status">—</dd></div>
+        <div><dt>最后接收</dt><dd id="last-received">—</dd></div>
+        <div><dt>接收字节</dt><dd id="received-bytes">0 B</dd></div>
+        <div><dt>事件类型</dt><dd id="event-types">—</dd></div>
+      </dl>
+      <div class="export-row"><button id="export-events" type="button" disabled>下载 JSONL</button><button id="export-meta" type="button" disabled>下载元数据</button><button id="clear" type="button" class="subtle" disabled>清空本次数据</button></div>
+      <p class="small muted">导出文件保留接收时间与原始事件。重新采集前，请先保存需要保留的数据。</p>
+    </section>
+  </div>
+  <section class="panel waveform-panel" aria-labelledby="waveform-heading">
+    <div class="section-heading"><span class="ordinal">03</span><h2 id="waveform-heading">压电样本预览</h2><span id="plot-count" class="small muted">尚无样本</span></div>
+    <p class="small muted plot-note">横轴为样本序号，纵轴为接口返回值；不同事件分段绘制。未假定采样频率、物理单位或完整原始数据覆盖。</p>
+    <div class="chart-wrap"><canvas id="waveform" role="img" aria-label="压电样本预览，当前没有数据"></canvas><div id="chart-empty" class="chart-empty"><span class="empty-mark" aria-hidden="true">∿</span><strong>尚未收到压电样本</strong><p>开始采集后，收到的 piezo.samples 会显示在这里。</p></div></div>
+  </section>
+  <section class="panel events-panel" aria-labelledby="events-heading">
+    <div class="section-heading"><h2 id="events-heading">事件记录</h2><span id="events-shown" class="small muted">0 条</span></div>
+    <div id="events-empty" class="empty-row">暂无事件。连接成功但没有事件，与已经收到样本是不同状态。</div>
+    <div id="event-table-wrap" class="table-scroll" hidden><table><thead><tr><th>序号</th><th>接收时间</th><th>类型</th><th>服务端时间戳</th><th>样本数</th><th>内容</th></tr></thead><tbody id="event-rows"></tbody></table></div>
+  </section>
+  <footer><span>本地研究工具 · 非 Eight Sleep 官方网页</span><span>账号认证与数据请求均由本机服务转交官方接口</span></footer>
+</main>
+</div>
+</body>
+</html>

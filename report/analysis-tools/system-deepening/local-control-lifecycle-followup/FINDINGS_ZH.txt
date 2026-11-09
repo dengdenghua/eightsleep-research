@@ -1,0 +1,80 @@
+Capybara 气囊控制：请求、校准交接、断线与停用的生命周期
+日期：2026-11-08
+
+结论范围
+本轮只分析官方 MTK 镜像中 Eight.Capybara 所带 Eight.Firmness / Eight.Lsp.Subsystems 的气囊控制，未分析床架。旧 local-config-final-pass 已说明每类型末条选择和保存顺序；本轮新增的是对象归属、状态离开时的请求去向、取消与等待边界、同进程重连恢复来源。24 个类型保留 C# 导出及 IL，4 个 DLL 与官方 bundle 对应切片逐字节一致。模型为 24 个合成有限事件例，不运行原厂程序集、设备或账号接口，也不是全部线程交错证明。
+
+一、队列属于 Ready 实例，不属于连接、侧别全局对象或配置文件
+FirmnessReadyState 构造函数为本实例 new ConcurrentQueue<FirmnessRequest> 和 SemaphoreSlim(1,1)。MakeRequest 只 Enqueue，没有把请求持久化或注册到服务级队列。FirmnessStateFactory.CreateReadyState 每次 new Ready；CreateCalibratingState 接收 connection、firmwareInfo、bagCount、bags、method，不接收旧 requests。
+因此“旧请求不再执行”要分三种：
+1. 同次 RunTick 已取出的普通目标/mode，被该批校准分支跳过；它们没有进入 OnRequest，也不会由这条路径写入 R12。
+2. Ready 离开前尚未出队的请求，仍属于旧实例。被新 Ready/Calibrating 替换时没有迁移或重放代码。旧实例若仍被调用方引用，队列对象可以暂时存在；不能把未迁移写成确定立即释放内存。
+3. 已经进入 OnRequest/Send 的请求是另一个状态：不能因公开状态已变 Null 就断言发送任务被撤回。完成、异常、取消都要按下游 Task 分开看。
+校准正常结束后也新建 Ready，使用同一 connection 和 firmwareInfo，但队列、锁、DeviceState 都重新构造，不恢复旧 Ready 的临时遥测缓存。
+依据：FirmnessReadyState.cs 构造字段、MakeRequest、RunTick；其 IL 构造 IL_0011..0016 / IL_0035；FirmnessStateFactory；CalibratingState.TickUntilDone。
+
+二、校准交接等待哪些操作，锁不覆盖哪些操作
+RequestCalibration 先将 CalibrationHandoffPending=true，再入队 StartCalibrationRequest。RunTick 选到该请求后：
+  await 本 Ready.deviceWriteLock.WaitAsync(state cancellation)
+  handedOffToCalibration=true
+  Release()
+  CreateCalibratingState(...)
+IL 的 GetResult→写 handedOff→Release→CreateCalibratingState 顺序分别在该异步 MoveNext 的 IL_0145、014c、0157、0190。
+RunDeviceWrite 取得同一把锁后检查 handedOff，未交接才调用 work，并在 work 的 await 结束或抛出后 finally Release。故正在执行的受锁操作会阻挡交接；已经等待但尚未拿到锁的操作，并不保证在交接前都执行。交接先取得锁后，后来的受锁操作会抛 CalibrationRunningException。未证明 SemaphoreSlim 的公平性、具体获锁先后或所有真实并发组合。
+
+受这把锁保护的现有入口：读取校准系数、批量写校准系数/可选保存、应用并保存容差、应用并保存遥测 profile，以及 Ready 初始化时的容差/profile重放。它是每个 Ready 的锁，不是全连接或两侧公用锁；Calibrating 的 runner 不接收这把锁。
+普通 OnRequest→SendFirmnessCommand / SendModeCommand 没有进入 RunDeviceWrite。初始化的目标/mode重放同样不拿此锁。因此不能写成“交接等待所有设备写命令排空”或“所有气囊写命令被同一事务串行化”。通常 RunTick 自身等待本批普通发送，但那是其顺序 await，与锁的覆盖范围不同。
+
+pending 和 handedOff 也不同：
+- calibration/set 在 API 层先拒绝 CalibrationHandoffPending，锁内再以 handedOff 检查，覆盖不同时间点。
+- calibration/get 没有 pending 的 API 检查，仍经锁内 handedOff 检查。
+- 普通 firmness/set、setmode 的状态分类只识别当前 Ready/Calibrating 等类型，MakeRequest 本身无 pending 检查。状态仍公开为 Ready 时可能将新普通请求放入旧队列；本轮仅以明确先后事件展示其不迁移结果。
+- calibration/cancel 只接受当前 Calibrating。已经请求校准、但仍显示 Ready 时，返回“当前未在校准”，不会删除 pending StartCalibrationRequest。
+依据：CalibrationController.Start/Get/Set/Cancel；FirmnessDeviceStatus.Classify；FirmnessController；RunDeviceWrite/RunTick 的原 IL。
+
+三、断线、状态取消与公开状态更新不是同一个事件
+ReadyStateBase 先订阅 StateChanged，await Initialize，再订阅 PacketReceived，await RunMonitorLoop。StateChanged(new!=Firmware) 只完成 stateChangeTcs，未在此回调直接关闭连接或取消正在 await 的 RunTick。
+在 RunMonitorLoop 的循环边界，非取消且 stateChangeTcs 未完成才开始下一次 RunTick；已经开始的 RunTick 不会因这次 TCS 完成被抢先返回。监控返回后，基类先 ThrowIfCancellationRequested，再判断 monitor 返回值，最后才检查 stateChangeTcs：
+- 普通断线退出且 monitor 返回 null：await Close(None)，返回新 NotConnected。
+- 取消路径：捕获 OperationCanceledException，取消订阅后 await Close(None)，返回新 NotConnected。
+- monitor 返回非 null 的明确下一状态、且 token 未取消：先返回该状态，未经过这里的 link-change Close 分支。若 link事件恰在校准交接过程中发生，不能概括成“断线永远先于交接处理”。这里只报告 IL_019f..01d3 的分支顺序，不断言现场必然出现该顺序。
+异常、关闭失败、底层事件时机仍影响后续；本轮没有将此基类转换表推广成任何故障下必定成功重连。
+
+四、Disable 的返回并不等待旧任务排空
+FirmnessService.Disable 是同步 void：先 UpdateConfiguration(Enabled=false)，再逐侧 states[side]=new NullState，最后 Cancel 当前侧的 CTS。没有 await 旧 GetNextState，也没有收集或 join 外部 API 写操作的 Task。
+SubsystemHost 的每侧主循环持有局部 state，并 await state.GetNextState(linked token)。finally 对公开字典和局部状态做协调：局部已为 Null 则采用局部；否则只有“当前 CTS 已取消且公开字典为 Null”时采用公开 Null，避免旧返回把停用状态覆盖。它并不证明在停用函数返回的瞬间，旧 connection已关闭、在途发送结束或阀泵动作停止。
+此处需保留两个实际入口差别：
+- firmness/remove 在任一侧已为 Calibrating 时直接拒绝，正常 API 不会借此立刻移除正在校准的附件。
+- service.Disable 的方法自身没有该检查；启动 gate 拒绝等内部调用仍按其顺序执行。应用停止 token 与 calibration/cancel 也不是同一种取消。
+还需保留保存失败边界：UpdateConfiguration 先更新内存 Configuration，再 Save；如果 Save 抛出且未在 Disable 内捕获，后面的 Null 和 Cancel 尚未执行。故“Enabled=false 已出现在 RAM”本身不足以证明停用流程走完。合成模型只注入外部保存异常，不制造真实文件故障。
+
+外部 calibration/get、calibration/set、容差/profile接口给 Ready helper 传 CancellationToken.None，并不链接状态机的 CTS。已进入旧 Ready 的这类操作不会仅因 Disable.Cancel 就自动取消，可能与连接关闭相遇；最后成功、异常或超时取决于下游。这里不把 CancellationToken.None 解读成永不结束。
+
+五、普通发送收到取消后，不保证本批后续方法不被调用
+RunTick 先 await 目标 OnRequest，再 await mode OnRequest；两者之间没有显式 cancellation 检查。SendFirmnessCommand 和 SendModeCommand 都 catch Exception，包含 OperationCanceledException。因此在“已选中目标和mode、目标 await 以取消异常结束并被吞掉”的有限路径中，代码还可进入 mode 的保存和 SendCustomCommand 调用，传入同一个已取消 token。
+这里只证方法调用次序，不证已写出串口，更不证 MCU 执行或压力已到目标。下游独立证据见 ../local-command-completion-followup：按命令 gate、连接/剩余时间检查、同步发送、匹配响应/ACK 决定 Task 结果；已取消 token 也不能被简化为任何条件下都不会先发。Cancel/Close 均不等于撤销已经发出的命令。
+
+六、校准取消与结束清理
+calibration/cancel→CalibratingState.Cancel→CalibrationRunner.Cancel 仅写 cancelRequested=true并返回当前 lastStatus；IL 为 stfld 标志后 ldfld lastStatus / ret，没有等待、取消 CTS 或调用设备停止命令。
+runner.Tick 在状态机 Advance 时读取该标志，然后依次 await 本次返回的 action列表。如果请求取消发生在某个 action 正在等待时，Cancel 不改这次已经算好的列表；在外部提供该发送完成的模型中，后续已算 action仍可进入发送。下一次可消费取消的 Advance 才根据标志进入 shutdown/restore。Pulse 与 Landing 还有各自终末阶段门控，不能写成所有阶段“下一tick必定终止”；模型只选明确会消费取消的普通运行阶段，不重新模拟完整校准算法。
+
+CalibratingState.RunMonitorLoop 的 finally 会在 runner仍活跃时 await AbandonAsync：理由由 state token是否取消选择 stopping/link lost。AbandonAsync 使用独立10秒 CancellationTokenSource预算，尝试停泵关阀或恢复 Landing入口，再 Finalize(Failed)。这不是校准取消API本身同步执行的动作；也不是严格10秒墙钟结束保证，后者依赖下游遵守取消及同步存储耗时。BestEffort中某个发送抛异常时可能直接跳到catch，不能保证之后每条停止指令都发出或生效。
+正常 FinalizeAsync 在记录保存/收尾后才 stateMachine=null；TickUntilDone 在 await Tick 返回后才看到 !IsCalibrating，并确认 link TCS 未完成，再 new Ready。若记录保存先抛出，不可只按意图宣称该字段已经清空；模型保留这个有限顺序边界，不据此声称真实故障发生。
+
+七、重连恢复的 R12 是哪一份
+DI 将 IPodConfigurationManager<FirmnessConfiguration> 注册为 singleton，进程创建时从 /persistent/R12.json 读取。CreateReadyState 每次从服务容器取得同一 manager；普通重连及校准返回没有重新 Create/ReadConfiguration，也没有以旧请求队列代替配置。
+新 Ready.Initialize 会重新取硬件信息，然后读取 manager.Configuration 的相应侧目标/mode，再分别读取容差/profile并按既有门控重放：
+- 同进程重连使用当前内存值。此前 RAM更新成功、磁盘保存失败时，二者可能不同；进程重启才重新按文件读取规则开始。
+- 校准前尚未执行的队列目标没有被保存，不能指望校准结束后自动恢复这个目标；通常恢复的是 manager里上次已处理的目标。
+- LoadAndApplyStoredTargetFirmness在本次方法里先读取一次 Configuration，再取本侧目标与mode；容差/profile在后续方法另读，所以整个Initialize不是一份锁定的全R12快照。
+- 目标/mode重放使用相应侧字段。重连路径仍要经过发现连接/固件状态等步骤；“构造了Ready”也不等同于全部初始化发送已成功。
+依据：Eight.Capybara.Extensions.ServiceCollectionExtensions 的 R12注册；Eight.Firmness.Extensions.ServiceCollectionExtensions.AddFirmnessConfiguration；PodConifgurationManager；FirmnessStateFactory；Ready.Initialize/LoadAndApplyStoredTargetFirmness。
+
+验证、覆盖和仍保留的缺口
+- 官方bundle SHA256 e35875ef9007a11f5125531742ad69ebe8f748cc2e7c380b7ecf6a2d688f165d。4份DLL及源文件hash、bundle offset见SOURCE_LEDGER/VERIFICATION；命令见il/COMMANDS.json。
+- 24例只验证已选择正常生命周期及明确异常完成输入下的顺序；每例保存来源、假设、观察与预期，事件和结果均深拷贝冻结，不能用它们估计现场频率、吞吐或安全性。
+- 24个类型是本轮留存范围，不是全部类型/方法都逐指令审完。COVERAGE列出直接核对的入口及外围范围；IL_ANCHORS用于导航，不能替代原IL全文。
+- 未穷尽多线程可见性、SemaphoreSlim调度/公平性、API同时到达、跨侧配置更新、Close与待发任务的全部交错；未核实际设备响应时延、串口拔插行为或命令实际效果。
+- 如继续静态扩展，应针对具体异常收尾/并行调用支路建立参数与任务关系，不重复已闭合的每类型末条选择。验证真实发送与最终状态则需要用户允许且可连接的实机记录；本轮没有触发这些操作。
+
+复现：仅运行 scripts/retain.py（静态ILSpy导出）及 scripts/lifecycle_contracts.py（本地合成模型）；scripts/freeze.py重核已留存证据与清单。无需账号、设备或运行原厂二进制。

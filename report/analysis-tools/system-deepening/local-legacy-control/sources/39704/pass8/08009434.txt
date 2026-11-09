@@ -1,0 +1,84 @@
+TARGET 08009434 function=08009434
+REF_TO 0800c898 UNCONDITIONAL_CALL owner=0800c092
+REF_TO 0800a280 UNCONDITIONAL_CALL owner=0800a238
+REF_TO 080094c8 UNCONDITIONAL_CALL owner=080094a0
+FUNCTION_BODY [[08009434, 08009499]]
+
+void FUN_08009434(int param_1)
+
+{
+  ushort uVar1;
+  undefined4 uVar2;
+  undefined4 uVar3;
+  int iVar4;
+  int iVar5;
+  undefined8 uVar6;
+  int local_30 [7];
+  
+  iVar4 = 0;
+  do {
+    local_30[1] = param_1 + 0x10;
+    local_30[2] = param_1 + 0x20;
+    local_30[3] = param_1 + 0x30;
+    local_30[4] = param_1 + 0x40;
+    local_30[5] = param_1 + 0x50;
+    local_30[0] = param_1;
+    iVar5 = local_30[iVar4];
+    uVar2 = FUN_0800da84(0x3f800000,0);
+    uVar2 = FUN_0800da58(0,uVar2);
+    uVar3 = FUN_0800637c(*(undefined4 *)(iVar5 + 4));
+    FUN_08005cbc(uVar3,uVar2);
+    uVar6 = FUN_08007f00();
+    FUN_080063fc((int)uVar6,(int)((ulonglong)uVar6 >> 0x20),0,0x3fe00000);
+    uVar1 = FUN_08005728();
+    iVar4 = iVar4 + 1;
+    **(uint **)(iVar5 + 0xc) = (uint)uVar1;
+  } while (iVar4 != 6);
+  return;
+}
+
+
+INSN 08009434 f0b5 push {r4,r5,r6,r7,lr}
+INSN 08009436 0400 movs r4,r0
+INSN 08009438 0025 movs r5,#0x0
+INSN 0800943a 89b0 sub sp,#0x24
+INSN 0800943c 2300 movs r3,r4
+INSN 0800943e fe20 movs r0,#0xfe
+INSN 08009440 1033 adds r3,#0x10
+INSN 08009442 0393 str r3,[sp,#0xc] REF[WRITE:Stack[-0x2c]]
+INSN 08009444 1033 adds r3,#0x10
+INSN 08009446 0493 str r3,[sp,#0x10] REF[WRITE:Stack[-0x28]]
+INSN 08009448 1033 adds r3,#0x10
+INSN 0800944a 0593 str r3,[sp,#0x14] REF[WRITE:Stack[-0x24]]
+INSN 0800944c 1033 adds r3,#0x10
+INSN 0800944e 0693 str r3,[sp,#0x18] REF[WRITE:Stack[-0x20]]
+INSN 08009450 1033 adds r3,#0x10
+INSN 08009452 02aa add r2,sp,#0x8
+INSN 08009454 0793 str r3,[sp,#0x1c] REF[WRITE:Stack[-0x1c]]
+INSN 08009456 0294 str r4,[sp,#0x8] REF[WRITE:Stack[-0x30]]
+INSN 08009458 ab00 lsls r3,r5,#0x2
+INSN 0800945a 0021 movs r1,#0x0
+INSN 0800945c 8005 lsls r0,r0,#0x16
+INSN 0800945e 9e58 ldr r6,[r3,r2] REF[DATA:Stack[-0x30]]
+INSN 08009460 04f010fb bl 0x0800da84 REF[UNCONDITIONAL_CALL:0800da84]
+INSN 08009464 011c adds r1,r0,#0x0
+INSN 08009466 0020 movs r0,#0x0
+INSN 08009468 04f0f6fa bl 0x0800da58 REF[UNCONDITIONAL_CALL:0800da58]
+INSN 0800946c 0190 str r0,[sp,#0x4] REF[WRITE:Stack[-0x34]]
+INSN 0800946e 7068 ldr r0,[r6,#0x4]
+INSN 08009470 fcf784ff bl 0x0800637c REF[UNCONDITIONAL_CALL:0800637c]
+INSN 08009474 0199 ldr r1,[sp,#0x4] REF[READ:Stack[-0x34]]
+INSN 08009476 fcf721fc bl 0x08005cbc REF[UNCONDITIONAL_CALL:08005cbc]
+INSN 0800947a fef741fd bl 0x08007f00 REF[UNCONDITIONAL_CALL:08007f00]
+INSN 0800947e 0022 movs r2,#0x0
+INSN 08009480 064b ldr r3,[0x0800949c] REF[READ:0800949c=3fe00000]
+INSN 08009482 fcf7bbff bl 0x080063fc REF[UNCONDITIONAL_CALL:080063fc]
+INSN 08009486 fcf74ff9 bl 0x08005728 REF[UNCONDITIONAL_CALL:08005728]
+INSN 0800948a f768 ldr r7,[r6,#0xc]
+INSN 0800948c 80b2 uxth r0,r0
+INSN 0800948e 0135 adds r5,#0x1
+INSN 08009490 3860 str r0,[r7,#0x0]
+INSN 08009492 062d cmp r5,#0x6
+INSN 08009494 d2d1 bne 0x0800943c REF[CONDITIONAL_JUMP:0800943c]
+INSN 08009496 09b0 add sp,#0x24
+INSN 08009498 f0bd pop {r4,r5,r6,r7,pc}

@@ -1,0 +1,244 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Eight Sleep MTK frankenfirmware：传感器主机信号链静态分析
+日期：2026-11-07
+
+范围与证据口径
+样本：mediatek/rootfs-selected/opt/eight/bin/frankenfirmware
+SHA-256：84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375
+ELF：AArch64 little-endian，stripped；Ghidra image base 0x00100000。
+本目录 pass1..pass12/*.c 是 Ghidra 静态伪代码，不是官方源代码。行号只用于定位该次导出的证据。
+未执行固件、未连接真实设备、未访问用户账户。解析器使用合成输入验证，未用真实传感器抓包验证。
+本文“确认”指代码结构/常量/调用关系已追到；不代表验证了实际设备的采样时钟、安装位置和临床准确度。
+
+1. 主要结论
+
+运行期串口/USB CDC 字节流经过 LSP 帧解码，opcode 0x3c 的 Stealth payload 解出一侧的 16 个 ADC 槽和 4 组×6轴 IMU。
+主机将 MCU 毫秒 tick 对齐到系统时钟秒，按左右独立来源进入同步缓冲；随后按整秒打包成 CBOR，发到本机 NATS/JetStream。
+主机不是把一个包的前后 8 个 ADC 槽当作床的左右侧；左右侧由 USB 拓扑/对象状态指定。
+
+在已完整追到的 Stealth → raw CBOR 路径中：
+  ADC[0..7]：读入内部样本，但本次两种 single/double loader 均未把它们路由到下列输出。
+  ADC[8..12]：每侧 5 路 piezo-buzzer，CBOR freq=500。
+  ADC[13]：条件开启的 legacy ext_adc；同一侧数值重复放入 legacy 的两个槽。
+  ADC[14..15]：条件开启的每侧 2 路 piezo-multi-channel，CBOR freq=500。
+  IMU[0..23]：每侧 4 组×(gyro xyz、accel xyz)，CBOR freq=100。
+
+“5 路 buzzer + 4 组 IMU = 9”与产品“每侧 9 个 biometric sensors”在数量上相容，但仅据 host 软件不能确认营销计数是否就是这一组合。
+必须区分：ADC 槽、启用槽、软件输出通道、IC 数量、物理传感位置、营销 sensor 数量。这些不是同一个概念。
+
+2. 外层 LSP wire framing（已经恢复）
+
+标准帧：
+  0x7e | escaped(length_BE | body | crc16_BE)
+  body = opcode/header byte | command-specific payload
+
+0x7e 是未转义起帧标记；0x7d 是转义标记，其后字节 xor 0x20。
+发送端只转义 0x7d 和 0x7e，分别发送 7d 5d、7d 5e；不存在额外的尾部定界符要求。
+length 包括 opcode/header byte；不包括 length 字段本身与 CRC。
+运行期 hi-speed firmware 使用 2-byte big-endian length；bootloader 模式使用 1-byte length。
+CRC 覆盖 body，不覆盖 length；16-bit MSB-first poly 0x1021，seed 0x1d0f，无最后异或。
+这与 ADS SPI 帧 CRC 的 seed 0xffff 不同，不能混用。
+opcode/header 的 bit7 是独立标志，低 7 位是 opcode；此报告不把 bit7 贸然命名成 request/response。
+
+证据：
+  pass11/001d9a50.c:17 保存 1B/2B 模式，初始化接收/发送状态。
+  pass11/001d9ac0.c:16 起帧；:17..31 长度、body、CRC 的发送顺序和端序。
+  pass11/001d9bc0.c:30..91 接收状态机：marker→长度→body→CRC，比较成功才返回。
+  pass11/001d9dc0.c:16 seed 0x1d0f；:25 poly 0x1021。
+  pass11/001d9e40.c:36..48 转义与 marker。
+  pass12/001da1f0.c:12 发 0x7e；pass12/001d9f34.c 转义写出；pass12/001da2f4.c 仅 flush。
+  pass11/00219aa0.c:15..24 body 的 header bit7 与 opcode 组合。
+  pass9/0027a980.c:48、:81 运行期设置 2B LSP；pass10/00280b10.c:18 将模式传给 LSP init。
+
+3. opcode 0x3c payload 格式
+
+全部 wire 整数字段是 big-endian，payload 不包括外层 opcode byte。
+
+偏移              长度       含义
+0                 4          MCU tick，uint32，主机按毫秒使用
+4                 2          flags/version，uint16
+6                 2          ADC frequency，uint16
+8                 N*64       N 个 ADC frame，每个 16×int32
+8+N*64            48         4×6 个 int16 IMU 值
+
+N = floor((payload_length - 8 - 48) / 64)。主机要求至少 120 bytes，即至少 1 个 ADC frame。
+ADC[0..7] 的 enable flag 为 bit8；ADC[8..15] 为 bit9。
+IMU 四组分别由 flags bit12..15 启用。组未启用时主机跳过 wire 字节、保留初始化 sentinel。
+frequency=0 会拒绝处理；时间增量用整数 1000/frequency。host 启动此设备路径时还设置 500 Hz timing。
+每个包只有一个尾部 IMU block，复制到该包的每个 ADC internal sample；这不等于 IMU 对每个 ADC frame 重新采样。
+producer新鲜度审计见../sensor-mcu/SAMPLE_FRESHNESS_ZH.txt：定时snapshot复制共享cache，失败/部分ready可延用旧值；0x3c未逐样本标记，不能把收到帧或header可用位当作每通道新转换证明。ADC/IMU独立FIFO积压时还可失配。
+本解析器比固件的 floor 行为严格：不接受 (length-56) 不能被64整除的多余字节，避免误解释不完整抓包。
+
+内部样本（sizeof=124）：
+  +0 uint32 host-epoch-seconds
+  +4 uint32 relative milliseconds
+  +8 int32 adc[16]
+  +72 int16 imu[24]
+  +120 uint16 frequency
+  +122 uint16 flags/version
+
+证据：
+  pass1/0027e7b0.c:181..253 header、count、IMU flag loop、zero-frequency。
+  pass1/0027e7b0.c:383..418 ADC flag loop，16槽，0x7c内部样本拷贝，IMU附加。
+  pass1/0027e7b0.c:419..465 timestamp mapping 与 sample enqueue。
+  pass2/0045f6e0.c、0045f6b4.c 分别为 uint32BE、uint16BE decoder。
+  pass9/0027a980.c:37 设置 timing=500。
+
+4. 左右与硬件 revision 模式
+
+machine.json 的 USB root 配置：
+  I00：leftA32SensorPort=1-1.2，rightA32SensorPort=1-1.1。
+  I21：leftA32SensorPort=1-1.4，rightA32SensorPort=1-1.3。
+  A00：配置 leftA32SensorPort=1-1.2；不能据此补造 right port。
+证据：mediatek/rootfs-selected/opt/eight/config/machine.json:12、:47、:48、:75、:76。
+
+a32HitForSide 在对应 root 的子树里查找串口设备，过滤 foreign-labeled 候选。
+callback 对递归 depth>4 停止；区分 ttyACM 与 bare FTDI/pillow。
+同侧多候选保留一个并记录 extra/duplicate；最终左右若指向同一个设备，明确 dropping right。
+因此可以确认“每侧独立逻辑 USB sensor 来源”，不能从这个逻辑设备数量推断其中物理 IC 数。
+证据：pass1/0026a8e0.c:92..110；pass6/0026e6c0.c:59..73、:145..153；
+  pass5/00271ed0.c:580..581、:939..942、:1004..1007、:1785..1787。
+
+更重要的输出门槛：UsbSensor::stateBootloaderStartFirmware 读取 sinfo rev、pn。
+  rev >= 0xA00：调用 enableA30Mode(side, rev < 0xA30)。
+  0xA00 <= rev < 0xA30：all-types=true，额外输出 ext_adc 与 2-element piezo。
+  rev >= 0xA30：all-types=false，仅保留 buzzer 与 IMU 的 Stealth 输出。
+  pn==0x507a 还影响传给拓扑管理器的 generation 值；该比较没有改变上述 all-types 判定。
+报告不把函数/配置名 a32 直接解释成硬件字符串 A32 或商品 Pod6。
+其他 MCU 分析可进一步验证 raw revision 与 K00/K30 等字符串的映射；host 此处确认的是数值比较。
+
+证据：pass9/0027a980.c:17..36；pass10/00280a70.c:8 返回 sinfo+0x10(rev)，
+  pass10/00280ab0.c:7 返回 sinfo+8(pn)；pass9/001e2bb0.c 调用 enableA30Mode。
+  pass5/001f6920.c:258 保存 all-types 到 sync buffer+0xa8。
+  pass2/00200960.c:144..151 仅 all-types 开时追加 2e CBOR；
+  pass1/001ffa70.c:416..425 仅 all-types 开时处理 extADC/2e。
+
+5. 时间同步、采样路由与缺失值
+
+timestamp mapper 首次建立 MCU tick → system_clock 秒的 anchor。
+每样本用 tick-anchor_tick 得到相对毫秒，caller 再把 /1000 加到 epoch 秒；loader 用 %1000 定位秒内样本。
+它不是将 MCU tick 直接当 Unix epoch，也不是透传没有意义的计数器。
+检测 tick rollover 与预测时钟偏差；偏差超阈值时重建 reference marker。
+代码日志写 drift ...ms，但计算使用的是 system_clock seconds；不能只按日志文本把差值单位说成毫秒。
+存在单步丢失的复制补点逻辑：当 gap 恰为 2×expected-step 时，caller 可把当前样本先写到前一时间槽再写当前槽。
+未写槽的初值是 sentinel；这不是推理出的真实传感值。但不能据此断言缺口之后的所有有效点都会保留：后续TIMING_CONTINUITY_ZH.txt第7节已确认，单侧loader在已处理非零epoch后遇到默认epoch=0的中间缺槽，可提前结束并删除整桶，遗漏后续有效槽。第4节另确认跨秒单点复制只减relative、不减epoch的条件边界。两者均为静态结论，未实机复现。
+后续DUAL_SIDE_CONTINUITY_ZH.txt补齐双侧：按队列桶数选主侧、平手side0；配对同秒键后全用主侧时标。次侧缺槽通常只写sentinel，主侧中间缺槽可截断并删两桶，前导缺槽会重复写slot0覆盖次侧已有值。特定条件可使本地buzzer ts与IMU ts不同（IMU为0）；不证明实际云端接收或影响率。14个离线算例与10处原ELF机器码操作数检查已保留。
+
+证据：pass5/00252b10.c:8..9 system_clock/1e9；pass4/0021a370.c:14..24 初始 anchor，:41..90 drift/rebase；
+  pass3/0021a5c0.c:13..33 gap 检查；:50..51 输出 anchor 秒与 tick 差；
+  pass1/0027e7b0.c:419..465 caller 复制/插入两个时间位置。
+
+对“ADC0..7未输出”的限定：
+single loader 从 sample+40 开始取5个 int32，即ADC8..12；double loader用 piVar37[10..14]。
+extADC取sample+60/ADC13；2e取sample+64、+68/ADC14、15。
+查到的这两条完整 loader 没有取 sample+8..+36/ADC0..7 进入这些输出。
+不能据此说 ADC0 不存在、没开启、没采样，或其他设备/版本都不使用前8槽。
+
+证据：pass1/001ffa70.c:194..238、:299..311、:422..434、:473..488、:534..539、:601..605；
+  pass1/001fee40.c:121..164、:200..209、:300..318、:459..467。
+
+buzzer / 2e 按 (milliseconds % 1000)/2 定位 500 个样本。
+IMU 每5个ADC sample处理一次，并按 (milliseconds%1000)/10 放入100个位置。
+所选主侧最早秒键在次侧不存在时使用单侧loader，另一侧填sentinel；同秒键内部的缺槽不会自动改用单侧。时间回退可触发重启流。
+证据：pass1/001ffa70.c:299、:311、:406..415；pass5/001fdec0.c timestamp rebase。
+
+ADC missing sentinel=0x7fffffff；IMU missing sentinel=0x7fff。
+这些值出现在初始化和flush后重置中；不能把它们当成有效峰值或真实极限读数。
+gain 数组作为元数据携带，主机 buffer 初始化有400等默认值；已追 path 没有把原始 counts 统一换算成压力/位移/加速度等物理单位。
+MCU ADC PGA与软件缩放是另一层；不应仅凭host gain值把波形标成某个物理单位。
+后续GAIN_METADATA_ZH.txt已进一步恢复每侧16槽固定名义表[100×8,400×8]；Stealth输出取后8槽，常规路径未见与0x2B回包动态同步。旧extADC包内gain与这张表是不同来源。
+
+6. CBOR schema、端序与 NATS
+
+raw.x.sens.stealth 的一个消息是连续 CBOR 对象（CBOR sequence），不是外层包裹的单一数组：
+  1 piezo-buzzer
+  2 imu-multi-channel
+  3 piezo-multi-channel，仅all-types模式
+
+piezo-buzzer：
+  {type:"piezo-buzzer",ts:uint,freq:500,
+   left:{gain:[5 integers],version:uint,data:[5 bstr]},
+   right:{gain:[5 integers],version:uint,data:[5 bstr]}}
+  每bstr固定2000bytes=500×int32 little-endian。
+
+piezo-multi-channel：
+  {type:"piezo-multi-channel",ts:uint,freq:500,
+   left:{gain:[2 integers],version:uint,data:[2 bstr]},
+   right:{gain:[2 integers],version:uint,data:[2 bstr]}}
+  每bstr固定2000bytes=500×int32 little-endian。
+
+imu-multi-channel：
+  {type:"imu-multi-channel",ts:uint,freq:100,lver:uint,rver:uint,
+   left:[4 {gyro:{x:bstr,y:bstr,z:bstr},accel:{x:bstr,y:bstr,z:bstr}}],
+   right:[同样4组]}
+  每轴bstr固定200bytes=100×int16 little-endian。
+
+wire里的BE整数已经转换到host本地LE内存；CBOR编码器将样本数组直接作为byte string复制。
+因此CBOR整数header仍遵循CBOR自己的编码，而样本bstr内部是LE；不要对整个CBOR文件做字节反转。
+输出version/lver/rver来自internal sample+122即原始16-bit flags/version，包含enable位。
+这些字段不是frankenfirmware版本号，也不是已经分离好的IMU芯片版本。
+
+证据：pass2/00200960.c:144..151 连续encode；
+  pass1/001f1730.c:35..102、:124..176 五路及500Hz；
+  pass1/001f1bf0.c:36..97、:119..160 两路及500Hz；
+  pass3/001f10b0.c:37..80、:107..154、:175..224 四组及100Hz、6轴。
+  pass2/001d78d0.c 以CBOR major2包装原始bytes；pass3/001d6860.c执行bytes写入。
+  pass1/001ffa70.c:221..223、:267..279、:313等flags→version路径。
+  二进制0x46afc0=freq，0x46afc8=lver，0x46afd0=rver，0x46afd8=gyro，0x46b020=z。
+
+主链：
+  USB event 0x3c → FUN001e20d0 → coroutine001e6aa0 → enqueueStealthSideSample001ea774
+  → sync enqueue001fdec0 → encodeChunkBody00200960 / loaders001fee40、001ffa70
+  → flushChunkToJetStream001e9390 → queue001f49b0 → NATS worker001afe00 → js_Publish。
+
+mask 0x4000000映射raw.x.sens.stealth；0x10映射raw.sens.piezo；0x8000000映射raw.x.sens.bedtemp。
+worker连接地址明确为 nats://localhost:4222，并创建JetStream context。
+因此这部分代码证明“本地消息总线传输”；是否上传、如何加密、云端后续算法要继续看uploader/云端消费者。
+证据：pass5/001ea774.c:25..28、:41、:100..108；pass1/001e9390.c:103..105、:181..186；
+  pass2/001f49b0.c 队列复制；pass5/001970e0.c:15、:42；pass5/001afe00.c:194..221 js_Publish。
+
+7. 本地 RAW 文件与睡眠算法边界
+
+固件保留 startNewLogFile、%08lX.RAW、SEQNO.RAW 命名和状态逻辑。
+pass5/001e3084.c:76..85 会在条件开启时构造8位hex序号.RAW名称；不能仅凭这个函数就断言实际默认在磁盘保存所有Stealth波形。
+本次已经追实的是每类raw的NATS/JetStream路径；本地JetStream存储与旧.RAW文件机制要分别描述。
+没有找到真实capture或现存.RAW供比对，因此离线工具未宣称支持旧.RAW容器格式。
+
+在已追到的0x3c→CBOR路径，行为是解帧、数值端序转换、时间对齐、左右合并、降频取样、补缺和分块；没有看到心率估计/睡眠分期模型调用。
+对本sample可打印字符串检索 sleep.?stage、asleep、snore、autopilot、tensorflow、onnx、tflite、heart.?rate、REM、sleep.?score 无命中。
+这只是覆盖边界，不能证明整个固件不存在无字符串/外部依赖的算法，更不能证明云端实现细节。
+IMU的IC型号、ADC input clock、24-bit→32-bit缩放、空间位置由MCU代码/硬件资料互证；host单独不能回答全部。
+
+8. 可复用离线工具
+
+host_signal_parser.py 仅Python标准库，不加载/执行固件。
+命令：
+  python3 host_signal_parser.py --self-test
+  python3 host_signal_parser.py lsp capture.bin --side left
+  python3 host_signal_parser.py lsp bootloader-capture.bin --length-bytes 1
+  python3 host_signal_parser.py usb extracted-0x3c-payload.bin --side right
+  python3 host_signal_parser.py cbor raw-stealth-message.bin
+  python3 host_signal_parser.py cbor raw-stealth-message.bin --samples
+
+测试通过12组：wire endian、ADC slot路由、enable flags、CBOR连续对象、LE/sentinel、非法payload、
+LSP CRC check vector、escape/连续帧、5帧376-byte payload、1B长度、破CRC/截断拒绝、左右CBOR数据独立性。
+--side是用户已知的抓包上下文，不会从payload猜测。
+默认CBOR输出样本count/min/max/missing数量；--samples输出具体样本，sentinel转为null。
+LSP decoder对错CRC/截断/中途新marker采取严格报错，而固件接收器可能继续找下一帧。
+未复现host coroutine调度/完整同步buffer；双侧测试只证明decoder保持left/right数据独立，不能冒充真实双侧时序验证。
+
+9. 可复现分析环境
+
+脚本 scripts/SignalHost.java：字符串xref、函数调用关系、批量反编译。
+持久项目 ghidra/SignalHost.gpr，program=frankenfirmware；同一项目不能并发打开。
+函数索引记录12869个functions；批量输出在pass1..pass12，运行日志ghidra-pass*.log。
+Ghidra autoanalysis存在异常处理/间接跳转警告；涉及复杂coroutine的变量名和类型是推断值。
+本报告的frame长度/端序/CRC/slot mapping由多个小helper、上下游内存偏移和输出encoder交叉核对。
+
+补充：MCU producer 的独立静态分析已追到每批5个ADC frame+1个48-byte IMU block，固定500 Hz。
+因此典型0x3c payload=8+5*64+48=376 bytes，LSP body含opcode=377 bytes。
+该互证来自主线程sensor MCU分析（FUN0801f900..0801f9aa / targets/0801f0d0.txt），不属于本host样本自身的实测数据。
+解析器已追加5帧合成夹具，验证2ms递增和377-byte LSP body。
+主线程还将hwrev数值0xA00/0xA30分别映射为K00/K30；因此host输出门槛应写K30边界，不能按a32路径名改写为A32。

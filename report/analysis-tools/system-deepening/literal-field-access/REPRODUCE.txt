@@ -1,0 +1,113 @@
+nonUSB 第十一轮复现说明：字面量偏移字段访问 / 空洞绑定判定 / 分支链
+2026-11-09
+只读静态逆向。不执行固件、不改 Ghidra 工程、不访问设备/账号/网络。
+
+============================================================
+一、本轮没有新增 Ghidra 调用
+============================================================
+
+全部输入是「已保留的只读导出 + 冻结镜像」。因此本目录没有 passN/ 导出目录、
+没有 passN-export.log，也没有 EXPORT_COMMANDS.json / EXPORT_TARGETS.json。
+要复跑只需两个脚本：
+
+  cd report/analysis-tools/system-deepening/literal-field-access
+
+  python3 model/build_round11.py             -> FIELD_ACCESS_LEDGER.json
+                                                HOLE_WITNESSES.json
+                                                CASE_CHAIN.json
+                                                MODEL_RESULTS.json
+                                                (28 条断言, 0 失败)
+  python3 scripts/verify_round11.py          -> BYTE_VALIDATION.json
+                                                (41 项, 0 失败)
+  python3 scripts/write_source_manifest.py   -> SOURCE_MANIFEST.json
+
+两个主脚本互不依赖，可任意顺序跑。两者在 2609 访问 / 224 偏移 / 68 绑定函数 /
+2 个闭合空洞 / 6 组配对这五个数字上独立吻合。
+
+============================================================
+二、输入清单
+============================================================
+
+  1. 冻结镜像
+     materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/
+     opt/eight/lib/subsystem_updates/firmware-sensor-g0.bbin
+     132896B
+     SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+     VA -> 文件偏移：offset = VA - 0x08008000
+
+  2. 上游输入（前几轮已交付，本轮只读）
+     .../report-object-layout/LAYOUT_MAP.json
+        13 个已覆盖区间（绑定判据的参照）、0x250 嵌套块在主对象的基址 0x3b48
+     .../residual-target-closure/pass8/08015e00_08017000.txt
+        trampoline 簇区间导出，496 条已解码指令
+     .../residual-target-closure/RESIDUAL_LEDGER.json
+        可达性闭合台账
+     .../callback-implementations/pass2/0801d888.txt
+        主分派（对象持有者之一）
+     .../sensor-frame-bounds/pass2/08027834.txt
+        姊妹分派（对象持有者之二）
+
+  3. 扫描范围
+     report/analysis-tools/system-deepening/**/pass*/*.txt 共 2823 份导出，
+     但显式排除 local-persistence-final-pass/ ——那个模块的第二参数也叫
+     param_2，其偏移不属于本对象。
+
+============================================================
+三、复核各条结论的最短路径
+============================================================
+
+  字面量偏移字段图
+    -> FIELD_ACCESS_LEDGER.json offsets（224 项，含读/写/函数/绑定函数）
+       与 functions（114 项，含各自 covered_offsets 与 bound 判定）
+
+  绑定判据
+    -> FIELD_ACCESS_LEDGER.json method.binding_rule
+       同一函数内 ≥2 个已覆盖区间的不同偏移才认定同一布局
+
+  空洞判定
+    -> HOLE_WITNESSES.json verdicts（4 个空洞的候选数 / 绑定数 / 判定）
+       rejected_binding 段记录被拒绝的假绑定与理由
+
+  被拒绝的 0x24d/0x24e 绑定
+    -> 独立基址证据：0x3b48 + 0x24c = 0x3d94（ID 字节），
+       落在已覆盖区间 [0x3b48, 0x3d98)，与空洞 0234..0258 无关
+       verify_round11.py 的 rejected_binding 组 5 项
+
+  trampoline 簇分支链
+    -> CASE_CHAIN.json cases（6 组，含 case_va / literal / value / target / 语义）
+       每组的字面量值都从冻结镜像按 VA 独立读出比对
+
+============================================================
+四、本轮特有的坑
+============================================================
+
+  1. 字面量偏移不是主对象偏移
+     同一个数值（如 0x24d）可以是任何对象的字段偏移。判定必须靠「同函数内
+     是否还访问了已覆盖区间的其它偏移」+「该子块在主对象里的基址」双重证据。
+     08019bac 的 0x24d/0x24e 属于 0x3b48 处的 0x250 块，不是空洞 0234..0258。
+
+  2. 伪 C 文本看不到字面量寻址
+     `ldr r3,[lit]=偏移` + `ldrb r3,[r7,r3]` 在伪 C 里不出现 param_2。
+     只扫伪 C 会产生假阴性，这正是空洞 1c08 此前被判无见证的原因。
+
+============================================================
+五、产物清单
+============================================================
+
+  BYTE_VALIDATION.json     41 项字节核验
+  MODEL_RESULTS.json       28 条断言 + headline
+  FIELD_ACCESS_LEDGER.json 字面量偏移字段图（224 偏移 / 114 函数 / 68 绑定）
+  HOLE_WITNESSES.json      4 个空洞的判定与被拒绝绑定
+  CASE_CHAIN.json          6 组分支配对与字面量语义
+  SOURCE_MANIFEST.json     9 个输入文件的 SHA256（含「无新增导出」标记）
+  FINDINGS_ZH.txt          结论（中文）
+  REPRODUCE.txt            本文件
+
+============================================================
+六、本轮明确不做
+============================================================
+
+  1. 不重新反汇编、不改 Ghidra 工程。
+  2. 不把绑定判据当形式化证明；它是可反驳的启发式，判据本身随台账交付。
+  3. 不把字段证据算成覆盖率提升；覆盖率仍 11297/15880 = 71.14%。
+  4. 不解析每个分支对应的 switch case。

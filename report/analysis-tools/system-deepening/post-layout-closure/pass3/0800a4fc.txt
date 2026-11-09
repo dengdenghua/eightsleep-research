@@ -1,0 +1,44 @@
+TARGET 0800a4fc function=0800a4d8
+FUNCTION_BODY [[0800a4d8, 0800a503]]
+
+undefined4 FUN_0800a4d8(undefined4 *param_1,undefined2 *param_2,uint param_3)
+
+{
+  undefined2 *puVar1;
+  uint uVar2;
+  
+  param_1 = (undefined4 *)*param_1;
+  puVar1 = param_2;
+  for (uVar2 = 0; param_3 >> 1 != uVar2; uVar2 = uVar2 + 1) {
+    *param_1 = CONCAT22(*puVar1,puVar1[1]);
+    puVar1 = puVar1 + 2;
+  }
+  if ((int)(param_3 << 0x1f) < 0) {
+    *(undefined2 *)param_1 = param_2[(param_3 >> 1) * 2];
+  }
+  return *param_1;
+}
+
+
+INSN 0800a4d8 f0b5 push {r4,r5,r6,r7,lr}
+INSN 0800a4da 0d00 movs r5,r1
+INSN 0800a4dc 0026 movs r6,#0x0
+INSN 0800a4de 0068 ldr r0,[r0,#0x0]
+INSN 0800a4e0 5408 lsrs r4,r2,#0x1
+INSN 0800a4e2 b442 cmp r4,r6
+INSN 0800a4e4 06d1 bne 0x0800a4f4 REF[CONDITIONAL_JUMP:0800a4f4]
+INSN 0800a4e6 d207 lsls r2,r2,#0x1f
+INSN 0800a4e8 02d5 bpl 0x0800a4f0 REF[CONDITIONAL_JUMP:0800a4f0]
+INSN 0800a4ea a400 lsls r4,r4,#0x2
+INSN 0800a4ec 635a ldrh r3,[r4,r1]
+INSN 0800a4ee 0380 strh r3,[r0,#0x0]
+INSN 0800a4f0 0068 ldr r0,[r0,#0x0]
+INSN 0800a4f2 f0bd pop {r4,r5,r6,r7,pc}
+INSN 0800a4f4 2b88 ldrh r3,[r5,#0x0]
+INSN 0800a4f6 6f88 ldrh r7,[r5,#0x2]
+INSN 0800a4f8 1b04 lsls r3,r3,#0x10
+INSN 0800a4fa 3b43 orrs r3,r7
+INSN 0800a4fc 0360 str r3,[r0,#0x0]
+INSN 0800a4fe 0136 adds r6,#0x1
+INSN 0800a500 0435 adds r5,#0x4
+INSN 0800a502 eee7 b 0x0800a4e2 REF[UNCONDITIONAL_JUMP:0800a4e2]

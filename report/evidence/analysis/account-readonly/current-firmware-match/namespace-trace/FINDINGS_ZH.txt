@@ -1,0 +1,72 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Pod6 固件版本命名空间及 hubInfo 生产链核对
+2026-11-07；仅对已保留的官方 MTK 样本做离线静态分析。
+
+结论
+1. 已闭环区分三个独立版本来源：系统镜像 /etc/rat_version、Frank 的 sysinfo 构建标识、DAC 包 clientVersion。不能将它们混为同一个 Git 提交。
+2. 当前 client-api 返回的 firmwareCommit=440304a871bb034b6d85a3ad83788bd99b6e29dc，尚不能在已取得的设备端代码中归属到其中某一来源。把它直接替换为 SWU 文件名仍属于未证实假设。此前候选 HEAD 的403不能解释为精确固件不存在。
+3. hubInfo 在原样本的设备端有明确生产链：HardwareInfo.Label.RawLabel → /persistent/deviceinfo/device-label → DeviceInfo.deviceLabel → onVarRequest("hubInfo") JSON 字符串。这部分已不只是格式推断。client-api 如何转发/缓存该字段仍缺服务端源码。
+
+A. 系统镜像版本与 OTA CurrentRev
+原 SWU 名称：4b7552d5a9aed31997ff22cf193240800056ef6a.swu。
+原包 etc/rat_version 的实际内容也为4b7552d5a9aed31997ff22cf193240800056ef6a。
+analysis/system/mtk-rootfs/opt/eight/bin/globals.sh:15–18 读取该文件为 RAT_VERSION。
+burrow.sh:106 将 RAT_VERSION 写入 swupdate 配置 CurrentRev。
+这条链说明 CurrentRev 是已安装系统镜像的标识；已审查的参数未证明它是可要求服务器下载任意历史版本的目标选择字段。
+
+B. DAC 明确单独报告 osVersion
+analysis/dac/app/build/device_info.js:10、22–24、78–88：读取 /etc/rat_version，并存入 DeviceInfo.osVersion。
+device_api.js:32–38：helloPayload 仅组装 specialization、osVersion。
+device_api.js:137–139：sendHello 将该JSON送往设备协议 /hello。
+device_api.js:208–211：run() 调用 sendHello，说明并非未引用的辅助代码。
+这里看到的是设备端协议输出字段 osVersion；没有看到服务端把它改名为移动端接口 firmwareCommit 的实现。
+
+C. Frank 的构建标识已取得函数与汇编证据
+分析输入为 mediatek/rootfs-selected/opt/eight/bin/frankenfirmware，SHA-256：
+84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+复用现有 SignalHost Ghidra 项目，只读、禁重复自动分析。
+pass1/00201f30.c：FUN_00201f30 中明确调用 FUN_001965f0，日志上下文为 SysInfo.cpp/init，格式为 "[sysi] build: %s"，实参为 "92f66c9f"。
+pass1/00201f30.asm.txt：00201f68–00201f9c 直接构造 x5=0046bf20（该版本字符串）、x4=0046bf30（格式字符串），然后调用日志函数。此处不是只根据相邻字符串推断。
+pass1/00201f30.refs.txt：静态调用者包括 FUN_00185920 内调用点00185df0。
+该证据证明原Frank编译进来的 sysinfo build 字符串是92f66c9f；不证明客户端API firmwareCommit来自它，也不证明用户实机运行这个Frank二进制。
+另一个 Version.cpp/tracever 函数 FUN_002805b0 打印三个字节为%d.%d.%d，不能把这个通用版本格式与系统Git SHA混用。
+
+D. DAC clientVersion 是包版本
+analysis/dac/app/package.json:3 = 1.6.0。
+main.js:30 取 package.json.version；:48 传给 DeviceApi 构造函数。
+device_api.js:264 将它装入 v2 handshake identity.clientVersion。
+dev_api/v2_handshake.js:100–112 在 encodeDeviceHello 中把它编码为 CLIENT_VERSION TLV。
+所以原包中的 DAC clientVersion 是1.6.0，并非原系统4b7552…或Frank92f66c9f。
+
+E. Capybara 的组件程序集版本与现有网络边界
+Eight.Capybara/Properties/AssemblyInfo.cs:11 包含 AssemblyInformationalVersion("1.0.0+f9ce9ce8d3678940189d79fbac13febbfef00073")。
+它只能证明保留程序集的元数据。当前审查未找到把这个元数据写成 firmwareCommit 的路径。
+Eight.Capybara.DeviceApi 的 DeviceApiExtensions.cs 建立连接参数，DeviceAPIService.cs / Eight.DeviceApiClient.Client.cs 执行连接并处理请求、发送 Response；已查看的连接初始化没有上述版本字段的改名/映射。
+不能把程序集元数据直接当作客户端所见主机固件版本。
+
+F. hubInfo 的完整设备端生产链
+1) Eight.Capybara/Program.cs:154–156 取 podHardware.HardwareInfo，调用 DeviceConfig.ConfigDevice(hardwareInfo,"/persistent")。
+2) DeviceConfig.cs:38 将 hardwareInfo.Label.RawLabel 对应到 device-label；:53–55写文件；:73–77拼 statePath/deviceinfo。
+3) DAC config/default.json 的 deviceInfoPath=/persistent/deviceinfo/；main.js:45–46用它构造DeviceInfo。
+4) device_info.js:80 读取device-label第一行；:88存为DeviceInfo.deviceLabel。
+5) main.js:53 将同一个DeviceInfo传给LoopCoordinator；loop_coordinator.js:195–196对hubInfo返回JSON.stringify(this.hwInfo.deviceLabel)。
+6) utils.js:52允许hubInfo变量；device_api.js:106–112解析/v/{变量名}、校验白名单并调用varHandler。
+此处证明设备端原始变量的含义。服务器是否从该变量返回目前client-api的同名字段，属于强对应推断，尚无服务端实现证据。
+
+主代理已在内存验证实机 API hubInfo 符合 Label.cs:49 的正则，并只提供以下非唯一投影：
+  partNumber/model group: 20500
+  sku: 0007
+  hwRevision: I35
+本目录未接触账号凭据、原始hubInfo、序列号或设备ID，也未发送网络请求。
+Label.cs 的 Generation 规则把HwRev首字母>=I归入H11硬件类别；它不是零售Pod代际或SoC型号的直接证明。
+
+G. 有界负面结果与剩余缺口
+bounded-search.json记录对1147个保留的反编译C#文件、34个DAC构建JS文件的大小写不敏感字段搜索，以及Frank输入的确切ASCII字节搜索。
+其中没有发现服务器端 firmwareCommit 生产/映射实现。firmwareVersion的其他命中含网络适配器等无关版本，不能用于建立Pod固件链。
+CN APK 的DeviceResponse在构造、getter和toDomain里保留服务端给定firmwareCommit/firmwareVersion；这说明App消费字段，不构成服务端字段来源证据。
+覆盖限于现有官方样本及保留反编译结果，未声称全产品或所有历史版本不存在此映射。
+下一份能闭环的证据应是：服务端字段映射代码、明确同时含osVersion和firmwareCommit的官方设备元数据、或用户设备直接导出的/etc/rat_version及对应本机组件版本。仅一个40位hash或同名字段不足以推导。
+
+本轮没有更改旧报告。源码/反编译片段及新Ghidra导出的SHA-256见evidence-index.json，原始有界搜索结果见bounded-search.json。

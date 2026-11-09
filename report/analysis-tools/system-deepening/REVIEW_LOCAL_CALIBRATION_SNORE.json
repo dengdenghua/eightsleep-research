@@ -1,0 +1,153 @@
+{
+  "reviewer": "/root/report_language_finish",
+  "date": "2026-11-08",
+  "method": "Independently read reconstructed C# normal chains and calibration JS; targeted IL cross-checks for thresholds, branch selection and integer conversions. Read-only; no target program or hardware executed.",
+  "status": "one_report_precision_issue_reported_and_parent_corrected",
+  "findings": [
+    {
+      "id": "snore_first_position_shortcut",
+      "severity": "report_precision",
+      "source": "local-snore-control/source/Eight.Capybara/Eight.Capybara.AdjustableBase.Joints/SnoreMitigationJointTask.cs",
+      "lines": [
+        109,
+        117,
+        191,
+        207
+      ],
+      "correction": "Both CompletedState values are required in the normal started-state branch. The first state check can return true directly when both SideAtPosition checks pass. Nonzero targets compare only angle; null targets pass; zero targets additionally require currentStates. Error exits are separate.",
+      "resolution": "Parent confirmed FINDINGS and Wiki corrected. Reviewer did not change frozen evidence."
+    }
+  ],
+  "confirmed": [
+    "Authoritative analyzer selected by configuration; ghost comparison does not supply fallback. Missing/not-run authoritative result returns null.",
+    "CSV repeats packet ISO timestamp for all packet rows. Device-clock gap detection only counts/logs; >1.5 periods, AwayFromZero rounding. No replacement rows or timestamp interpolation.",
+    "Landing uses original config settle window for the 240 ms gate even after issuing temporary 240 ms write.",
+    "Landing requires at least four usable deflates, three FromKpa levels, duration >=400 ms; a/ci bounds use rounded coefficients while R2 threshold uses unrounded value.",
+    "Landing windows, exact legacy pairing, finite >=50 pressure readings, sample standard deviation, retention, short retry and extra-repeat rules match code.",
+    "Landing merge keeps pulse/stored b without requiring pulse Success; final five-coefficient validator remains in path. Per-bag writes precede a single save command.",
+    "Snore requests enter only an empty joint queue; normal move replaces current snore with Stop/Pause/Move. This is joint-local priority only.",
+    "MovingState passes short-converted ticks; speed is endpoint tick difference divided by seconds over five stored positions. Reset clears samples only.",
+    "Power starts at 8, holds without speed, adds 5 at <=1.5, scales by 0.8 above 5 with floor 8; no local upper clamp. Downstream actual guard is 1..100.",
+    "Single-side target gap limit 10, synchronous pause >4, SideSync adapter >5, and movement completion/timeout checks match source with reported first-position exception.",
+    "TriMix angle indexing, tick limits, command bytes/selectors and JointAdapter non-DBus exception boundary match report. These are not measured PWM or physical-position guarantees."
+  ],
+  "source_files": [
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/source/managed/Eight.Firmness/Eight.Firmness.Services.Calibration/CalibrationRunner.cs",
+      "sha256": "b07e0d8c129ed41ed16d09ef2920815c013ca117e7f76889743f04825dabc7d4"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/source/managed/Eight.Firmness/Eight.Firmness.Services.Calibration/CalibrationCsvWriter.cs",
+      "sha256": "c2fe179e69f94819b6301131e548c9619201215165c780d22d82049fc30b6d2e"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/source/managed/Eight.Firmness/Eight.Firmness.Services.Calibration.Landing/LandingFit.cs",
+      "sha256": "7ea0411265572e6bced2e101aff25048560723f0b6df6a1eac886c0c1601f38e"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/source/managed/Eight.Firmness/Eight.Firmness.Services.Calibration.Landing/LandingTimings.cs",
+      "sha256": "9a488f42b02e43de5024b58d26a3b199a97c0f6361d0a046ddc5cddaf72739c0"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/source/managed/Eight.Firmness/Eight.Firmness.Services.Calibration.Landing/LandingRunStateMachine.cs",
+      "sha256": "e870282c31d509b5284cba6a3037c92fd09af94aaa6a67a5abd9418334ad0898"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/source/managed/Eight.Firmness/Eight.Firmness.Services.Calibration.Landing/LandingTelemetry.cs",
+      "sha256": "3382c44a46b4f51836c6bdc0a1189cf9bd3280d7d1d375ec28aaedec9563f8ad"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/source/managed/Eight.Firmness/Eight.Firmness.Services.Calibration.Landing/LandingCoefficientMerge.cs",
+      "sha256": "61666c0a93bc4722464c7ece8395b01fdb707718bc7301b836cb59d57d473907"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/source/managed/Eight.Firmness/Eight.Firmness.Services.Calibration/CalibrationCoefficientValidator.cs",
+      "sha256": "71100d28071c6d5b1dc1440de0df3d6cffcc7517ea2aeac913a696cf2206573e"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/source/Eight.Capybara/Eight.Capybara.AdjustableBase.Joints/Joint.cs",
+      "sha256": "0090fb3d5a28e3b3f1fdf3d96745416fa379d6c2882368bbfdb95dda1556c762"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/source/Eight.Capybara/Eight.Capybara.AdjustableBase.Joints/AverageSpeedSnoring.cs",
+      "sha256": "334d017d2e49c2dec0777c4a9e61cc07ef4b9e835f0bf211640cace63d2c655b"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/source/Eight.Capybara/Eight.Capybara.AdjustableBase.Joints/PowerSequence.cs",
+      "sha256": "d7cccc5f4d7dcc8a0336495eb73c72522dcd599a04e2b5292ec33b4ff80696ea"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/source/Eight.Capybara/Eight.Capybara.AdjustableBase.Joints/MovingState.cs",
+      "sha256": "4ee1ddabdeeabdb29bb1e36745d66deb42b3606c2f131e77c7d3744cc45887e4"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/source/Eight.Capybara/Eight.Capybara.AdjustableBase.Joints/SnoreMitigationJointTask.cs",
+      "sha256": "ee3cea1b3cc1081eb7392711abb655305d629fa81c7b400540cafa2312a0cd72"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/source/Eight.BedFrame/Eight.Trimix/TriMixBedFrame.cs",
+      "sha256": "ae14027638df42f73948786b376cf597c6eeaf8f41ecd7064bfa1b31d315605e"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/source/Eight.Capybara/Eight.Capybara.AdjustableBase.Joints/JointAdapter.cs",
+      "sha256": "900c4f330f4f53d90f89f862862ff0827c260e68e6cb448b63efefb29d166d30"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/source/Eight.Capybara/Eight.Capybara.AdjustableBase.Joints/TorsoDualJointAdapter.cs",
+      "sha256": "c08a36ef04b2842f800aba5c6912887aced6edd5814af9ffababa47d1d1b70e8"
+    }
+  ],
+  "il_crosschecks": [
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/il/CalibrationRunner.il.txt",
+      "sha256": "e4d65b5f0f9610e4fcc16c14ce0b1725b0bdaa41a7ce62c67e13479e5a8868ad",
+      "scope": "targeted branches/constants, not entire IL file"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/il/CalibrationCsvWriter.il.txt",
+      "sha256": "485f5fb5daa7644c9951d6f6e59924fe6ab124b00cc483d3ae9f23f33bd9df21",
+      "scope": "targeted branches/constants, not entire IL file"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/il/LandingFit.il.txt",
+      "sha256": "4feb1f342cb1971703e5ca771a9983d1768e611dcd88a34137f6d8f617319795",
+      "scope": "targeted branches/constants, not entire IL file"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/il/AverageSpeedSnoring.il.txt",
+      "sha256": "c30d511b65561f6c46a503ed9698effc7e21b1505ba0bf63846701d253d3e35d",
+      "scope": "targeted branches/constants, not entire IL file"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/il/PowerSequence.il.txt",
+      "sha256": "5a4195ca2360c5a2e52cf0077cc09b8622d49f7c924952a060917b42f8eb3f7c",
+      "scope": "targeted branches/constants, not entire IL file"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/il/MovingState.il.txt",
+      "sha256": "b439cbb01e40c90179e2d6f66e7a9b01c82a4cdde3cf7ae1c356fa58bf5359e4",
+      "scope": "targeted branches/constants, not entire IL file"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/il/Joint.il.txt",
+      "sha256": "d002494f5edeecf57cba90fccf2c89a13b9035c59d36b937e5d7e815d376dd84",
+      "scope": "targeted branches/constants, not entire IL file"
+    }
+  ],
+  "reports_at_review_completion": [
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-calibration-closure/FINDINGS_ZH.txt",
+      "sha256": "b7e487fd1d0f8d28eb0a01e38e62f312259db22770bb4ab7a4652806c4a2c63f"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-snore-control/FINDINGS_ZH.txt",
+      "sha256": "5675d1dcb1adb4b0e5bb230539711f1080a82b036b1d9c1030147fe38864e742"
+    }
+  ],
+  "boundaries": [
+    "Review covers the named normal chains and requested risk points, not every UI, recovery or protocol path.",
+    "Original bundle extraction and numerical model tests were not independently rerun.",
+    "No physical angle, motor speed or sensor accuracy was measured.",
+    "No project reports, frozen source evidence, account or device state changed."
+  ]
+}

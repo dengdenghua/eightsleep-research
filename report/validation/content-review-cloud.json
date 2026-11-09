@@ -1,0 +1,126 @@
+{
+  "reviewer": "wiki_app_cloud",
+  "scope": "独立复核 root 总览与四个 App/云模块的证据强度和跨层表述；对本人编写的四页进行二次来源对照。未作 HTML 视觉 QA 或重新反汇编。",
+  "status": "pass_with_minor_scope_clarification",
+  "issues": [
+    {
+      "id": "CLOUD-QA-01",
+      "severity": "low",
+      "file": "data/report.json",
+      "location": "scenarios[*].condition",
+      "finding": "合成缺槽算例正确标为宿主模型，数值与原报告一致；但简版条件未保留原模型“每侧一个代表性 buzzer 分量”的计数范围，容易被图表读者当成所有 ADC/IMU 输出的整体保留率。",
+      "recommendation": "在两个场景共同说明或 condition 中补上“计数仅针对每侧一个代表性 buzzer 分量；不是所有传感通道的总数”，保留现有非实测声明。",
+      "evidence": "analysis/device-side-followup/upload-distortion/FINDINGS_ZH.txt 第一节：每侧只跟踪一个代表性 buzzer 分量；未扩大为所有 IMU/兼容输出数量。"
+    }
+  ],
+  "checked": [
+    {
+      "path": "README.md",
+      "sha256": "fd999b1a6c39ddadd058192ac16fdc5d8214804ec7759da3af9cef65a602fedc"
+    },
+    {
+      "path": "wiki/architecture.md",
+      "sha256": "d235b10feddef85dbf1f9d9af53bb7a733528c00889eae62caf0f2641a95c749"
+    },
+    {
+      "path": "wiki/evidence-method.md",
+      "sha256": "b3e6719143c0d7f698bd7faca711232c3be3f57d74127bb0eacc323ba30b3718"
+    },
+    {
+      "path": "wiki/index.md",
+      "sha256": "735732508cf9be7638b2f540d5e87d68e79d242781ac4464cc1f21a5bb8ab106"
+    },
+    {
+      "path": "wiki/glossary.md",
+      "sha256": "de1bf550952e5c1cdbfc87e192482d86b20335a4167d74fdecea0e54ff9f7123"
+    },
+    {
+      "path": "data/report.json",
+      "sha256": "e065ea9f92e26c2c06274a2a10dd87193d38d0689c131f9254a92a6d3cf50fff"
+    },
+    {
+      "path": "wiki/modules/android-app.md",
+      "sha256": "15092156d385077888f64f678b46b6db186dd9f3662313818bba6d72abdffc61"
+    },
+    {
+      "path": "wiki/modules/cloud-api.md",
+      "sha256": "5d12702900858a579ab0d774b85cbcfae7e95abb8497e486da8f44aa4d5d8bf7"
+    },
+    {
+      "path": "wiki/modules/physiology-algorithms.md",
+      "sha256": "d80ad65af6ab6df5db3f9adfd0d6e7300c59eb2096c4f314a1c64efe00fe1af6"
+    },
+    {
+      "path": "wiki/modules/autopilot.md",
+      "sha256": "da99c265cc33d2190beb088f1c589c2aebd235029652add64f0c547f3db3f3d7"
+    },
+    {
+      "path": "wiki/modules/thermal.md",
+      "sha256": "2b1832b54b65d451c5fc8f4de864676ac90d0153796b694259768c0c7feb529f"
+    },
+    {
+      "path": "wiki/modules/offline-state.md",
+      "sha256": "4a3a5ee4ada3754261459d73869437b47e0cfd33ad2be82f9d4026b2ce511733"
+    },
+    {
+      "path": "wiki/modules/hardware.md",
+      "sha256": "cf9862d7395355a826634fc935e529c8159f1918830bc54f61fc7dc1cefc3b96"
+    }
+  ],
+  "checks": [
+    {
+      "name": "计算位置与交付位置",
+      "result": "pass",
+      "note": "README、架构、边界卡与 physiology 明确服务响应不单独证明全部计算在云端；中间生产实现标未知。"
+    },
+    {
+      "name": "本地处理与生产生理分离",
+      "result": "pass",
+      "note": "前端 sinc/增益/缓存/时间/补点与心肺分离、质量选择、融合分开；有界负结果未扩大为全二进制不存在算法。"
+    },
+    {
+      "name": "合成模型与实测",
+      "result": "pass_with_minor_scope_clarification",
+      "note": "数值 495/500→100/100 与副侧495/500保留对照一致，明确模拟不是发生率；需要补一处代表分量范围。"
+    },
+    {
+      "name": "版本命名空间和当前部署",
+      "result": "pass",
+      "note": "SWU、Frank、DAC、Capybara、MCU、API提交号分开；三个算法版本标历史结果元数据，未与权重或当前固件等同。"
+    },
+    {
+      "name": "APK 覆盖",
+      "result": "pass",
+      "note": "4 DEX 完整提取与 JADX350错误并列；关键Smali互证与动态/JNI缺口保留。"
+    },
+    {
+      "name": "HRV与RMSSD及粒度",
+      "result": "pass",
+      "note": "页面字段选择来自代码，历史311配对只佐证序列不同；300秒和30秒不当作推理窗口/epoch。"
+    },
+    {
+      "name": "温控跨层衔接",
+      "result": "pass",
+      "note": "App显示档位、Frank请求目标、Frozen反馈控制、实测水温/床温分开；没有把PID当Autopilot策略。"
+    },
+    {
+      "name": "离线密钥与目标",
+      "result": "pass",
+      "note": "已缓存过期不硬停止与无缓存需云取钥均保留；calendar stub未扩大为所有本地计时失效。"
+    },
+    {
+      "name": "导出与设备状态",
+      "result": "pass",
+      "note": "已申请一次、回执不等于文件、设备未恢复在线；未添加再次导出或重试动作。"
+    },
+    {
+      "name": "历史文档修正",
+      "result": "pass",
+      "note": "方法页说明旧报告的无实包、fault未知、goal blocked为历史状态，模块正文使用后续证据。"
+    }
+  ],
+  "limitations": [
+    "本次核对基于现有研究报告与已读取的代码证据摘要，未对所有原始函数重新反汇编。",
+    "Root 后续若修改文件，应以以上 hash 判断本审阅是否仍对应当前内容。"
+  ]
+}

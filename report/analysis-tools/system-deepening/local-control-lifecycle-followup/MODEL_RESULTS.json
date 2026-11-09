@@ -1,0 +1,652 @@
+{
+  "status": "PASS",
+  "case_count": 24,
+  "cases": [
+    {
+      "name": "new_ready_does_not_import_old_queue",
+      "observed": [
+        [
+          [
+            "target",
+            "pending"
+          ]
+        ],
+        [],
+        "old-target"
+      ],
+      "expected": [
+        [
+          [
+            "target",
+            "pending"
+          ]
+        ],
+        [],
+        "old-target"
+      ],
+      "sources": "FirmnessReadyState ctor/MakeRequest/RunTick; FirmnessStateFactory.CreateReadyState",
+      "events": [
+        {
+          "kind": "enqueue",
+          "request": "target",
+          "value": "pending"
+        }
+      ],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "handoff_waits_existing_locked_write",
+      "observed": [
+        "waiting",
+        false,
+        "coefficient_write"
+      ],
+      "expected": [
+        "waiting",
+        false,
+        "coefficient_write"
+      ],
+      "sources": "FirmnessReadyState ctor/MakeRequest/RunTick; FirmnessStateFactory.CreateReadyState; RunDeviceWrite",
+      "events": [
+        {
+          "kind": "enqueue",
+          "request": "target",
+          "value": "batch-target"
+        },
+        {
+          "kind": "enqueue",
+          "request": "calibration",
+          "value": "selected-bags"
+        },
+        {
+          "kind": "locked_api_started",
+          "api": "coefficient_write",
+          "token": "None"
+        },
+        {
+          "kind": "drained_for_handoff",
+          "discarded": [
+            "target"
+          ]
+        },
+        {
+          "kind": "handoff_waits_for_lock"
+        }
+      ],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "late_request_remains_old_object_not_new_ready",
+      "observed": [
+        "Calibrating",
+        [
+          [
+            "mode",
+            "late-mode"
+          ]
+        ],
+        []
+      ],
+      "expected": [
+        "Calibrating",
+        [
+          [
+            "mode",
+            "late-mode"
+          ]
+        ],
+        []
+      ],
+      "sources": "FirmnessReadyState ctor/MakeRequest/RunTick; FirmnessStateFactory.CreateReadyState",
+      "events": [
+        {
+          "kind": "enqueue",
+          "request": "target",
+          "value": "batch-target"
+        },
+        {
+          "kind": "enqueue",
+          "request": "calibration",
+          "value": "selected-bags"
+        },
+        {
+          "kind": "locked_api_started",
+          "api": "coefficient_write",
+          "token": "None"
+        },
+        {
+          "kind": "drained_for_handoff",
+          "discarded": [
+            "target"
+          ]
+        },
+        {
+          "kind": "handoff_waits_for_lock"
+        },
+        {
+          "kind": "enqueue",
+          "request": "mode",
+          "value": "late-mode"
+        },
+        {
+          "kind": "locked_api_finished",
+          "api": "coefficient_write",
+          "outcome": "returned"
+        },
+        {
+          "kind": "handoff_mark_then_release_then_construct"
+        }
+      ],
+      "assumptions": [
+        "Late enqueue occurs after current drain and before state replacement."
+      ],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "locked_api_rejects_handed_off_old_ready",
+      "observed": "CalibrationRunningException",
+      "expected": "CalibrationRunningException",
+      "sources": "RunDeviceWrite lock then handedOff check",
+      "events": [
+        {
+          "kind": "enqueue",
+          "request": "target",
+          "value": "batch-target"
+        },
+        {
+          "kind": "enqueue",
+          "request": "calibration",
+          "value": "selected-bags"
+        },
+        {
+          "kind": "locked_api_started",
+          "api": "coefficient_write",
+          "token": "None"
+        },
+        {
+          "kind": "drained_for_handoff",
+          "discarded": [
+            "target"
+          ]
+        },
+        {
+          "kind": "handoff_waits_for_lock"
+        },
+        {
+          "kind": "enqueue",
+          "request": "mode",
+          "value": "late-mode"
+        },
+        {
+          "kind": "locked_api_finished",
+          "api": "coefficient_write",
+          "outcome": "returned"
+        },
+        {
+          "kind": "handoff_mark_then_release_then_construct"
+        },
+        {
+          "kind": "reject_after_handoff",
+          "api": "read_coefficients"
+        }
+      ],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "pending_flag_does_not_itself_block_locked_get",
+      "observed": "started",
+      "expected": "started",
+      "sources": "CalibrationController.Get; RunDeviceWrite",
+      "events": [
+        {
+          "kind": "enqueue",
+          "request": "calibration",
+          "value": "selected-bags"
+        },
+        {
+          "kind": "locked_api_started",
+          "api": "read_coefficients",
+          "token": "None"
+        }
+      ],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "pending_cancel_api_not_calibrating",
+      "observed": "BadRequest",
+      "expected": "BadRequest",
+      "sources": "CalibrationController.Cancel sees current FirmnessReadyState",
+      "events": [],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "cancelled_handoff_wait_does_not_construct_calibration",
+      "observed": [
+        "cancelled",
+        false,
+        [],
+        true
+      ],
+      "expected": [
+        "cancelled",
+        false,
+        [],
+        true
+      ],
+      "sources": "RunTick WaitAsync before handedOff assignment",
+      "events": [
+        {
+          "kind": "enqueue",
+          "request": "calibration",
+          "value": "selected-bags"
+        },
+        {
+          "kind": "locked_api_started",
+          "api": "read_coefficients",
+          "token": "None"
+        },
+        {
+          "kind": "drained_for_handoff",
+          "discarded": []
+        },
+        {
+          "kind": "handoff_waits_for_lock"
+        },
+        {
+          "kind": "wait_lock_cancelled"
+        }
+      ],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "ordinary_target_send_is_not_guarded_by_deviceWriteLock",
+      "observed": [
+        "tolerance",
+        [
+          "target",
+          "t1"
+        ]
+      ],
+      "expected": [
+        "tolerance",
+        [
+          "target",
+          "t1"
+        ]
+      ],
+      "sources": "OnRequest/SendFirmnessCommand vs RunDeviceWrite",
+      "events": [
+        {
+          "kind": "enqueue",
+          "request": "target",
+          "value": "t1"
+        },
+        {
+          "kind": "enqueue",
+          "request": "mode",
+          "value": "m1"
+        },
+        {
+          "kind": "locked_api_started",
+          "api": "tolerance",
+          "token": "None"
+        },
+        {
+          "kind": "send_call",
+          "request": "target",
+          "value": "t1",
+          "token_cancelled": false
+        }
+      ],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "mode_send_call_can_follow_caught_target_cancellation",
+      "observed": [
+        "m1",
+        [
+          "mode",
+          "m1"
+        ],
+        true
+      ],
+      "expected": [
+        "m1",
+        [
+          "mode",
+          "m1"
+        ],
+        true
+      ],
+      "sources": "RunTick no intermediate cancellation check; SendFirmnessCommand catches Exception",
+      "events": [
+        {
+          "kind": "enqueue",
+          "request": "target",
+          "value": "t1"
+        },
+        {
+          "kind": "enqueue",
+          "request": "mode",
+          "value": "m1"
+        },
+        {
+          "kind": "locked_api_started",
+          "api": "tolerance",
+          "token": "None"
+        },
+        {
+          "kind": "send_call",
+          "request": "target",
+          "value": "t1",
+          "token_cancelled": false
+        },
+        {
+          "kind": "send_await_finished",
+          "request": "target",
+          "outcome": "OperationCanceledException caught"
+        },
+        {
+          "kind": "send_call",
+          "request": "mode",
+          "value": "m1",
+          "token_cancelled": true
+        }
+      ],
+      "assumptions": [
+        "Only downstream call is asserted, not bytes transmitted."
+      ],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "disable_does_not_join_external_none_token_write",
+      "observed": [
+        {
+          "public_state": "Null",
+          "returned": "void",
+          "joined": false
+        },
+        true,
+        "manual_coefficient_write"
+      ],
+      "expected": [
+        {
+          "public_state": "Null",
+          "returned": "void",
+          "joined": false
+        },
+        true,
+        "manual_coefficient_write"
+      ],
+      "sources": "FirmnessService.Disable; CalibrationController.Set(CancellationToken.None)",
+      "events": [
+        {
+          "kind": "locked_api_started",
+          "api": "manual_coefficient_write",
+          "token": "None"
+        }
+      ],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "disable_save_exception_prevents_state_reset",
+      "observed": [
+        false,
+        true,
+        false,
+        "Ready"
+      ],
+      "expected": [
+        false,
+        true,
+        false,
+        "Ready"
+      ],
+      "sources": "PodConfigurationManager.UpdateConfiguration; FirmnessService.Disable",
+      "events": [],
+      "assumptions": [
+        "Save exception supplied, no filesystem failure induced."
+      ],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "host_preserves_disabled_null_over_old_return",
+      "observed": "Null",
+      "expected": "Null",
+      "sources": "SubsystemHost finally",
+      "events": [],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "host_does_not_assume_public_null_is_always_authoritative",
+      "observed": "Ready",
+      "expected": "Ready",
+      "sources": "SubsystemHost finally",
+      "events": [],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "cancelled_ready_base_closes_before_reconnect",
+      "observed": {
+        "close_requested": true,
+        "next": "NotConnected"
+      },
+      "expected": {
+        "close_requested": true,
+        "next": "NotConnected"
+      },
+      "sources": "ReadyStateBase.GetNextState ThrowIfCancellationRequested before result",
+      "events": [],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "explicit_state_return_precedes_link_change_branch",
+      "observed": {
+        "close_requested": false,
+        "next": "Calibrating"
+      },
+      "expected": {
+        "close_requested": false,
+        "next": "Calibrating"
+      },
+      "sources": "ReadyStateBase.GetNextState IL_019f..01d3",
+      "events": [],
+      "assumptions": [
+        "Link event arrives during RunTick; cancellation remains false."
+      ],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "calibration_cancel_returns_before_inflight_completion",
+      "observed": [
+        "Running",
+        "first",
+        false,
+        true
+      ],
+      "expected": [
+        "Running",
+        "first",
+        false,
+        true
+      ],
+      "sources": "CalibrationRunner.Cancel",
+      "events": [
+        "send_call:first",
+        "cancel_flag_only"
+      ],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "already_computed_actions_continue_until_next_advance",
+      "observed": "second",
+      "expected": "second",
+      "sources": "CalibrationRunner.Tick foreach actions",
+      "events": [
+        "send_call:first",
+        "cancel_flag_only",
+        "send_completed:first",
+        "send_call:second"
+      ],
+      "assumptions": [
+        "First send completion supplied; next Advance is not executed while this action is in flight."
+      ],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "subsequent_advance_observes_cancel_flag",
+      "observed": "shutdown_or_restore",
+      "expected": "shutdown_or_restore",
+      "sources": "CalibrationRunner.Tick and selected state-machine Advance gate",
+      "events": [
+        "send_call:first",
+        "cancel_flag_only",
+        "send_completed:first",
+        "send_call:second",
+        "send_completed:second"
+      ],
+      "assumptions": [
+        "Both supplied send completions occurred; cancellation-consuming running phase selected."
+      ],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "abandon_is_awaited_not_immediate_state_replacement",
+      "observed": true,
+      "expected": true,
+      "sources": "CalibratingState.RunMonitorLoop finally; CalibrationRunner.AbandonAsync",
+      "events": [
+        "send_call:first",
+        "cancel_flag_only",
+        "send_completed:first",
+        "send_call:second",
+        "send_completed:second",
+        "await_abandon_with_10s_cancellation_budget"
+      ],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "normal_finalize_then_new_ready",
+      "observed": [
+        false,
+        [],
+        "same-connection"
+      ],
+      "expected": [
+        false,
+        [],
+        "same-connection"
+      ],
+      "sources": "FinalizeAsync then TickUntilDone CreateReadyState",
+      "events": [
+        "send_call:first",
+        "cancel_flag_only",
+        "send_completed:first",
+        "send_call:second",
+        "send_completed:second",
+        "await_abandon_with_10s_cancellation_budget",
+        "stateMachine_null"
+      ],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "failed_record_save_does_not_prove_terminal_clear",
+      "observed": true,
+      "expected": true,
+      "sources": "FinalizeAsync SaveRecord before stateMachine=null",
+      "events": [
+        "record_save_exception_before_stateMachine_null"
+      ],
+      "assumptions": [
+        "I/O exception supplied; no real disk error induced."
+      ],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "same_process_reconnect_uses_manager_ram",
+      "observed": [
+        "ram-new",
+        "old-target"
+      ],
+      "expected": [
+        "ram-new",
+        "old-target"
+      ],
+      "sources": "Factory resolves singleton manager; Ready.LoadAndApplyStoredTargetFirmness",
+      "events": [],
+      "assumptions": [
+        "A previous save failed after RAM assignment."
+      ],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "target_and_mode_share_one_load_snapshot_but_not_entire_init",
+      "observed": [
+        "old-mode",
+        "later-mode"
+      ],
+      "expected": [
+        "old-mode",
+        "later-mode"
+      ],
+      "sources": "LoadAndApplyStoredTargetFirmness local configuration; separate tolerance/profile reads",
+      "events": [],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    },
+    {
+      "name": "ordinary_remove_rejects_calibrating_side",
+      "observed": true,
+      "expected": true,
+      "sources": "FirmnessController.DisableFirmness checks both sides",
+      "events": [],
+      "assumptions": [],
+      "synthetic": true,
+      "status": "PASS"
+    }
+  ],
+  "limits": [
+    "Synthetic finite sequential/event schedules, not firmware execution, physical safety, runtime incidence or exhaustive interleaving proof.",
+    "Send completion, cancellation delivery, lock acquisition and finalizer completion are explicit inputs; no task scheduler, SemaphoreSlim fairness or serial transport emulation.",
+    "Queue last-of-kind selection is reused only to enter lifecycle branches; no new claim about throughput.",
+    "A send_call is not proof of transmitted bytes, device ACK, pressure target reached or cancellation rollback.",
+    "Calibration algorithm phases/fits are not reimplemented; only a cancellation-consuming running phase and supplied normal finalization are represented."
+  ]
+}

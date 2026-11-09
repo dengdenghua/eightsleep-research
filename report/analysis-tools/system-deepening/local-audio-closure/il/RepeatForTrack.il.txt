@@ -1,0 +1,921 @@
+// IL code: Eight.Audio
+.class public auto ansi sealed beforefieldinit Eight.Audio.Tracks.RepeatForTrack
+	extends [System.Runtime]System.Object
+	implements Eight.Audio.Tracks.ITrack,
+	           [System.Runtime]System.IDisposable
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.interfaceimpl type Eight.Audio.Tracks.ITrack
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	.interfaceimpl type [System.Runtime]System.IDisposable
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit '<ProvideAudio>d__30'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Eight.Audio.Tracks.RepeatForTrack '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> startPosition
+		.field public valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> endPosition
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		.field public class [System.IO.Pipelines]System.IO.Pipelines.PipeWriter writer
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult> '<>u__2'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0xa300
+			// Header size: 12
+			// Code size: 460 (0x1cc)
+			.maxstack 5
+			.locals init (
+				[0] int32,
+				[1] class Eight.Audio.Tracks.RepeatForTrack,
+				[2] valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult,
+				[3] class Eight.Audio.Tracks.PlayIteration,
+				[4] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[5] valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult>,
+				[6] valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult>,
+				[7] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Audio.Tracks.RepeatForTrack Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse IL_00ce
+
+				IL_0014: ldloc.0
+				IL_0015: ldc.i4.1
+				IL_0016: beq IL_013b
+
+				IL_001b: ldloc.1
+				IL_001c: call instance void Eight.Audio.Tracks.RepeatForTrack::ThrowIfDisposed()
+				IL_0021: ldloc.1
+				IL_0022: ldc.i4.0
+				IL_0023: stfld int32 Eight.Audio.Tracks.RepeatForTrack::currentLoopIteration
+				IL_0028: ldloc.1
+				IL_0029: ldloc.1
+				IL_002a: ldarg.0
+				IL_002b: ldfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::startPosition
+				IL_0030: ldarg.0
+				IL_0031: ldfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::endPosition
+				IL_0036: call instance class Eight.Audio.Tracks.PlayIteration[] Eight.Audio.Tracks.RepeatForTrack::CalculateLoopParameters(valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>)
+				IL_003b: stfld class Eight.Audio.Tracks.PlayIteration[] Eight.Audio.Tracks.RepeatForTrack::iterations
+				IL_0040: ldloca.s 2
+				IL_0042: initobj [System.IO.Pipelines]System.IO.Pipelines.FlushResult
+				IL_0048: br IL_018a
+
+				IL_004d: ldarg.0
+				IL_004e: ldflda valuetype [System.Runtime]System.Threading.CancellationToken Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::cancellationToken
+				IL_0053: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+				IL_0058: brtrue IL_019d
+
+				IL_005d: ldloca.s 2
+				IL_005f: call instance bool [System.IO.Pipelines]System.IO.Pipelines.FlushResult::get_IsCompleted()
+				IL_0064: brtrue IL_019d
+
+				IL_0069: ldloc.1
+				IL_006a: ldfld class Eight.Audio.Tracks.PlayIteration[] Eight.Audio.Tracks.RepeatForTrack::iterations
+				IL_006f: ldloc.1
+				IL_0070: ldfld int32 Eight.Audio.Tracks.RepeatForTrack::currentLoopIteration
+				IL_0075: ldelem.ref
+				IL_0076: stloc.3
+				IL_0077: ldloc.1
+				IL_0078: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+				IL_007d: ldarg.0
+				IL_007e: ldfld class [System.IO.Pipelines]System.IO.Pipelines.PipeWriter Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::writer
+				IL_0083: ldloc.3
+				IL_0084: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.PlayIteration::get_StartPosition()
+				IL_0089: ldloc.3
+				IL_008a: callvirt instance valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.PlayIteration::get_EndPosition()
+				IL_008f: ldarg.0
+				IL_0090: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::cancellationToken
+				IL_0095: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Audio.Tracks.ITrack::ProvideAudio(class [System.IO.Pipelines]System.IO.Pipelines.PipeWriter, valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_009a: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+				IL_009f: stloc.s 4
+				IL_00a1: ldloca.s 4
+				IL_00a3: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+				IL_00a8: brtrue.s IL_00eb
+
+				IL_00aa: ldarg.0
+				IL_00ab: ldc.i4.0
+				IL_00ac: dup
+				IL_00ad: stloc.0
+				IL_00ae: stfld int32 Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>1__state'
+				IL_00b3: ldarg.0
+				IL_00b4: ldloc.s 4
+				IL_00b6: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>u__1'
+				IL_00bb: ldarg.0
+				IL_00bc: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>t__builder'
+				IL_00c1: ldloca.s 4
+				IL_00c3: ldarg.0
+				IL_00c4: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'>(!!0&, !!1&)
+				IL_00c9: leave IL_01cb
+
+				IL_00ce: ldarg.0
+				IL_00cf: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>u__1'
+				IL_00d4: stloc.s 4
+				IL_00d6: ldarg.0
+				IL_00d7: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>u__1'
+				IL_00dc: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+				IL_00e2: ldarg.0
+				IL_00e3: ldc.i4.m1
+				IL_00e4: dup
+				IL_00e5: stloc.0
+				IL_00e6: stfld int32 Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>1__state'
+
+				IL_00eb: ldloca.s 4
+				IL_00ed: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+				IL_00f2: ldarg.0
+				IL_00f3: ldfld class [System.IO.Pipelines]System.IO.Pipelines.PipeWriter Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::writer
+				IL_00f8: ldarg.0
+				IL_00f9: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::cancellationToken
+				IL_00fe: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult> [System.IO.Pipelines]System.IO.Pipelines.PipeWriter::FlushAsync(valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_0103: stloc.s 6
+				IL_0105: ldloca.s 6
+				IL_0107: call instance valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<!0> valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult>::GetAwaiter()
+				IL_010c: stloc.s 5
+				IL_010e: ldloca.s 5
+				IL_0110: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult>::get_IsCompleted()
+				IL_0115: brtrue.s IL_0158
+
+				IL_0117: ldarg.0
+				IL_0118: ldc.i4.1
+				IL_0119: dup
+				IL_011a: stloc.0
+				IL_011b: stfld int32 Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>1__state'
+				IL_0120: ldarg.0
+				IL_0121: ldloc.s 5
+				IL_0123: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult> Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>u__2'
+				IL_0128: ldarg.0
+				IL_0129: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>t__builder'
+				IL_012e: ldloca.s 5
+				IL_0130: ldarg.0
+				IL_0131: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult>, valuetype Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'>(!!0&, !!1&)
+				IL_0136: leave IL_01cb
+
+				IL_013b: ldarg.0
+				IL_013c: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult> Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>u__2'
+				IL_0141: stloc.s 5
+				IL_0143: ldarg.0
+				IL_0144: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult> Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>u__2'
+				IL_0149: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult>
+				IL_014f: ldarg.0
+				IL_0150: ldc.i4.m1
+				IL_0151: dup
+				IL_0152: stloc.0
+				IL_0153: stfld int32 Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>1__state'
+
+				IL_0158: ldloca.s 5
+				IL_015a: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<valuetype [System.IO.Pipelines]System.IO.Pipelines.FlushResult>::GetResult()
+				IL_015f: stloc.2
+				IL_0160: ldloc.1
+				IL_0161: ldloc.1
+				IL_0162: ldfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::accumulatedDuration
+				IL_0167: ldloc.1
+				IL_0168: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+				IL_016d: callvirt instance valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.ITrack::get_CurrentPosition()
+				IL_0172: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::op_Addition(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+				IL_0177: stfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::accumulatedDuration
+				IL_017c: ldloc.1
+				IL_017d: ldloc.1
+				IL_017e: ldfld int32 Eight.Audio.Tracks.RepeatForTrack::currentLoopIteration
+				IL_0183: ldc.i4.1
+				IL_0184: add
+				IL_0185: stfld int32 Eight.Audio.Tracks.RepeatForTrack::currentLoopIteration
+
+				IL_018a: ldloc.1
+				IL_018b: ldfld int32 Eight.Audio.Tracks.RepeatForTrack::currentLoopIteration
+				IL_0190: ldloc.1
+				IL_0191: ldfld class Eight.Audio.Tracks.PlayIteration[] Eight.Audio.Tracks.RepeatForTrack::iterations
+				IL_0196: ldlen
+				IL_0197: conv.i4
+				IL_0198: blt IL_004d
+
+				IL_019d: leave.s IL_01b8
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_019f: stloc.s 7
+				IL_01a1: ldarg.0
+				IL_01a2: ldc.i4.s -2
+				IL_01a4: stfld int32 Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>1__state'
+				IL_01a9: ldarg.0
+				IL_01aa: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>t__builder'
+				IL_01af: ldloc.s 7
+				IL_01b1: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_01b6: leave.s IL_01cb
+			} // end handler
+
+			IL_01b8: ldarg.0
+			IL_01b9: ldc.i4.s -2
+			IL_01bb: stfld int32 Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>1__state'
+			IL_01c0: ldarg.0
+			IL_01c1: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>t__builder'
+			IL_01c6: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_01cb: ret
+		} // end of method '<ProvideAudio>d__30'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0xa4f4
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<ProvideAudio>d__30'::SetStateMachine
+
+	} // end of class <ProvideAudio>d__30
+
+
+	// Fields
+	.field private valuetype [NodaTime]NodaTime.Duration '<runLength>P'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Audio.Tracks.RepeatForTrack> logger
+	.field private initonly class Eight.Audio.Tracks.ITrack source
+	.field private bool disposed
+	.field private initonly valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> startLoopPosition
+	.field private initonly valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> endLoopPosition
+	.field private valuetype [NodaTime]NodaTime.Duration accumulatedDuration
+	.field private int32 currentLoopIteration
+	.field private class Eight.Audio.Tracks.PlayIteration[] iterations
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Audio.Tracks.RepeatForTrack> logger,
+			class Eight.Audio.Tracks.ITrack source,
+			valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> startLoopPosition,
+			valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> endLoopPosition,
+			valuetype [NodaTime]NodaTime.Duration runLength
+		) cil managed 
+	{
+		// Method begins at RVA 0x37e8
+		// Header size: 12
+		// Code size: 68 (0x44)
+		.maxstack 2
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.s runLength
+		IL_0003: stfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::'<runLength>P'
+		IL_0008: ldarg.0
+		IL_0009: ldarg.1
+		IL_000a: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Audio.Tracks.RepeatForTrack> Eight.Audio.Tracks.RepeatForTrack::logger
+		IL_000f: ldarg.0
+		IL_0010: ldarg.2
+		IL_0011: stfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0016: ldarg.0
+		IL_0017: ldarg.3
+		IL_0018: stfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.RepeatForTrack::startLoopPosition
+		IL_001d: ldarg.0
+		IL_001e: ldarg.s endLoopPosition
+		IL_0020: stfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.RepeatForTrack::endLoopPosition
+		IL_0025: ldarg.0
+		IL_0026: ldc.i4.0
+		IL_0027: conv.i8
+		IL_0028: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::FromSeconds(int64)
+		IL_002d: stfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::accumulatedDuration
+		IL_0032: ldarg.0
+		IL_0033: call !!0[] [System.Runtime]System.Array::Empty<class Eight.Audio.Tracks.PlayIteration>()
+		IL_0038: stfld class Eight.Audio.Tracks.PlayIteration[] Eight.Audio.Tracks.RepeatForTrack::iterations
+		IL_003d: ldarg.0
+		IL_003e: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0043: ret
+	} // end of method RepeatForTrack::.ctor
+
+	.method public final hidebysig specialname newslot virtual 
+		instance int32 get_Channels () cil managed 
+	{
+		// Method begins at RVA 0x3838
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0006: callvirt instance int32 Eight.Audio.Tracks.ITrack::get_Channels()
+		IL_000b: ret
+	} // end of method RepeatForTrack::get_Channels
+
+	.method public final hidebysig specialname newslot virtual 
+		instance int32 get_BitsPerSample () cil managed 
+	{
+		// Method begins at RVA 0x3845
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0006: callvirt instance int32 Eight.Audio.Tracks.ITrack::get_BitsPerSample()
+		IL_000b: ret
+	} // end of method RepeatForTrack::get_BitsPerSample
+
+	.method public final hidebysig specialname newslot virtual 
+		instance int32 get_SampleRate () cil managed 
+	{
+		// Method begins at RVA 0x3852
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0006: callvirt instance int32 Eight.Audio.Tracks.ITrack::get_SampleRate()
+		IL_000b: ret
+	} // end of method RepeatForTrack::get_SampleRate
+
+	.method public final hidebysig specialname newslot virtual 
+		instance bool get_IsLittleEndian () cil managed 
+	{
+		// Method begins at RVA 0x385f
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0006: callvirt instance bool Eight.Audio.Tracks.ITrack::get_IsLittleEndian()
+		IL_000b: ret
+	} // end of method RepeatForTrack::get_IsLittleEndian
+
+	.method public final hidebysig specialname newslot virtual 
+		instance int32 get_DataStartingPosition () cil managed 
+	{
+		// Method begins at RVA 0x386c
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0006: callvirt instance int32 Eight.Audio.Tracks.ITrack::get_DataStartingPosition()
+		IL_000b: ret
+	} // end of method RepeatForTrack::get_DataStartingPosition
+
+	.method public final hidebysig specialname newslot virtual 
+		instance int32 get_DataSize () cil managed 
+	{
+		// Method begins at RVA 0x3879
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0006: callvirt instance int32 Eight.Audio.Tracks.ITrack::get_DataSize()
+		IL_000b: ret
+	} // end of method RepeatForTrack::get_DataSize
+
+	.method public final hidebysig specialname newslot virtual 
+		instance string get_Name () cil managed 
+	{
+		// Method begins at RVA 0x3886
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0006: callvirt instance string Eight.Audio.Tracks.ITrack::get_Name()
+		IL_000b: ret
+	} // end of method RepeatForTrack::get_Name
+
+	.method public final hidebysig specialname newslot virtual 
+		instance string get_FileId () cil managed 
+	{
+		// Method begins at RVA 0x3893
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0006: callvirt instance string Eight.Audio.Tracks.ITrack::get_FileId()
+		IL_000b: ret
+	} // end of method RepeatForTrack::get_FileId
+
+	.method public final hidebysig specialname newslot virtual 
+		instance valuetype [NodaTime]NodaTime.Duration get_TrackLength () cil managed 
+	{
+		// Method begins at RVA 0x38a0
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::'<runLength>P'
+		IL_0006: ret
+	} // end of method RepeatForTrack::get_TrackLength
+
+	.method public final hidebysig specialname newslot virtual 
+		instance valuetype [NodaTime]NodaTime.Duration get_CurrentPosition () cil managed 
+	{
+		// Method begins at RVA 0x38a8
+		// Header size: 1
+		// Code size: 23 (0x17)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::accumulatedDuration
+		IL_0006: ldarg.0
+		IL_0007: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_000c: callvirt instance valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.ITrack::get_CurrentPosition()
+		IL_0011: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::op_Addition(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+		IL_0016: ret
+	} // end of method RepeatForTrack::get_CurrentPosition
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task ProvideAudio (
+			class [System.IO.Pipelines]System.IO.Pipelines.PipeWriter writer,
+			valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> startPosition,
+			valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> endPosition,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 35 45 69 67 68 74 2e 41 75 64 69 6f 2e 54
+			72 61 63 6b 73 2e 52 65 70 65 61 74 46 6f 72 54
+			72 61 63 6b 2b 3c 50 72 6f 76 69 64 65 41 75 64
+			69 6f 3e 64 5f 5f 33 30 00 00
+		)
+		// Method begins at RVA 0x38c0
+		// Header size: 12
+		// Code size: 88 (0x58)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Audio.Tracks.RepeatForTrack Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class [System.IO.Pipelines]System.IO.Pipelines.PipeWriter Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::writer
+		IL_001c: ldloca.s 0
+		IL_001e: ldarg.2
+		IL_001f: stfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::startPosition
+		IL_0024: ldloca.s 0
+		IL_0026: ldarg.3
+		IL_0027: stfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::endPosition
+		IL_002c: ldloca.s 0
+		IL_002e: ldarg.s cancellationToken
+		IL_0030: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::cancellationToken
+		IL_0035: ldloca.s 0
+		IL_0037: ldc.i4.m1
+		IL_0038: stfld int32 Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>1__state'
+		IL_003d: ldloca.s 0
+		IL_003f: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>t__builder'
+		IL_0044: ldloca.s 0
+		IL_0046: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'>(!!0&)
+		IL_004b: ldloca.s 0
+		IL_004d: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Tracks.RepeatForTrack/'<ProvideAudio>d__30'::'<>t__builder'
+		IL_0052: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_0057: ret
+	} // end of method RepeatForTrack::ProvideAudio
+
+	.method private hidebysig 
+		instance class Eight.Audio.Tracks.PlayIteration[] CalculateLoopParameters (
+			valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> startPosition,
+			valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> endPosition
+		) cil managed 
+	{
+		// Method begins at RVA 0x3924
+		// Header size: 12
+		// Code size: 408 (0x198)
+		.maxstack 6
+		.locals init (
+			[0] valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>,
+			[1] valuetype [NodaTime]NodaTime.Duration,
+			[2] valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>,
+			[3] valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>,
+			[4] valuetype [NodaTime]NodaTime.Duration,
+			[5] class [System.Collections]System.Collections.Generic.List`1<class Eight.Audio.Tracks.PlayIteration>,
+			[6] float64,
+			[7] int32,
+			[8] valuetype [NodaTime]NodaTime.Duration,
+			[9] valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>,
+			[10] int32,
+			[11] valuetype [System.Runtime]System.Span`1<class Eight.Audio.Tracks.PlayIteration>,
+			[12] int32,
+			[13] valuetype [NodaTime]NodaTime.Duration,
+			[14] int32
+		)
+
+		IL_0000: ldarg.2
+		IL_0001: stloc.s 9
+		IL_0003: ldloca.s 9
+		IL_0005: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::get_HasValue()
+		IL_000a: brtrue.s IL_0014
+
+		IL_000c: ldarg.0
+		IL_000d: ldfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.RepeatForTrack::endLoopPosition
+		IL_0012: br.s IL_0016
+
+		IL_0014: ldloc.s 9
+
+		IL_0016: stloc.0
+		IL_0017: ldloc.0
+		IL_0018: stloc.s 9
+		IL_001a: ldloca.s 9
+		IL_001c: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::get_HasValue()
+		IL_0021: brtrue.s IL_0030
+
+		IL_0023: ldarg.0
+		IL_0024: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0029: callvirt instance valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.ITrack::get_TrackLength()
+		IL_002e: br.s IL_0037
+
+		IL_0030: ldloca.s 9
+		IL_0032: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::GetValueOrDefault()
+
+		IL_0037: stloc.1
+		IL_0038: ldarg.0
+		IL_0039: ldfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::'<runLength>P'
+		IL_003e: ldloc.1
+		IL_003f: call bool [NodaTime]NodaTime.Duration::op_LessThanOrEqual(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+		IL_0044: brfalse.s IL_0070
+
+		IL_0046: ldc.i4.1
+		IL_0047: newarr Eight.Audio.Tracks.PlayIteration
+		IL_004c: dup
+		IL_004d: ldc.i4.0
+		IL_004e: ldloca.s 9
+		IL_0050: initobj valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>
+		IL_0056: ldloc.s 9
+		IL_0058: ldarg.0
+		IL_0059: ldfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::'<runLength>P'
+		IL_005e: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::.ctor(!0)
+		IL_0063: ldarg.0
+		IL_0064: ldfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::'<runLength>P'
+		IL_0069: newobj instance void Eight.Audio.Tracks.PlayIteration::.ctor(valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [NodaTime]NodaTime.Duration)
+		IL_006e: stelem.ref
+		IL_006f: ret
+
+		IL_0070: ldarg.1
+		IL_0071: stloc.s 9
+		IL_0073: ldloca.s 9
+		IL_0075: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::get_HasValue()
+		IL_007a: brtrue.s IL_0084
+
+		IL_007c: ldarg.0
+		IL_007d: ldfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.RepeatForTrack::startLoopPosition
+		IL_0082: br.s IL_0086
+
+		IL_0084: ldloc.s 9
+
+		IL_0086: stloc.2
+		IL_0087: ldarg.2
+		IL_0088: stloc.s 9
+		IL_008a: ldloca.s 9
+		IL_008c: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::get_HasValue()
+		IL_0091: brtrue.s IL_009b
+
+		IL_0093: ldarg.0
+		IL_0094: ldfld valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration> Eight.Audio.Tracks.RepeatForTrack::endLoopPosition
+		IL_0099: br.s IL_009d
+
+		IL_009b: ldloc.s 9
+
+		IL_009d: stloc.3
+		IL_009e: ldloc.3
+		IL_009f: stloc.s 9
+		IL_00a1: ldloca.s 9
+		IL_00a3: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::get_HasValue()
+		IL_00a8: brtrue.s IL_00b7
+
+		IL_00aa: ldarg.0
+		IL_00ab: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_00b0: callvirt instance valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.ITrack::get_TrackLength()
+		IL_00b5: br.s IL_00be
+
+		IL_00b7: ldloca.s 9
+		IL_00b9: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::GetValueOrDefault()
+
+		IL_00be: ldloc.2
+		IL_00bf: stloc.s 9
+		IL_00c1: ldloca.s 9
+		IL_00c3: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::get_HasValue()
+		IL_00c8: brtrue.s IL_00d3
+
+		IL_00ca: ldc.i4.0
+		IL_00cb: conv.i8
+		IL_00cc: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::FromSeconds(int64)
+		IL_00d1: br.s IL_00da
+
+		IL_00d3: ldloca.s 9
+		IL_00d5: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::GetValueOrDefault()
+
+		IL_00da: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::op_Subtraction(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+		IL_00df: stloc.s 4
+		IL_00e1: ldc.i4.1
+		IL_00e2: stloc.s 10
+		IL_00e4: ldloc.s 10
+		IL_00e6: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Audio.Tracks.PlayIteration>::.ctor(int32)
+		IL_00eb: dup
+		IL_00ec: ldloc.s 10
+		IL_00ee: call void [System.Runtime.InteropServices]System.Runtime.InteropServices.CollectionsMarshal::SetCount<class Eight.Audio.Tracks.PlayIteration>(class [System.Collections]System.Collections.Generic.List`1<!!0>, int32)
+		IL_00f3: dup
+		IL_00f4: call valuetype [System.Runtime]System.Span`1<!!0> [System.Runtime.InteropServices]System.Runtime.InteropServices.CollectionsMarshal::AsSpan<class Eight.Audio.Tracks.PlayIteration>(class [System.Collections]System.Collections.Generic.List`1<!!0>)
+		IL_00f9: stloc.s 11
+		IL_00fb: ldc.i4.0
+		IL_00fc: stloc.s 12
+		IL_00fe: ldloca.s 11
+		IL_0100: ldloc.s 12
+		IL_0102: call instance !0& valuetype [System.Runtime]System.Span`1<class Eight.Audio.Tracks.PlayIteration>::get_Item(int32)
+		IL_0107: ldloca.s 9
+		IL_0109: initobj valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>
+		IL_010f: ldloc.s 9
+		IL_0111: ldloc.0
+		IL_0112: ldloc.1
+		IL_0113: newobj instance void Eight.Audio.Tracks.PlayIteration::.ctor(valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [NodaTime]NodaTime.Duration)
+		IL_0118: stind.ref
+		IL_0119: stloc.s 5
+		IL_011b: ldarg.0
+		IL_011c: ldfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::'<runLength>P'
+		IL_0121: ldloc.1
+		IL_0122: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::op_Subtraction(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+		IL_0127: stloc.s 13
+		IL_0129: ldloca.s 13
+		IL_012b: call instance float64 [NodaTime]NodaTime.Duration::get_TotalSeconds()
+		IL_0130: stloc.s 6
+		IL_0132: ldloc.s 6
+		IL_0134: ldloca.s 4
+		IL_0136: call instance float64 [NodaTime]NodaTime.Duration::get_TotalSeconds()
+		IL_013b: div
+		IL_013c: call float64 [System.Runtime]System.Math::Floor(float64)
+		IL_0141: conv.i4
+		IL_0142: stloc.s 7
+		IL_0144: ldc.i4.0
+		IL_0145: stloc.s 14
+		IL_0147: br.s IL_015f
+		// loop start (head: IL_015f)
+			IL_0149: ldloc.s 5
+			IL_014b: ldloc.2
+			IL_014c: ldloc.3
+			IL_014d: ldloc.s 4
+			IL_014f: newobj instance void Eight.Audio.Tracks.PlayIteration::.ctor(valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [NodaTime]NodaTime.Duration)
+			IL_0154: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Audio.Tracks.PlayIteration>::Add(!0)
+			IL_0159: ldloc.s 14
+			IL_015b: ldc.i4.1
+			IL_015c: add
+			IL_015d: stloc.s 14
+
+			IL_015f: ldloc.s 14
+			IL_0161: ldloc.s 7
+			IL_0163: blt.s IL_0149
+		// end loop
+
+		IL_0165: ldloc.s 6
+		IL_0167: ldloc.s 7
+		IL_0169: conv.r8
+		IL_016a: ldloca.s 4
+		IL_016c: call instance float64 [NodaTime]NodaTime.Duration::get_TotalSeconds()
+		IL_0171: mul
+		IL_0172: sub
+		IL_0173: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::FromSeconds(float64)
+		IL_0178: stloc.s 8
+		IL_017a: ldloc.s 5
+		IL_017c: ldloc.2
+		IL_017d: ldloc.s 8
+		IL_017f: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>::.ctor(!0)
+		IL_0184: ldloc.s 8
+		IL_0186: newobj instance void Eight.Audio.Tracks.PlayIteration::.ctor(valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [NodaTime]NodaTime.Duration)
+		IL_018b: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<class Eight.Audio.Tracks.PlayIteration>::Add(!0)
+		IL_0190: ldloc.s 5
+		IL_0192: callvirt instance !0[] class [System.Collections]System.Collections.Generic.List`1<class Eight.Audio.Tracks.PlayIteration>::ToArray()
+		IL_0197: ret
+	} // end of method RepeatForTrack::CalculateLoopParameters
+
+	.method public final hidebysig newslot virtual 
+		instance void Seek (
+			valuetype [NodaTime]NodaTime.Duration duration,
+			valuetype Eight.Audio.Models.SeekMode mode
+		) cil managed 
+	{
+		// Method begins at RVA 0x3ac8
+		// Header size: 12
+		// Code size: 130 (0x82)
+		.maxstack 3
+		.locals init (
+			[0] int32,
+			[1] class Eight.Audio.Tracks.PlayIteration
+		)
+
+		IL_0000: ldarg.2
+		IL_0001: brtrue.s IL_0011
+
+		IL_0003: ldarg.1
+		IL_0004: ldarg.0
+		IL_0005: call instance valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::get_CurrentPosition()
+		IL_000a: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::op_Addition(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+		IL_000f: starg.s duration
+
+		IL_0011: ldc.i4.0
+		IL_0012: stloc.0
+		IL_0013: ldarg.0
+		IL_0014: ldc.i4.0
+		IL_0015: conv.i8
+		IL_0016: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::FromSeconds(int64)
+		IL_001b: stfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::accumulatedDuration
+		IL_0020: br.s IL_0062
+		// loop start (head: IL_0062)
+			IL_0022: ldarg.0
+			IL_0023: ldfld class Eight.Audio.Tracks.PlayIteration[] Eight.Audio.Tracks.RepeatForTrack::iterations
+			IL_0028: ldc.i4.0
+			IL_0029: ldelem.ref
+			IL_002a: stloc.1
+			IL_002b: ldarg.1
+			IL_002c: ldloc.1
+			IL_002d: callvirt instance valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.PlayIteration::get_RunLength()
+			IL_0032: call bool [NodaTime]NodaTime.Duration::op_LessThan(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+			IL_0037: brtrue.s IL_006d
+
+			IL_0039: ldarg.1
+			IL_003a: ldloc.1
+			IL_003b: callvirt instance valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.PlayIteration::get_RunLength()
+			IL_0040: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::op_Subtraction(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+			IL_0045: starg.s duration
+			IL_0047: ldarg.0
+			IL_0048: ldarg.0
+			IL_0049: ldfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::accumulatedDuration
+			IL_004e: ldloc.1
+			IL_004f: callvirt instance valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.PlayIteration::get_RunLength()
+			IL_0054: call valuetype [NodaTime]NodaTime.Duration [NodaTime]NodaTime.Duration::op_Addition(valuetype [NodaTime]NodaTime.Duration, valuetype [NodaTime]NodaTime.Duration)
+			IL_0059: stfld valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::accumulatedDuration
+			IL_005e: ldloc.0
+			IL_005f: ldc.i4.1
+			IL_0060: add
+			IL_0061: stloc.0
+
+			IL_0062: ldloc.0
+			IL_0063: ldarg.0
+			IL_0064: ldfld class Eight.Audio.Tracks.PlayIteration[] Eight.Audio.Tracks.RepeatForTrack::iterations
+			IL_0069: ldlen
+			IL_006a: conv.i4
+			IL_006b: blt.s IL_0022
+		// end loop
+
+		IL_006d: ldarg.0
+		IL_006e: ldloc.0
+		IL_006f: stfld int32 Eight.Audio.Tracks.RepeatForTrack::currentLoopIteration
+		IL_0074: ldarg.0
+		IL_0075: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_007a: ldarg.1
+		IL_007b: ldc.i4.1
+		IL_007c: callvirt instance void Eight.Audio.Tracks.ITrack::Seek(valuetype [NodaTime]NodaTime.Duration, valuetype Eight.Audio.Models.SeekMode)
+		IL_0081: ret
+	} // end of method RepeatForTrack::Seek
+
+	.method public final hidebysig newslot virtual 
+		instance void Dispose () cil managed 
+	{
+		// Method begins at RVA 0x3b56
+		// Header size: 1
+		// Code size: 33 (0x21)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld bool Eight.Audio.Tracks.RepeatForTrack::disposed
+		IL_0006: brfalse.s IL_0009
+
+		IL_0008: ret
+
+		IL_0009: ldarg.0
+		IL_000a: ldc.i4.1
+		IL_000b: stfld bool Eight.Audio.Tracks.RepeatForTrack::disposed
+		IL_0010: ldarg.0
+		IL_0011: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Tracks.RepeatForTrack::source
+		IL_0016: dup
+		IL_0017: brtrue.s IL_001b
+
+		IL_0019: pop
+		IL_001a: ret
+
+		IL_001b: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+		IL_0020: ret
+	} // end of method RepeatForTrack::Dispose
+
+	.method private hidebysig 
+		instance void ThrowIfDisposed () cil managed 
+	{
+		// Method begins at RVA 0x3b78
+		// Header size: 1
+		// Code size: 26 (0x1a)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld bool Eight.Audio.Tracks.RepeatForTrack::disposed
+		IL_0006: brfalse.s IL_0019
+
+		IL_0008: ldarg.0
+		IL_0009: call instance class [System.Runtime]System.Type [System.Runtime]System.Object::GetType()
+		IL_000e: callvirt instance string [System.Runtime]System.Type::get_FullName()
+		IL_0013: newobj instance void [System.Runtime]System.ObjectDisposedException::.ctor(string)
+		IL_0018: throw
+
+		IL_0019: ret
+	} // end of method RepeatForTrack::ThrowIfDisposed
+
+	// Properties
+	.property instance int32 Channels()
+	{
+		.get instance int32 Eight.Audio.Tracks.RepeatForTrack::get_Channels()
+	}
+	.property instance int32 BitsPerSample()
+	{
+		.get instance int32 Eight.Audio.Tracks.RepeatForTrack::get_BitsPerSample()
+	}
+	.property instance int32 SampleRate()
+	{
+		.get instance int32 Eight.Audio.Tracks.RepeatForTrack::get_SampleRate()
+	}
+	.property instance bool IsLittleEndian()
+	{
+		.get instance bool Eight.Audio.Tracks.RepeatForTrack::get_IsLittleEndian()
+	}
+	.property instance int32 DataStartingPosition()
+	{
+		.get instance int32 Eight.Audio.Tracks.RepeatForTrack::get_DataStartingPosition()
+	}
+	.property instance int32 DataSize()
+	{
+		.get instance int32 Eight.Audio.Tracks.RepeatForTrack::get_DataSize()
+	}
+	.property instance string Name()
+	{
+		.get instance string Eight.Audio.Tracks.RepeatForTrack::get_Name()
+	}
+	.property instance string FileId()
+	{
+		.get instance string Eight.Audio.Tracks.RepeatForTrack::get_FileId()
+	}
+	.property instance valuetype [NodaTime]NodaTime.Duration TrackLength()
+	{
+		.get instance valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::get_TrackLength()
+	}
+	.property instance valuetype [NodaTime]NodaTime.Duration CurrentPosition()
+	{
+		.get instance valuetype [NodaTime]NodaTime.Duration Eight.Audio.Tracks.RepeatForTrack::get_CurrentPosition()
+	}
+
+} // end of class Eight.Audio.Tracks.RepeatForTrack

@@ -1,0 +1,53 @@
+{
+  "ADC": {
+    "capacity": 30,
+    "element_bytes": 80,
+    "producer": "080233f4 -> 08023456 -> 0801c388",
+    "failure_log": "08023460",
+    "consumer_raw": [
+      "0801f92a",
+      "0801f974 x4"
+    ]
+  },
+  "IMU": {
+    "capacity": 12,
+    "element_bytes": 48,
+    "producer": "one attempt on each fifth callback regardless ADC success",
+    "failure_logs": false,
+    "consumer_raw": "0801f996"
+  },
+  "raw_no_interleaving": {
+    "initial_q": "5 <= q0 <= 30",
+    "after_pop5": "q0 - 5",
+    "callbacks_to_first_rejection": "36 - q0",
+    "full_initial_case": {
+      "q0": 30,
+      "after_pop5": 25,
+      "accepted_refills": 5,
+      "first_rejected_callback": 6
+    }
+  },
+  "last_pop_invariant": {
+    "after_completed_final_pop_max": 29,
+    "next_callback_without_intervening_producer": "cannot reject due to full",
+    "first_callback_inside_framer_rejection_requires": "sufficient refill after final pop before that callback; at least one if post-pop q is29"
+  },
+  "gain_dirty": {
+    "setter": "08026758",
+    "left_request_offset": "sampling+0xc20",
+    "right_request_offset": "sampling+0xce8",
+    "dirty_offsets": [
+      "sampling+0xd98",
+      "sampling+0xd99"
+    ],
+    "sets_when": "normalized request >99 and differs from current halfword",
+    "outer_log": "0801f246",
+    "flush_after_log": "0801f296 -> 08026722",
+    "event_schedule_proven": false
+  },
+  "fixture_provenance": {
+    "initial_gain400": "synthetic valid value, not RAM capture",
+    "queue_start": "empty in every trace",
+    "callback_ids": "generated monotonically by offline model, not original sensor captures"
+  }
+}

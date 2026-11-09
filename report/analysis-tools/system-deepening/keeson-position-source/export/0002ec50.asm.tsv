@@ -1,0 +1,27 @@
+0002ec50	f0b5	push {r4,r5,r6,r7,lr}
+0002ec52	4ff0ff35	mov.w r5,#0xffffffff
+0002ec56	12b1	cbz r2,0x0002ec5e
+0002ec58	0023	movs r3,#0x0
+0002ec5a	0826	movs r6,#0x8
+0002ec5c	01e0	b 0x0002ec62
+0002ec5e	0823	movs r3,#0x8
+0002ec60	0e26	movs r6,#0xe
+0002ec62	0c4c	ldr r4,[0x0002ec94]
+0002ec64	05e0	b 0x0002ec72
+0002ec68	54f82370	ldr.w r7,[r4,r3,lsl #0x2]
+0002ec6c	7f1c	adds r7,r7,#0x1
+0002ec6e	04d0	beq 0x0002ec7a
+0002ec70	5b1c	adds r3,r3,#0x1
+0002ec72	b342	cmp r3,r6
+0002ec74	f8d3	bcc 0x0002ec68
+0002ec76	2846	mov r0,r5
+0002ec78	f0bd	pop {r4,r5,r6,r7,pc}
+0002ec7a	2618	adds r6,r4,r0
+0002ec7c	5db2	sxtb r5,r3
+0002ec7e	86f83850	strb.w r5,[r6,#0x38]
+0002ec82	44f82310	str.w r1,[r4,r3,lsl #0x2]
+0002ec86	002a	cmp r2,#0x0
+0002ec88	f5d1	bne 0x0002ec76
+0002ec8a	e118	adds r1,r4,r3
+0002ec8c	81f85000	strb.w r0,[r1,#0x50]
+0002ec90	f1e7	b 0x0002ec76

@@ -1,0 +1,74 @@
+{
+  "claims": [
+    {
+      "id": "HEADER",
+      "claim": "Payload excludes opcode, high-bit flags and state gate USB event path",
+      "evidence": [
+        "pass2/00219b34.txt",
+        "pass2/00236174.txt"
+      ]
+    },
+    {
+      "id": "3C-LENGTH",
+      "claim": "Minimum120, N floor, trailing0..63 ignored, crossing64 changes layout",
+      "evidence": [
+        "pass1/0027e7b0.txt",
+        "pass1/0045f6e0.txt",
+        "pass1/0045f6b4.txt"
+      ]
+    },
+    {
+      "id": "3C-STATE",
+      "claim": "Templates reset disabled groups; frequency step and timing/counter writes",
+      "evidence": [
+        "pass1/0027e7b0.txt:0027f108..0027f1fc",
+        "pass1/0021a5c0.txt",
+        "RAW_TABLES.json"
+      ]
+    },
+    {
+      "id": "33-LENGTH",
+      "claim": "Unsigned len>27 skips, otherwise fixed reads to25",
+      "evidence": [
+        "pass1/0021abe0.txt:0021ac0c..0021ac10;0021ac28..0021acf8"
+      ]
+    },
+    {
+      "id": "33-CALLER",
+      "claim": "Independent20-byte output clear; no decoder success check",
+      "evidence": [
+        "pass1/0027e7b0.txt:0027efa0..0027efd8"
+      ]
+    },
+    {
+      "id": "33-TIME",
+      "claim": "flag0 means existing timing anchor read, no update",
+      "evidence": [
+        "pass1/0021abe0.txt:0021ac40..0021ac44",
+        "pass1/0021a5c0.txt:0021a5e8..0021a630"
+      ]
+    },
+    {
+      "id": "33-TAIL",
+      "claim": "LSP storage is not fully cleared between frames; valid short CRC does not cover later decoder reads",
+      "evidence": [
+        "pass2/001d9bc0.txt",
+        "model/lsp_receiver.py",
+        "model/check_boundaries.py",
+        "model/RESULTS.json"
+      ]
+    },
+    {
+      "id": "33-CONSUMER",
+      "claim": "CapSense and enableA30Mode gates, not all sleep raw",
+      "evidence": [
+        "pass1/001e0ec0.txt",
+        "pass2/001e61d0.txt",
+        "pass2/001ed1d4.txt",
+        "pass3/001e2bb0.txt",
+        "pass3/001f6920.txt",
+        "pass3/0027a980.txt"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+FUNCTION 08005144 FUN_08005144 BODY [[08005144, 08005157]]
+INCOMING 0800aa6a UNCONDITIONAL_CALL
+INCOMING 08005152 CONDITIONAL_JUMP
+
+int FUN_08005144(byte *param_1,byte *param_2)
+
+{
+  byte bVar1;
+  uint uVar2;
+  
+  do {
+    uVar2 = (uint)*param_1;
+    bVar1 = *param_2;
+    if (uVar2 == 0) break;
+    param_1 = param_1 + 1;
+    param_2 = param_2 + 1;
+  } while (uVar2 == bVar1);
+  return uVar2 - bVar1;
+}
+
+
+ASSEMBLY
+08005144 ldrb r2,[r0,#0x0] BYTES 0278
+08005146 ldrb r3,[r1,#0x0] BYTES 0b78
+08005148 cmp r2,#0x0 BYTES 002a
+0800514a beq 0x08005154 BYTES 03d0 REF CONDITIONAL_JUMP=08005154
+0800514c adds r0,#0x1 BYTES 0130
+0800514e adds r1,#0x1 BYTES 0131
+08005150 cmp r2,r3 BYTES 9a42
+08005152 beq 0x08005144 BYTES f7d0 REF CONDITIONAL_JUMP=08005144
+08005154 subs r0,r2,r3 BYTES d01a
+08005156 bx lr BYTES 7047

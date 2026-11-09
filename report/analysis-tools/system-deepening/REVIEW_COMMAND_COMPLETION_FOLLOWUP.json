@@ -1,0 +1,254 @@
+{
+  "reviewer": "/root/live_frontend",
+  "reviewed_at": "2026-11-08T12:25:27.515591+08:00",
+  "target": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/system-deepening-20261108/local-command-completion-followup",
+  "result": "PASS_WITH_SCOPE_NOTES",
+  "blocking_issues": [],
+  "scope": "Independent static review of normal command completion and finite analyst model only; no vendor execution, hardware/account/network access or malformed payload work. No changes to the reviewed directory.",
+  "confirmed": [
+    {
+      "topic": "Per-opcode gate and ordering",
+      "evidence": "Connection SendCommand IL_00a7 Wait(0), IL_0124 linked-token gate WaitAsync, IL_0269-0273 remaining, IL_0322 pending registration, IL_036d synchronous send, IL_038e cancellable response wait, IL_046a identity removal, IL_0476 release. No pre-send cancellation test on the successful Wait(0) route."
+    },
+    {
+      "topic": "Response correlation",
+      "evidence": "ProcessOneIteration IL_0001 CheckTimeouts precedes IL_0012 receive; response branch calls ResolveRequest. ResolveRequest IL_0009 removes by opcode and IL_0017 completes current TCS. ExpireRequests IL_001a removes exact key/value pair."
+    },
+    {
+      "topic": "ACK completion",
+      "evidence": "DeviceConnection both custom-command wrappers return the DeviceSession task at IL_0011; DeviceSession SendCommand IL_0040 awaits Connection, IL_00cf reads status, IL_013c accepts zero, IL_018c strips status. ResponseCode Ack=0, Nak=1, Unsupported=2."
+    },
+    {
+      "topic": "Stop and reconnect",
+      "evidence": "StopAsync cancels CTS, waits readTask up to two seconds, catches cancellation/timeout, disposes CTS and nulls task/CTS. No requests walk or explicit TCS failure. Reconnect awaits old DisposeAsync then invokes factory; concrete existing factory code constructs new Connection."
+    }
+  ],
+  "model_validation": {
+    "method": "Compile and execute trusted analyst script prefix before the MODEL_RESULTS write statement, with original __file__; compare normalized out to persisted JSON. No output produced in target directory.",
+    "cases": 24,
+    "all_observed_equal_expected": true,
+    "full_recomputed_object_equal": true,
+    "source_and_result_hashes_unchanged_during_recompute": true,
+    "model_sha256": "3b3efc12c8e624a187a721f38f1d32ede400d9a98e41560bf11eddb6e2d4f6a1",
+    "results_sha256": "36c1bff7618125f63c398e2a4d532048ad43a0594d93bdf0257995af8388c919"
+  },
+  "identity_validation": {
+    "source_copies": 11,
+    "source_hashes_and_original_copy_bytes_match": true,
+    "bundle_members": [
+      {
+        "source": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/sleep-pipeline/capybara-bundle/Eight.Lsp.Protocol.dll",
+        "bytes": 73216,
+        "sha256": "e17cab736b740f8079bae4f20cbd5496b6ad341fb3e9645d274319c81566566a",
+        "bundle_offset": 87982080,
+        "original_bundle_segment_equals_member": true
+      },
+      {
+        "source": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/sleep-pipeline/capybara-bundle/Eight.Lsp.Subsystems.dll",
+        "bytes": 70656,
+        "sha256": "02668ecc2df6cfa416b84e3ea69401f45d041e8d4e5d7cb926ee33ebce769836",
+        "bundle_offset": 88055808,
+        "original_bundle_segment_equals_member": true
+      }
+    ],
+    "member_bytes_compared": 143872,
+    "limits": "Did not rerun ILSpy, independently decode the complete assemblies, or rehash the entire Capybara executable; exact recorded member offsets were read and compared."
+  },
+  "reviewed_files": [
+    {
+      "path": "source/Eight.Lsp.Protocol/Eight.Lsp.Protocol/Connection.cs",
+      "bytes": 7546,
+      "sha256": "681e358cedec28c5fdef4d1d6ab37d74212a2e8cac3ae7de0ac22b291fd54514",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "source/Eight.Lsp.Protocol/Eight.Lsp.Protocol/DeviceSession.cs",
+      "bytes": 14847,
+      "sha256": "a4dea78e06edc6f2ed1801ffb96fc6d3150fafa04619d20bc39618b31367ead2",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "source/Eight.Lsp.Protocol/Eight.Lsp.Protocol/PacketParser.cs",
+      "bytes": 2648,
+      "sha256": "4af7ee2689b88538f124b039b2655d82dfc93302f556d1e9b452a5994d7ef344",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "source/Eight.Lsp.Protocol/Eight.Lsp.Protocol/PacketEncoder.cs",
+      "bytes": 1281,
+      "sha256": "63ade589467a925a0cb24ac656be5cd274d4f5c97c6d70bab7891afe4ee1b8ce",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "source/Eight.Lsp.Protocol/Eight.Lsp.Protocol/FrameEncoder.cs",
+      "bytes": 756,
+      "sha256": "20a7847b6dca248c3a211a4bc02eb32fcb45b42f174836d3843648e17a70dd9d",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "source/Eight.Lsp.Protocol/Eight.Lsp.Protocol/SerialPhysical.cs",
+      "bytes": 1934,
+      "sha256": "8f8a1aaa008cc0961f9d11f9559200baad52f70a316b46a3c1782dd66a42f01b",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "source/Eight.Lsp.Protocol/Eight.Lsp.Protocol/ResponseCode.cs",
+      "bytes": 145,
+      "sha256": "ae275b9dcdf36dd2637c56703a8cfd5aa65fc77ea5cd7bde2721ce2daac8b506",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "source/Eight.Lsp.Protocol/Eight.Lsp.Protocol/LspOptions.cs",
+      "bytes": 837,
+      "sha256": "b199036d3dd1e452094903ff18eb0e742e4f075ebff2a5a9fb6168e4e54cfd04",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "source/Eight.Lsp.Protocol/Eight.Lsp.Protocol/ConnectionFactory.cs",
+      "bytes": 511,
+      "sha256": "fcba068797fcc3fc65cb9b26f855c4aa288aa817f0833e347a9f97544cfa5947",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "source/Eight.Lsp.Subsystems/Eight.Lsp.Subsystems.Services.Connection/DeviceConnection.cs",
+      "bytes": 3965,
+      "sha256": "0ff377899521b4deae865edbcc83dbb268019f06f00014df72bf0eda206ceaf0",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "source/Eight.Lsp.Subsystems/Eight.Lsp.Subsystems.Services.Connection/DeviceConnectionFactory.cs",
+      "bytes": 1618,
+      "sha256": "cd4db75128ebe1234730510d6fb487316245336d1fb9645bff8ee51bf6b0ac80",
+      "review": "C# source; command/session lifecycle methods, not all OTA methods"
+    },
+    {
+      "path": "il/Eight.Lsp.Protocol__Connection.txt",
+      "bytes": 117515,
+      "sha256": "5f8dd4cd256130d20755b203c60d32c406caeb13a01803bf6e3c4d72aafaa918",
+      "review": "SendCommand state machine, ProcessOneIteration, CheckTimeouts, ExpireRequests, ResolveRequest, StopAsync state machine"
+    },
+    {
+      "path": "il/Eight.Lsp.Protocol__DeviceSession.txt",
+      "bytes": 334688,
+      "sha256": "6ccc1ec8f7bd8e6b41331073676d05d56ee7b2d399462c0790e2c372e5a81dc5",
+      "review": "SendCommand response check, Close, Reconnect selected IL"
+    },
+    {
+      "path": "il/Eight.Lsp.Subsystems__DeviceConnection.txt",
+      "bytes": 61942,
+      "sha256": "d478cd78d2416b431325ef8fdc742c726940c9c64aa7abbe1112f687a56463c3",
+      "review": "SendCustomCommand, SendCustomCommandWithResponse, EnsureConnected"
+    },
+    {
+      "path": "scripts/completion_contracts.py",
+      "bytes": 5015,
+      "sha256": "3b3efc12c8e624a187a721f38f1d32ede400d9a98e41560bf11eddb6e2d4f6a1",
+      "review": "Complete finite model and read-only independent recomputation before output-writing statement"
+    },
+    {
+      "path": "MODEL_RESULTS.json",
+      "bytes": 6653,
+      "sha256": "36c1bff7618125f63c398e2a4d532048ad43a0594d93bdf0257995af8388c919",
+      "review": "All 24 observed/expected and complete recomputed object equality"
+    },
+    {
+      "path": "FINDINGS_ZH.txt",
+      "bytes": 8271,
+      "sha256": "ec218afa965d225812afa6862d8923443c9e709dea19549113ffc182f7ca083f",
+      "review": "Complete narrative as hashed here; final scope clarifications for time budgets, pending expiry, Stop timeout and concrete factory chain re-read"
+    },
+    {
+      "path": "SOURCE_LEDGER.json",
+      "bytes": 5448,
+      "sha256": "777619dcb552f0886d661e3268ccd0ebcf6a0848b8315ff6668abefcfa8e5eac",
+      "review": "Source copy identity, two original bundle member segments"
+    },
+    {
+      "path": "VERIFICATION.json",
+      "bytes": 275,
+      "sha256": "6982378ff119ccb0524f1f8457a95de9e39eada3126ffdb8f254cbbdc5f32220",
+      "review": "Read producer verification scope; not substituted for independent checks"
+    },
+    {
+      "path": "IL_ANCHORS.json",
+      "bytes": 5310,
+      "sha256": "891a7c510d94d141c4d762021ae31f91ed79fdbf48456f2684fa6bd0ce6a2529",
+      "review": "Read declared anchors; selected IL independently inspected"
+    }
+  ],
+  "additional_existing_factory_sources": [
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/sleep-pipeline/decompiled/Eight.Lsp.Protocol/Eight.Lsp.Protocol/ConnectionFactory.cs",
+      "bytes": 511,
+      "sha256": "fcba068797fcc3fc65cb9b26f855c4aa288aa817f0833e347a9f97544cfa5947",
+      "review": "Existing decompilation only: concrete factory creates a fresh Connection; no new IL export"
+    },
+    {
+      "path": "/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/sleep-pipeline/decompiled/Eight.Lsp.Subsystems/Eight.Lsp.Subsystems.Services.Connection/DeviceConnectionFactory.cs",
+      "bytes": 1618,
+      "sha256": "cd4db75128ebe1234730510d6fb487316245336d1fb9645bff8ee51bf6b0ac80",
+      "review": "Existing decompilation only: concrete factory creates a fresh Connection; no new IL export"
+    }
+  ],
+  "scope_notes": [
+    {
+      "id": "TIME-BUDGET",
+      "severity": "scope clarification",
+      "detail": "remaining is calculated before synchronous SendPacket and reused by WaitAsync after send; it is not reduced again by write/flush time. Active CheckTimeouts separately uses an absolute UTC deadline. Do not advertise a strict end-to-end wall-clock bound from the single remaining value."
+    },
+    {
+      "id": "TIME-PROVIDER",
+      "severity": "scope clarification",
+      "detail": "Queue CTS and GetElapsedTime/GetUtcNow use injected TimeProvider. The response wait IL signature is WaitAsync(TimeSpan,CancellationToken), without an explicit TimeProvider. The model does not simulate either timer implementation or UTC/monotonic divergence."
+    },
+    {
+      "id": "LATE-RESPONSE",
+      "severity": "required interpretation boundary",
+      "detail": "Conditional old-response matching requires the same Connection object, same parsed opcode and IsResponse, a registered successor still present after the pre-read timeout sweep, and successful decoding of a genuine response. No actual delayed device response or cross-reconnect occurrence was observed."
+    },
+    {
+      "id": "STOP-MODEL",
+      "severity": "scope clarification",
+      "detail": "Link.stop only marks reading false and checks pending retention; it is not a reader termination simulator. Actual StopAsync has a two-second bounded wait and catches timeout, so return does not alone prove the previous readTask fully stopped. Its pending requests are not explicitly failed by that method."
+    },
+    {
+      "id": "MODEL-IDENTITY",
+      "severity": "model abstraction",
+      "detail": "Unique request strings stand in for TCS identity. Native pair identity includes TCS and deadline. remove_pair is separate from finish/releasing gate in the reviewed revision, avoiding a simulated duplicate finally."
+    },
+    {
+      "id": "MODEL-SCHEDULER",
+      "severity": "model abstraction",
+      "detail": "Queued is a returned marker, not a live asynchronous waiter. spent is supplied explicitly; no timer, timeout sweep, wait-queue fairness, synchronous write duration, callback scheduling or serial hardware is simulated. ExpireRequests is represented only by identity-based removal, not its full loop."
+    },
+    {
+      "id": "ACK-PHYSICAL",
+      "severity": "required interpretation boundary",
+      "detail": "Matched opcode plus ACK confirms the software response contract, not valve movement, pressure target, sensor freshness, flash completion or physical byte delivery. Other callers and exact state/lifecycle transitions are outside this limited review."
+    },
+    {
+      "id": "CANCEL-FASTPATH",
+      "severity": "required interpretation boundary",
+      "detail": "Already-cancelled free-gate fixture assumes remaining>0, successful synchronous send, and no response completion before the cancellable wait. It does not prescribe the result of every completed-task/cancellation schedule."
+    }
+  ],
+  "not_covered": [
+    "Whole CLR scheduler and framework internals",
+    "Physical serial transport delivery, concurrency and device timing",
+    "OTA retry and every DeviceSession method",
+    "Complete Capybara state lifecycle and external references to previous Ready objects",
+    "Current device firmware deployment and real-world occurrence rates"
+  ],
+  "final_narrative_check": {
+    "scope_notes_incorporated": [
+      "TIME-BUDGET",
+      "TIME-PROVIDER",
+      "LATE-RESPONSE",
+      "STOP-MODEL"
+    ],
+    "original_source_review_count": 9,
+    "additional_factory_source_review_count": 2,
+    "new_factory_IL_not_reaudited": true,
+    "result": "No remaining blocker in reviewed scope; parent may freeze its target directory."
+  }
+}

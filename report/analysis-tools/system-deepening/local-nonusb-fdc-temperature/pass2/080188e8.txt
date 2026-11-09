@@ -1,0 +1,31 @@
+TARGET 080188e8 function=080188e8
+REF_TO 0801893e UNCONDITIONAL_CALL owner=08018908
+FUNCTION_BODY [[080188e8, 080188fd]]
+
+undefined4 analyst_normal_entry_080188e8(int param_1)
+
+{
+  uint uVar1;
+  undefined4 uVar2;
+  
+  uVar1 = FUN_08013658();
+  if (uVar1 < 0x157c) {
+    uVar2 = *(undefined4 *)(param_1 + 0xc);
+  }
+  else {
+    uVar2 = 0xbf800000;
+  }
+  return uVar2;
+}
+
+
+INSN 080188e8 10b5 push {r4,lr}
+INSN 080188ea 0400 movs r4,r0
+INSN 080188ec faf7b4fe bl 0x08013658 REF[UNCONDITIONAL_CALL:08013658]
+INSN 080188f0 034b ldr r3,[0x08018900] REF[READ:08018900=157b]
+INSN 080188f2 9842 cmp r0,r3
+INSN 080188f4 01d8 bhi 0x080188fa REF[CONDITIONAL_JUMP:080188fa]
+INSN 080188f6 e068 ldr r0,[r4,#0xc]
+INSN 080188f8 10bd pop {r4,pc}
+INSN 080188fa 0248 ldr r0,[0x08018904] REF[READ:08018904=bf800000]
+INSN 080188fc fce7 b 0x080188f8 REF[UNCONDITIONAL_JUMP:080188f8]

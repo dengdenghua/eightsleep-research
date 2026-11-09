@@ -1,0 +1,44 @@
+FUNCTION 0002f58c BODY [[0002f58c, 0002f5c3]]
+REF_TO 00034490 UNCONDITIONAL_CALL
+REF_TO 00034cae UNCONDITIONAL_CALL
+
+void FUN_0002f58c(int param_1,undefined4 param_2,undefined2 param_3)
+
+{
+  code *pcVar1;
+  undefined1 auStack_90 [2];
+  undefined2 local_8e;
+  undefined4 local_8c;
+  
+  pcVar1 = (code *)FUN_00035574(param_1 + (uint)*(byte *)(param_1 + 0x2c6) * 0x76);
+  if (pcVar1 != (code *)0x0) {
+    FUN_0002648c(auStack_90,DAT_0002f5c4,0x7c);
+    local_8e = param_3;
+    local_8c = param_2;
+    (*pcVar1)(auStack_90);
+  }
+  return;
+}
+
+
+INSN 0002f58c 70b5 push {r4,r5,r6,lr}
+INSN 0002f58e 0e46 mov r6,r1
+INSN 0002f590 90f8c612 ldrb.w r1,[r0,#0x2c6]
+INSN 0002f594 1546 mov r5,r2
+INSN 0002f596 01eb8102 add.w r2,r1,r1, lsl #0x2
+INSN 0002f59a c2eb8111 rsb r1,r2,r1, lsl #0x6
+INSN 0002f59e a0b0 sub sp,#0x80
+INSN 0002f5a0 00eb4100 add.w r0,r0,r1, lsl #0x1
+INSN 0002f5a4 05f0e6ff bl 0x00035574 REF[UNCONDITIONAL_CALL:00035574]
+INSN 0002f5a8 0400 movs r4,r0
+INSN 0002f5aa 09d0 beq 0x0002f5c0 REF[CONDITIONAL_JUMP:0002f5c0]
+INSN 0002f5ac 7c22 movs r2,#0x7c
+INSN 0002f5ae 0549 ldr r1,[0x0002f5c4] REF[READ:0002f5c4=36cdc] REF[PARAM:00036cdc=1]
+INSN 0002f5b0 6846 mov r0,sp
+INSN 0002f5b2 f6f76bff bl 0x0002648c REF[UNCONDITIONAL_CALL:0002648c]
+INSN 0002f5b6 adf80250 strh.w r5,[sp,#0x2] REF[WRITE:Stack[-0x8e]]
+INSN 0002f5ba 6846 mov r0,sp
+INSN 0002f5bc 0196 str r6,[sp,#0x4] REF[WRITE:Stack[-0x8c]]
+INSN 0002f5be a047 blx r4
+INSN 0002f5c0 20b0 add sp,#0x80
+INSN 0002f5c2 70bd pop {r4,r5,r6,pc}

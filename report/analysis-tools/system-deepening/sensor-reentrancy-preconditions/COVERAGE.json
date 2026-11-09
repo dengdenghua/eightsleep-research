@@ -1,0 +1,63 @@
+{
+  "status": "bounded_static_and_model_complete",
+  "source_exports": 10,
+  "new_ghidra_sessions": 0,
+  "target_executions": 0,
+  "device_or_account_requests": 0,
+  "files_modified_outside_owned_directory": 0,
+  "semantic_ranges": [
+    {
+      "file": "source/sensor-init.txt",
+      "range": "08028176..080281a6",
+      "claim": "capacity/unit/count initialization"
+    },
+    {
+      "file": "source/queue-push.txt",
+      "range": "0801c388 body",
+      "claim": "reject-new when full; one accepted element per push"
+    },
+    {
+      "file": "source/queue-pop.txt",
+      "range": "0801c44c..0801c47c",
+      "claim": "read increment after copy; final pop count boundary"
+    },
+    {
+      "file": "source/sampling-callback.txt",
+      "range": "08023430..080234a2",
+      "claim": "ADC reject log; mod5 IMU producer; monotonic tick fixture"
+    },
+    {
+      "file": "source/raw-pop5.txt",
+      "range": "0801f900..0801f9aa",
+      "claim": "eligibility, ADC five pops then IMU pop then common send"
+    },
+    {
+      "file": "source/main-full.txt",
+      "range": "0801f0e0,0801f202..0801f2da,0801f840..0801f882,080213c6..08021414",
+      "claim": "state base, dirty gate before flush, mode detour, request normalization and setter call"
+    },
+    {
+      "file": "source/gain-setter.txt",
+      "range": "08026758..080267c8",
+      "claim": "value comparison, dirty producer, earlier log, no queue flush or timer stop in this body"
+    },
+    {
+      "file": "source/sampling-flush.txt",
+      "range": "08026722 body",
+      "claim": "ADC/IMU pop loops; no-callback model control is not atomic flush claim"
+    }
+  ],
+  "scope_limits": [
+    "complete retained main/init context does not equal complete semantic audit",
+    "command opcode2B association retained from prior report; dispatch helper not independently re-exported this round",
+    "no printf/framer/CRC/USB model this round",
+    "no full CPU schedule, IRQ frequency, execution time or field reachability proof",
+    "no fresh RAM/firmware match from device"
+  ],
+  "model": {
+    "named_cases": 8,
+    "initial_count_formula_checks": 26,
+    "four_gap_schedules": 256,
+    "boundary": "completed-operation event model; queues empty at start; producer-only prefixes and interruption placement explicitly supplied"
+  }
+}

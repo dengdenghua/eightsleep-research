@@ -1,0 +1,424 @@
+{
+  "date": "2026-11-08",
+  "method": "Re-read frozen BBIN bytes; compare against the two prior RAW_INIT_FACTS.json claims; no Ghidra, no firmware execution, no device/account/network access.",
+  "inputs": {
+    "nonusb": {
+      "path": "/Volumes/EightSleepAPFS/materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/lib/subsystem_updates/firmware-sensor-g0.bbin",
+      "facts_record": "/Volumes/EightSleepAPFS/report/analysis-tools/system-deepening/sensor-nonusb-dispatch/RAW_INIT_FACTS.json",
+      "bytes": 132896,
+      "sha256": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891"
+    },
+    "usb": {
+      "path": "/Volumes/EightSleepAPFS/materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/lib/subsystem_updates/firmware-sensor-g0-usb.bbin",
+      "facts_record": "/Volumes/EightSleepAPFS/report/analysis-tools/system-deepening/sensor-timebase/RAW_INIT_FACTS.json",
+      "bytes": 140828,
+      "sha256": "1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563"
+    }
+  },
+  "checks": [
+    {
+      "target": "nonusb",
+      "check": "file_bytes",
+      "expected": 132896,
+      "actual": 132896,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "file_sha256",
+      "expected": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+      "actual": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "recorded_sha256_matches_file",
+      "expected": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+      "actual": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "mapping_base",
+      "expected": 134250496,
+      "actual": 134250496,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "vector_reset_raw_hex",
+      "expected": "01fd0108",
+      "actual": "01fd0108",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "vector_reset_value",
+      "expected": 134348033,
+      "actual": 134348033,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "vector_systick_raw_hex",
+      "expected": "a3940008",
+      "actual": "a3940008",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "vector_systick_value",
+      "expected": 134255779,
+      "actual": 134255779,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "systick_handler_thumb_stripped",
+      "expected": 134255778,
+      "actual": 134255778,
+      "ok": true,
+      "note": "Thumb bit cleared; handler address is from the same BBIN"
+    },
+    {
+      "target": "nonusb",
+      "check": "data_copy_start_within_file",
+      "expected": true,
+      "actual": true,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "data_copy_end_equals_file_end",
+      "expected": 132896,
+      "actual": 132896,
+      "ok": true,
+      "note": "Both BBINs end exactly at the end of their .data source region"
+    },
+    {
+      "target": "nonusb",
+      "check": "init_clock_frequency_variable_raw_hex",
+      "expected": "0024f400",
+      "actual": "0024f400",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "init_clock_frequency_variable_value",
+      "expected": 16000000,
+      "actual": 16000000,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "init_clock_frequency_variable_offset_from_data_copy",
+      "expected": 132276,
+      "actual": 132276,
+      "ok": true,
+      "note": "Independent arithmetic: Flash load address + RAM delta - mapping base"
+    },
+    {
+      "target": "nonusb",
+      "check": "init_clock_frequency_variable_inside_data_copy",
+      "expected": true,
+      "actual": true,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "init_tick_step_raw_hex",
+      "expected": "01",
+      "actual": "01",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "init_tick_step_value",
+      "expected": 1,
+      "actual": 1,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "init_tick_step_offset_from_data_copy",
+      "expected": 132284,
+      "actual": 132284,
+      "ok": true,
+      "note": "Independent arithmetic: Flash load address + RAM delta - mapping base"
+    },
+    {
+      "target": "nonusb",
+      "check": "init_tick_step_inside_data_copy",
+      "expected": true,
+      "actual": true,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "init_tick_priority_raw_hex",
+      "expected": "04000000",
+      "actual": "04000000",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "init_tick_priority_value",
+      "expected": 4,
+      "actual": 4,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "init_tick_priority_offset_from_data_copy",
+      "expected": 132288,
+      "actual": 132288,
+      "ok": true,
+      "note": "Independent arithmetic: Flash load address + RAM delta - mapping base"
+    },
+    {
+      "target": "nonusb",
+      "check": "init_tick_priority_inside_data_copy",
+      "expected": true,
+      "actual": true,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "nonusb",
+      "check": "bss_zero_covers_tick",
+      "expected": true,
+      "actual": true,
+      "ok": true,
+      "note": "Range taken from RAW_INIT_FACTS.json of the same BBIN."
+    },
+    {
+      "target": "usb",
+      "check": "file_bytes",
+      "expected": 140828,
+      "actual": 140828,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "file_sha256",
+      "expected": "1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563",
+      "actual": "1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "recorded_sha256_matches_file",
+      "expected": "1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563",
+      "actual": "1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "mapping_base",
+      "expected": 134283264,
+      "actual": 134283264,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "vector_systick_raw_hex",
+      "expected": "a3140108",
+      "actual": "a3140108",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "vector_systick_value",
+      "expected": 134288547,
+      "actual": 134288547,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "systick_handler_thumb_stripped",
+      "expected": 134288546,
+      "actual": 134288546,
+      "ok": true,
+      "note": "Thumb bit cleared; handler address is from the same BBIN"
+    },
+    {
+      "target": "usb",
+      "check": "data_copy_start_within_file",
+      "expected": true,
+      "actual": true,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "data_copy_end_equals_file_end",
+      "expected": 140828,
+      "actual": 140828,
+      "ok": true,
+      "note": "Both BBINs end exactly at the end of their .data source region"
+    },
+    {
+      "target": "usb",
+      "check": "init_tick_step_raw_hex",
+      "expected": "01",
+      "actual": "01",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "init_tick_step_value",
+      "expected": 1,
+      "actual": 1,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "init_tick_step_offset_from_data_copy",
+      "expected": 140000,
+      "actual": 140000,
+      "ok": true,
+      "note": "Independent arithmetic: Flash load address + RAM delta - mapping base"
+    },
+    {
+      "target": "usb",
+      "check": "init_tick_step_inside_data_copy",
+      "expected": true,
+      "actual": true,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "init_clock_frequency_variable_raw_hex",
+      "expected": "0024f400",
+      "actual": "0024f400",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "init_clock_frequency_variable_value",
+      "expected": 16000000,
+      "actual": 16000000,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "init_clock_frequency_variable_offset_from_data_copy",
+      "expected": 139992,
+      "actual": 139992,
+      "ok": true,
+      "note": "Independent arithmetic: Flash load address + RAM delta - mapping base"
+    },
+    {
+      "target": "usb",
+      "check": "init_clock_frequency_variable_inside_data_copy",
+      "expected": true,
+      "actual": true,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "init_tick_priority_raw_hex",
+      "expected": "04000000",
+      "actual": "04000000",
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "init_tick_priority_value",
+      "expected": 4,
+      "actual": 4,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "init_tick_priority_offset_from_data_copy",
+      "expected": 140004,
+      "actual": 140004,
+      "ok": true,
+      "note": "Independent arithmetic: Flash load address + RAM delta - mapping base"
+    },
+    {
+      "target": "usb",
+      "check": "init_tick_priority_inside_data_copy",
+      "expected": true,
+      "actual": true,
+      "ok": true,
+      "note": ""
+    },
+    {
+      "target": "usb",
+      "check": "bss_zero_covers_tick",
+      "expected": true,
+      "actual": true,
+      "ok": true,
+      "note": "Range taken from prior sensor-timebase FINDINGS text, NOT re-derived from bytes here."
+    }
+  ],
+  "checks_total": 46,
+  "checks_failed": 0,
+  "derived": {
+    "nonusb": {
+      "default_step": 1,
+      "software_clock_hz": 16000000,
+      "q_1000_div_step": 1000,
+      "n_core_cycles_per_tick": 16000,
+      "systick_load": 15999,
+      "load_within_24bit": true,
+      "clock_divisible_by_1000": true,
+      "nominal_unit": "1 ms per tick, conditional on config success and interrupt service",
+      "cache_window_8_ticks_nominal_ms": 8,
+      "send_gate_500_ticks_nominal_ms": 500,
+      "ram_tick_priority_initial": 4,
+      "priority_argument_at_call_site": 3,
+      "priority_note": "RAM initial value is not the argument used by every init call"
+    },
+    "usb": {
+      "default_step": 1,
+      "software_clock_hz": 16000000,
+      "q_1000_div_step": 1000,
+      "n_core_cycles_per_tick": 16000,
+      "systick_load": 15999,
+      "load_within_24bit": true,
+      "clock_divisible_by_1000": true,
+      "nominal_unit": "1 ms per tick, conditional on config success and interrupt service",
+      "cache_window_8_ticks_nominal_ms": 8,
+      "send_gate_500_ticks_nominal_ms": 500,
+      "ram_tick_priority_initial": 4,
+      "priority_argument_at_call_site": null,
+      "priority_note": "RAM initial value is not the argument used by every init call"
+    }
+  },
+  "all_ok": true,
+  "scope_limit": "Startup bytes and SysTick integer arithmetic only. Physical core clock, PLL lock, RCC transition, interrupt latency and ADC CLKIN/DRDY are not measured."
+}

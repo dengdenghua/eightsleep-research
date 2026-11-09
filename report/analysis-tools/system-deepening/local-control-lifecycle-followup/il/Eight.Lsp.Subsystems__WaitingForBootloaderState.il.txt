@@ -1,0 +1,1392 @@
+// IL code: Eight.Lsp.Subsystems
+.class public auto ansi beforefieldinit Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState
+	extends [System.Runtime]System.Object
+	implements Eight.Lsp.Subsystems.StateMachine.ISubsystemState
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.interfaceimpl type Eight.Lsp.Subsystems.StateMachine.ISubsystemState
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit '<GetNextState>d__8'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> '<>t__builder'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo> '<>u__2'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter '<>u__3'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x5f4c
+			// Header size: 12
+			// Code size: 1516 (0x5ec)
+			.maxstack 7
+			.locals init (
+				[0] int32,
+				[1] class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState,
+				[2] class Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+				[3] object,
+				[4] int32,
+				[5] class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo,
+				[6] valuetype Eight.Lsp.Subsystems.Models.Side,
+				[7] uint8[],
+				[8] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[9] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo>,
+				[10] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Lsp.Subsystems.Models.Side>,
+				[11] valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter,
+				[12] valuetype [System.Runtime]System.Threading.Tasks.ValueTask,
+				[13] string,
+				[14] class [System.Runtime]System.Exception,
+				[15] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: ldc.i4.6
+				IL_0010: ble.un.s IL_0045
+
+				IL_0012: ldloc.0
+				IL_0013: ldc.i4.7
+				IL_0014: beq IL_057e
+
+				IL_0019: ldloc.1
+				IL_001a: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+				IL_001f: ldstr "Waiting for {Side} side bootloader"
+				IL_0024: ldc.i4.1
+				IL_0025: newarr [System.Runtime]System.Object
+				IL_002a: dup
+				IL_002b: ldc.i4.0
+				IL_002c: ldloc.1
+				IL_002d: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+				IL_0032: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+				IL_0037: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+				IL_003c: stelem.ref
+				IL_003d: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+				IL_0042: ldc.i4.0
+				IL_0043: stloc.s 4
+
+				IL_0045: nop
+				.try
+				{
+					IL_0046: ldloc.0
+					IL_0047: switch (IL_00d4, IL_013d, IL_01dc, IL_02a4, IL_030b, IL_03ee, IL_0455)
+
+					IL_0068: ldloc.1
+					IL_0069: ldfld class Eight.Lsp.Subsystems.Services.Firmware.IFirmwareManager Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::firmwareManager
+					IL_006e: ldloc.1
+					IL_006f: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_0074: ldloc.1
+					IL_0075: ldfld class Eight.Lsp.Subsystems.Models.IDeviceOptions Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::options
+					IL_007a: callvirt instance int32 Eight.Lsp.Subsystems.Models.IDeviceOptions::get_MaxBootloaderAttempts()
+					IL_007f: ldloc.1
+					IL_0080: ldfld class Eight.Lsp.Subsystems.Models.IDeviceOptions Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::options
+					IL_0085: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Lsp.Subsystems.Models.IDeviceOptions::get_BootloaderRetryDelay()
+					IL_008a: ldloc.1
+					IL_008b: ldfld class Eight.Lsp.Subsystems.Models.IDeviceOptions Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::options
+					IL_0090: callvirt instance valuetype [System.Runtime]System.TimeSpan Eight.Lsp.Subsystems.Models.IDeviceOptions::get_StateTimeout()
+					IL_0095: ldarg.0
+					IL_0096: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::cancellation
+					IL_009b: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Lsp.Subsystems.Services.Firmware.IFirmwareManager::WaitForBootloader(class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection, int32, valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.TimeSpan, valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_00a0: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+					IL_00a5: stloc.s 8
+					IL_00a7: ldloca.s 8
+					IL_00a9: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+					IL_00ae: brtrue.s IL_00f1
+
+					IL_00b0: ldarg.0
+					IL_00b1: ldc.i4.0
+					IL_00b2: dup
+					IL_00b3: stloc.0
+					IL_00b4: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+					IL_00b9: ldarg.0
+					IL_00ba: ldloc.s 8
+					IL_00bc: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_00c1: ldarg.0
+					IL_00c2: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+					IL_00c7: ldloca.s 8
+					IL_00c9: ldarg.0
+					IL_00ca: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'>(!!0&, !!1&)
+					IL_00cf: leave IL_05eb
+
+					IL_00d4: ldarg.0
+					IL_00d5: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_00da: stloc.s 8
+					IL_00dc: ldarg.0
+					IL_00dd: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_00e2: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+					IL_00e8: ldarg.0
+					IL_00e9: ldc.i4.m1
+					IL_00ea: dup
+					IL_00eb: stloc.0
+					IL_00ec: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+
+					IL_00f1: ldloca.s 8
+					IL_00f3: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+					IL_00f8: ldloc.1
+					IL_00f9: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_00fe: ldarg.0
+					IL_00ff: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::cancellation
+					IL_0104: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo> Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::GetHwInfo(valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_0109: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<!0> class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo>::GetAwaiter()
+					IL_010e: stloc.s 9
+					IL_0110: ldloca.s 9
+					IL_0112: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo>::get_IsCompleted()
+					IL_0117: brtrue.s IL_015a
+
+					IL_0119: ldarg.0
+					IL_011a: ldc.i4.1
+					IL_011b: dup
+					IL_011c: stloc.0
+					IL_011d: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+					IL_0122: ldarg.0
+					IL_0123: ldloc.s 9
+					IL_0125: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__2'
+					IL_012a: ldarg.0
+					IL_012b: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+					IL_0130: ldloca.s 9
+					IL_0132: ldarg.0
+					IL_0133: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo>, valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'>(!!0&, !!1&)
+					IL_0138: leave IL_05eb
+
+					IL_013d: ldarg.0
+					IL_013e: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__2'
+					IL_0143: stloc.s 9
+					IL_0145: ldarg.0
+					IL_0146: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__2'
+					IL_014b: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo>
+					IL_0151: ldarg.0
+					IL_0152: ldc.i4.m1
+					IL_0153: dup
+					IL_0154: stloc.0
+					IL_0155: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+
+					IL_015a: ldloca.s 9
+					IL_015c: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo>::GetResult()
+					IL_0161: stloc.s 5
+					IL_0163: ldloc.s 5
+					IL_0165: callvirt instance int32 [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo::get_PartNumber()
+					IL_016a: brtrue IL_021f
+
+					IL_016f: ldloc.1
+					IL_0170: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+					IL_0175: ldstr "[{Side}] GetHwInfo returned error or unparseable response (label: {Label}), will retry"
+					IL_017a: ldc.i4.2
+					IL_017b: newarr [System.Runtime]System.Object
+					IL_0180: dup
+					IL_0181: ldc.i4.0
+					IL_0182: ldloc.1
+					IL_0183: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_0188: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+					IL_018d: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+					IL_0192: stelem.ref
+					IL_0193: dup
+					IL_0194: ldc.i4.1
+					IL_0195: ldloc.s 5
+					IL_0197: callvirt instance string [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo::get_Label()
+					IL_019c: stelem.ref
+					IL_019d: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+					IL_01a2: ldloc.1
+					IL_01a3: call instance class [System.Runtime]System.Threading.Tasks.Task Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::ReleaseCurrentPortAfterFailedProbeAsync()
+					IL_01a8: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+					IL_01ad: stloc.s 8
+					IL_01af: ldloca.s 8
+					IL_01b1: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+					IL_01b6: brtrue.s IL_01f9
+
+					IL_01b8: ldarg.0
+					IL_01b9: ldc.i4.2
+					IL_01ba: dup
+					IL_01bb: stloc.0
+					IL_01bc: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+					IL_01c1: ldarg.0
+					IL_01c2: ldloc.s 8
+					IL_01c4: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_01c9: ldarg.0
+					IL_01ca: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+					IL_01cf: ldloca.s 8
+					IL_01d1: ldarg.0
+					IL_01d2: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'>(!!0&, !!1&)
+					IL_01d7: leave IL_05eb
+
+					IL_01dc: ldarg.0
+					IL_01dd: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_01e2: stloc.s 8
+					IL_01e4: ldarg.0
+					IL_01e5: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_01ea: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+					IL_01f0: ldarg.0
+					IL_01f1: ldc.i4.m1
+					IL_01f2: dup
+					IL_01f3: stloc.0
+					IL_01f4: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+
+					IL_01f9: ldloca.s 8
+					IL_01fb: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+					IL_0200: ldloc.1
+					IL_0201: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::stateFactory
+					IL_0206: ldloc.1
+					IL_0207: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_020c: ldc.i4.s 20
+					IL_020e: conv.i8
+					IL_020f: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::FromSeconds(int64)
+					IL_0214: callvirt instance class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory::CreateErrorWaitingState(class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection, valuetype [System.Runtime]System.TimeSpan)
+					IL_0219: stloc.2
+					IL_021a: leave IL_05d7
+
+					IL_021f: ldloc.1
+					IL_0220: ldloc.s 5
+					IL_0222: callvirt instance int32 [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo::get_PartNumber()
+					IL_0227: call instance valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Lsp.Subsystems.Models.Side> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::OwnerByPartNumber(int32)
+					IL_022c: stloc.s 10
+					IL_022e: ldloca.s 10
+					IL_0230: call instance bool valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Lsp.Subsystems.Models.Side>::get_HasValue()
+					IL_0235: brfalse IL_034b
+
+					IL_023a: ldloca.s 10
+					IL_023c: call instance !0 valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Lsp.Subsystems.Models.Side>::GetValueOrDefault()
+					IL_0241: stloc.s 6
+					IL_0243: ldloc.s 6
+					IL_0245: ldloc.1
+					IL_0246: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_024b: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+					IL_0250: beq IL_034b
+
+					IL_0255: ldloc.1
+					IL_0256: ldloc.s 6
+					IL_0258: ldloc.s 5
+					IL_025a: call instance void Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::HandCurrentPortTo(valuetype Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo)
+					IL_025f: ldloc.1
+					IL_0260: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_0265: ldarg.0
+					IL_0266: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::cancellation
+					IL_026b: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::Close(valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_0270: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+					IL_0275: stloc.s 8
+					IL_0277: ldloca.s 8
+					IL_0279: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+					IL_027e: brtrue.s IL_02c1
+
+					IL_0280: ldarg.0
+					IL_0281: ldc.i4.3
+					IL_0282: dup
+					IL_0283: stloc.0
+					IL_0284: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+					IL_0289: ldarg.0
+					IL_028a: ldloc.s 8
+					IL_028c: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_0291: ldarg.0
+					IL_0292: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+					IL_0297: ldloca.s 8
+					IL_0299: ldarg.0
+					IL_029a: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'>(!!0&, !!1&)
+					IL_029f: leave IL_05eb
+
+					IL_02a4: ldarg.0
+					IL_02a5: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_02aa: stloc.s 8
+					IL_02ac: ldarg.0
+					IL_02ad: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_02b2: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+					IL_02b8: ldarg.0
+					IL_02b9: ldc.i4.m1
+					IL_02ba: dup
+					IL_02bb: stloc.0
+					IL_02bc: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+
+					IL_02c1: ldloca.s 8
+					IL_02c3: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+					IL_02c8: ldloc.1
+					IL_02c9: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_02ce: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask [System.Runtime]System.IAsyncDisposable::DisposeAsync()
+					IL_02d3: stloc.s 12
+					IL_02d5: ldloca.s 12
+					IL_02d7: call instance valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter [System.Runtime]System.Threading.Tasks.ValueTask::GetAwaiter()
+					IL_02dc: stloc.s 11
+					IL_02de: ldloca.s 11
+					IL_02e0: call instance bool [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::get_IsCompleted()
+					IL_02e5: brtrue.s IL_0328
+
+					IL_02e7: ldarg.0
+					IL_02e8: ldc.i4.4
+					IL_02e9: dup
+					IL_02ea: stloc.0
+					IL_02eb: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+					IL_02f0: ldarg.0
+					IL_02f1: ldloc.s 11
+					IL_02f3: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__3'
+					IL_02f8: ldarg.0
+					IL_02f9: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+					IL_02fe: ldloca.s 11
+					IL_0300: ldarg.0
+					IL_0301: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter, valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'>(!!0&, !!1&)
+					IL_0306: leave IL_05eb
+
+					IL_030b: ldarg.0
+					IL_030c: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__3'
+					IL_0311: stloc.s 11
+					IL_0313: ldarg.0
+					IL_0314: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__3'
+					IL_0319: initobj [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter
+					IL_031f: ldarg.0
+					IL_0320: ldc.i4.m1
+					IL_0321: dup
+					IL_0322: stloc.0
+					IL_0323: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+
+					IL_0328: ldloca.s 11
+					IL_032a: call instance void [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::GetResult()
+					IL_032f: ldloc.1
+					IL_0330: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::stateFactory
+					IL_0335: ldloc.1
+					IL_0336: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_033b: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+					IL_0340: callvirt instance class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory::CreateNotConnectedState(valuetype Eight.Lsp.Subsystems.Models.Side)
+					IL_0345: stloc.2
+					IL_0346: leave IL_05d7
+
+					IL_034b: ldloc.1
+					IL_034c: ldloc.s 5
+					IL_034e: callvirt instance int32 [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo::get_PartNumber()
+					IL_0353: call instance bool Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::IsAllowedPartNumber(int32)
+					IL_0358: brtrue IL_0495
+
+					IL_035d: ldloc.1
+					IL_035e: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_0363: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+					IL_0368: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+					IL_036d: stloc.s 13
+					IL_036f: ldloc.1
+					IL_0370: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+					IL_0375: ldstr "[{Side}] Denied peripheral PN {PartNumber} (label: {Label}), denying port"
+					IL_037a: ldc.i4.3
+					IL_037b: newarr [System.Runtime]System.Object
+					IL_0380: dup
+					IL_0381: ldc.i4.0
+					IL_0382: ldloc.s 13
+					IL_0384: stelem.ref
+					IL_0385: dup
+					IL_0386: ldc.i4.1
+					IL_0387: ldloc.s 5
+					IL_0389: callvirt instance int32 [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo::get_PartNumber()
+					IL_038e: box [System.Runtime]System.Int32
+					IL_0393: stelem.ref
+					IL_0394: dup
+					IL_0395: ldc.i4.2
+					IL_0396: ldloc.s 5
+					IL_0398: callvirt instance string [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo::get_Label()
+					IL_039d: stelem.ref
+					IL_039e: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+					IL_03a3: ldloc.1
+					IL_03a4: call instance void Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::DenyCurrentPort()
+					IL_03a9: ldloc.1
+					IL_03aa: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_03af: ldarg.0
+					IL_03b0: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::cancellation
+					IL_03b5: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::Close(valuetype [System.Runtime]System.Threading.CancellationToken)
+					IL_03ba: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+					IL_03bf: stloc.s 8
+					IL_03c1: ldloca.s 8
+					IL_03c3: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+					IL_03c8: brtrue.s IL_040b
+
+					IL_03ca: ldarg.0
+					IL_03cb: ldc.i4.5
+					IL_03cc: dup
+					IL_03cd: stloc.0
+					IL_03ce: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+					IL_03d3: ldarg.0
+					IL_03d4: ldloc.s 8
+					IL_03d6: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_03db: ldarg.0
+					IL_03dc: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+					IL_03e1: ldloca.s 8
+					IL_03e3: ldarg.0
+					IL_03e4: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'>(!!0&, !!1&)
+					IL_03e9: leave IL_05eb
+
+					IL_03ee: ldarg.0
+					IL_03ef: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_03f4: stloc.s 8
+					IL_03f6: ldarg.0
+					IL_03f7: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+					IL_03fc: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+					IL_0402: ldarg.0
+					IL_0403: ldc.i4.m1
+					IL_0404: dup
+					IL_0405: stloc.0
+					IL_0406: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+
+					IL_040b: ldloca.s 8
+					IL_040d: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+					IL_0412: ldloc.1
+					IL_0413: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_0418: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask [System.Runtime]System.IAsyncDisposable::DisposeAsync()
+					IL_041d: stloc.s 12
+					IL_041f: ldloca.s 12
+					IL_0421: call instance valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter [System.Runtime]System.Threading.Tasks.ValueTask::GetAwaiter()
+					IL_0426: stloc.s 11
+					IL_0428: ldloca.s 11
+					IL_042a: call instance bool [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::get_IsCompleted()
+					IL_042f: brtrue.s IL_0472
+
+					IL_0431: ldarg.0
+					IL_0432: ldc.i4.6
+					IL_0433: dup
+					IL_0434: stloc.0
+					IL_0435: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+					IL_043a: ldarg.0
+					IL_043b: ldloc.s 11
+					IL_043d: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__3'
+					IL_0442: ldarg.0
+					IL_0443: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+					IL_0448: ldloca.s 11
+					IL_044a: ldarg.0
+					IL_044b: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter, valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'>(!!0&, !!1&)
+					IL_0450: leave IL_05eb
+
+					IL_0455: ldarg.0
+					IL_0456: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__3'
+					IL_045b: stloc.s 11
+					IL_045d: ldarg.0
+					IL_045e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__3'
+					IL_0463: initobj [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter
+					IL_0469: ldarg.0
+					IL_046a: ldc.i4.m1
+					IL_046b: dup
+					IL_046c: stloc.0
+					IL_046d: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+
+					IL_0472: ldloca.s 11
+					IL_0474: call instance void [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::GetResult()
+					IL_0479: ldloc.1
+					IL_047a: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::stateFactory
+					IL_047f: ldloc.1
+					IL_0480: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_0485: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+					IL_048a: callvirt instance class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory::CreateNotConnectedState(valuetype Eight.Lsp.Subsystems.Models.Side)
+					IL_048f: stloc.2
+					IL_0490: leave IL_05d7
+
+					IL_0495: ldloc.1
+					IL_0496: ldloc.s 5
+					IL_0498: call instance uint8[] Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::LoadFirmwareForHardware(class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo)
+					IL_049d: stloc.s 7
+					IL_049f: ldloc.s 7
+					IL_04a1: brfalse.s IL_04bc
+
+					IL_04a3: ldloc.1
+					IL_04a4: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::stateFactory
+					IL_04a9: ldloc.1
+					IL_04aa: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_04af: ldloc.s 7
+					IL_04b1: callvirt instance class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory::CreateCheckingFirmwareState(class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection, uint8[])
+					IL_04b6: stloc.2
+					IL_04b7: leave IL_05d7
+
+					IL_04bc: ldloc.1
+					IL_04bd: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+					IL_04c2: ldstr "[{Side}] No firmware configured, booting to existing firmware"
+					IL_04c7: ldc.i4.1
+					IL_04c8: newarr [System.Runtime]System.Object
+					IL_04cd: dup
+					IL_04ce: ldc.i4.0
+					IL_04cf: ldloc.1
+					IL_04d0: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_04d5: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+					IL_04da: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+					IL_04df: stelem.ref
+					IL_04e0: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+					IL_04e5: ldloc.1
+					IL_04e6: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::stateFactory
+					IL_04eb: ldloc.1
+					IL_04ec: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+					IL_04f1: callvirt instance class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory::CreateBootingState(class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection)
+					IL_04f6: stloc.2
+					IL_04f7: leave IL_05d7
+				} // end .try
+				catch [System.Runtime]System.Exception
+				{
+					IL_04fc: stloc.3
+					IL_04fd: ldc.i4.1
+					IL_04fe: stloc.s 4
+					IL_0500: leave.s IL_0502
+				} // end handler
+
+				IL_0502: ldloc.s 4
+				IL_0504: ldc.i4.1
+				IL_0505: bne.un IL_05bc
+
+				IL_050a: ldloc.3
+				IL_050b: castclass [System.Runtime]System.Exception
+				IL_0510: stloc.s 14
+				IL_0512: ldloc.1
+				IL_0513: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+				IL_0518: ldloc.s 14
+				IL_051a: ldstr "Failed to wait for bootloader on {Side} side: {Error}"
+				IL_051f: ldc.i4.2
+				IL_0520: newarr [System.Runtime]System.Object
+				IL_0525: dup
+				IL_0526: ldc.i4.0
+				IL_0527: ldloc.1
+				IL_0528: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+				IL_052d: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+				IL_0532: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+				IL_0537: stelem.ref
+				IL_0538: dup
+				IL_0539: ldc.i4.1
+				IL_053a: ldloc.s 14
+				IL_053c: callvirt instance string [System.Runtime]System.Exception::get_Message()
+				IL_0541: stelem.ref
+				IL_0542: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogError(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+				IL_0547: ldloc.1
+				IL_0548: call instance class [System.Runtime]System.Threading.Tasks.Task Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::ReleaseCurrentPortAfterFailedProbeAsync()
+				IL_054d: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+				IL_0552: stloc.s 8
+				IL_0554: ldloca.s 8
+				IL_0556: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+				IL_055b: brtrue.s IL_059b
+
+				IL_055d: ldarg.0
+				IL_055e: ldc.i4.7
+				IL_055f: dup
+				IL_0560: stloc.0
+				IL_0561: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+				IL_0566: ldarg.0
+				IL_0567: ldloc.s 8
+				IL_0569: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+				IL_056e: ldarg.0
+				IL_056f: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+				IL_0574: ldloca.s 8
+				IL_0576: ldarg.0
+				IL_0577: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'>(!!0&, !!1&)
+				IL_057c: leave.s IL_05eb
+
+				IL_057e: ldarg.0
+				IL_057f: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+				IL_0584: stloc.s 8
+				IL_0586: ldarg.0
+				IL_0587: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>u__1'
+				IL_058c: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+				IL_0592: ldarg.0
+				IL_0593: ldc.i4.m1
+				IL_0594: dup
+				IL_0595: stloc.0
+				IL_0596: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+
+				IL_059b: ldloca.s 8
+				IL_059d: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+				IL_05a2: ldloc.1
+				IL_05a3: ldfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::stateFactory
+				IL_05a8: ldloc.1
+				IL_05a9: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+				IL_05ae: ldc.i4.s 20
+				IL_05b0: conv.i8
+				IL_05b1: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::FromSeconds(int64)
+				IL_05b6: callvirt instance class Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory::CreateErrorWaitingState(class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection, valuetype [System.Runtime]System.TimeSpan)
+				IL_05bb: stloc.2
+
+				IL_05bc: leave.s IL_05d7
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_05be: stloc.s 15
+				IL_05c0: ldarg.0
+				IL_05c1: ldc.i4.s -2
+				IL_05c3: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+				IL_05c8: ldarg.0
+				IL_05c9: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+				IL_05ce: ldloc.s 15
+				IL_05d0: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::SetException(class [System.Runtime]System.Exception)
+				IL_05d5: leave.s IL_05eb
+			} // end handler
+
+			IL_05d7: ldarg.0
+			IL_05d8: ldc.i4.s -2
+			IL_05da: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+			IL_05df: ldarg.0
+			IL_05e0: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+			IL_05e5: ldloc.2
+			IL_05e6: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::SetResult(!0)
+
+			IL_05eb: ret
+		} // end of method '<GetNextState>d__8'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x6578
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<GetNextState>d__8'::SetStateMachine
+
+	} // end of class <GetNextState>d__8
+
+	.class nested private auto ansi sealed beforefieldinit '<ReleaseCurrentPortAfterFailedProbeAsync>d__12'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter '<>u__2'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x6588
+			// Header size: 12
+			// Code size: 329 (0x149)
+			.maxstack 3
+			.locals init (
+				[0] int32,
+				[1] class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState,
+				[2] string,
+				[3] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[4] valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter,
+				[5] valuetype [System.Runtime]System.Threading.Tasks.ValueTask,
+				[6] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse.s IL_005a
+
+				IL_0011: ldloc.0
+				IL_0012: ldc.i4.1
+				IL_0013: beq IL_00c0
+
+				IL_0018: ldloc.1
+				IL_0019: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+				IL_001e: call valuetype [System.Runtime]System.Threading.CancellationToken [System.Runtime]System.Threading.CancellationToken::get_None()
+				IL_0023: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::Close(valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_0028: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+				IL_002d: stloc.3
+				IL_002e: ldloca.s 3
+				IL_0030: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+				IL_0035: brtrue.s IL_0076
+
+				IL_0037: ldarg.0
+				IL_0038: ldc.i4.0
+				IL_0039: dup
+				IL_003a: stloc.0
+				IL_003b: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>1__state'
+				IL_0040: ldarg.0
+				IL_0041: ldloc.3
+				IL_0042: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>u__1'
+				IL_0047: ldarg.0
+				IL_0048: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>t__builder'
+				IL_004d: ldloca.s 3
+				IL_004f: ldarg.0
+				IL_0050: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'>(!!0&, !!1&)
+				IL_0055: leave IL_0148
+
+				IL_005a: ldarg.0
+				IL_005b: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>u__1'
+				IL_0060: stloc.3
+				IL_0061: ldarg.0
+				IL_0062: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>u__1'
+				IL_0067: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+				IL_006d: ldarg.0
+				IL_006e: ldc.i4.m1
+				IL_006f: dup
+				IL_0070: stloc.0
+				IL_0071: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>1__state'
+
+				IL_0076: ldloca.s 3
+				IL_0078: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+				IL_007d: ldloc.1
+				IL_007e: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+				IL_0083: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask [System.Runtime]System.IAsyncDisposable::DisposeAsync()
+				IL_0088: stloc.s 5
+				IL_008a: ldloca.s 5
+				IL_008c: call instance valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter [System.Runtime]System.Threading.Tasks.ValueTask::GetAwaiter()
+				IL_0091: stloc.s 4
+				IL_0093: ldloca.s 4
+				IL_0095: call instance bool [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::get_IsCompleted()
+				IL_009a: brtrue.s IL_00dd
+
+				IL_009c: ldarg.0
+				IL_009d: ldc.i4.1
+				IL_009e: dup
+				IL_009f: stloc.0
+				IL_00a0: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>1__state'
+				IL_00a5: ldarg.0
+				IL_00a6: ldloc.s 4
+				IL_00a8: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>u__2'
+				IL_00ad: ldarg.0
+				IL_00ae: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>t__builder'
+				IL_00b3: ldloca.s 4
+				IL_00b5: ldarg.0
+				IL_00b6: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter, valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'>(!!0&, !!1&)
+				IL_00bb: leave IL_0148
+
+				IL_00c0: ldarg.0
+				IL_00c1: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>u__2'
+				IL_00c6: stloc.s 4
+				IL_00c8: ldarg.0
+				IL_00c9: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>u__2'
+				IL_00ce: initobj [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter
+				IL_00d4: ldarg.0
+				IL_00d5: ldc.i4.m1
+				IL_00d6: dup
+				IL_00d7: stloc.0
+				IL_00d8: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>1__state'
+
+				IL_00dd: ldloca.s 4
+				IL_00df: call instance void [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter::GetResult()
+				IL_00e4: ldloc.1
+				IL_00e5: ldfld class Eight.Lsp.Subsystems.Infrastructure.IUsbPortMapper Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::usbPortMapper
+				IL_00ea: ldloc.1
+				IL_00eb: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+				IL_00f0: callvirt instance string Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_DevicePath()
+				IL_00f5: call string [System.Runtime]System.IO.Path::GetFileName(string)
+				IL_00fa: callvirt instance string Eight.Lsp.Subsystems.Infrastructure.IUsbPortMapper::ResolveDeviceToUsbPort(string)
+				IL_00ff: stloc.2
+				IL_0100: ldloc.2
+				IL_0101: brfalse.s IL_011a
+
+				IL_0103: ldloc.1
+				IL_0104: ldfld class Eight.Lsp.Subsystems.Infrastructure.IUsbPortRegistry Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::portRegistry
+				IL_0109: ldloc.2
+				IL_010a: ldloc.1
+				IL_010b: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+				IL_0110: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+				IL_0115: callvirt instance void Eight.Lsp.Subsystems.Infrastructure.IUsbPortRegistry::ReleaseAfterFailedProbe(string, valuetype Eight.Lsp.Subsystems.Models.Side)
+
+				IL_011a: leave.s IL_0135
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_011c: stloc.s 6
+				IL_011e: ldarg.0
+				IL_011f: ldc.i4.s -2
+				IL_0121: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>1__state'
+				IL_0126: ldarg.0
+				IL_0127: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>t__builder'
+				IL_012c: ldloc.s 6
+				IL_012e: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_0133: leave.s IL_0148
+			} // end handler
+
+			IL_0135: ldarg.0
+			IL_0136: ldc.i4.s -2
+			IL_0138: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>1__state'
+			IL_013d: ldarg.0
+			IL_013e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>t__builder'
+			IL_0143: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_0148: ret
+		} // end of method '<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x66fc
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::SetStateMachine
+
+	} // end of class <ReleaseCurrentPortAfterFailedProbeAsync>d__12
+
+
+	// Fields
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> logger
+	.field private initonly class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory stateFactory
+	.field private initonly class Eight.Lsp.Subsystems.Services.Firmware.IFirmwareManager firmwareManager
+	.field private initonly class Eight.Lsp.Subsystems.Models.IDeviceOptions options
+	.field private initonly class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection connection
+	.field private initonly class Eight.Lsp.Subsystems.Infrastructure.IUsbPortRegistry portRegistry
+	.field private initonly class Eight.Lsp.Subsystems.Infrastructure.IUsbPortMapper usbPortMapper
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> logger,
+			class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory stateFactory,
+			class Eight.Lsp.Subsystems.Services.Firmware.IFirmwareManager firmwareManager,
+			class Eight.Lsp.Subsystems.Models.IDeviceOptions options,
+			class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection connection,
+			class Eight.Lsp.Subsystems.Infrastructure.IUsbPortRegistry portRegistry,
+			class Eight.Lsp.Subsystems.Infrastructure.IUsbPortMapper usbPortMapper
+		) cil managed 
+	{
+		// Method begins at RVA 0x27bf
+		// Header size: 1
+		// Code size: 60 (0x3c)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+		IL_0007: ldarg.0
+		IL_0008: ldarg.2
+		IL_0009: stfld class Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::stateFactory
+		IL_000e: ldarg.0
+		IL_000f: ldarg.3
+		IL_0010: stfld class Eight.Lsp.Subsystems.Services.Firmware.IFirmwareManager Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::firmwareManager
+		IL_0015: ldarg.0
+		IL_0016: ldarg.s options
+		IL_0018: stfld class Eight.Lsp.Subsystems.Models.IDeviceOptions Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::options
+		IL_001d: ldarg.0
+		IL_001e: ldarg.s connection
+		IL_0020: stfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+		IL_0025: ldarg.0
+		IL_0026: ldarg.s portRegistry
+		IL_0028: stfld class Eight.Lsp.Subsystems.Infrastructure.IUsbPortRegistry Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::portRegistry
+		IL_002d: ldarg.0
+		IL_002e: ldarg.s usbPortMapper
+		IL_0030: stfld class Eight.Lsp.Subsystems.Infrastructure.IUsbPortMapper Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::usbPortMapper
+		IL_0035: ldarg.0
+		IL_0036: call instance void [System.Runtime]System.Object::.ctor()
+		IL_003b: ret
+	} // end of method WaitingForBootloaderState::.ctor
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> GetNextState (
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 55 45 69 67 68 74 2e 4c 73 70 2e 53 75 62
+			73 79 73 74 65 6d 73 2e 53 74 61 74 65 4d 61 63
+			68 69 6e 65 2e 53 74 61 74 65 73 2e 57 61 69 74
+			69 6e 67 46 6f 72 42 6f 6f 74 6c 6f 61 64 65 72
+			53 74 61 74 65 2b 3c 47 65 74 4e 65 78 74 53 74
+			61 74 65 3e 64 5f 5f 38 00 00
+		)
+		// Method begins at RVA 0x27fc
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::cancellation
+		IL_001c: ldloca.s 0
+		IL_001e: ldc.i4.m1
+		IL_001f: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>1__state'
+		IL_0024: ldloca.s 0
+		IL_0026: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+		IL_002b: ldloca.s 0
+		IL_002d: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::Start<valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'>(!!0&)
+		IL_0032: ldloca.s 0
+		IL_0034: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<GetNextState>d__8'::'<>t__builder'
+		IL_0039: call instance class [System.Runtime]System.Threading.Tasks.Task`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::get_Task()
+		IL_003e: ret
+	} // end of method WaitingForBootloaderState::GetNextState
+
+	.method private hidebysig 
+		instance bool IsAllowedPartNumber (
+			int32 partNumber
+		) cil managed 
+	{
+		// Method begins at RVA 0x2848
+		// Header size: 12
+		// Code size: 41 (0x29)
+		.maxstack 2
+		.locals init (
+			[0] int32[]
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Lsp.Subsystems.Models.IDeviceOptions Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::options
+		IL_0006: callvirt instance int32[] Eight.Lsp.Subsystems.Models.IDeviceOptions::get_AllowedPartNumbers()
+		IL_000b: stloc.0
+		IL_000c: ldloc.0
+		IL_000d: brfalse.s IL_0015
+
+		IL_000f: ldloc.0
+		IL_0010: ldlen
+		IL_0011: conv.i4
+		IL_0012: ldc.i4.0
+		IL_0013: bgt.s IL_0017
+
+		IL_0015: ldc.i4.1
+		IL_0016: ret
+
+		IL_0017: ldarg.0
+		IL_0018: ldfld class Eight.Lsp.Subsystems.Models.IDeviceOptions Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::options
+		IL_001d: callvirt instance int32[] Eight.Lsp.Subsystems.Models.IDeviceOptions::get_AllowedPartNumbers()
+		IL_0022: ldarg.1
+		IL_0023: call bool [System.Linq]System.Linq.Enumerable::Contains<int32>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>, !!0)
+		IL_0028: ret
+	} // end of method WaitingForBootloaderState::IsAllowedPartNumber
+
+	.method private hidebysig 
+		instance valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Lsp.Subsystems.Models.Side> OwnerByPartNumber (
+			int32 partNumber
+		) cil managed 
+	{
+		// Method begins at RVA 0x2880
+		// Header size: 12
+		// Code size: 137 (0x89)
+		.maxstack 3
+		.locals init (
+			[0] string[],
+			[1] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Lsp.Subsystems.Models.Side>,
+			[2] class [System.Runtime]System.Collections.Generic.IEnumerator`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<valuetype Eight.Lsp.Subsystems.Models.Side, int32[]>>,
+			[3] valuetype Eight.Lsp.Subsystems.Models.Side,
+			[4] valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<valuetype Eight.Lsp.Subsystems.Models.Side, int32[]>,
+			[5] valuetype Eight.Lsp.Subsystems.Models.Side,
+			[6] int32[],
+			[7] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Lsp.Subsystems.Models.Side>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Lsp.Subsystems.Models.IDeviceOptions Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::options
+		IL_0006: callvirt instance string[] Eight.Lsp.Subsystems.Models.IDeviceOptions::get_UsbRoots()
+		IL_000b: stloc.0
+		IL_000c: ldloc.0
+		IL_000d: brfalse.s IL_0022
+
+		IL_000f: ldloc.0
+		IL_0010: ldlen
+		IL_0011: conv.i4
+		IL_0012: ldc.i4.0
+		IL_0013: ble.s IL_0022
+
+		IL_0015: ldarg.0
+		IL_0016: ldfld class Eight.Lsp.Subsystems.Models.IDeviceOptions Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::options
+		IL_001b: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, int32[]> Eight.Lsp.Subsystems.Models.IDeviceOptions::get_SidePartNumbers()
+		IL_0020: brtrue.s IL_002c
+
+		IL_0022: ldloca.s 1
+		IL_0024: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Lsp.Subsystems.Models.Side>
+		IL_002a: ldloc.1
+		IL_002b: ret
+
+		IL_002c: ldarg.0
+		IL_002d: ldfld class Eight.Lsp.Subsystems.Models.IDeviceOptions Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::options
+		IL_0032: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<valuetype Eight.Lsp.Subsystems.Models.Side, int32[]> Eight.Lsp.Subsystems.Models.IDeviceOptions::get_SidePartNumbers()
+		IL_0037: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<valuetype Eight.Lsp.Subsystems.Models.Side, int32[]>>::GetEnumerator()
+		IL_003c: stloc.2
+		.try
+		{
+			IL_003d: br.s IL_0068
+			// loop start (head: IL_0068)
+				IL_003f: ldloc.2
+				IL_0040: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<valuetype Eight.Lsp.Subsystems.Models.Side, int32[]>>::get_Current()
+				IL_0045: stloc.s 4
+				IL_0047: ldloca.s 4
+				IL_0049: ldloca.s 5
+				IL_004b: ldloca.s 6
+				IL_004d: call instance void valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<valuetype Eight.Lsp.Subsystems.Models.Side, int32[]>::Deconstruct(!0&, !1&)
+				IL_0052: ldloc.s 5
+				IL_0054: stloc.3
+				IL_0055: ldloc.s 6
+				IL_0057: ldarg.1
+				IL_0058: call bool [System.Linq]System.Linq.Enumerable::Contains<int32>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>, !!0)
+				IL_005d: brfalse.s IL_0068
+
+				IL_005f: ldloc.3
+				IL_0060: newobj instance void valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Lsp.Subsystems.Models.Side>::.ctor(!0)
+				IL_0065: stloc.1
+				IL_0066: leave.s IL_0087
+
+				IL_0068: ldloc.2
+				IL_0069: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_006e: brtrue.s IL_003f
+			// end loop
+
+			IL_0070: leave.s IL_007c
+		} // end .try
+		finally
+		{
+			IL_0072: ldloc.2
+			IL_0073: brfalse.s IL_007b
+
+			IL_0075: ldloc.2
+			IL_0076: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_007b: endfinally
+		} // end handler
+
+		IL_007c: ldloca.s 7
+		IL_007e: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Lsp.Subsystems.Models.Side>
+		IL_0084: ldloc.s 7
+		IL_0086: ret
+
+		IL_0087: ldloc.1
+		IL_0088: ret
+	} // end of method WaitingForBootloaderState::OwnerByPartNumber
+
+	.method private hidebysig 
+		instance void HandCurrentPortTo (
+			valuetype Eight.Lsp.Subsystems.Models.Side owner,
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo hwInfo
+		) cil managed 
+	{
+		// Method begins at RVA 0x2928
+		// Header size: 12
+		// Code size: 108 (0x6c)
+		.maxstack 6
+		.locals init (
+			[0] string
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Lsp.Subsystems.Infrastructure.IUsbPortMapper Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::usbPortMapper
+		IL_0006: ldarg.0
+		IL_0007: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+		IL_000c: callvirt instance string Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_DevicePath()
+		IL_0011: call string [System.Runtime]System.IO.Path::GetFileName(string)
+		IL_0016: callvirt instance string Eight.Lsp.Subsystems.Infrastructure.IUsbPortMapper::ResolveDeviceToUsbPort(string)
+		IL_001b: stloc.0
+		IL_001c: ldloc.0
+		IL_001d: brfalse.s IL_002c
+
+		IL_001f: ldarg.0
+		IL_0020: ldfld class Eight.Lsp.Subsystems.Infrastructure.IUsbPortRegistry Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::portRegistry
+		IL_0025: ldloc.0
+		IL_0026: ldarg.1
+		IL_0027: callvirt instance void Eight.Lsp.Subsystems.Infrastructure.IUsbPortRegistry::Assign(string, valuetype Eight.Lsp.Subsystems.Models.Side)
+
+		IL_002c: ldarg.0
+		IL_002d: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+		IL_0032: ldstr "[{Side}] {Label} on {UsbPort} belongs to the {Owner} side, handing it over"
+		IL_0037: ldc.i4.4
+		IL_0038: newarr [System.Runtime]System.Object
+		IL_003d: dup
+		IL_003e: ldc.i4.0
+		IL_003f: ldarg.0
+		IL_0040: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+		IL_0045: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+		IL_004a: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+		IL_004f: stelem.ref
+		IL_0050: dup
+		IL_0051: ldc.i4.1
+		IL_0052: ldarg.2
+		IL_0053: callvirt instance string [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo::get_Label()
+		IL_0058: stelem.ref
+		IL_0059: dup
+		IL_005a: ldc.i4.2
+		IL_005b: ldloc.0
+		IL_005c: stelem.ref
+		IL_005d: dup
+		IL_005e: ldc.i4.3
+		IL_005f: ldarg.1
+		IL_0060: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+		IL_0065: stelem.ref
+		IL_0066: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_006b: ret
+	} // end of method WaitingForBootloaderState::HandCurrentPortTo
+
+	.method private hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task ReleaseCurrentPortAfterFailedProbeAsync () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 71 45 69 67 68 74 2e 4c 73 70 2e 53 75 62
+			73 79 73 74 65 6d 73 2e 53 74 61 74 65 4d 61 63
+			68 69 6e 65 2e 53 74 61 74 65 73 2e 57 61 69 74
+			69 6e 67 46 6f 72 42 6f 6f 74 6c 6f 61 64 65 72
+			53 74 61 74 65 2b 3c 52 65 6c 65 61 73 65 43 75
+			72 72 65 6e 74 50 6f 72 74 41 66 74 65 72 46 61
+			69 6c 65 64 50 72 6f 62 65 41 73 79 6e 63 3e 64
+			5f 5f 31 32 00 00
+		)
+		// Method begins at RVA 0x29a0
+		// Header size: 12
+		// Code size: 55 (0x37)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldc.i4.m1
+		IL_0017: stfld int32 Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>1__state'
+		IL_001c: ldloca.s 0
+		IL_001e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>t__builder'
+		IL_0023: ldloca.s 0
+		IL_0025: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'>(!!0&)
+		IL_002a: ldloca.s 0
+		IL_002c: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState/'<ReleaseCurrentPortAfterFailedProbeAsync>d__12'::'<>t__builder'
+		IL_0031: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_0036: ret
+	} // end of method WaitingForBootloaderState::ReleaseCurrentPortAfterFailedProbeAsync
+
+	.method private hidebysig 
+		instance void DenyCurrentPort () cil managed 
+	{
+		// Method begins at RVA 0x29e4
+		// Header size: 12
+		// Code size: 91 (0x5b)
+		.maxstack 6
+		.locals init (
+			[0] string,
+			[1] string
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+		IL_0006: callvirt instance string Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_DevicePath()
+		IL_000b: call string [System.Runtime]System.IO.Path::GetFileName(string)
+		IL_0010: stloc.0
+		IL_0011: ldarg.0
+		IL_0012: ldfld class Eight.Lsp.Subsystems.Infrastructure.IUsbPortMapper Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::usbPortMapper
+		IL_0017: ldloc.0
+		IL_0018: callvirt instance string Eight.Lsp.Subsystems.Infrastructure.IUsbPortMapper::ResolveDeviceToUsbPort(string)
+		IL_001d: stloc.1
+		IL_001e: ldloc.1
+		IL_001f: brfalse.s IL_005a
+
+		IL_0021: ldarg.0
+		IL_0022: ldfld class Eight.Lsp.Subsystems.Infrastructure.IUsbPortRegistry Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::portRegistry
+		IL_0027: ldloc.1
+		IL_0028: callvirt instance void Eight.Lsp.Subsystems.Infrastructure.IUsbPortRegistry::Deny(string)
+		IL_002d: ldarg.0
+		IL_002e: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+		IL_0033: ldstr "[{Side}] Port {UsbPort} permanently denied"
+		IL_0038: ldc.i4.2
+		IL_0039: newarr [System.Runtime]System.Object
+		IL_003e: dup
+		IL_003f: ldc.i4.0
+		IL_0040: ldarg.0
+		IL_0041: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+		IL_0046: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+		IL_004b: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+		IL_0050: stelem.ref
+		IL_0051: dup
+		IL_0052: ldc.i4.1
+		IL_0053: ldloc.1
+		IL_0054: stelem.ref
+		IL_0055: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+
+		IL_005a: ret
+	} // end of method WaitingForBootloaderState::DenyCurrentPort
+
+	.method private hidebysig 
+		instance uint8[] LoadFirmwareForHardware (
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo hwInfo
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2a4c
+		// Header size: 12
+		// Code size: 223 (0xdf)
+		.maxstack 6
+		.locals init (
+			[0] string,
+			[1] string,
+			[2] string
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::connection
+		IL_0006: callvirt instance valuetype Eight.Lsp.Subsystems.Models.Side Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+		IL_000b: call string Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype Eight.Lsp.Subsystems.Models.Side)
+		IL_0010: stloc.0
+		IL_0011: ldarg.1
+		IL_0012: callvirt instance string [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.HardwareInfo::get_Revision()
+		IL_0017: stloc.1
+		IL_0018: ldloc.1
+		IL_0019: call bool [System.Runtime]System.String::IsNullOrEmpty(string)
+		IL_001e: brfalse.s IL_003c
+
+		IL_0020: ldarg.0
+		IL_0021: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+		IL_0026: ldstr "[{Side}] No hardware revision found, cannot select firmware"
+		IL_002b: ldc.i4.1
+		IL_002c: newarr [System.Runtime]System.Object
+		IL_0031: dup
+		IL_0032: ldc.i4.0
+		IL_0033: ldloc.0
+		IL_0034: stelem.ref
+		IL_0035: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_003a: ldnull
+		IL_003b: ret
+
+		IL_003c: ldarg.0
+		IL_003d: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+		IL_0042: ldstr "[{Side}] Detected hardware revision: {Revision}"
+		IL_0047: ldc.i4.2
+		IL_0048: newarr [System.Runtime]System.Object
+		IL_004d: dup
+		IL_004e: ldc.i4.0
+		IL_004f: ldloc.0
+		IL_0050: stelem.ref
+		IL_0051: dup
+		IL_0052: ldc.i4.1
+		IL_0053: ldloc.1
+		IL_0054: stelem.ref
+		IL_0055: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_005a: ldarg.0
+		IL_005b: ldfld class Eight.Lsp.Subsystems.Models.IDeviceOptions Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::options
+		IL_0060: ldloc.1
+		IL_0061: callvirt instance string Eight.Lsp.Subsystems.Models.IDeviceOptions::GetFirmwarePathForRevision(string)
+		IL_0066: stloc.2
+		IL_0067: ldloc.2
+		IL_0068: brtrue.s IL_008a
+
+		IL_006a: ldarg.0
+		IL_006b: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+		IL_0070: ldstr "[{Side}] No firmware mapping found for hardware revision {Revision}"
+		IL_0075: ldc.i4.2
+		IL_0076: newarr [System.Runtime]System.Object
+		IL_007b: dup
+		IL_007c: ldc.i4.0
+		IL_007d: ldloc.0
+		IL_007e: stelem.ref
+		IL_007f: dup
+		IL_0080: ldc.i4.1
+		IL_0081: ldloc.1
+		IL_0082: stelem.ref
+		IL_0083: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogCritical(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_0088: ldnull
+		IL_0089: ret
+
+		IL_008a: ldloc.2
+		IL_008b: call bool [System.Runtime]System.IO.File::Exists(string)
+		IL_0090: brtrue.s IL_00b6
+
+		IL_0092: ldarg.0
+		IL_0093: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+		IL_0098: ldstr "[{Side}] Firmware file not found at '{Path}' for revision {Revision}"
+		IL_009d: ldc.i4.3
+		IL_009e: newarr [System.Runtime]System.Object
+		IL_00a3: dup
+		IL_00a4: ldc.i4.0
+		IL_00a5: ldloc.0
+		IL_00a6: stelem.ref
+		IL_00a7: dup
+		IL_00a8: ldc.i4.1
+		IL_00a9: ldloc.2
+		IL_00aa: stelem.ref
+		IL_00ab: dup
+		IL_00ac: ldc.i4.2
+		IL_00ad: ldloc.1
+		IL_00ae: stelem.ref
+		IL_00af: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogCritical(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_00b4: ldnull
+		IL_00b5: ret
+
+		IL_00b6: ldarg.0
+		IL_00b7: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState> Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState::logger
+		IL_00bc: ldstr "[{Side}] Loading firmware from '{Path}' for revision {Revision}"
+		IL_00c1: ldc.i4.3
+		IL_00c2: newarr [System.Runtime]System.Object
+		IL_00c7: dup
+		IL_00c8: ldc.i4.0
+		IL_00c9: ldloc.0
+		IL_00ca: stelem.ref
+		IL_00cb: dup
+		IL_00cc: ldc.i4.1
+		IL_00cd: ldloc.2
+		IL_00ce: stelem.ref
+		IL_00cf: dup
+		IL_00d0: ldc.i4.2
+		IL_00d1: ldloc.1
+		IL_00d2: stelem.ref
+		IL_00d3: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_00d8: ldloc.2
+		IL_00d9: call uint8[] [System.Runtime]System.IO.File::ReadAllBytes(string)
+		IL_00de: ret
+	} // end of method WaitingForBootloaderState::LoadFirmwareForHardware
+
+} // end of class Eight.Lsp.Subsystems.StateMachine.States.WaitingForBootloaderState

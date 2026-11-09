@@ -1,0 +1,74 @@
+TARGET 080062a8 function=080062a8
+REF_TO 0800d3ea UNCONDITIONAL_CALL owner=0800cea4
+REF_TO 0800d402 UNCONDITIONAL_CALL owner=0800cea4
+REF_TO 0800d41c UNCONDITIONAL_CALL owner=0800cea4
+REF_TO 0800d436 UNCONDITIONAL_CALL owner=0800cea4
+REF_TO 0800d450 UNCONDITIONAL_CALL owner=0800cea4
+REF_TO 0800d46a UNCONDITIONAL_CALL owner=0800cea4
+REF_TO 08008980 UNCONDITIONAL_CALL owner=080087fe
+REF_TO 0800570a UNCONDITIONAL_CALL owner=080056f8
+REF_TO 0800571a UNCONDITIONAL_CALL owner=080056f8
+REF_TO 0800b5e4 UNCONDITIONAL_CALL owner=0800b448
+REF_TO 0800b642 UNCONDITIONAL_CALL owner=0800b448
+FUNCTION_BODY [[080062a8, 080062e1]]
+
+uint FUN_080062a8(uint param_1)
+
+{
+  uint uVar1;
+  uint uVar2;
+  uint uVar3;
+  
+  uVar3 = (param_1 & 0x7fffffff) >> 0x17;
+  uVar1 = 0;
+  if (0x7e < uVar3) {
+    if (uVar3 < 0x9e) {
+      uVar2 = param_1 & 0x7fffff | 0x800000;
+      if (uVar3 < 0x96) {
+        uVar2 = uVar2 >> (0x96 - uVar3 & 0xff);
+      }
+      else {
+        uVar2 = uVar2 << (uVar3 - 0x96 & 0xff);
+      }
+      uVar1 = -uVar2;
+      if (-1 < (int)param_1) {
+        uVar1 = uVar2;
+      }
+    }
+    else {
+      uVar1 = 0x7fffffff - ((int)param_1 >> 0x1f);
+    }
+  }
+  return uVar1;
+}
+
+
+INSN 080062a8 4102 lsls r1,r0,#0x9
+INSN 080062aa 4200 lsls r2,r0,#0x1
+INSN 080062ac c30f lsrs r3,r0,#0x1f
+INSN 080062ae 490a lsrs r1,r1,#0x9
+INSN 080062b0 120e lsrs r2,r2,#0x18
+INSN 080062b2 0020 movs r0,#0x0
+INSN 080062b4 7e2a cmp r2,#0x7e
+INSN 080062b6 0dd9 bls 0x080062d4 REF[CONDITIONAL_JUMP:080062d4]
+INSN 080062b8 9d2a cmp r2,#0x9d
+INSN 080062ba 0cd8 bhi 0x080062d6 REF[CONDITIONAL_JUMP:080062d6]
+INSN 080062bc 8020 movs r0,#0x80
+INSN 080062be 0004 lsls r0,r0,#0x10
+INSN 080062c0 0143 orrs r1,r0
+INSN 080062c2 952a cmp r2,#0x95
+INSN 080062c4 0adc bgt 0x080062dc REF[CONDITIONAL_JUMP:080062dc]
+INSN 080062c6 9620 movs r0,#0x96
+INSN 080062c8 821a subs r2,r0,r2
+INSN 080062ca d140 lsrs r1,r2
+INSN 080062cc 4842 rsbs r0,r1
+INSN 080062ce 002b cmp r3,#0x0
+INSN 080062d0 00d1 bne 0x080062d4 REF[CONDITIONAL_JUMP:080062d4]
+INSN 080062d2 0800 movs r0,r1
+INSN 080062d4 7047 bx lr
+INSN 080062d6 034a ldr r2,[0x080062e4] REF[READ:080062e4=7fffffff]
+INSN 080062d8 9818 adds r0,r3,r2
+INSN 080062da fbe7 b 0x080062d4 REF[UNCONDITIONAL_JUMP:080062d4]
+INSN 080062dc 963a subs r2,#0x96
+INSN 080062de 9140 lsls r1,r2
+INSN 080062e0 f4e7 b 0x080062cc REF[UNCONDITIONAL_JUMP:080062cc]

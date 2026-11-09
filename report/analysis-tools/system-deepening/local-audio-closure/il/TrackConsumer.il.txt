@@ -1,0 +1,725 @@
+// IL code: Eight.Audio
+.class public auto ansi beforefieldinit Eight.Audio.Player.TrackConsumer
+	extends [System.Runtime]System.Object
+	implements Eight.Audio.Player.ITrackConsumer
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.interfaceimpl type Eight.Audio.Player.ITrackConsumer
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit '<Play>d__7'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Eight.Audio.Player.TrackConsumer '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		.field public valuetype [System.Runtime]System.Nullable`1<int32> startVolume
+		.field public bool startPaused
+		.field private class [Eight.PulseAudio]Eight.PulseAudio.IAudioStreamWriter '<consumer>5__2'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private class [System.Runtime]System.Threading.CancellationTokenSource '<linkedTokenSource>5__3'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [System.Runtime]System.Threading.Tasks.Task> '<>u__1'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0xd900
+			// Header size: 12
+			// Code size: 671 (0x29f)
+			.maxstack 10
+			.locals init (
+				[0] int32,
+				[1] class Eight.Audio.Player.TrackConsumer,
+				[2] class [Eight.PulseAudio]Eight.PulseAudio.SampleSpec,
+				[3] class [Eight.PulseAudio]Eight.PulseAudio.ChannelMap,
+				[4] valuetype [System.Runtime]System.Nullable`1<uint16>,
+				[5] valuetype [System.Runtime]System.Nullable`1<uint16>,
+				[6] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [System.Runtime]System.Threading.Tasks.Task>,
+				[7] valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>,
+				[8] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Audio.Player.TrackConsumer Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse.s IL_0060
+
+				IL_0011: ldloc.1
+				IL_0012: ldfld class [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory Eight.Audio.Player.TrackConsumer::pulseAudioFactory
+				IL_0017: ldloc.1
+				IL_0018: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Player.TrackConsumer::source
+				IL_001d: callvirt instance int32 Eight.Audio.Tracks.ITrack::get_BitsPerSample()
+				IL_0022: ldloc.1
+				IL_0023: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Player.TrackConsumer::source
+				IL_0028: callvirt instance int32 Eight.Audio.Tracks.ITrack::get_SampleRate()
+				IL_002d: ldloc.1
+				IL_002e: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Player.TrackConsumer::source
+				IL_0033: callvirt instance int32 Eight.Audio.Tracks.ITrack::get_Channels()
+				IL_0038: ldloc.1
+				IL_0039: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Player.TrackConsumer::source
+				IL_003e: callvirt instance bool Eight.Audio.Tracks.ITrack::get_IsLittleEndian()
+				IL_0043: callvirt instance class [Eight.PulseAudio]Eight.PulseAudio.SampleSpec [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory::CreateSampleSpec(int32, int32, int32, bool)
+				IL_0048: stloc.2
+				IL_0049: ldloc.1
+				IL_004a: ldfld class [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory Eight.Audio.Player.TrackConsumer::pulseAudioFactory
+				IL_004f: ldloc.1
+				IL_0050: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Player.TrackConsumer::source
+				IL_0055: callvirt instance int32 Eight.Audio.Tracks.ITrack::get_Channels()
+				IL_005a: call class [Eight.PulseAudio]Eight.PulseAudio.ChannelMap Eight.Audio.Player.TrackConsumer::CreateChannelMap(class [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory, int32)
+				IL_005f: stloc.3
+
+				IL_0060: nop
+				.try
+				{
+					IL_0061: ldloc.0
+					IL_0062: brfalse.s IL_00e2
+
+					IL_0064: ldloc.1
+					IL_0065: ldloc.1
+					IL_0066: ldfld class [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory Eight.Audio.Player.TrackConsumer::pulseAudioFactory
+					IL_006b: ldloc.1
+					IL_006c: ldfld class [Eight.PulseAudio]Eight.PulseAudio.Context Eight.Audio.Player.TrackConsumer::context
+					IL_0071: ldloc.1
+					IL_0072: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Player.TrackConsumer::source
+					IL_0077: callvirt instance string Eight.Audio.Tracks.ITrack::get_Name()
+					IL_007c: ldloc.2
+					IL_007d: ldloc.3
+					IL_007e: newobj instance void class [System.Collections]System.Collections.Generic.Dictionary`2<string, string>::.ctor()
+					IL_0083: dup
+					IL_0084: ldstr "media.role"
+					IL_0089: ldstr "music"
+					IL_008e: callvirt instance void class [System.Collections]System.Collections.Generic.Dictionary`2<string, string>::Add(!0, !1)
+					IL_0093: dup
+					IL_0094: ldstr "media.icon_name"
+					IL_0099: ldstr "audio-x-generic"
+					IL_009e: callvirt instance void class [System.Collections]System.Collections.Generic.Dictionary`2<string, string>::Add(!0, !1)
+					IL_00a3: callvirt instance class [Eight.PulseAudio]Eight.PulseAudio.Stream [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory::CreateStream(class [Eight.PulseAudio]Eight.PulseAudio.Context, string, class [Eight.PulseAudio]Eight.PulseAudio.SampleSpec, class [Eight.PulseAudio]Eight.PulseAudio.ChannelMap, class [System.Runtime]System.Collections.Generic.IEnumerable`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>>)
+					IL_00a8: stfld class [Eight.PulseAudio]Eight.PulseAudio.Stream Eight.Audio.Player.TrackConsumer::'stream'
+					IL_00ad: ldloc.1
+					IL_00ae: ldfld class [Eight.PulseAudio]Eight.PulseAudio.Stream Eight.Audio.Player.TrackConsumer::'stream'
+					IL_00b3: brtrue.s IL_00c0
+
+					IL_00b5: ldstr "Failed to create a context"
+					IL_00ba: newobj instance void [System.Runtime]System.ArgumentException::.ctor(string)
+					IL_00bf: throw
+
+					IL_00c0: ldarg.0
+					IL_00c1: ldloc.1
+					IL_00c2: ldfld class [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory Eight.Audio.Player.TrackConsumer::pulseAudioFactory
+					IL_00c7: ldloc.1
+					IL_00c8: ldfld class [Eight.PulseAudio]Eight.PulseAudio.Stream Eight.Audio.Player.TrackConsumer::'stream'
+					IL_00cd: ldloc.1
+					IL_00ce: ldfld class [System.IO.Pipelines]System.IO.Pipelines.Pipe Eight.Audio.Player.TrackConsumer::pipe
+					IL_00d3: callvirt instance class [System.IO.Pipelines]System.IO.Pipelines.PipeReader [System.IO.Pipelines]System.IO.Pipelines.Pipe::get_Reader()
+					IL_00d8: callvirt instance class [Eight.PulseAudio]Eight.PulseAudio.IAudioStreamWriter [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory::CreateAudioStreamWriter(class [Eight.PulseAudio]Eight.PulseAudio.Stream, class [System.IO.Pipelines]System.IO.Pipelines.PipeReader)
+					IL_00dd: stfld class [Eight.PulseAudio]Eight.PulseAudio.IAudioStreamWriter Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<consumer>5__2'
+
+					IL_00e2: nop
+					.try
+					{
+						IL_00e3: ldloc.0
+						IL_00e4: brfalse.s IL_00f7
+
+						IL_00e6: ldarg.0
+						IL_00e7: ldarg.0
+						IL_00e8: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Audio.Player.TrackConsumer/'<Play>d__7'::cancellationToken
+						IL_00ed: call class [System.Runtime]System.Threading.CancellationTokenSource [System.Runtime]System.Threading.CancellationTokenSource::CreateLinkedTokenSource(valuetype [System.Runtime]System.Threading.CancellationToken)
+						IL_00f2: stfld class [System.Runtime]System.Threading.CancellationTokenSource Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<linkedTokenSource>5__3'
+
+						IL_00f7: nop
+						.try
+						{
+							IL_00f8: ldloc.0
+							IL_00f9: brfalse IL_01bb
+
+							IL_00fe: ldarg.0
+							IL_00ff: ldflda valuetype [System.Runtime]System.Nullable`1<int32> Eight.Audio.Player.TrackConsumer/'<Play>d__7'::startVolume
+							IL_0104: call instance bool valuetype [System.Runtime]System.Nullable`1<int32>::get_HasValue()
+							IL_0109: brtrue.s IL_0117
+
+							IL_010b: ldloca.s 5
+							IL_010d: initobj valuetype [System.Runtime]System.Nullable`1<uint16>
+							IL_0113: ldloc.s 5
+							IL_0115: br.s IL_012d
+
+							IL_0117: ldloc.1
+							IL_0118: ldarg.0
+							IL_0119: ldflda valuetype [System.Runtime]System.Nullable`1<int32> Eight.Audio.Player.TrackConsumer/'<Play>d__7'::startVolume
+							IL_011e: call instance !0 valuetype [System.Runtime]System.Nullable`1<int32>::get_Value()
+							IL_0123: call instance uint16 Eight.Audio.Player.TrackConsumer::ScaleUserVolume(int32)
+							IL_0128: newobj instance void valuetype [System.Runtime]System.Nullable`1<uint16>::.ctor(!0)
+
+							IL_012d: stloc.s 4
+							IL_012f: ldloc.1
+							IL_0130: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Player.TrackConsumer::source
+							IL_0135: ldloc.1
+							IL_0136: ldfld class [System.IO.Pipelines]System.IO.Pipelines.Pipe Eight.Audio.Player.TrackConsumer::pipe
+							IL_013b: callvirt instance class [System.IO.Pipelines]System.IO.Pipelines.PipeWriter [System.IO.Pipelines]System.IO.Pipelines.Pipe::get_Writer()
+							IL_0140: ldloca.s 7
+							IL_0142: initobj valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>
+							IL_0148: ldloc.s 7
+							IL_014a: ldloca.s 7
+							IL_014c: initobj valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>
+							IL_0152: ldloc.s 7
+							IL_0154: ldarg.0
+							IL_0155: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<linkedTokenSource>5__3'
+							IL_015a: callvirt instance valuetype [System.Runtime]System.Threading.CancellationToken [System.Runtime]System.Threading.CancellationTokenSource::get_Token()
+							IL_015f: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Audio.Tracks.ITrack::ProvideAudio(class [System.IO.Pipelines]System.IO.Pipelines.PipeWriter, valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [System.Runtime]System.Nullable`1<valuetype [NodaTime]NodaTime.Duration>, valuetype [System.Runtime]System.Threading.CancellationToken)
+							IL_0164: ldarg.0
+							IL_0165: ldfld class [Eight.PulseAudio]Eight.PulseAudio.IAudioStreamWriter Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<consumer>5__2'
+							IL_016a: ldarg.0
+							IL_016b: ldfld bool Eight.Audio.Player.TrackConsumer/'<Play>d__7'::startPaused
+							IL_0170: ldloc.s 4
+							IL_0172: ldarg.0
+							IL_0173: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<linkedTokenSource>5__3'
+							IL_0178: callvirt instance valuetype [System.Runtime]System.Threading.CancellationToken [System.Runtime]System.Threading.CancellationTokenSource::get_Token()
+							IL_017d: callvirt instance class [System.Runtime]System.Threading.Tasks.Task [Eight.PulseAudio]Eight.PulseAudio.IAudioStreamWriter::WriteToStream(bool, valuetype [System.Runtime]System.Nullable`1<uint16>, valuetype [System.Runtime]System.Threading.CancellationToken)
+							IL_0182: call class [System.Runtime]System.Threading.Tasks.Task`1<class [System.Runtime]System.Threading.Tasks.Task> [System.Runtime]System.Threading.Tasks.Task::WhenAny(class [System.Runtime]System.Threading.Tasks.Task, class [System.Runtime]System.Threading.Tasks.Task)
+							IL_0187: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<!0> class [System.Runtime]System.Threading.Tasks.Task`1<class [System.Runtime]System.Threading.Tasks.Task>::GetAwaiter()
+							IL_018c: stloc.s 6
+							IL_018e: ldloca.s 6
+							IL_0190: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [System.Runtime]System.Threading.Tasks.Task>::get_IsCompleted()
+							IL_0195: brtrue.s IL_01d8
+
+							IL_0197: ldarg.0
+							IL_0198: ldc.i4.0
+							IL_0199: dup
+							IL_019a: stloc.0
+							IL_019b: stfld int32 Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>1__state'
+							IL_01a0: ldarg.0
+							IL_01a1: ldloc.s 6
+							IL_01a3: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [System.Runtime]System.Threading.Tasks.Task> Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>u__1'
+							IL_01a8: ldarg.0
+							IL_01a9: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>t__builder'
+							IL_01ae: ldloca.s 6
+							IL_01b0: ldarg.0
+							IL_01b1: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [System.Runtime]System.Threading.Tasks.Task>, valuetype Eight.Audio.Player.TrackConsumer/'<Play>d__7'>(!!0&, !!1&)
+							IL_01b6: leave IL_029e
+
+							IL_01bb: ldarg.0
+							IL_01bc: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [System.Runtime]System.Threading.Tasks.Task> Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>u__1'
+							IL_01c1: stloc.s 6
+							IL_01c3: ldarg.0
+							IL_01c4: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [System.Runtime]System.Threading.Tasks.Task> Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>u__1'
+							IL_01c9: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [System.Runtime]System.Threading.Tasks.Task>
+							IL_01cf: ldarg.0
+							IL_01d0: ldc.i4.m1
+							IL_01d1: dup
+							IL_01d2: stloc.0
+							IL_01d3: stfld int32 Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>1__state'
+
+							IL_01d8: ldloca.s 6
+							IL_01da: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [System.Runtime]System.Threading.Tasks.Task>::GetResult()
+							IL_01df: pop
+							IL_01e0: ldarg.0
+							IL_01e1: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<linkedTokenSource>5__3'
+							IL_01e6: callvirt instance void [System.Runtime]System.Threading.CancellationTokenSource::Cancel()
+							IL_01eb: leave.s IL_0205
+						} // end .try
+						finally
+						{
+							IL_01ed: ldloc.0
+							IL_01ee: ldc.i4.0
+							IL_01ef: bge.s IL_0204
+
+							IL_01f1: ldarg.0
+							IL_01f2: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<linkedTokenSource>5__3'
+							IL_01f7: brfalse.s IL_0204
+
+							IL_01f9: ldarg.0
+							IL_01fa: ldfld class [System.Runtime]System.Threading.CancellationTokenSource Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<linkedTokenSource>5__3'
+							IL_01ff: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+							IL_0204: endfinally
+						} // end handler
+
+						IL_0205: leave.s IL_021f
+					} // end .try
+					finally
+					{
+						IL_0207: ldloc.0
+						IL_0208: ldc.i4.0
+						IL_0209: bge.s IL_021e
+
+						IL_020b: ldarg.0
+						IL_020c: ldfld class [Eight.PulseAudio]Eight.PulseAudio.IAudioStreamWriter Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<consumer>5__2'
+						IL_0211: brfalse.s IL_021e
+
+						IL_0213: ldarg.0
+						IL_0214: ldfld class [Eight.PulseAudio]Eight.PulseAudio.IAudioStreamWriter Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<consumer>5__2'
+						IL_0219: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+						IL_021e: endfinally
+					} // end handler
+
+					IL_021f: ldarg.0
+					IL_0220: ldnull
+					IL_0221: stfld class [Eight.PulseAudio]Eight.PulseAudio.IAudioStreamWriter Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<consumer>5__2'
+					IL_0226: ldarg.0
+					IL_0227: ldnull
+					IL_0228: stfld class [System.Runtime]System.Threading.CancellationTokenSource Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<linkedTokenSource>5__3'
+					IL_022d: leave.s IL_0270
+				} // end .try
+				finally
+				{
+					IL_022f: ldloc.0
+					IL_0230: ldc.i4.0
+					IL_0231: bge.s IL_026f
+
+					IL_0233: ldloc.1
+					IL_0234: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Audio.Player.TrackConsumer> Eight.Audio.Player.TrackConsumer::logger
+					IL_0239: ldstr "Finished playing track {Name}"
+					IL_023e: ldc.i4.1
+					IL_023f: newarr [System.Runtime]System.Object
+					IL_0244: dup
+					IL_0245: ldc.i4.0
+					IL_0246: ldloc.1
+					IL_0247: ldfld class Eight.Audio.Tracks.ITrack Eight.Audio.Player.TrackConsumer::source
+					IL_024c: callvirt instance string Eight.Audio.Tracks.ITrack::get_Name()
+					IL_0251: stelem.ref
+					IL_0252: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+					IL_0257: ldloc.1
+					IL_0258: ldfld class [Eight.PulseAudio]Eight.PulseAudio.Stream Eight.Audio.Player.TrackConsumer::'stream'
+					IL_025d: dup
+					IL_025e: brtrue.s IL_0263
+
+					IL_0260: pop
+					IL_0261: br.s IL_0268
+
+					IL_0263: call instance void [Eight.PulseAudio]Eight.PulseAudio.Stream::Dispose()
+
+					IL_0268: ldloc.1
+					IL_0269: ldnull
+					IL_026a: stfld class [Eight.PulseAudio]Eight.PulseAudio.Stream Eight.Audio.Player.TrackConsumer::'stream'
+
+					IL_026f: endfinally
+				} // end handler
+
+				IL_0270: leave.s IL_028b
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_0272: stloc.s 8
+				IL_0274: ldarg.0
+				IL_0275: ldc.i4.s -2
+				IL_0277: stfld int32 Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>1__state'
+				IL_027c: ldarg.0
+				IL_027d: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>t__builder'
+				IL_0282: ldloc.s 8
+				IL_0284: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_0289: leave.s IL_029e
+			} // end handler
+
+			IL_028b: ldarg.0
+			IL_028c: ldc.i4.s -2
+			IL_028e: stfld int32 Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>1__state'
+			IL_0293: ldarg.0
+			IL_0294: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>t__builder'
+			IL_0299: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_029e: ret
+		} // end of method '<Play>d__7'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0xdc10
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<Play>d__7'::SetStateMachine
+
+	} // end of class <Play>d__7
+
+
+	// Fields
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Audio.Player.TrackConsumer> logger
+	.field private initonly class [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory pulseAudioFactory
+	.field private initonly class [Eight.PulseAudio]Eight.PulseAudio.Context context
+	.field private initonly class Eight.Audio.Tracks.ITrack source
+	.field private class [Eight.PulseAudio]Eight.PulseAudio.Stream 'stream'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+	.field private initonly class [System.IO.Pipelines]System.IO.Pipelines.Pipe pipe
+	.field private float64 slope
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Audio.Player.TrackConsumer> logger,
+			class [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory pulseAudioFactory,
+			class [Eight.PulseAudio]Eight.PulseAudio.Context context,
+			class Eight.Audio.Tracks.ITrack source
+		) cil managed 
+	{
+		// Method begins at RVA 0x7b39
+		// Header size: 1
+		// Code size: 62 (0x3e)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Audio.Player.TrackConsumer> Eight.Audio.Player.TrackConsumer::logger
+		IL_0007: ldarg.0
+		IL_0008: ldarg.2
+		IL_0009: stfld class [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory Eight.Audio.Player.TrackConsumer::pulseAudioFactory
+		IL_000e: ldarg.0
+		IL_000f: ldarg.3
+		IL_0010: stfld class [Eight.PulseAudio]Eight.PulseAudio.Context Eight.Audio.Player.TrackConsumer::context
+		IL_0015: ldarg.0
+		IL_0016: ldarg.s source
+		IL_0018: stfld class Eight.Audio.Tracks.ITrack Eight.Audio.Player.TrackConsumer::source
+		IL_001d: ldarg.0
+		IL_001e: newobj instance void [System.IO.Pipelines]System.IO.Pipelines.Pipe::.ctor()
+		IL_0023: stfld class [System.IO.Pipelines]System.IO.Pipelines.Pipe Eight.Audio.Player.TrackConsumer::pipe
+		IL_0028: ldarg.0
+		IL_0029: ldc.r8 655
+		IL_0032: stfld float64 Eight.Audio.Player.TrackConsumer::slope
+		IL_0037: ldarg.0
+		IL_0038: call instance void [System.Runtime]System.Object::.ctor()
+		IL_003d: ret
+	} // end of method TrackConsumer::.ctor
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task Play (
+			bool startPaused,
+			valuetype [System.Runtime]System.Nullable`1<int32> startVolume,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 2b 45 69 67 68 74 2e 41 75 64 69 6f 2e 50
+			6c 61 79 65 72 2e 54 72 61 63 6b 43 6f 6e 73 75
+			6d 65 72 2b 3c 50 6c 61 79 3e 64 5f 5f 37 00 00
+		)
+		// Method begins at RVA 0x7b78
+		// Header size: 12
+		// Code size: 79 (0x4f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Audio.Player.TrackConsumer/'<Play>d__7'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Audio.Player.TrackConsumer Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld bool Eight.Audio.Player.TrackConsumer/'<Play>d__7'::startPaused
+		IL_001c: ldloca.s 0
+		IL_001e: ldarg.2
+		IL_001f: stfld valuetype [System.Runtime]System.Nullable`1<int32> Eight.Audio.Player.TrackConsumer/'<Play>d__7'::startVolume
+		IL_0024: ldloca.s 0
+		IL_0026: ldarg.3
+		IL_0027: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Audio.Player.TrackConsumer/'<Play>d__7'::cancellationToken
+		IL_002c: ldloca.s 0
+		IL_002e: ldc.i4.m1
+		IL_002f: stfld int32 Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>1__state'
+		IL_0034: ldloca.s 0
+		IL_0036: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>t__builder'
+		IL_003b: ldloca.s 0
+		IL_003d: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.Audio.Player.TrackConsumer/'<Play>d__7'>(!!0&)
+		IL_0042: ldloca.s 0
+		IL_0044: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Audio.Player.TrackConsumer/'<Play>d__7'::'<>t__builder'
+		IL_0049: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_004e: ret
+	} // end of method TrackConsumer::Play
+
+	.method assembly hidebysig static 
+		class [Eight.PulseAudio]Eight.PulseAudio.ChannelMap CreateChannelMap (
+			class [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory pulseAudioFactory,
+			int32 channels
+		) cil managed 
+	{
+		// Method begins at RVA 0x7bd4
+		// Header size: 12
+		// Code size: 70 (0x46)
+		.maxstack 3
+		.locals init (
+			[0] class [Eight.PulseAudio]Eight.PulseAudio.ChannelMap,
+			[1] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: ldc.i4.2
+		IL_0002: bne.un.s IL_000d
+
+		IL_0004: ldarg.0
+		IL_0005: callvirt instance class [Eight.PulseAudio]Eight.PulseAudio.ChannelMap [Eight.PulseAudio]Eight.PulseAudio.IPulseAudioFactory::CreateSwappedStereoChannelMap()
+		IL_000a: stloc.0
+		IL_000b: br.s IL_0044
+
+		IL_000d: ldloca.s 1
+		IL_000f: ldc.i4.s 37
+		IL_0011: ldc.i4.1
+		IL_0012: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_0017: ldloca.s 1
+		IL_0019: ldstr "unknown channel mapping for "
+		IL_001e: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0023: ldloca.s 1
+		IL_0025: ldarg.1
+		IL_0026: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_002b: ldloca.s 1
+		IL_002d: ldstr " channels"
+		IL_0032: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0037: ldloca.s 1
+		IL_0039: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_003e: newobj instance void [System.Runtime]System.NotImplementedException::.ctor(string)
+		IL_0043: throw
+
+		IL_0044: ldloc.0
+		IL_0045: ret
+	} // end of method TrackConsumer::CreateChannelMap
+
+	.method public final hidebysig newslot virtual 
+		instance void Stop () cil managed 
+	{
+		// Method begins at RVA 0x7c26
+		// Header size: 1
+		// Code size: 18 (0x12)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.IO.Pipelines]System.IO.Pipelines.Pipe Eight.Audio.Player.TrackConsumer::pipe
+		IL_0006: callvirt instance class [System.IO.Pipelines]System.IO.Pipelines.PipeReader [System.IO.Pipelines]System.IO.Pipelines.Pipe::get_Reader()
+		IL_000b: ldnull
+		IL_000c: callvirt instance void [System.IO.Pipelines]System.IO.Pipelines.PipeReader::Complete(class [System.Runtime]System.Exception)
+		IL_0011: ret
+	} // end of method TrackConsumer::Stop
+
+	.method public final hidebysig newslot virtual 
+		instance void Pause () cil managed 
+	{
+		// Method begins at RVA 0x7c39
+		// Header size: 1
+		// Code size: 17 (0x11)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Eight.PulseAudio]Eight.PulseAudio.Stream Eight.Audio.Player.TrackConsumer::'stream'
+		IL_0006: dup
+		IL_0007: brtrue.s IL_000b
+
+		IL_0009: pop
+		IL_000a: ret
+
+		IL_000b: call instance void [Eight.PulseAudio]Eight.PulseAudio.Stream::Pause()
+		IL_0010: ret
+	} // end of method TrackConsumer::Pause
+
+	.method public final hidebysig newslot virtual 
+		instance void Resume () cil managed 
+	{
+		// Method begins at RVA 0x7c4b
+		// Header size: 1
+		// Code size: 17 (0x11)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Eight.PulseAudio]Eight.PulseAudio.Stream Eight.Audio.Player.TrackConsumer::'stream'
+		IL_0006: dup
+		IL_0007: brtrue.s IL_000b
+
+		IL_0009: pop
+		IL_000a: ret
+
+		IL_000b: call instance void [Eight.PulseAudio]Eight.PulseAudio.Stream::Resume()
+		IL_0010: ret
+	} // end of method TrackConsumer::Resume
+
+	.method public final hidebysig specialname newslot virtual 
+		instance bool get_Paused () cil managed 
+	{
+		// Method begins at RVA 0x7c5d
+		// Header size: 1
+		// Code size: 18 (0x12)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Eight.PulseAudio]Eight.PulseAudio.Stream Eight.Audio.Player.TrackConsumer::'stream'
+		IL_0006: dup
+		IL_0007: brtrue.s IL_000c
+
+		IL_0009: pop
+		IL_000a: ldc.i4.1
+		IL_000b: ret
+
+		IL_000c: call instance bool [Eight.PulseAudio]Eight.PulseAudio.Stream::get_Paused()
+		IL_0011: ret
+	} // end of method TrackConsumer::get_Paused
+
+	.method public final hidebysig specialname newslot virtual 
+		instance valuetype [System.Runtime]System.Nullable`1<int32> get_Volume () cil managed 
+	{
+		// Method begins at RVA 0x7c70
+		// Header size: 12
+		// Code size: 70 (0x46)
+		.maxstack 2
+		.locals init (
+			[0] valuetype [System.Runtime]System.Nullable`1<uint16>,
+			[1] valuetype [System.Runtime]System.Nullable`1<uint16>,
+			[2] valuetype [System.Runtime]System.Nullable`1<int32>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Eight.PulseAudio]Eight.PulseAudio.Stream Eight.Audio.Player.TrackConsumer::'stream'
+		IL_0006: dup
+		IL_0007: brtrue.s IL_0015
+
+		IL_0009: pop
+		IL_000a: ldloca.s 1
+		IL_000c: initobj valuetype [System.Runtime]System.Nullable`1<uint16>
+		IL_0012: ldloc.1
+		IL_0013: br.s IL_001f
+
+		IL_0015: call instance uint16 [Eight.PulseAudio]Eight.PulseAudio.Stream::GetVolume()
+		IL_001a: newobj instance void valuetype [System.Runtime]System.Nullable`1<uint16>::.ctor(!0)
+
+		IL_001f: stloc.0
+		IL_0020: ldloca.s 0
+		IL_0022: call instance bool valuetype [System.Runtime]System.Nullable`1<uint16>::get_HasValue()
+		IL_0027: brtrue.s IL_0033
+
+		IL_0029: ldloca.s 2
+		IL_002b: initobj valuetype [System.Runtime]System.Nullable`1<int32>
+		IL_0031: ldloc.2
+		IL_0032: ret
+
+		IL_0033: ldarg.0
+		IL_0034: ldloca.s 0
+		IL_0036: call instance !0 valuetype [System.Runtime]System.Nullable`1<uint16>::get_Value()
+		IL_003b: call instance int32 Eight.Audio.Player.TrackConsumer::ScalePulsVolume(uint16)
+		IL_0040: newobj instance void valuetype [System.Runtime]System.Nullable`1<int32>::.ctor(!0)
+		IL_0045: ret
+	} // end of method TrackConsumer::get_Volume
+
+	.method public final hidebysig newslot virtual 
+		instance void SetVolume (
+			int32 volume
+		) cil managed 
+	{
+		// Method begins at RVA 0x7cc2
+		// Header size: 1
+		// Code size: 24 (0x18)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Eight.PulseAudio]Eight.PulseAudio.Stream Eight.Audio.Player.TrackConsumer::'stream'
+		IL_0006: dup
+		IL_0007: brtrue.s IL_000b
+
+		IL_0009: pop
+		IL_000a: ret
+
+		IL_000b: ldarg.0
+		IL_000c: ldarg.1
+		IL_000d: call instance uint16 Eight.Audio.Player.TrackConsumer::ScaleUserVolume(int32)
+		IL_0012: call instance void [Eight.PulseAudio]Eight.PulseAudio.Stream::SetVolume(uint16)
+		IL_0017: ret
+	} // end of method TrackConsumer::SetVolume
+
+	.method private hidebysig 
+		instance uint16 ScaleUserVolume (
+			int32 desiredVolume
+		) cil managed 
+	{
+		// Method begins at RVA 0x7cdb
+		// Header size: 1
+		// Code size: 11 (0xb)
+		.maxstack 8
+
+		IL_0000: ldarg.1
+		IL_0001: conv.r8
+		IL_0002: ldarg.0
+		IL_0003: ldfld float64 Eight.Audio.Player.TrackConsumer::slope
+		IL_0008: mul
+		IL_0009: conv.u2
+		IL_000a: ret
+	} // end of method TrackConsumer::ScaleUserVolume
+
+	.method private hidebysig 
+		instance int32 ScalePulsVolume (
+			uint16 currentVolume
+		) cil managed 
+	{
+		// Method begins at RVA 0x7ce7
+		// Header size: 1
+		// Code size: 17 (0x11)
+		.maxstack 8
+
+		IL_0000: ldarg.1
+		IL_0001: conv.r8
+		IL_0002: ldarg.0
+		IL_0003: ldfld float64 Eight.Audio.Player.TrackConsumer::slope
+		IL_0008: div
+		IL_0009: ldc.i4.1
+		IL_000a: call float64 [System.Runtime]System.Math::Round(float64, valuetype [System.Runtime]System.MidpointRounding)
+		IL_000f: conv.i4
+		IL_0010: ret
+	} // end of method TrackConsumer::ScalePulsVolume
+
+	// Properties
+	.property instance bool Paused()
+	{
+		.get instance bool Eight.Audio.Player.TrackConsumer::get_Paused()
+	}
+	.property instance valuetype [System.Runtime]System.Nullable`1<int32> Volume()
+	{
+		.get instance valuetype [System.Runtime]System.Nullable`1<int32> Eight.Audio.Player.TrackConsumer::get_Volume()
+	}
+
+} // end of class Eight.Audio.Player.TrackConsumer

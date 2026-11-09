@@ -1,0 +1,157 @@
+{
+  "paths": {
+    "rebootRecorder": "/persistent/.capybara-reboots",
+    "bleRecoveryReboot": "/root/.capybara-ble-recovery"
+  },
+  "logging": {
+    "name": "capybara",
+    "minimumLevel": "info",
+    "overrides": {
+      "Eight.Lsp": "debug",
+      "Eight.Firmness": "debug"
+    }
+  },
+  "connections": {
+    "deviceAPI": "wss://device-api-ws.8slp.net/v1/device"
+  },
+  "nats": {
+    "url": "nats://localhost:4222",
+    "streamName": "raw",
+    "monitoringUrl": "http://localhost:8222",
+    "metricsSubject": "metrics"
+  },
+  "fleetMetrics": {
+    "interval": "00:01:00",
+    "baseImpactedAfter": "00:15:00"
+  },
+  "firmness": {
+    "bootloaderBaudrate": 38400,
+    "firmwareBaudrate": 115200,
+    "firmwareMappings": [
+      {
+        "minimumHardwareVersion": "A00",
+        "firmwarePath": "./firmware/balloon/A00/firmware-balloon-g0.bbin"
+      },
+      {
+        "minimumHardwareVersion": "A02",
+        "firmwarePath": "./firmware/balloon/A02/firmware-balloon-g0.bbin"
+      }
+    ],
+    "calibration": {
+      "bags": [0, 1, 2, 3],
+      "largeBags": [0, 3],
+      "pumpId": 0,
+      "pumpPower": 100,
+      "inflateDurationSmall": "00:00:04",
+      "inflateDurationLarge": "00:00:06",
+      "holdDuration": "00:00:01.5",
+      "deflatePulseSmall": "00:00:00.8",
+      "deflatePulseLarge": "00:00:00.8",
+      "stopInflateKpa": 10.0,
+      "stopDeflateKpa": 0.5,
+      "segmentsUpLarge": 40,
+      "segmentsDownLarge": 30,
+      "drainLarge": "00:00:20",
+      "segmentsUpSmall": 30,
+      "segmentsDownSmall": 20,
+      "drainSmall": "00:00:20",
+      "purgeDuration": "00:00:30",
+      "nominalBagDuration": "00:03:00",
+      "maxGaugeKpa": 15.0,
+      "ventPulse": "00:00:01",
+      "ceilingDrain": "00:01:00",
+      "maxTelemetryAge": "00:00:01",
+      "ceilingPollInterval": "00:00:00.05",
+      "maxRunDuration": "00:40:00",
+      "nodePath": "node",
+      "analyzerScriptPath": "/opt/eight/lib/balloon-analyzer/scripts/analyze-calibration.js",
+      "analyzerTimeout": "00:02:00",
+      "analyzerAuthority": "node",
+      "runDirectory": "/ephemeral/calibration",
+      "runRetentionCount": 3,
+      "minCoefficientA": 1.1,
+      "maxCoefficientA": 3.0,
+      "minCoefficientB": -2.0,
+      "maxCoefficientB": 2.0,
+      "maxAbsCoefficientCi": 2.0,
+      "deflateMethod": "pulse",
+      "landingReps": 2,
+      "landingMaxDuration": "00:45:00"
+    }
+  },
+  "posture": {
+    "usbPortConfig": {
+      "left": ["1-1.2.1.1.1", "1-1.2.1"],
+      "right": ["1-1.2.1.4.1", "1-1.2.4.1"]
+    },
+    "bootloaderBaudrate": 38400,
+    "firmwareBaudrate": 115200,
+    "firmwareMappings": [
+      {
+        "minimumHardwareVersion": "A00",
+        "firmwarePath": "./firmware/posture/A00/firmware-posture-g0.bbin"
+      }
+    ],
+    "postureBootDelay": 5
+  },
+  "adjustableBase": {
+    "trimix": [
+      {
+        "hardwareVersion": 7,
+        "firmwarePath": "./firmware/8Sleep_H6_SW-V25-2025-07-24.bin",
+        "expectedVersion": 25
+      },
+      {
+        "hardwareVersion": 6,
+        "firmwarePath": "./firmware/8Sleep_H6_SW-V25-2025-07-24.bin",
+        "expectedVersion": 25
+      },
+      {
+        "hardwareVersion": 5,
+        "firmwarePath": "./firmware/8Sleep_H6_SW-V25-2025-07-24.bin",
+        "expectedVersion": 25
+      },
+      {
+        "hardwareVersion": 4,
+        "firmwarePath": "./firmware/8Sleep_H6_SW-V25-2025-07-24.bin",
+        "expectedVersion": 25
+      },
+      {
+        "hardwareVersion": 3,
+        "firmwarePath": "./firmware/8Sleep_H6_SW-V25-2025-07-24.bin",
+        "expectedVersion": 25
+      },
+      {
+        "hardwareVersion": 2,
+        "firmwarePath": "./firmware/8Sleep_H6_SW-V25-2025-07-24.bin",
+        "expectedVersion": 25
+      },
+      {
+        "hardwareVersion": -1,
+        "firmwarePath": "./firmware/8Sleep_H4_SW-V18-2024-07-19.bin",
+        "expectedVersion": 18
+      }
+    ],
+    "keeson": [
+      {
+        "firmwarePath": "./firmware/Keeson/OTA_KS8S08C010000001_V10211_nRF52832_202602070917.zip",
+        "expectedVersion": 10211
+      }
+    ]
+  },
+  "speaker": [
+    {
+      "hardwareVersion": 2,
+      "firmwarePath": "./firmware/Speaker/B12/v28.MVA",
+      "expectedVersion": 28
+    }
+  ],
+  "speakerFota": [
+    {
+      "hardwareVersion": 2,
+      "firmwarePath": "./firmware/Speaker/B13/B13_SOFT_20260922_V42.fot",
+      "expectedVersion": 42
+    }
+  ],
+  "trackStorage": "/persistent/tracks"
+}

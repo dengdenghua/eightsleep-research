@@ -1,0 +1,82 @@
+POSTURE MCU：采样至 0x5C 的静态代码闭环（2026-11-07）
+
+结论与适用边界
+这份官方 SWU 所带 posture/A00/firmware-posture-g0.bbin 的确在 MCU 本地做数值处理：2 个 ADC × 每个 8 个通道，分别维护 5 点窗口，更新单精度浮点累计和，每 5 对 ADC 样本取均值、向零截断为 int32 后入队，再打包为 0x5C。
+因此，此附件链路并非 ADC 数值完全原样转发。它有 5 点均值平滑和 5 倍抽取，但当前证据没有把该附件对应到用户正在运行的 Pod5/Pod6 cover，也没有证明托管 PostureService 正常启动注册。不能拿这一新增发现宣布 Pod6 生产睡眠算法在哪运行。
+
+1. 来源、映射、方法
+原始文件 SHA256：6946c6bf1de0cd762dcf77a6eef1758b8a5a1774f28f33cab104f4a0e57ee891；60476 bytes。
+父级 ROOT_PROVENANCE.json 独立核对了原 SWU rootfs entry、128-byte 容器头、正文/头 CRC、TLV load address；本报告不重写该记录。
+全文件映射基址 0x08010000；body vector 在 +128；初始 SP=0x20024000，reset Thumb pointer=0x0801a4e1。
+使用现有 Ghidra 12.1.4 新建独立 project，ARM:LE:32:Cortex。后续全部 -readOnly 静态导出，不执行/模拟目标、不接设备、不刷机。
+pass2/pass3/pass4 临时把 Flash block 标记只读来解析常量，未修改原始镜像。Ghidra 对若干软浮点/回调返回类型识别不完整，结论同时核对原指令与调用寄存器；不把自动变量类型当源码。
+
+2. 输入帧、有效性、缓存
+主函数 0x0801953c；两路 ADC descriptor=0x2000a278、0x2000a314；平台表 0x08017868 只在 PN 0x5082/0x5083 分支填入，表名为 Biometric Sensors Left/Right，仍不足以认定 Pod6 cover。
+0x08018a08 检查内部 elapsed 状态后调用各路 DRDY callback。实际 callbacks 0x0801812c/0x0801813c 分别读取 pin 0x38/0x47 后 xor 1；Ghidra 把外层函数推断 void，但 Thumb 明确保留 callback 的 r0 供主循环判断。
+主循环 0x08019a6e 起逐 ADC 执行：
+- 如果 enabled=0，scratch 原先清零，仍可把零向量写入本次槽并置 ready。
+- enabled=1 且距上次 read 的 elapsed<8 时，复用该 ADC 上次 8 通道缓存；>=8 才实际 SPI read。这里保持代码计数值，不从它推断物理采样速率。
+- 0x08018ac0 设置 SPI mode，读取 3*(channels+2) 字节；传输失败则本次该 ADC 跳过。
+- 回包第 2 字节作为 channel-available mask。mask=0 记录日志并跳过；非零则仅对 mask 有位的通道解码，其他通道保留 scratch 中的 0。
+- 每个通道取 3 字节大端 24-bit，再算术右移完成有符号扩展为 int32；不是绝对值、限幅或幅值归一化。
+- 成功向量写入缓存/当前槽，设置该 ADC ready；只有两个 ready 都为真才推进配对帧处理。处理结束两 ready 清零；没看到给两路分别保留时间戳并做严格时间匹配。
+证据：pass2/0801953c.txt；pass2/08018a08.txt、08018ac0.txt；pass4/0801812c.txt、0801813c.txt。
+
+3. 所谓 flatlined 状态的准确边界
+0x08018a08 的 flatlined/no drdy 判断只比较两个 elapsed timer 与 60000；没有比较相邻样本幅值、方差、饱和率或生理合理性。
+主循环每次尝试 SPI 前重置 +0x40 timer；在读到非零 channel-available mask 后重置 +0x6c timer。因此 flatlined 实质是较长时间没有该类成功读取，而不是此函数检出了恒值波形。
+这些状态用于内部状态/日志；0x5C packer 不附带质量分数、有效通道 mask 或上述状态。
+0x08018ac0 另有初值 0xffff、多项式 0x1021 的 CRC 分支（helper 0x08017a5c），但受 descriptor+0x24 flag 控制；ADC 初始化将该 flag 清零，当前已覆盖初始化/采样路径未见开启，不能声称生产采样已验证每帧 CRC。
+
+4. 五点均值、抽取及时间戳
+初始化：16 个独立 descriptor，每个 {buffer*, length=5, position=0, sum=0}，buffer 各 0x14 字节清零；前 8 个 descriptor 在 0x2000aca0，后 8 个在 0x2000ad20。
+更新核心在 0x08019d28–0x08019d62，对每个独立通道：
+  x = float32(int32_sample)
+  sum = float32(sum + float32(x - ring[position]))
+  ring[position] = x
+  position = (position+1 < 5) ? position+1 : 0
+外层两个 ADC，内层各 8 通道；算术从不读取另一个通道的 sum 作为输入，因此是独立通道平滑，不是信号融合。
+0x08019df8–0x08019e24 同时记录 5 槽 timestamp ring、递增独立配对帧计数。计数到 5 才执行 0x08019e82–0x08019ee0：每通道 sum/float32(5)，再转有符号 int32；该转换按指数移位并恢复符号，向零截断，不是四舍五入。
+首次进程初始化后，第 5 对已接受帧才输出，因此首次输出窗口有 5 个已接受值，不是启动时把 4 个零算入第一个输出。已接受值仍可能来自前述缓存或缺失通道零值。
+该实现内部每帧维护滑动和，但每 5 帧才抽取，所以正常连续输出等效不重叠的 5 点分组均值（带 float32 累计误差的实现）。
+时间戳：每对帧处理时取 0x08013e10 的本地 tick，写当前 timestamp slot 后 position=(position+1)%5；输出读取新 position 指向的槽，即该 5 帧组中最早一帧的 tick。打包器再取包内首个处理后样本的 timestamp。
+停止/再启动只改变 state 并重置两个计数，未重新初始化上述 ring/抽取计数；“首次完整窗口”结论限定首次进程初始化，不额外声称每次 start 都重新清空窗口。
+
+5. 软浮点语义核对（不是按函数名猜）
+0x0801d128：输入 signed magnitude、数前导零、构造 8-bit exponent/23-bit mantissa/sign；i32→float32。
+0x0801cde0：拆解双方 IEEE754 字段，第二操作数反号/同异号分支，指数对齐后尾数相减；float32 subtraction。
+0x0801c88c：拆解 IEEE754 字段，同号指数对齐相加、异号相减；float32 addition。
+0x0801c3e4：无符号输入数前导零再构造 exponent/mantissa；u32→float32；调用输入是 descriptor.length=5。
+0x0801cba0：两 exponent 相减、sign XOR，尾数二进制长除法循环生成 quotient；float32 division。
+0x0801c3a4：按 exponent 相对 150 位移隐含 1 的 mantissa，再恢复 sign；float32→i32 向零截断（另有超范围分支）。
+上述 helper 的伪代码及全部原指令保存在 pass2/各地址.txt；核心调用参数原指令保存在 KEY_INSTRUCTIONS.txt。
+
+6. 输出协议与队列
+0x08017ca0 入队：30 槽，每槽 68 字节={timestamp32, adc0[8] int32, adc1[8] int32}。满队列不入队，主循环累计 drop count。
+主循环仅在队列长度>14 时调用 0x08017f70；该 packer 每包最多取 15 个处理后样本。
+打包字段（含 opcode 的包体）：
+ byte0=0x5c；byte1=1；byte2..3=frequency:u16BE；byte4=2 ADC；byte5=8 channels；byte6=sample count；byte7..10=first timestamp:u32BE；之后 [sample][ADC][channel] int32BE。
+frequency = state.frequency / 5，初始化 state.frequency=500，所以这份代码填报 100；这是包头元数据/代码默认值，不等于已用实机测得的物理 100 Hz。
+每包最多 11+15*2*8*4=971 字节（含 opcode），0x08017e7c 再加 framing length、CRC、转义/发送队列。主机 parser 去掉 opcode 后的布局与此一致。
+证据：pass2/08017f70.txt、08017ca0.txt；pass3/08017d34.txt、08017e7c.txt。
+
+7. 此应用实际命令表
+opcode | 行为 / status / payload
+0x01 | status0，payload 1 byte 0x46
+0x02 | status0，payload 128 bytes 硬件信息块
+0x03/0x04 | status4，无额外 CRC/版本 payload
+0x05 | status0，flush，记录 reset，delay 后 reset loop
+0x06 | status0，payload 1 byte side callback boolean
+0x20 | status0，payload 原生 uint16 state.frequency（此 Cortex LE；默认500）
+0x28 | start：idle才成功，status0；否则status8；成功调用 ADC sync callback
+0x29 | 若非idle则设 stopping，status0
+其他 | status2，不支持
+应答首字节是 opcode|0x80；status 由 0x08017c08 追加 1 byte。
+本应用 opcode0x04 没有 getter，因此无法用它核对 bootloader GetFwInfo 对 CRC 头字段的解释，也不据此判断主机 CRC 格式差异是更新 bug。
+证据：pass2/0801953c.txt command switch 及 KEY_INSTRUCTIONS.txt；pass2/08017c08.txt；pass1/08018cd8.txt。
+
+8. 能回答和不能回答的内容
+可回答：这份附件 MCU 在采样到原始 MEMS telemetry 之间，存在本地基础有效性/传输处理、独立通道五点均值、五倍抽取。
+不可回答：Pod6 cover 的生产睡眠清洗/体动伪迹去除、心呼吸波形融合、分期模型在此运行。上述已闭合路径没有这些算法；这不是对全部附件固件乃至云端实现的不存在证明。
+覆盖以 SOURCE_LEDGER.json 为准。未穷举 HAL，未访问云端服务，未运行固件，未将字符串命名等同于已部署功能。

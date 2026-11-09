@@ -1,0 +1,690 @@
+{
+  "result": "PASS",
+  "cases_count": 25,
+  "cases": [
+    {
+      "name": "initial_best_resets_timer",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 0
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": false,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "best": 5.0,
+        "seen": true,
+        "cut": true
+      },
+      "expected_output": -0.67
+    },
+    {
+      "name": "before_180s",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 179999
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": false,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "climbing": false
+      },
+      "expected_output": null
+    },
+    {
+      "name": "at_180s",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 180000
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": true,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 180000,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "climbing": true,
+        "raised_at": 180000,
+        "ceiling": 0.6700000166893005
+      },
+      "expected_output": null
+    },
+    {
+      "name": "before_30s_raise",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 209999
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": true,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 180000,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "ceiling": 0.6700000166893005
+      },
+      "expected_output": null
+    },
+    {
+      "name": "at_30s_raise",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 210000
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": true,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.7800000309944153,
+        "raised_at": 210000,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.7800000309944153,
+      "expected": {
+        "ceiling": 0.7800000309944153
+      },
+      "expected_output": null
+    },
+    {
+      "name": "late_call_one_increment_only",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 360000
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": true,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.89000004529953,
+        "raised_at": 360000,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.89000004529953,
+      "expected": {
+        "ceiling": 0.89000004529953,
+        "raised_at": 360000
+      },
+      "expected_output": null
+    },
+    {
+      "name": "progress_does_not_exit_climbing",
+      "input": {
+        "demand": -1,
+        "error": -4,
+        "now": 360001
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 4.0,
+        "progress_at": 360001,
+        "climbing": true,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.89000004529953,
+        "raised_at": 360000,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.89000004529953,
+      "expected": {
+        "climbing": true,
+        "best": 4.0,
+        "progress_at": 360001
+      },
+      "expected_output": null
+    },
+    {
+      "name": "next_raise_caps_at_one",
+      "input": {
+        "demand": -1,
+        "error": -4,
+        "now": 390000
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 4.0,
+        "progress_at": 360001,
+        "climbing": true,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 1.0,
+        "raised_at": 390000,
+        "engaged": false,
+        "cut": false
+      },
+      "output": -1.0,
+      "expected": {
+        "ceiling": 1.0,
+        "cut": false,
+        "engaged": false
+      },
+      "expected_output": -1
+    },
+    {
+      "name": "no_clip_initial",
+      "input": {
+        "demand": -0.2,
+        "error": -5,
+        "now": 0
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": false,
+        "seen": false,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": false,
+        "cut": false
+      },
+      "output": -0.20000000298023224,
+      "expected": {
+        "seen": false
+      },
+      "expected_output": null
+    },
+    {
+      "name": "stall_without_seen_is_suppressed",
+      "input": {
+        "demand": -0.2,
+        "error": -5,
+        "now": 180000
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": false,
+        "seen": false,
+        "suppressed": true,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": false,
+        "cut": false
+      },
+      "output": -0.20000000298023224,
+      "expected": {
+        "suppressed": true,
+        "climbing": false
+      },
+      "expected_output": null
+    },
+    {
+      "name": "first_clip_on_stall_call_not_yet_climbing",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 180001
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": false,
+        "seen": true,
+        "suppressed": true,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "suppressed": true,
+        "seen": true,
+        "climbing": false
+      },
+      "expected_output": null
+    },
+    {
+      "name": "next_call_enters_climbing",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 180002
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": true,
+        "seen": true,
+        "suppressed": true,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 180002,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "climbing": true
+      },
+      "expected_output": null
+    },
+    {
+      "name": "exact_float32_improvement_boundary_is_not_progress",
+      "input": {
+        "demand": -1,
+        "error": -4.900000095367432,
+        "now": 100
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": false,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "progress_at": 0,
+        "best": 5.0
+      },
+      "expected_output": null
+    },
+    {
+      "name": "more_than_threshold_progress",
+      "input": {
+        "demand": -1,
+        "error": -4.89,
+        "now": 101
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 4.889999866485596,
+        "progress_at": 101,
+        "climbing": false,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "progress_at": 101,
+        "best": 4.889999866485596
+      },
+      "expected_output": null
+    },
+    {
+      "name": "equal_cap_does_not_cut_or_engage",
+      "input": {
+        "demand": -0.6700000166893005,
+        "error": -5,
+        "now": 0
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": false,
+        "seen": false,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": false,
+        "cut": false
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "cut": false,
+        "engaged": false
+      },
+      "expected_output": null
+    },
+    {
+      "name": "strong_demand_engages",
+      "input": {
+        "demand": -0.8,
+        "error": -5,
+        "now": 1
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": false,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "engaged": true,
+        "cut": true
+      },
+      "expected_output": null
+    },
+    {
+      "name": "hysteresis_engaged_without_actual_cut",
+      "input": {
+        "demand": -0.64,
+        "error": -5,
+        "now": 2
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": false,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": true,
+        "cut": false
+      },
+      "output": -0.6399999856948853,
+      "expected": {
+        "engaged": true,
+        "cut": false
+      },
+      "expected_output": -0.64
+    },
+    {
+      "name": "hysteresis_release",
+      "input": {
+        "demand": -0.6,
+        "error": -5,
+        "now": 3
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 0,
+        "climbing": false,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": false,
+        "cut": false
+      },
+      "output": -0.6000000238418579,
+      "expected": {
+        "engaged": false,
+        "cut": false
+      },
+      "expected_output": null
+    },
+    {
+      "name": "error_equal_minus_threshold_bypasses_preserves_adaptive",
+      "input": {
+        "demand": -1,
+        "error": -0.5,
+        "now": 123
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": "+Infinity",
+        "progress_at": 123,
+        "climbing": true,
+        "seen": false,
+        "suppressed": false,
+        "ceiling": 0.8899999856948853,
+        "raised_at": 0,
+        "engaged": false,
+        "cut": false
+      },
+      "output": -1.0,
+      "expected": {
+        "climbing": true,
+        "ceiling": 0.8899999856948853,
+        "seen": false,
+        "engaged": false,
+        "cut": false
+      },
+      "expected_output": -1
+    },
+    {
+      "name": "enable_vs_target_reset",
+      "result": "PASS",
+      "enable_preserves_climbing": true,
+      "target_clears_climbing": true
+    },
+    {
+      "name": "uint32_wrap_stall",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 114464
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 4294901760,
+        "climbing": true,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 114464,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.6700000166893005,
+      "expected": {
+        "climbing": true
+      },
+      "expected_output": null
+    },
+    {
+      "name": "progress_and_raise_same_call",
+      "input": {
+        "demand": -1,
+        "error": -4,
+        "now": 30000
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 4.0,
+        "progress_at": 30000,
+        "climbing": true,
+        "seen": true,
+        "suppressed": false,
+        "ceiling": 0.7800000309944153,
+        "raised_at": 30000,
+        "engaged": true,
+        "cut": true
+      },
+      "output": -0.7800000309944153,
+      "expected": {
+        "best": 4.0,
+        "ceiling": 0.7800000309944153,
+        "climbing": true
+      },
+      "expected_output": null
+    },
+    {
+      "name": "disabled_bypass_preserves_ceiling",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 20
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": true,
+        "best": "+Infinity",
+        "progress_at": 20,
+        "climbing": true,
+        "seen": false,
+        "suppressed": false,
+        "ceiling": 0.8899999856948853,
+        "raised_at": 0,
+        "engaged": false,
+        "cut": false
+      },
+      "output": -1.0,
+      "expected": {
+        "climbing": true,
+        "ceiling": 0.8899999856948853,
+        "cut": false
+      },
+      "expected_output": -1
+    },
+    {
+      "name": "zero_base_bypass",
+      "input": {
+        "demand": -1,
+        "error": -5,
+        "now": 20
+      },
+      "state": {
+        "base": 0,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": "+Infinity",
+        "progress_at": 20,
+        "climbing": false,
+        "seen": false,
+        "suppressed": false,
+        "ceiling": 0.6700000166893005,
+        "raised_at": 0,
+        "engaged": false,
+        "cut": false
+      },
+      "output": -1.0,
+      "expected": {
+        "cut": false,
+        "seen": false
+      },
+      "expected_output": -1
+    },
+    {
+      "name": "raise_overshoot_caps_at_one",
+      "input": {
+        "demand": -2,
+        "error": -5,
+        "now": 30000
+      },
+      "state": {
+        "base": 0.6700000166893005,
+        "threshold": 0.5,
+        "disabled": false,
+        "best": 5.0,
+        "progress_at": 30000,
+        "climbing": true,
+        "seen": false,
+        "suppressed": false,
+        "ceiling": 1.0,
+        "raised_at": 30000,
+        "engaged": false,
+        "cut": false
+      },
+      "output": -2.0,
+      "expected": {
+        "ceiling": 1.0,
+        "engaged": false,
+        "cut": false
+      },
+      "expected_output": -2
+    }
+  ],
+  "scope": "Finite-state analyst model; fixed configured base/threshold. No NaN, thermal response, full scheduler or all MCU modes equivalence."
+}

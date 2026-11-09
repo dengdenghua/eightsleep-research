@@ -1,0 +1,59 @@
+TARGET 0800fc3c function=0800fc3c
+REF_TO 08018848 UNCONDITIONAL_CALL owner=08018dd6
+FUNCTION_BODY [[0800fc3c, 0800fc75]]
+
+void FUN_0800fc3c(void)
+
+{
+  ushort uVar1;
+  int iVar2;
+  byte bVar3;
+  
+  iVar2 = DAT_0800fddc;
+  bVar3 = *(byte *)(DAT_0800fddc + 0x10);
+  uVar1 = *(ushort *)(DAT_0800fde0 + 0x2de);
+  if (*(char *)(DAT_0800fddc + 0xf) != '\0') {
+    if ((uVar1 < 0x834) && (uVar1 <= *(ushort *)(DAT_0800fddc + 0x12))) {
+      bVar3 = bVar3 + 1;
+      if ((10 < bVar3) && (*(char *)(DAT_0800fddc + 0xe) == '\0')) {
+        *(undefined1 *)(DAT_0800fddc + 0xe) = 0xaa;
+        *(undefined1 *)(iVar2 + 0xf) = 0;
+      }
+    }
+    else {
+      bVar3 = 0;
+    }
+  }
+  *(byte *)(iVar2 + 0x10) = bVar3;
+  *(ushort *)(iVar2 + 0x12) = uVar1;
+  return;
+}
+
+
+INSN 0800fc3c 6748 ldr r0,[0x0800fddc] REF[READ:0800fddc=20007fd0] REF[DATA:20007fd0]
+INSN 0800fc3e 684a ldr r2,[0x0800fde0] REF[READ:0800fde0=200074cc]
+INSN 0800fc40 017c ldrb r1,[r0,#0x10] REF[READ:20007fe0]
+INSN 0800fc42 b2f8de22 ldrh.w r2,[r2,#0x2de] REF[READ:200077aa]
+INSN 0800fc46 c37b ldrb r3,[r0,#0xf] REF[READ:20007fdf]
+INSN 0800fc48 93b1 cbz r3,0x0800fc70 REF[CONDITIONAL_JUMP:0800fc70]
+INSN 0800fc4a 40f63403 movw r3,#0x834
+INSN 0800fc4e 9a42 cmp r2,r3
+INSN 0800fc50 0dda bge 0x0800fc6e REF[CONDITIONAL_JUMP:0800fc6e]
+INSN 0800fc52 438a ldrh r3,[r0,#0x12] REF[READ:20007fe2]
+INSN 0800fc54 9342 cmp r3,r2
+INSN 0800fc56 0ad3 bcc 0x0800fc6e REF[CONDITIONAL_JUMP:0800fc6e]
+INSN 0800fc58 491c adds r1,r1,#0x1
+INSN 0800fc5a c9b2 uxtb r1,r1
+INSN 0800fc5c 0b29 cmp r1,#0xb
+INSN 0800fc5e 07db blt 0x0800fc70 REF[CONDITIONAL_JUMP:0800fc70]
+INSN 0800fc60 837b ldrb r3,[r0,#0xe] REF[READ:20007fde]
+INSN 0800fc62 2bb9 cbnz r3,0x0800fc70 REF[CONDITIONAL_JUMP:0800fc70]
+INSN 0800fc64 aa23 movs r3,#0xaa
+INSN 0800fc66 8373 strb r3,[r0,#0xe] REF[WRITE:20007fde]
+INSN 0800fc68 0023 movs r3,#0x0
+INSN 0800fc6a c373 strb r3,[r0,#0xf] REF[WRITE:20007fdf]
+INSN 0800fc6c 00e0 b 0x0800fc70 REF[UNCONDITIONAL_JUMP:0800fc70]
+INSN 0800fc6e 0021 movs r1,#0x0
+INSN 0800fc70 0174 strb r1,[r0,#0x10] REF[WRITE:20007fe0]
+INSN 0800fc72 4282 strh r2,[r0,#0x12] REF[WRITE:20007fe2]
+INSN 0800fc74 7047 bx lr

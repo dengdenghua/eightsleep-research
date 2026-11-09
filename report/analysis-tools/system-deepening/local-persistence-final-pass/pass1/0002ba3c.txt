@@ -1,0 +1,66 @@
+FUNCTION 0002ba3c BODY [[0002ba3c, 0002ba8d]]
+REF_TO Entry Point EXTERNAL
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void vector_handler_16(void)
+
+{
+  undefined4 *puVar1;
+  int iVar2;
+  
+  iVar2 = FUN_000312dc(0x100);
+  puVar1 = DAT_0002ba90;
+  if (iVar2 != 0) {
+    FUN_000312ea(0x100);
+    _DAT_40000308 = 1;
+    if (*(char *)((int)puVar1 + 5) == '\0') {
+      *(undefined1 *)((int)puVar1 + 5) = 1;
+      (*(code *)*puVar1)(0);
+    }
+  }
+  iVar2 = FUN_000312dc(0x104);
+  if (iVar2 != 0) {
+    FUN_000312ea(0x104);
+    _DAT_40000308 = 2;
+                    /* WARNING: Could not recover jumptable at 0x0002ba8a. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    (*(code *)*puVar1)(1);
+    return;
+  }
+  return;
+}
+
+
+INSN 0002ba3c 70b5 push {r4,r5,r6,lr}
+INSN 0002ba3e 4ff48076 mov.w r6,#0x100
+INSN 0002ba42 3046 mov r0,r6
+INSN 0002ba44 05f04afc bl 0x000312dc REF[UNCONDITIONAL_CALL:000312dc]
+INSN 0002ba48 114c ldr r4,[0x0002ba90] REF[READ:0002ba90=20003648]
+INSN 0002ba4a b505 lsls r5,r6,#0x16
+INSN 0002ba4c 60b1 cbz r0,0x0002ba68 REF[CONDITIONAL_JUMP:0002ba68]
+INSN 0002ba4e 3046 mov r0,r6
+INSN 0002ba50 05f04bfc bl 0x000312ea REF[UNCONDITIONAL_CALL:000312ea]
+INSN 0002ba54 0120 movs r0,#0x1
+INSN 0002ba56 c5f80803 str.w r0,[r5,#0x308] REF[WRITE:40000308]
+INSN 0002ba5a 6079 ldrb r0,[r4,#0x5] REF[READ:2000364d]
+INSN 0002ba5c 20b9 cbnz r0,0x0002ba68 REF[CONDITIONAL_JUMP:0002ba68]
+INSN 0002ba5e 0120 movs r0,#0x1
+INSN 0002ba60 6071 strb r0,[r4,#0x5] REF[WRITE:2000364d]
+INSN 0002ba62 2168 ldr r1,[r4,#0x0] REF[READ:20003648]
+INSN 0002ba64 0020 movs r0,#0x0
+INSN 0002ba66 8847 blx r1
+INSN 0002ba68 4ff48276 mov.w r6,#0x104
+INSN 0002ba6c 3046 mov r0,r6
+INSN 0002ba6e 05f035fc bl 0x000312dc REF[UNCONDITIONAL_CALL:000312dc]
+INSN 0002ba72 0028 cmp r0,#0x0
+INSN 0002ba74 0ad0 beq 0x0002ba8c REF[CONDITIONAL_JUMP:0002ba8c]
+INSN 0002ba76 3046 mov r0,r6
+INSN 0002ba78 05f037fc bl 0x000312ea REF[UNCONDITIONAL_CALL:000312ea]
+INSN 0002ba7c 0220 movs r0,#0x2
+INSN 0002ba7e c5f80803 str.w r0,[r5,#0x308] REF[WRITE:40000308]
+INSN 0002ba82 2168 ldr r1,[r4,#0x0] REF[READ:20003648]
+INSN 0002ba84 bde87040 pop.w {r4,r5,r6,lr}
+INSN 0002ba88 0120 movs r0,#0x1
+INSN 0002ba8a 0847 bx r1
+INSN 0002ba8c 70bd pop {r4,r5,r6,pc}

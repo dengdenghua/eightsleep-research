@@ -1,0 +1,80 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方 MTK rootfs：完整文件字节盘点、部署入口与算法搜索边界
+2026-11-07；只读离线分析。未启动固件、服务或容器；未连接真实设备。
+研究根目录 R=${RESEARCH_ROOT}。
+本报告路径除另注外相对 analysis/system/。
+
+1. 本次补足了什么证据
+
+此前 sleep-pipeline/model-inventory-audit.json 主要按文件名和扩展名查常见模型，本轮不以那个负面结果作为完整算法排除。
+inspect_runtime_surface.py 直接读取完整官方 SWU，重新校验整包 SHA256 与内层压缩 rootfs SHA256，然后逐个读取 tar regular member 的全部字节。
+SWU SHA256：59eb790b6396dc162b62536615701b4e2774c665bc13b16f70b83a9d76db4532。
+rootfs tar.gz 在 SWU offset14152、size220656679，SHA256=1053a3e31b04d9047bb1fdb01d39bae4e97349c2983dd4dad9554a41ffe71ac1。
+遍历13626个tar成员，与已有inventory的路径/大小/总数交叉检查；10267个普通文件共566426052字节均计算SHA256。
+固定位置魔数结果：ELF1935、shebang248、gzip463、ZIP7、SQLite2、other7612；另外保存2019个链接记录。
+ELF全部是machine183/AArch64；类型ET_DYN1114、ET_REL819、ET_EXEC2。ET_REL中818个位于kernel modules目录，不能将ELF数量当成1935个应用进程。
+逐个解析ELF program headers、PT_INTERP、PT_DYNAMIC与DT_NEEDED/RPATH/RUNPATH，没有解析错误；四个Eight主程序的架构/解释器另与系统file工具输出核对。
+完整结果在runtime-surface/rootfs-byte-index.json；启动相关286个普通文件另存runtime-surface/files/，没有展开symlink或创建设备节点。
+
+2. 官方应用目录的本机执行入口
+
+在完整rootfs的opt/eight、home、usr/local范围，opt/eight内只有四个ELF：
+  Eight.Capybara（88603676B）：capybara.service直接启动；内部.NET bundle已另行完整提取分析。
+  frankenfirmware（5060488B）：frank.service直接启动，工作目录/persistent。
+  jetstream-uploader（9362808B）：同名service直接启动，工作目录/persistent。
+  vector（49410328B）：vector.service→vector.sh→exec vector --config /etc/vector.toml。
+usr/local另有earlyoom；home/dac没有ELF本机插件，DAC由dac.service启动node build/main.js。
+不能因Capybara/vector体积大就当成模型文件；这也不证明它们绝无静态内嵌算法，必须结合对应调用链判断。
+
+关键启动文件均有multi-user.target.wants链接；这证明镜像默认安装的启动依赖，不是实机进程列表。
+本包DAC服务环境明确NODE_ENV=pod3，NODE_OPTIONS=--use-openssl-ca，WorkingDirectory=/home/dac/app。名称pod3不能用于判定当前硬件产品代数。
+Frank与DAC均等待/deviceinfo/capybara.run_info非空；Capybara模式选择和注册范围见../sleep-pipeline/THERMAL_MODE_ROUTING_ZH.txt。
+NATS由/usr/bin/nats-server --name eight -js -sd /persistent/jetstream -c /etc/nats.conf启动；nats/nats-server是本rootfs仅两个ET_EXEC，无PT_INTERP。
+drop-in确有变更：nats-server启动后调用uploader --ensure-streams；停止时先尝试uploader --dump再SIGUSR2。dump使用带前导-的ExecStop与timeout -k40 60，属于受超时限制且允许失败的步骤，不保证成功转存才继续。uploader另有PartOf=nats-server.service；不能只读基础unit忽略drop-in。
+
+3. 动态依赖的有界结论
+
+Frank的DT_NEEDED为libnats.so.3.11、libsystemd.so.0、libudev.so.1、libstdc++.so.6、libm.so.6、libgcc_s.so.1、libc.so.6、ld-linux-aarch64.so.1；RPATH为$ORIGIN/lib。
+Uploader与Vector直接依赖为常规libudev/libgcc/pthread/math/dl/libc/loader的子集；Capybara外层host还依赖libstdc++/librt，RUNPATH=$ORIGIN/netcoredeps。
+在这些直接依赖字段没有额外命名的ONNX/TensorFlow/PyTorch运行库；这是比单看文件名更具体的链接层证据，但不是“无本地推理”的证明。
+DT_NEEDED不能列出静态链接实现、dlopen、.NET bundle内native成员、任意嵌入权重、子进程或后来下载的文件。Capybara内层bundle另以既有275成员账本为准。
+全rootfs文件名没有.node扩展成员，home/dac也没有ELF；因此未发现随包部署的Node原生addon文件。不能排除JS内实现、其他扩展名或运行时安装。
+
+4. Vector的实际输入/变换/输出，不是另一个原始传感器处理链
+
+vector.sh:27–28指定默认binary/config，:184执行它们；环境变量可覆盖，实机环境未取得。
+本包/etc/vector.toml定义的全部三个source是：
+  journald_in：当前系统日志；backfill_in：/persistent/vector/backfill/*.ndjson历史日志；
+  nats_metrics：本机NATS subject="metrics"，JSON解码。
+变换链包括历史日志字段规范化、按时间丢弃陈旧日志、Serilog信息映射、设备字段补充、每300000ms日志条数聚合及kernel Oops计数。
+两个sink分别POST到device-logs.8slp.net/v1/logs和/v1/metrics，以JSON/newline与zstd发送。
+此配置没有订阅raw.*或rawmem.*，没有恢复为睡眠stage/HR/RR分类器的输入路径；日志可能含设备诊断，不能把metrics字段名称当成人体生理量。
+原始传感器上传仍由另一个jetstream-uploader负责。这里没有访问上述URL、设备证书或密钥内容。
+
+一个注释与配置不一致之处：中段注释把metrics称作disk buffer，但实际sinks.device_metrics是buffer.type="memory"、max_events=1000、when_full="drop_newest"。
+logs实际也是memory、2000条、when_full="block"。vector.sh:158–170还识别metrics memory配置：只删除已空的旧device_metrics磁盘buffer，未读数据保留供旧镜像fallback，支持以实际配置为准。
+这些是日志/运维metrics的队列，不能套成原始传感器raw_mem/raw的容量或保留策略；原始数据缓存已在LOCAL_STORAGE_ZH另行恢复。
+
+5. 默认启动边界与未解码内容
+
+etc/crontab中四条示例任务都以#注释，cron.d/hourly/daily/weekly/monthly未含普通任务文件；没有发现通过这些随包cron文件启动额外睡眠脚本。
+默认wants中存在run-postinsts.service链接，但其目标/lib/systemd/system/run-postinsts.service在该tar内缺失；不能把全部wants链接当作已成功运行的服务。
+本轮只核对随包配置，没有取得/persistent、运行期systemd drop-in、实际环境、下载文件、用户会话或内核live状态；没有把镜像静态入口清单伪装成运行观测。
+
+HDF5/GGUF/TFL2/TFL3固定文件头候选为零。该检查故意只命名能可靠识别的头部，不覆盖任意ONNX protobuf、加密/压缩嵌套资源或自定义浮点权重数组。
+opt/eight内较大的other文件主要是已知MCU/音箱固件及配置清单；本次仅记录SHA/大小/魔数，不宣称已反编译所有音箱B12/B13或附件固件。
+819个ET_REL、普通系统库、通用Linux工具的所有函数也没有逐个语义审阅。完整字节读取仅证明盘点覆盖，不等于完整代码理解。
+
+6. 带官方出处的新公开源码线索
+
+capybara.service:3明示Documentation=https://github.com/lunasleep/capybara；dac.service:3明示https://github.com/lunasleep/device-api-client；vector.toml首行标记lunasleep/vector。
+这些URL来自已校验官方固件，给公开源码发现提供了可复核来源，强于只猜同名GitHub组织。
+本轮已交给官方来源调查分支核对其公开资料；仓库是否公开、具体版本与Pod6是否有关，必须另有页面/代码证据，不能仅凭这个URL认定。
+
+7. 与用户目标的关系
+
+本轮补强了“设备侧还有没有漏掉的独立执行入口/标准模型文件”的搜索覆盖，并恢复日志管线的实际目的；未发现新的可运行睡眠分期模型。
+最关键未知仍是实际Pod6后端信号预处理、空间分离/质量选择、阶段模型/权重/输入窗/后处理及Autopilot目标生成。
+继续入口是有出处的公开算法代码、固件真实下载/消费链、官方结果消费者；不是重复扩展名搜索或把运行库清单当作模型恢复。

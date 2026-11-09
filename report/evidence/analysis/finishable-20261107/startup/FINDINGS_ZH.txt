@@ -1,0 +1,57 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+C13 开机依赖与文件等待 — 2026-11-07
+
+范围：官方 MT8365 SWU 的静态 rootfs；没有运行脚本、固件或连接设备。
+复核程序 build_graph.py 校验 286 个提取文件，解析 230 个 unit 名称（含别名），合并已装入的 drop-in，分开记录启动排序、拉起关系和停止/重启传播。GRAPH.json 每条边保留文件和行号，UNITS.json 保存合并前后条目。结果只对应这份样本，不自动等同当前 Pod5/Pod6 部署。
+
+1. 启动主链
+默认目标：etc/systemd/system/default.target -> lib/systemd/system/multi-user.target。
+persistent.mount -> persistent-manager -> Capybara / Frank / NATS / burrow / uploader。
+这条箭头表示配置里的先后，不表示上游失败后下游必然禁止启动：多数使用 Wants 而非 Requires。
+Capybara 还 After/Wants Bluetooth、NetworkManager；DAC 只在 unit 上 After/Wants NetworkManager。
+Frank 的 lib drop-in 额外 After=nats-server.service；没有 After=capybara.service。
+NATS 的 etc drop-in 增加 ExecStartPost=-timeout 20 jetstream-uploader --ensure-streams；该启动后命令也计入启动排序，但前缀 '-' 使普通非零退出可忽略，不等于流已建立成功。
+uploader After/Wants NATS；NATS 的已安装 .wants 链接又拉起 uploader。这是拉起关系双向，不是排序环。
+uploader 的 PartOf=NATS 传播 NATS 的停止/重启，不表示自身停止就停止 NATS。
+
+2. 两种等待文件不能混为一谈
+Frank、DAC 的 ExecStartPre 每 4 秒等待 /deviceinfo/capybara.run_info 非空。
+uploader 的 ExecStartPre 每 4 秒等待 /persistent/deviceinfo/device-id 非空；burrow 脚本也等待此文件。
+etc/fstab 将 /deviceinfo 配成 tmpfs；它与 /persistent/deviceinfo 是两个目录。
+Capybara Program.cs:70-81 顺序为 InitializeHardware -> WriteRunInfo -> InitializeConnectivityOrReboot -> Host.RunAsync。
+InitializeHardware 在写 run_info 前调用 DeviceConfig.ConfigDevice(..., "/persistent")；后者 ConfigIdentity 写 device-id 等文件。
+因此 run_info 出现早于连接初始化和托管服务 READY。仅文件存在不能证明网络、Frank 或云端上传正常。
+RunInfoManager.Exists 只检查存在；WriteRunInfo 通过 FileMode.Create 重写，并非临时文件原子替换。
+reset-capybara-cache.sh 只处理 .NET 解包缓存，不删除 run_info。
+静态可能：同一次开机中的进程重启可留下旧 run_info；等待者只检查非空，未核对代次、时间戳或 JSON 完整性。未观测到真实竞态，不声称每次会发生。
+ExecStartPre 的循环不代表服务一定永久卡住，还受 systemd 启动超时约束。burrow 内部循环则属于已经启动的 simple 主进程。
+
+3. 持久分区并不是“挂上就一定健康”
+persistent-manager 是 Type=notify。已挂载时完成日志相关准备后通知；否则执行检查/恢复、必要时格式化，再启动 persistent.mount 后通知。
+挂载 unit 使用 nofail；manager 的排序与 Wants 使它仍有恢复失败挂载的机会。
+这些属于样本启动逻辑，不是已在用户设备执行或验证的恢复过程。
+
+4. 校时不构成可靠的上传前置条件
+NATS 写了 After=network-online.target ntp.service，但没有 Wants/Requires 拉起这两项。
+完整索引未发现 ntp.service unit 或别名；不要因此说系统无校时：systemd-timesyncd 已由 sysinit.target.wants 启用。
+systemd-time-wait-sync.service 虽有文件，在该镜像安装链接和显式 pull-in 闭包中未被启用；network-online.target、time-sync.target 也不在此显式闭包。运行期生成器或额外配置仍可能改变它们。
+burrow.sh:42 在 marker 检查与 device-id 等待前调用 ensure_date_sanity。
+globals.sh:125 起将当前时间与构建时间比较；仅当当前更早时关闭 NTP、设置构建时间、再打开 NTP，命令错误被忽略。
+没有 burrow -> Frank / uploader 的显式排序边；这段校正或之后网络校时可以与采样启动交错。代码支持“可能发生时间调整”，不能给出实机调整幅度或次数。
+
+5. 环和缺失引用
+所有解析出的显式 After/Before 图未发现强连通环；核心 11 服务子图也无环。
+文件生产者 Capybara 在进入 Host.RunAsync 前已写 device-id 与 run_info，因此目前证据不支持它们与 Frank 的文件等待形成必然互锁。
+仍不能证明完整开机无死锁：未模拟隐含依赖、生成器、/run 覆盖、硬件 I/O 或全部应用内部异步等待。
+默认启动中发现 run-postinsts.service 链接目标缺失。其他无对应文件的 auditd、plymouth、ntp 等引用见 GRAPH.json；After 引用缺失并不自动导致启动失败。
+-.slice、system.slice 为内建项；.device、模板占位和可能生成的 .mount 单独归类，不误报成缺件。
+
+验收：C13 的“现有镜像静态启动图”完成。实机额外配置、实际校时与开机时间线仍需设备记录。
+后续抓取最小材料：同次开机的启动时间轴、各服务 active/failed、两个文件的大小/修改时间、实际系统版本；无需读取身份文件内容或密钥。
+
+解释规则参考 systemd 官方 v255 文档（仅语义参考；镜像配置内也注明 systemd 255）：
+https://raw.githubusercontent.com/systemd/systemd/v255/man/systemd.unit.xml
+https://raw.githubusercontent.com/systemd/systemd/v255/man/systemd.service.xml
+After/Before 只管排序，Wants/Requires 管拉起；ExecStartPost 参与启动完成判定。分析器刻意不冒充完整 systemd。

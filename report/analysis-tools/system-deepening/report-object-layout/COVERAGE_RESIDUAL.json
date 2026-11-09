@@ -1,0 +1,93 @@
+{
+  "closed": [
+    {
+      "evidence": [
+        "LAYOUT_MAP.json",
+        "CONSTRUCTOR_LEDGER.json",
+        "pass1/",
+        "pass2/"
+      ],
+      "id": "RL-01",
+      "item": "上报对象构造链",
+      "result": "主分派 0801d888 的 param_2 是 byte-offset 对象；顶层 FUN_080086a4(param_2,0,0x3e08) 定义 15880B 主域，解析 puVar 别名后共 12 个块操作（8 memset + 4 memcpy），与 8 个构造函数族合计 53 个区间"
+    },
+    {
+      "evidence": [
+        "BYTE_VALIDATION.json",
+        "MODEL_RESULTS.json"
+      ],
+      "id": "RL-02",
+      "item": "0x3e08 分界与持久尾部",
+      "result": "5 条尾部写入/复制语句全部位于顶层 memset 之前；[0x3e08,0x3e88) 共 128B 跨清零存活，对象尺寸下界 0x3e88 (15944B)"
+    },
+    {
+      "evidence": [
+        "CONSTRUCTOR_LEDGER.json",
+        "MODEL_RESULTS.json"
+      ],
+      "id": "RL-03",
+      "item": "构造函数块尺寸与相邻实例交叉验证",
+      "result": "12 个唯一构造函数体（13 份含 memset 导出，1 份重复）；7 对成对实例的偏移差全部等于该构造函数的 memset 尺寸，零缝隙"
+    },
+    {
+      "evidence": [
+        "BYTE_VALIDATION.json",
+        "pass1/080191f4.txt",
+        "pass2/080190e4_08019200.txt"
+      ],
+      "id": "RL-04",
+      "item": "未解码导出分类纠偏",
+      "result": "9 个 function=none 导出中 8 个是真实代码入口（7 return + 1 无条件跳转），080191f4 是 080190e4 函数尾部 literal pool 的 0x00006001 常量槽，不是代码，不应做 Thumb 前缀解码"
+    },
+    {
+      "evidence": [
+        "LAYOUT_MAP.json",
+        "MODEL_RESULTS.json",
+        "callback-implementations/pass2/0801d888.txt"
+      ],
+      "id": "RL-05",
+      "item": "别名解析补齐 0x3df8 双分支与 9B 标志模板",
+      "result": "第七轮只识别显式 param_2 + 0xNN 的 9 处块操作；本轮解析 puVar44=param_2+0x3df8、puVar38=param_2+0xb08 后补齐 3 处新块位点：顶层 memset、0xb08 的 0x10f0 大块清零、0x3df8 的 9B 二选一。0x3df8 要么 memset 清零，要么从 0x080241a3 复制冻结镜像中的 010101010000000001 默认标志模板"
+    }
+  ],
+  "corrections": [
+    "首版 verify_layout_bytes.py 把 insn_rows_total 写成 7879、undecoded_exports 写成 7；实测为 7576 / 9，已按导出实测修正。",
+    "首版把全部 function=none 导出都当代码入口做 Thumb 前缀扫描，导致 080191f4 在半字 c925 上误报 undecoded_16。实际它是 literal pool 数据槽，已改为「先按 REF[READ] 判定数据槽，再做前缀解码」。",
+    "080190e4 与 08019170 是同一 Ghidra 函数体的两个 TARGET，构造函数计数按 body owner 去重为 12，导出份数为 13。",
+    "0x3E88 的十进制是 16008（不是 15944）；0x3E08 = 15880，两者相差 128B 持久尾部。",
+    "本轮 FIELD 正则统计的是「pseudo-C 中出现的所有 param_2 偏移」共 156 个，第七轮 REPORT_FIELDS.json 的 107 个是「写入语句的唯一偏移」；两者是包含关系，已做子集断言，不是矛盾。"
+  ],
+  "cross_validation": {
+    "byte_checks": 203,
+    "byte_failures": 0,
+    "determinism": "核验与模型脚本重跑输出哈希不变",
+    "flash_literals_verified": 656,
+    "insn_rows_machine_verified": 7576,
+    "memset_sizes_derived": 13,
+    "model_assertions": 99,
+    "model_failures": 0
+  },
+  "date": "2026-11-09",
+  "executes_firmware": false,
+  "hard_numbers": {
+    "blocks": 12,
+    "covered_bytes": 11297,
+    "export_passes": 2,
+    "frozen_bbin_bytes": 132896,
+    "ghidra_exports_retained": 59,
+    "holes": 14,
+    "protected_tail_bytes": 128,
+    "regions": 53,
+    "uncovered_bytes": 4583
+  },
+  "residual": [
+    "未覆盖区间只有零散标量写入，字段名 / 单位 / 语义仍需外设 datasheet 或实机。",
+    "0x08027f10 描述表 92 行全表与 2560B 未解码代码补齐（A 类 #2）尚未开始。",
+    "日志字符串池 62 条格式串到调用点 / 条件的映射（A 类 #3）尚未开始。",
+    "632 个从未单独导出的 flash 内 BL 目标全量调用图（A 类 #5）尚未开始。",
+    "所有运行时行为、实机时序、上报传输帧格式仍需设备。"
+  ],
+  "round": 8,
+  "schema": "eightsleep.nonusb.report-object-layout.coverage-residual.v1",
+  "scope": "A 类静态残余 #1 上报对象构造链 + 0x3e28 完整布局分区图"
+}

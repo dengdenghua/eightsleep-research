@@ -1,0 +1,192 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Eight Sleep 中国版 Android：Autopilot 结果、解释与图表消费者
+日期：2026-11-07；仅官方 APK 静态证据；不运行 App、不请求业务 API。
+
+结论
+本轮闭合的是“云接口结果→缓存→领域对象→回顾页面”的读取链，而非温控策略的生成链。
+回顾接口的 DTO 已有调节时间、前后档位、type、phase、stage、reason，以及可选的
+autopilot.description/template/type/data。App 对这些结果做分组、显示单位转换、图表
+计数、标签选择，并把另一路 DailyTrends 的睡眠阶段叠到同一页面。
+这里“Sleep response/睡眠响应”的分类是一个简单枚举分支：AUTOPILOT 且不是环境温度
+类型就归为 SLEEP_RESPONSE。它不是本地睡眠分类或“看到某阶段就计算下一目标”的证据。
+更具体地说，当前图表转换还丢弃 reason、metadata、description、template 和 data.delta；
+不能因为接口中存在解释文字，就断言这些文字在本版回顾图表实际展示。
+
+范围及定位规则
+APK：com.eightsleep.eight 7.63.5-cn-tencent，versionCode 1007063005。
+SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+工作区 W：${RESEARCH_ROOT}/analysis/android-volume/cn-7.63.5
+固定 index_id：462a22f663ae482ea93bab3130b96eaf。
+JADX partial（exit 3、350 errors）；Smali 索引已完成。协程反编译不完整处以实际 invoke
+和字段读写补证。不重新 prepare/reindex，不把 Java 反编译输出当原始源码。
+下面 J/ 表示 W/java/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/；
+S2/ 表示 W/decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/；
+S/ 同上但为 smali/。每项深证据、原文件 SHA256、行段和调用边见同目录
+autopilot-results/source-ledger.json；保存的单次 REA 结果位于 autopilot-results/*.json。
+这份 APK 同时含不同产品功能对象；不凭 MT8365、名称或接口存在将功能绑定某一国行 SKU。
+
+AR-R1：真实 GET 入口及缓存链
+J/J9/a.java:12–22（Smali S2/J9/a.smali:112–220）声明：
+  GET v1/users/{USER_ID}/autopilotDetails
+  GET v1/users/{USER_ID}/autopilotDetails/autopilotRecap?day=<LocalDate>&tz=<ZoneId>
+  GET v1/users/{USER_ID}/autopilot-history
+实际调用分别为 J/L9/m.java:44–47、L9/C1387b.java:53–57、L9/q.java:44–47。
+Recap Smali trace 直接找到 LL9/b.invokeSuspend → LJ9/a.e，行 121；不是只检出 URL 字符串。
+J/p061ce/C2682k.java:108–128 用 d0.g 构造 J9.a。该 helper 的 X3/app-api 绑定已由
+APP_THERMAL_CONTROL_ZH.txt 和 APP_RUNTIME_AND_HARDWARE_ZH.txt 的同索引 Smali 互证，
+CHINA 对应 https://app-api-proxy.8slp.net.cn/。本轮没有连接该地址。
+
+J/com/eightsleep/data_autopilot/data/repository/AutopilotRepository.java:108–187：
+先从 Q9.f.d(user) 读缓存，在 timestamp 转 systemDefault 时区后的日期中找指定日；
+找到且未过期则使用 h.d()；否则调用 recap GET 并缓存。UI 发起时也显式传 systemDefault
+ZoneId，见 S2/.../AutopilotViewModel$observeAutopilotRecap$1.smali:228–250。
+Q9.f 的 SQL 为 SELECT * FROM autopilot_recap WHERE user_id = ? ORDER BY timestamp DESC，
+观察 recap、delta、temperature_adjustment、elevation_adjustment 对应表。
+S2/Q9/f.smali:283–311 明确 response.toEntity(user)→Room 事务 callback。
+AutopilotRecapResponse.toEntity（J/.../data/model/AutopilotRecapResponse.java:175–218）
+以 user+本地日期组成 key，保存 timestamp、各计数和 lists，POD/PILLOW 记录带不同 source。
+S9.h.b/c:39–56 再按 source 分开，d:59–107 映射到领域对象。
+
+这里有实际本地算法，但属于缓存：J/P2/K.java:62–78 计算
+  d = LocalDate.now().epochDay - entity.date.epochDay + 1
+  TTL = d² HOURS；currentTimeMillis - createdAt > TTL 时过期。
+不要把 Q9.f 构造中的 DAYS=1 简化为本读取链固定 24 小时 TTL，也不要把这段策略解释为
+睡眠/温控模型。实体日期使用 systemDefault，未做跨时区实际运行验证。
+
+AR-R2：details/history 的来源与消费
+AutopilotDetailsResponse 包含 snoringMitigation、canUseMitigationLevels、daysUntilCanUseLevels、
+userMode、calibrationStatus、hasActiveSubscription、isAutopilotActive。
+CalibrationStatusResponse 的 isCalibrated/isFirstSessionAfterCalibration 和
+calibrationDaysCompleted/daysRequiredForCalibration 均是返回模型字段。
+J/.../AutopilotDetailsResponse.java:15–25,142–144；CalibrationStatusResponse.java:12–16；
+S9/a.java:49–60 直接转领域对象，不在该转换中拟合任何校准模型。
+
+history 返回 Map；J/L9/r.java:43–49 只取键 userAutopilotHistory，缺失则不写此响应。
+AutopilotHistoryResponse.java:62–68 将 totalInterventions、totalNights 原样转实体/领域对象；
+Q9/d.java:110–118 进入数据库。O9/r.java:49–60 合并 details、history、settings 流；
+AutopilotViewModel$observeAutopilotData$1$1$1.java:21–25 构造 Le.a。
+Le/a.java:32–36 的字段语义为 nightsWithAutopilot、adjustmentCount；
+P2/E.java:273–282 分别用“nights with Autopilot”“Autopilot adjustments”资源绘制整数。
+累计夜数/干预数在这条链来自返回值，不是手机重新从原始传感流计数。
+
+限定的负面证据：搜索完整 Java 及完整 Smali 索引，N9.k 四个 calibration 标量的直接
+字段读写只落在该 data class 的构造、equals/hashCode/toString；没有外部直接读引用。
+不能因此宣称整个 App 不支持校准；可确认的只是已恢复该模型链没有本地校准计算消费者。
+本轮 recap 可用性 Companion.of:10–39 依据 recap/trend/wasAway 的加载/成功/错误及空值
+选择 LOADING/AVAILABLE/UNAVAILABLE/NO_SLEEP_DATA/AWAY，而非读取 N9.k 校准状态。
+枚举中虽然有 NEW_USER，不能仅凭此枚举断言它在这段 factory 中实际产生。
+
+AR-R3：调节记录、解释字段和真实单位边界
+AutopilotRecapResponse 包含 timestamp、temperatureAdjustmentCount、
+pillowTemperatureAdjustmentCount、elevationAdjustmentCount、deltas、temperatureAdjustments、
+pillowTemperatureAdjustments、elevationAdjustments、可选 temperatureSettingsUpdate。
+J/.../TemperatureAdjustmentResponse.java:17–30,183–192 定义并转存：
+  fromLevel/toLevel：nullable Integer；timestamp：Instant；reason：nullable String；
+  metadata：nullable 六项 previous/current BedTime/InitialSleep/FinalSleep int；
+  autopilot：nullable {description:String, template:String, type, data:{delta:List<Object>}}；
+  type、phase、stage：非空枚举。
+data.delta 的 toEntity 在 AutopilotTempDataResponse.java:46–51 强制取 [0] String、[1] Double。
+这只是解释载荷的二元组映射；不能据 List<Object> 或 delta 名称认定为特征向量、模型参数。
+metadata 见 TempAdjustmentMetadataResponse.java:14–20,120–121。
+
+Smali 保留的 Moshi wire 枚举：
+  AdjustmentType：autopilot/manual/smart（S2/.../AdjustmentType.smali:44–60）；
+  stage：awake/deep/light/out/rem（AutopilotAdjustmentStage.smali:50–78）；
+  phase：bedtime/early/hotFlash/late/nap/off/wakeup（AutopilotAdjustmentPhase.smali:52–92）；
+  autopilot.type：明确标注 autopilot-ambient-temp，另有 UNKNOWN 枚举
+  （AutopilotTempAdjustmentType.smali:43–49）。没有把 UNKNOWN 当已证实的 wire 字符串。
+stage 与 phase 是两种字段，不能把 BEDTIME/EARLY/LATE 叫 PSG 睡眠分期。
+
+J/S9/g.java:59–73 保留字段到 N9.r；N9/r.java:49–63 与 O9/j.java:35–59 将温度 int 包装
+成用户显示设置对应的 Ga.b、Instant 成 Ga.s。显示换算复用上一份 APP_THERMAL_CONTROL
+所核实的标尺（LEVEL raw/10，摄氏/华氏为分段标尺），不意味着 JSON 中 int 本身是摄氏度。
+Le/i.java:102–103 图表 getValue 取 raw double；g/h 是显示值四舍五入及绝对差；k 是 raw 差。
+这条回顾链没有提供“该 level 在 Frank/MCU 的 PID target℃上如何实现”的新增换算证据。
+
+AR-R4：文字解释实际保留到哪里；图表分类具体如何产生
+description/template/type/data 先从 AutopilotTempAdjustmentResponse.toEntity 进入 S9.j，再
+进入 N9.i；reason/metadata 进入 N9.x。故不能称这些字段从未解析。
+但 J/P2/q.java:30–48 和 S/P2/q.smali:106–216 的图表 E(List) 实际执行：
+  1. 排除 toLevel==null；排除 type==MANUAL。
+  2. 构造 Le.i(timestamp,phase,stage,toLevel,fromLevel,type,autopilot?.type)。
+     reason、metadata、description、template、data.delta 不传给 Le.i。
+Smali incoming trace 证明该 builder 被 Recap collector 在行 207、221 分别用于 POD/PILLOW。
+
+搜索完整 Smali 索引（查询 has_more=false）：
+  LN9/i;->a/b/d（description/template/data）15 条，仅在 N9/i 自身 generated methods；
+  LN9/x;->c/d（reason/metadata）10 条，同样只在 N9/x 自身 generated methods。
+Java 同名字段检索也未见外部直接使用。这个范围的结论是“当前恢复的直接字段消费及
+已闭合图表路径不显示这些字段”，不是对反射、动态载入或服务端 UI 内容的全局排除。
+
+AdjustmentClassificationKt.getClassification 的 Smali:35–83 明确为：
+  type==AUTOPILOT && autopilot.type==AMBIENT_TEMP → AMBIENT_RESPONSE
+  其余 type==AUTOPILOT → SLEEP_RESPONSE（包括缺少/未知 autopilot.type）
+  type==SMART → PHASE_CHANGE
+  其余 → MANUAL
+因此 SLEEP_RESPONSE 标签本身不证明识别到了某个睡眠阶段，也不证明手机执行了调温模型。
+Le/i.java:158–209 再根据上述类别及记录自带 stage/phase 选择本地字符串资源：
+  SLEEP_RESPONSE 且 stage 为 DEEP/REM/LIGHT：取该阶段 label 组合“detected”文字；
+  PHASE_CHANGE：对 BEDTIME/EARLY/LATE/HOT_FLASH 选择 started/resumed 类文字；
+  AMBIENT_RESPONSE：比较 from/to 的显示值选择 increase/decrease；from 缺失默认 increase。
+这是真实 App 文字生成逻辑，不是把服务器 description/template 填进页面。
+
+AR-R5：睡眠阶段关联、统计与“改善”卡片
+S2/.../AutopilotViewModel$observeAutopilotRecap$1.smali:228–350 依次得到
+ObserveAutopilotRecap、ObserveTrendByDate、ObserveWasUserAway 三流，再 combine。
+collector Java:64–138、Smali:455–643 将回顾温度记录和 DailyTrends.Session.i 的 sleepStages
+放入 Le.j；两个字段的来源独立。阶段条可以与调节时间对照，但该 consumer 不从温度
+记录生成睡眠标签，也不从 sleepStages 生成新的控制请求。
+AutopilotViewModel.java:527–548 的阶段开关/选择动作调用对应 toggle/highlight；
+S2/.../AutopilotViewModel.smali:933–1026 的 highlightTemperatureSleepStage 只复制 UI state，
+把相同选中阶段变 null，否则保存新阶段。直接 outgoing trace 只有 null 检查和 Le.j/Le.k
+copy，未调用温控 repo/BLE/控制 API。这里限于所追踪的阶段高亮动作，不代替全 ViewModel
+的所有设置动作审计（该类另有温度偏好和健康资料编辑）。
+
+X4/x.java:810–914 对已转换的调整列表按 PHASE_CHANGE/AMBIENT_RESPONSE/SLEEP_RESPONSE
+计数，用本地字符串构造 Ke.q；并按 stage.duration 累加 sleep end。这是图表布局/统计。
+P2.H.a 接收调整列表和 sleepStages 作图。Ke/l.java:444–476 还将记录 stage 与选中阶段名
+比较并决定图表点颜色/标记；该处 JADX 循环恢复不完整，本报告不依它断言更精细的全套
+筛选规则。已经由 Smali 闭合的事实是阶段选择只修改 UI state。
+
+累计数和当前页分类计数不能混为一谈：回顾 response 直接给三种 adjustmentCount。
+当前 collector 对页面一个总计数采用 temperatureAdjustmentCount + elevationAdjustmentCount
+（Smali:478–482）；pillow 列表仍单独映射。未运行 UI，不推断这个字段所在页面的文案
+或将其认定为实际显示缺陷。
+
+DeltaResponse.java:12–18,92–94 已有 metric、previousValue、currentValue、deltaValue 整数，
+S9.h.d 将它们直接转 N9.l；collector Smali:545–616 将它们复制给 Le.l 卡片。
+AutopilotRecapMetric.java:22–42 的 metric 为 deep_percent、rem_percent、snore_percent；
+本地只指定 title/description 资源及希望的变化方向（前两项 UP、snore DOWN）。
+在这条消费链中没有由 raw/session 重算 deltaValue，更没有构建对照组、因果估计或
+证明“这一次温度动作使某个阶段增加”的模型。它展示的是接口结果；基线窗口、统计定义、
+因果归因和服务器如何产生这些数值，仍未知。
+
+与 snore 结果线的交界：collector Java:64–116 将 Session.k 转成 snore 时间段，按 elevation
+adjustment 时间落入区间选择强度（无匹配为 NONE）并构造 Le.g。这是回顾关联展示；
+具体 snore/health 原始结果来源由本轮另一份 health 报告追踪，本报告不重复动作配置。
+
+AR-R6：证据边界及尚未闭合入口
+1. 本轮已覆盖实际 GET/调用者、三类 cache、DTO→entity→domain、回顾页面 combine、
+   chart builder、分类、主要文字/数值映射、历史数字显示、阶段高亮实际 Smali。
+   它们正面支持“此读取路径消费已标注结果”。不能由此宣称整个 APK、固件或云端
+   都没有算法，也不能证明每个响应字段在国行 Pod6 当前账号都会填充。
+2. 未获取任何业务响应，reason/template 的实际文案、服务器真实选取的 phase/stage、
+   policy 输入/权重/预测时间窗、模型架构及输出到设备的对应关系均未由此恢复。
+3. temperatureSettingsUpdate 的 from/to 对象在 recap/entity/domain 中保留；本轮未把它
+   进一步闭合成独立“接受/拒绝建议”写回动作。图表 builder 丢弃记录 metadata 不能
+   代替对其他建议卡片或偏好反馈入口的审计。
+4. 独立 data_user/data/model/level_suggestions 家族（Profile/Cohort/CohortV2/FirstNight/
+   Bedtime/TapToControl）及 presentation_home/.../FirstNightLevelSuggestionsSource 是
+   已存在的后续候选；这轮没有据名称宣称其算法或反馈路径已恢复。
+5. TemperatureAggregate、连续温度历史、独立 temperature-events 接口未在本轮新增追踪。
+   本轮“温度历史”指 Autopilot recap 的离散 adjustment records。
+6. 偏好/日程/闹钟/BLE 请求发送链见 APP_THERMAL_CONTROL_ZH.txt；实时 WebSocket 状态
+   失效/刷新由父任务单独报告。不能把本回顾读链推断为设备实时控制优先级。
+7. 对 Java 负面搜索不作全局结论；关键字段负面证据限定为完整当前 Smali 索引的直接
+   字段引用，动态/反射依然是边界。所有结论均为静态观察或据此作的有界推论。
+
+交付
+本报告未改主 ANALYSIS/manifest；未统一导出 deep report。
+新增 deep findings 的 ID、证据映射和 SHA256 均在 autopilot-results/source-ledger.json。

@@ -1,0 +1,1035 @@
+// IL code: Eight.Firmness
+.class public auto ansi beforefieldinit Eight.Firmness.StateMachine.States.CalibratingState
+	extends [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit '<RunMonitorLoop>d__14'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> '<>t__builder'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.StateMachine.States.CalibratingState '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> stateChangeTcs
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		.field private class [System.Runtime]System.Threading.PeriodicTimer '<timer>5__2'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private object '<>7__wrap2'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private int32 '<>7__wrap3'
+		.field private class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState '<>7__wrap4'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> '<>u__1'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 02 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__2'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x2bbf4
+			// Header size: 12
+			// Code size: 576 (0x240)
+			.maxstack 7
+			.locals init (
+				[0] int32,
+				[1] class Eight.Firmness.StateMachine.States.CalibratingState,
+				[2] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+				[3] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+				[4] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>,
+				[5] object,
+				[6] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[7] class [System.Runtime]System.Exception,
+				[8] int32,
+				[9] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Firmness.StateMachine.States.CalibratingState Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: ldc.i4.1
+				IL_0010: ble.un.s IL_0023
+
+				IL_0012: ldarg.0
+				IL_0013: ldloc.1
+				IL_0014: ldfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.StateMachine.States.CalibratingState::tickInterval
+				IL_0019: newobj instance void [System.Runtime]System.Threading.PeriodicTimer::.ctor(valuetype [System.Runtime]System.TimeSpan)
+				IL_001e: stfld class [System.Runtime]System.Threading.PeriodicTimer Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<timer>5__2'
+
+				IL_0023: nop
+				.try
+				{
+					IL_0024: ldloc.0
+					IL_0025: brfalse.s IL_003c
+
+					IL_0027: ldloc.0
+					IL_0028: ldc.i4.1
+					IL_0029: beq IL_00dd
+
+					IL_002e: ldarg.0
+					IL_002f: ldnull
+					IL_0030: stfld object Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>7__wrap2'
+					IL_0035: ldarg.0
+					IL_0036: ldc.i4.0
+					IL_0037: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>7__wrap3'
+
+					IL_003c: nop
+					.try
+					{
+						IL_003d: ldloc.0
+						IL_003e: brfalse.s IL_008c
+
+						IL_0040: ldloc.1
+						IL_0041: ldarg.0
+						IL_0042: ldfld class [System.Runtime]System.Threading.PeriodicTimer Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<timer>5__2'
+						IL_0047: ldarg.0
+						IL_0048: ldfld class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::stateChangeTcs
+						IL_004d: ldarg.0
+						IL_004e: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::cancellationToken
+						IL_0053: call instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState::TickUntilDone(class [System.Runtime]System.Threading.PeriodicTimer, class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>, valuetype [System.Runtime]System.Threading.CancellationToken)
+						IL_0058: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<!0> class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::GetAwaiter()
+						IL_005d: stloc.s 4
+						IL_005f: ldloca.s 4
+						IL_0061: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::get_IsCompleted()
+						IL_0066: brtrue.s IL_00a9
+
+						IL_0068: ldarg.0
+						IL_0069: ldc.i4.0
+						IL_006a: dup
+						IL_006b: stloc.0
+						IL_006c: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>1__state'
+						IL_0071: ldarg.0
+						IL_0072: ldloc.s 4
+						IL_0074: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>u__1'
+						IL_0079: ldarg.0
+						IL_007a: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>t__builder'
+						IL_007f: ldloca.s 4
+						IL_0081: ldarg.0
+						IL_0082: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>, valuetype Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'>(!!0&, !!1&)
+						IL_0087: leave IL_023f
+
+						IL_008c: ldarg.0
+						IL_008d: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>u__1'
+						IL_0092: stloc.s 4
+						IL_0094: ldarg.0
+						IL_0095: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>u__1'
+						IL_009a: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>
+						IL_00a0: ldarg.0
+						IL_00a1: ldc.i4.m1
+						IL_00a2: dup
+						IL_00a3: stloc.0
+						IL_00a4: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>1__state'
+
+						IL_00a9: ldloca.s 4
+						IL_00ab: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::GetResult()
+						IL_00b0: stloc.3
+						IL_00b1: ldarg.0
+						IL_00b2: ldloc.3
+						IL_00b3: stfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>7__wrap4'
+						IL_00b8: ldarg.0
+						IL_00b9: ldc.i4.1
+						IL_00ba: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>7__wrap3'
+						IL_00bf: leave.s IL_00cd
+					} // end .try
+					catch [System.Runtime]System.Object
+					{
+						IL_00c1: stloc.s 5
+						IL_00c3: ldarg.0
+						IL_00c4: ldloc.s 5
+						IL_00c6: stfld object Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>7__wrap2'
+						IL_00cb: leave.s IL_00cd
+					} // end handler
+
+					IL_00cd: ldloc.1
+					IL_00ce: ldfld class Eight.Firmness.Services.Calibration.CalibrationRunner Eight.Firmness.StateMachine.States.CalibratingState::runner
+					IL_00d3: callvirt instance bool Eight.Firmness.Services.Calibration.CalibrationRunner::get_IsCalibrating()
+					IL_00d8: brfalse IL_019a
+
+					IL_00dd: nop
+					.try
+					{
+						IL_00de: ldloc.0
+						IL_00df: ldc.i4.1
+						IL_00e0: beq.s IL_0145
+
+						IL_00e2: ldloc.1
+						IL_00e3: ldfld class Eight.Firmness.Services.Calibration.CalibrationRunner Eight.Firmness.StateMachine.States.CalibratingState::runner
+						IL_00e8: ldloc.1
+						IL_00e9: ldfld int32 Eight.Firmness.StateMachine.States.CalibratingState::'<bagCount>P'
+						IL_00ee: ldarg.0
+						IL_00ef: ldflda valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::cancellationToken
+						IL_00f4: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+						IL_00f9: brtrue.s IL_0102
+
+						IL_00fb: ldstr "board link lost"
+						IL_0100: br.s IL_0107
+
+						IL_0102: ldstr "capybara stopping"
+
+						IL_0107: ldsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.StateMachine.States.CalibratingState::AbandonLimit
+						IL_010c: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Firmness.Services.Calibration.CalibrationRunner::AbandonAsync(int32, string, valuetype [System.Runtime]System.TimeSpan)
+						IL_0111: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+						IL_0116: stloc.s 6
+						IL_0118: ldloca.s 6
+						IL_011a: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+						IL_011f: brtrue.s IL_0162
+
+						IL_0121: ldarg.0
+						IL_0122: ldc.i4.1
+						IL_0123: dup
+						IL_0124: stloc.0
+						IL_0125: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>1__state'
+						IL_012a: ldarg.0
+						IL_012b: ldloc.s 6
+						IL_012d: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>u__2'
+						IL_0132: ldarg.0
+						IL_0133: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>t__builder'
+						IL_0138: ldloca.s 6
+						IL_013a: ldarg.0
+						IL_013b: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'>(!!0&, !!1&)
+						IL_0140: leave IL_023f
+
+						IL_0145: ldarg.0
+						IL_0146: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>u__2'
+						IL_014b: stloc.s 6
+						IL_014d: ldarg.0
+						IL_014e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>u__2'
+						IL_0153: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+						IL_0159: ldarg.0
+						IL_015a: ldc.i4.m1
+						IL_015b: dup
+						IL_015c: stloc.0
+						IL_015d: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>1__state'
+
+						IL_0162: ldloca.s 6
+						IL_0164: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+						IL_0169: leave.s IL_019a
+					} // end .try
+					catch [System.Runtime]System.Exception
+					{
+						IL_016b: stloc.s 7
+						IL_016d: ldloc.1
+						IL_016e: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::logger
+						IL_0173: ldloc.s 7
+						IL_0175: ldstr "[calibration][{Side}] Abandoning the run failed"
+						IL_017a: ldc.i4.1
+						IL_017b: newarr [System.Runtime]System.Object
+						IL_0180: dup
+						IL_0181: ldc.i4.0
+						IL_0182: ldloc.1
+						IL_0183: ldfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::connection
+						IL_0188: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+						IL_018d: call string [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+						IL_0192: stelem.ref
+						IL_0193: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogError(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+						IL_0198: leave.s IL_019a
+					} // end handler
+
+					IL_019a: ldarg.0
+					IL_019b: ldfld object Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>7__wrap2'
+					IL_01a0: stloc.s 5
+					IL_01a2: ldloc.s 5
+					IL_01a4: brfalse.s IL_01bd
+
+					IL_01a6: ldloc.s 5
+					IL_01a8: isinst [System.Runtime]System.Exception
+					IL_01ad: dup
+					IL_01ae: brtrue.s IL_01b3
+
+					IL_01b0: ldloc.s 5
+					IL_01b2: throw
+
+					IL_01b3: call class [System.Runtime]System.Runtime.ExceptionServices.ExceptionDispatchInfo [System.Runtime]System.Runtime.ExceptionServices.ExceptionDispatchInfo::Capture(class [System.Runtime]System.Exception)
+					IL_01b8: callvirt instance void [System.Runtime]System.Runtime.ExceptionServices.ExceptionDispatchInfo::Throw()
+
+					IL_01bd: ldarg.0
+					IL_01be: ldfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>7__wrap3'
+					IL_01c3: stloc.s 8
+					IL_01c5: ldloc.s 8
+					IL_01c7: ldc.i4.1
+					IL_01c8: bne.un.s IL_01d3
+
+					IL_01ca: ldarg.0
+					IL_01cb: ldfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>7__wrap4'
+					IL_01d0: stloc.2
+					IL_01d1: leave.s IL_0224
+
+					IL_01d3: ldarg.0
+					IL_01d4: ldnull
+					IL_01d5: stfld object Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>7__wrap2'
+					IL_01da: ldarg.0
+					IL_01db: ldnull
+					IL_01dc: stfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>7__wrap4'
+					IL_01e1: leave.s IL_01fb
+				} // end .try
+				finally
+				{
+					IL_01e3: ldloc.0
+					IL_01e4: ldc.i4.0
+					IL_01e5: bge.s IL_01fa
+
+					IL_01e7: ldarg.0
+					IL_01e8: ldfld class [System.Runtime]System.Threading.PeriodicTimer Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<timer>5__2'
+					IL_01ed: brfalse.s IL_01fa
+
+					IL_01ef: ldarg.0
+					IL_01f0: ldfld class [System.Runtime]System.Threading.PeriodicTimer Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<timer>5__2'
+					IL_01f5: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+					IL_01fa: endfinally
+				} // end handler
+
+				IL_01fb: ldarg.0
+				IL_01fc: ldnull
+				IL_01fd: stfld class [System.Runtime]System.Threading.PeriodicTimer Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<timer>5__2'
+				IL_0202: leave.s IL_0224
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_0204: stloc.s 9
+				IL_0206: ldarg.0
+				IL_0207: ldc.i4.s -2
+				IL_0209: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>1__state'
+				IL_020e: ldarg.0
+				IL_020f: ldnull
+				IL_0210: stfld class [System.Runtime]System.Threading.PeriodicTimer Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<timer>5__2'
+				IL_0215: ldarg.0
+				IL_0216: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>t__builder'
+				IL_021b: ldloc.s 9
+				IL_021d: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::SetException(class [System.Runtime]System.Exception)
+				IL_0222: leave.s IL_023f
+			} // end handler
+
+			IL_0224: ldarg.0
+			IL_0225: ldc.i4.s -2
+			IL_0227: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>1__state'
+			IL_022c: ldarg.0
+			IL_022d: ldnull
+			IL_022e: stfld class [System.Runtime]System.Threading.PeriodicTimer Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<timer>5__2'
+			IL_0233: ldarg.0
+			IL_0234: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>t__builder'
+			IL_0239: ldloc.2
+			IL_023a: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::SetResult(!0)
+
+			IL_023f: ret
+		} // end of method '<RunMonitorLoop>d__14'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x2bea4
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<RunMonitorLoop>d__14'::SetStateMachine
+
+	} // end of class <RunMonitorLoop>d__14
+
+	.class nested private auto ansi sealed beforefieldinit '<TickUntilDone>d__16'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> '<>t__builder'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public class Eight.Firmness.StateMachine.States.CalibratingState '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		.field public class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> stateChangeTcs
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+		.field public class [System.Runtime]System.Threading.PeriodicTimer timer
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool> '<>u__2'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x2beb4
+			// Header size: 12
+			// Code size: 444 (0x1bc)
+			.maxstack 6
+			.locals init (
+				[0] int32,
+				[1] class Eight.Firmness.StateMachine.States.CalibratingState,
+				[2] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+				[3] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[4] valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool>,
+				[5] valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>,
+				[6] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Firmness.StateMachine.States.CalibratingState Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse.s IL_0071
+
+				IL_0011: ldloc.0
+				IL_0012: ldc.i4.1
+				IL_0013: beq IL_0142
+
+				IL_0018: br IL_00fc
+
+				IL_001d: ldloc.1
+				IL_001e: ldfld class Eight.Firmness.Services.Calibration.CalibrationRunner Eight.Firmness.StateMachine.States.CalibratingState::runner
+				IL_0023: call valuetype [System.Runtime]System.DateTimeOffset [System.Runtime]System.DateTimeOffset::get_UtcNow()
+				IL_0028: ldloc.1
+				IL_0029: ldfld class Eight.Firmness.Models.Telemetry.PressureTelemetry Eight.Firmness.StateMachine.States.CalibratingState::latestPressureTelemetry
+				IL_002e: ldloc.1
+				IL_002f: ldfld int32 Eight.Firmness.StateMachine.States.CalibratingState::'<bagCount>P'
+				IL_0034: ldarg.0
+				IL_0035: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::cancellationToken
+				IL_003a: callvirt instance class [System.Runtime]System.Threading.Tasks.Task Eight.Firmness.Services.Calibration.CalibrationRunner::Tick(valuetype [System.Runtime]System.DateTimeOffset, class Eight.Firmness.Models.Telemetry.PressureTelemetry, int32, valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_003f: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+				IL_0044: stloc.3
+				IL_0045: ldloca.s 3
+				IL_0047: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+				IL_004c: brtrue.s IL_008d
+
+				IL_004e: ldarg.0
+				IL_004f: ldc.i4.0
+				IL_0050: dup
+				IL_0051: stloc.0
+				IL_0052: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>1__state'
+				IL_0057: ldarg.0
+				IL_0058: ldloc.3
+				IL_0059: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>u__1'
+				IL_005e: ldarg.0
+				IL_005f: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>t__builder'
+				IL_0064: ldloca.s 3
+				IL_0066: ldarg.0
+				IL_0067: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'>(!!0&, !!1&)
+				IL_006c: leave IL_01bb
+
+				IL_0071: ldarg.0
+				IL_0072: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>u__1'
+				IL_0077: stloc.3
+				IL_0078: ldarg.0
+				IL_0079: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>u__1'
+				IL_007e: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+				IL_0084: ldarg.0
+				IL_0085: ldc.i4.m1
+				IL_0086: dup
+				IL_0087: stloc.0
+				IL_0088: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>1__state'
+
+				IL_008d: ldloca.s 3
+				IL_008f: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+				IL_0094: ldloc.1
+				IL_0095: ldfld class Eight.Firmness.Services.Calibration.CalibrationRunner Eight.Firmness.StateMachine.States.CalibratingState::runner
+				IL_009a: callvirt instance bool Eight.Firmness.Services.Calibration.CalibrationRunner::get_IsCalibrating()
+				IL_009f: brtrue.s IL_00fc
+
+				IL_00a1: ldarg.0
+				IL_00a2: ldfld class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::stateChangeTcs
+				IL_00a7: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<!0> class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::get_Task()
+				IL_00ac: callvirt instance bool [System.Runtime]System.Threading.Tasks.Task::get_IsCompleted()
+				IL_00b1: brtrue IL_018a
+
+				IL_00b6: ldloc.1
+				IL_00b7: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::logger
+				IL_00bc: ldstr "[calibration][{Side}] Run finished, returning to ready"
+				IL_00c1: ldc.i4.1
+				IL_00c2: newarr [System.Runtime]System.Object
+				IL_00c7: dup
+				IL_00c8: ldc.i4.0
+				IL_00c9: ldloc.1
+				IL_00ca: ldfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::connection
+				IL_00cf: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+				IL_00d4: call string [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+				IL_00d9: stelem.ref
+				IL_00da: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+				IL_00df: ldloc.1
+				IL_00e0: ldfld class Eight.Firmness.StateMachine.States.IFirmnessStateFactory Eight.Firmness.StateMachine.States.CalibratingState::firmnessStateFactory
+				IL_00e5: ldloc.1
+				IL_00e6: ldfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::connection
+				IL_00eb: ldloc.1
+				IL_00ec: ldfld class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.FirmwareInfo [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::firmwareInfo
+				IL_00f1: callvirt instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory::CreateReadyState(class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.FirmwareInfo)
+				IL_00f6: stloc.2
+				IL_00f7: leave IL_01a7
+
+				IL_00fc: ldarg.0
+				IL_00fd: ldfld class [System.Runtime]System.Threading.PeriodicTimer Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::timer
+				IL_0102: ldarg.0
+				IL_0103: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::cancellationToken
+				IL_0108: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool> [System.Runtime]System.Threading.PeriodicTimer::WaitForNextTickAsync(valuetype [System.Runtime]System.Threading.CancellationToken)
+				IL_010d: stloc.s 5
+				IL_010f: ldloca.s 5
+				IL_0111: call instance valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<!0> valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>::GetAwaiter()
+				IL_0116: stloc.s 4
+				IL_0118: ldloca.s 4
+				IL_011a: call instance bool valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool>::get_IsCompleted()
+				IL_011f: brtrue.s IL_015f
+
+				IL_0121: ldarg.0
+				IL_0122: ldc.i4.1
+				IL_0123: dup
+				IL_0124: stloc.0
+				IL_0125: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>1__state'
+				IL_012a: ldarg.0
+				IL_012b: ldloc.s 4
+				IL_012d: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>u__2'
+				IL_0132: ldarg.0
+				IL_0133: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>t__builder'
+				IL_0138: ldloca.s 4
+				IL_013a: ldarg.0
+				IL_013b: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool>, valuetype Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'>(!!0&, !!1&)
+				IL_0140: leave.s IL_01bb
+
+				IL_0142: ldarg.0
+				IL_0143: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>u__2'
+				IL_0148: stloc.s 4
+				IL_014a: ldarg.0
+				IL_014b: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>u__2'
+				IL_0150: initobj valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool>
+				IL_0156: ldarg.0
+				IL_0157: ldc.i4.m1
+				IL_0158: dup
+				IL_0159: stloc.0
+				IL_015a: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>1__state'
+
+				IL_015f: ldloca.s 4
+				IL_0161: call instance !0 valuetype [System.Runtime]System.Runtime.CompilerServices.ValueTaskAwaiter`1<bool>::GetResult()
+				IL_0166: brfalse.s IL_018a
+
+				IL_0168: ldarg.0
+				IL_0169: ldflda valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::cancellationToken
+				IL_016e: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+				IL_0173: brtrue.s IL_018a
+
+				IL_0175: ldarg.0
+				IL_0176: ldfld class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::stateChangeTcs
+				IL_017b: callvirt instance class [System.Runtime]System.Threading.Tasks.Task`1<!0> class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::get_Task()
+				IL_0180: callvirt instance bool [System.Runtime]System.Threading.Tasks.Task::get_IsCompleted()
+				IL_0185: brfalse IL_001d
+
+				IL_018a: ldnull
+				IL_018b: stloc.2
+				IL_018c: leave.s IL_01a7
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_018e: stloc.s 6
+				IL_0190: ldarg.0
+				IL_0191: ldc.i4.s -2
+				IL_0193: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>1__state'
+				IL_0198: ldarg.0
+				IL_0199: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>t__builder'
+				IL_019e: ldloc.s 6
+				IL_01a0: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::SetException(class [System.Runtime]System.Exception)
+				IL_01a5: leave.s IL_01bb
+			} // end handler
+
+			IL_01a7: ldarg.0
+			IL_01a8: ldc.i4.s -2
+			IL_01aa: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>1__state'
+			IL_01af: ldarg.0
+			IL_01b0: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>t__builder'
+			IL_01b5: ldloc.2
+			IL_01b6: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::SetResult(!0)
+
+			IL_01bb: ret
+		} // end of method '<TickUntilDone>d__16'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x2c098
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<TickUntilDone>d__16'::SetStateMachine
+
+	} // end of class <TickUntilDone>d__16
+
+
+	// Fields
+	.field private int32 '<bagCount>P'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+	.field private class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> '<requestedBags>P'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+	.field private valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod> '<requestedMethod>P'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+	.field private initonly valuetype [System.Runtime]System.TimeSpan tickInterval
+	.field private initonly class Eight.Firmness.StateMachine.States.IFirmnessStateFactory firmnessStateFactory
+	.field private initonly class Eight.Firmness.Services.Calibration.CalibrationRunner runner
+	.field private class Eight.Firmness.Models.Telemetry.PressureTelemetry latestPressureTelemetry
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+	.field private static initonly valuetype [System.Runtime]System.TimeSpan AbandonLimit
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.States.CalibratingState> logger,
+			class Eight.Firmness.StateMachine.States.IFirmnessStateFactory stateFactory,
+			class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection connection,
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.FirmwareInfo firmwareInfo,
+			int32 bagCount,
+			class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> requestedBags,
+			valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod> requestedMethod,
+			class Eight.Firmness.Models.CalibrationOptions calibrationOptions,
+			class Eight.Firmness.Models.BalloonOptions balloonOptions,
+			class Eight.Firmness.Services.Calibration.CalibrationAnalyzerRunner calibrationAnalyzer,
+			class Eight.Firmness.Services.Calibration.ICalibrationRunStore calibrationRunStore
+		) cil managed 
+	{
+		.param [6]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2aac
+		// Header size: 12
+		// Code size: 86 (0x56)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.s bagCount
+		IL_0003: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState::'<bagCount>P'
+		IL_0008: ldarg.0
+		IL_0009: ldarg.s requestedBags
+		IL_000b: stfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.StateMachine.States.CalibratingState::'<requestedBags>P'
+		IL_0010: ldarg.0
+		IL_0011: ldarg.s requestedMethod
+		IL_0013: stfld valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod> Eight.Firmness.StateMachine.States.CalibratingState::'<requestedMethod>P'
+		IL_0018: ldarg.0
+		IL_0019: ldc.i4.s 50
+		IL_001b: conv.i8
+		IL_001c: ldc.i4.0
+		IL_001d: conv.i8
+		IL_001e: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::FromMilliseconds(int64, int64)
+		IL_0023: stfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.StateMachine.States.CalibratingState::tickInterval
+		IL_0028: ldarg.0
+		IL_0029: ldarg.2
+		IL_002a: stfld class Eight.Firmness.StateMachine.States.IFirmnessStateFactory Eight.Firmness.StateMachine.States.CalibratingState::firmnessStateFactory
+		IL_002f: ldarg.0
+		IL_0030: ldarg.3
+		IL_0031: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+		IL_0036: ldarg.3
+		IL_0037: ldarg.s calibrationOptions
+		IL_0039: ldarg.s balloonOptions
+		IL_003b: ldarg.s calibrationAnalyzer
+		IL_003d: ldarg.s calibrationRunStore
+		IL_003f: ldarg.1
+		IL_0040: newobj instance void Eight.Firmness.Services.Calibration.CalibrationRunner::.ctor(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection, class Eight.Firmness.Models.CalibrationOptions, class Eight.Firmness.Models.BalloonOptions, class Eight.Firmness.Services.Calibration.CalibrationAnalyzerRunner, class Eight.Firmness.Services.Calibration.ICalibrationRunStore, class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger)
+		IL_0045: stfld class Eight.Firmness.Services.Calibration.CalibrationRunner Eight.Firmness.StateMachine.States.CalibratingState::runner
+		IL_004a: ldarg.0
+		IL_004b: ldarg.1
+		IL_004c: ldarg.2
+		IL_004d: ldarg.3
+		IL_004e: ldarg.s firmwareInfo
+		IL_0050: call instance void [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::.ctor(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection, class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Models.FirmwareInfo)
+		IL_0055: ret
+	} // end of method CalibratingState::.ctor
+
+	.method family hidebysig specialname virtual 
+		instance string get_DeviceType () cil managed 
+	{
+		// Method begins at RVA 0x2b0e
+		// Header size: 1
+		// Code size: 6 (0x6)
+		.maxstack 8
+
+		IL_0000: ldstr "Balloon (Calibrating)"
+		IL_0005: ret
+	} // end of method CalibratingState::get_DeviceType
+
+	.method public hidebysig 
+		instance class Eight.Firmness.Services.Calibration.CalibrationRunStatus GetStatus () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		// Method begins at RVA 0x2b15
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Firmness.Services.Calibration.CalibrationRunner Eight.Firmness.StateMachine.States.CalibratingState::runner
+		IL_0006: callvirt instance class Eight.Firmness.Services.Calibration.CalibrationRunStatus Eight.Firmness.Services.Calibration.CalibrationRunner::GetStatus()
+		IL_000b: ret
+	} // end of method CalibratingState::GetStatus
+
+	.method public hidebysig 
+		instance class Eight.Firmness.Services.Calibration.CalibrationRunStatus Cancel () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		// Method begins at RVA 0x2b22
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Firmness.Services.Calibration.CalibrationRunner Eight.Firmness.StateMachine.States.CalibratingState::runner
+		IL_0006: callvirt instance class Eight.Firmness.Services.Calibration.CalibrationRunStatus Eight.Firmness.Services.Calibration.CalibrationRunner::Cancel()
+		IL_000b: ret
+	} // end of method CalibratingState::Cancel
+
+	.method family hidebysig virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task Initialize (
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellation
+		) cil managed 
+	{
+		// Method begins at RVA 0x2b2f
+		// Header size: 1
+		// Code size: 41 (0x29)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Firmness.Services.Calibration.CalibrationRunner Eight.Firmness.StateMachine.States.CalibratingState::runner
+		IL_0006: call valuetype [System.Runtime]System.DateTimeOffset [System.Runtime]System.DateTimeOffset::get_UtcNow()
+		IL_000b: ldarg.0
+		IL_000c: ldfld int32 Eight.Firmness.StateMachine.States.CalibratingState::'<bagCount>P'
+		IL_0011: ldarg.0
+		IL_0012: ldfld class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32> Eight.Firmness.StateMachine.States.CalibratingState::'<requestedBags>P'
+		IL_0017: ldarg.0
+		IL_0018: ldfld valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod> Eight.Firmness.StateMachine.States.CalibratingState::'<requestedMethod>P'
+		IL_001d: callvirt instance class Eight.Firmness.Services.Calibration.CalibrationRunStatus Eight.Firmness.Services.Calibration.CalibrationRunner::Start(valuetype [System.Runtime]System.DateTimeOffset, int32, class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<int32>, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.CalibrationDeflateMethod>)
+		IL_0022: pop
+		IL_0023: call class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Threading.Tasks.Task::get_CompletedTask()
+		IL_0028: ret
+	} // end of method CalibratingState::Initialize
+
+	.method family hidebysig virtual 
+		instance void OnPacketReceived (
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet packet,
+			class [Eight.Lsp.Protocol]Eight.Lsp.Protocol.ProtocolContext context
+		) cil managed 
+	{
+		// Method begins at RVA 0x2b5c
+		// Header size: 12
+		// Code size: 195 (0xc3)
+		.maxstack 7
+		.locals init (
+			[0] class Eight.Firmness.Models.Telemetry.Enhanced.EnhancedTelemetryDecodeResult/Decoded,
+			[1] class [System.Runtime]System.Exception,
+			[2] class Eight.Firmness.Models.Telemetry.PressureTelemetry,
+			[3] class [System.Runtime]System.Exception
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: callvirt instance uint8 [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet::get_Cmd()
+		IL_0006: ldc.i4.s 94
+		IL_0008: bne.un.s IL_005f
+		.try
+		{
+			IL_000a: ldarg.1
+			IL_000b: callvirt instance uint8[] [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet::get_Payload()
+			IL_0010: call class Eight.Firmness.Models.Telemetry.Enhanced.EnhancedTelemetryDecodeResult Eight.Firmness.Protocol.EnhancedTelemetryParser::Parse(uint8[])
+			IL_0015: isinst Eight.Firmness.Models.Telemetry.Enhanced.EnhancedTelemetryDecodeResult/Decoded
+			IL_001a: stloc.0
+			IL_001b: ldloc.0
+			IL_001c: brfalse.s IL_002f
+
+			IL_001e: ldarg.0
+			IL_001f: ldfld class Eight.Firmness.Services.Calibration.CalibrationRunner Eight.Firmness.StateMachine.States.CalibratingState::runner
+			IL_0024: ldloc.0
+			IL_0025: callvirt instance class Eight.Firmness.Models.Telemetry.Enhanced.EnhancedTelemetryDocument Eight.Firmness.Models.Telemetry.Enhanced.EnhancedTelemetryDecodeResult/Decoded::get_Document()
+			IL_002a: callvirt instance void Eight.Firmness.Services.Calibration.CalibrationRunner::OnEnhancedTelemetry(class Eight.Firmness.Models.Telemetry.Enhanced.EnhancedTelemetryDocument)
+
+			IL_002f: leave.s IL_005e
+		} // end .try
+		catch [System.Runtime]System.Exception
+		{
+			IL_0031: stloc.1
+			IL_0032: ldarg.0
+			IL_0033: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::logger
+			IL_0038: ldloc.1
+			IL_0039: ldstr "[calibration][{Side}] Dropped an undecodable 0x5E packet"
+			IL_003e: ldc.i4.1
+			IL_003f: newarr [System.Runtime]System.Object
+			IL_0044: dup
+			IL_0045: ldc.i4.0
+			IL_0046: ldarg.0
+			IL_0047: ldfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::connection
+			IL_004c: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+			IL_0051: call string [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+			IL_0056: stelem.ref
+			IL_0057: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+			IL_005c: leave.s IL_005e
+		} // end handler
+
+		IL_005e: ret
+
+		IL_005f: ldarg.1
+		IL_0060: callvirt instance uint8 [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet::get_Cmd()
+		IL_0065: ldc.i4.s 89
+		IL_0067: beq.s IL_006a
+
+		IL_0069: ret
+
+		IL_006a: nop
+		.try
+		{
+			IL_006b: ldarg.1
+			IL_006c: callvirt instance uint8[] [Eight.Lsp.Protocol]Eight.Lsp.Protocol.Packet::get_Payload()
+			IL_0071: call class Eight.Firmness.Models.Telemetry.PressureTelemetry Eight.Firmness.Protocol.TelemetryParser::ParsePressureTelemetry(uint8[])
+			IL_0076: stloc.2
+			IL_0077: ldarg.0
+			IL_0078: ldloc.2
+			IL_0079: stfld class Eight.Firmness.Models.Telemetry.PressureTelemetry Eight.Firmness.StateMachine.States.CalibratingState::latestPressureTelemetry
+			IL_007e: ldarg.0
+			IL_007f: ldfld class Eight.Firmness.Services.Calibration.CalibrationRunner Eight.Firmness.StateMachine.States.CalibratingState::runner
+			IL_0084: ldloc.2
+			IL_0085: callvirt instance void Eight.Firmness.Services.Calibration.CalibrationRunner::OnPressureTelemetry(class Eight.Firmness.Models.Telemetry.PressureTelemetry)
+			IL_008a: leave.s IL_00c2
+		} // end .try
+		catch [System.Runtime]System.Exception
+		{
+			IL_008c: stloc.3
+			IL_008d: ldarg.0
+			IL_008e: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::logger
+			IL_0093: ldloc.3
+			IL_0094: ldstr "[calibration][{Side}] Failed to parse pressure telemetry: {Error}"
+			IL_0099: ldc.i4.2
+			IL_009a: newarr [System.Runtime]System.Object
+			IL_009f: dup
+			IL_00a0: ldc.i4.0
+			IL_00a1: ldarg.0
+			IL_00a2: ldfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.ReadyStateBase::connection
+			IL_00a7: callvirt instance valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Services.Connection.IDeviceConnection::get_Side()
+			IL_00ac: call string [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+			IL_00b1: stelem.ref
+			IL_00b2: dup
+			IL_00b3: ldc.i4.1
+			IL_00b4: ldloc.3
+			IL_00b5: callvirt instance string [System.Runtime]System.Exception::get_Message()
+			IL_00ba: stelem.ref
+			IL_00bb: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.Exception, string, object[])
+			IL_00c0: leave.s IL_00c2
+		} // end handler
+
+		IL_00c2: ret
+	} // end of method CalibratingState::OnPacketReceived
+
+	.method family hidebysig virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> RunMonitorLoop (
+			class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> stateChangeTcs,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 49 45 69 67 68 74 2e 46 69 72 6d 6e 65 73
+			73 2e 53 74 61 74 65 4d 61 63 68 69 6e 65 2e 53
+			74 61 74 65 73 2e 43 61 6c 69 62 72 61 74 69 6e
+			67 53 74 61 74 65 2b 3c 52 75 6e 4d 6f 6e 69 74
+			6f 72 4c 6f 6f 70 3e 64 5f 5f 31 34 00 00
+		)
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 02 00 00 00 01 02 00 00
+			)
+		// Method begins at RVA 0x2c48
+		// Header size: 12
+		// Code size: 71 (0x47)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Firmness.StateMachine.States.CalibratingState Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::stateChangeTcs
+		IL_001c: ldloca.s 0
+		IL_001e: ldarg.2
+		IL_001f: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::cancellationToken
+		IL_0024: ldloca.s 0
+		IL_0026: ldc.i4.m1
+		IL_0027: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>1__state'
+		IL_002c: ldloca.s 0
+		IL_002e: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>t__builder'
+		IL_0033: ldloca.s 0
+		IL_0035: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::Start<valuetype Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'>(!!0&)
+		IL_003a: ldloca.s 0
+		IL_003c: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<RunMonitorLoop>d__14'::'<>t__builder'
+		IL_0041: call instance class [System.Runtime]System.Threading.Tasks.Task`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::get_Task()
+		IL_0046: ret
+	} // end of method CalibratingState::RunMonitorLoop
+
+	.method private hidebysig 
+		instance class [System.Runtime]System.Threading.Tasks.Task`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> TickUntilDone (
+			class [System.Runtime]System.Threading.PeriodicTimer timer,
+			class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> stateChangeTcs,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 48 45 69 67 68 74 2e 46 69 72 6d 6e 65 73
+			73 2e 53 74 61 74 65 4d 61 63 68 69 6e 65 2e 53
+			74 61 74 65 73 2e 43 61 6c 69 62 72 61 74 69 6e
+			67 53 74 61 74 65 2b 3c 54 69 63 6b 55 6e 74 69
+			6c 44 6f 6e 65 3e 64 5f 5f 31 36 00 00
+		)
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 02 00 00 00 01 02 00 00
+			)
+		// Method begins at RVA 0x2c9c
+		// Header size: 12
+		// Code size: 79 (0x4f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Firmness.StateMachine.States.CalibratingState Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld class [System.Runtime]System.Threading.PeriodicTimer Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::timer
+		IL_001c: ldloca.s 0
+		IL_001e: ldarg.2
+		IL_001f: stfld class [System.Runtime]System.Threading.Tasks.TaskCompletionSource`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::stateChangeTcs
+		IL_0024: ldloca.s 0
+		IL_0026: ldarg.3
+		IL_0027: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::cancellationToken
+		IL_002c: ldloca.s 0
+		IL_002e: ldc.i4.m1
+		IL_002f: stfld int32 Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>1__state'
+		IL_0034: ldloca.s 0
+		IL_0036: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>t__builder'
+		IL_003b: ldloca.s 0
+		IL_003d: call instance void valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::Start<valuetype Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'>(!!0&)
+		IL_0042: ldloca.s 0
+		IL_0044: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.States.CalibratingState/'<TickUntilDone>d__16'::'<>t__builder'
+		IL_0049: call instance class [System.Runtime]System.Threading.Tasks.Task`1<!0> valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::get_Task()
+		IL_004e: ret
+	} // end of method CalibratingState::TickUntilDone
+
+	.method private hidebysig specialname rtspecialname static 
+		void .cctor () cil managed 
+	{
+		// Method begins at RVA 0x2cf7
+		// Header size: 1
+		// Code size: 14 (0xe)
+		.maxstack 8
+
+		IL_0000: ldc.i4.s 10
+		IL_0002: conv.i8
+		IL_0003: call valuetype [System.Runtime]System.TimeSpan [System.Runtime]System.TimeSpan::FromSeconds(int64)
+		IL_0008: stsfld valuetype [System.Runtime]System.TimeSpan Eight.Firmness.StateMachine.States.CalibratingState::AbandonLimit
+		IL_000d: ret
+	} // end of method CalibratingState::.cctor
+
+	// Properties
+	.property instance string DeviceType()
+	{
+		.get instance string Eight.Firmness.StateMachine.States.CalibratingState::get_DeviceType()
+	}
+
+} // end of class Eight.Firmness.StateMachine.States.CalibratingState

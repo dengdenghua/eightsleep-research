@@ -1,0 +1,25 @@
+气囊R12保存失败、停用与旧快照：具体状态边界
+2026-11-08；静态C#/IL与20个分析者有限场景。未执行原厂DLL、未写用户配置、未访问设备/账号或触发机械动作。
+
+一、新结果：已成功停用后，旧目标保存可写回Enabled=true
+SaveTargetFirmness先get整份Configuration（IL_0006），之后Clone（004b/005a）、改单侧target（0052/0061）并Update（006e）。中间没有状态/取消复查。UpdateConfiguration先set（0002）再Save（0008），Save到内部才Wait（0006），所以锁不保护旧快照的read/Clone。
+选择明确顺序：旧Ready读Enabled=true快照；Disable另克隆并将false保存成功、公开状态Null、取消旧CTS；旧Ready恢复执行，用旧快照只改target，Update可将整记录的Enabled=true重新写入RAM及成功保存的R12。这个见证无需假设磁盘失败，不意味着现场必发生。
+旧目标方法可能被线程抢占后恢复，是条件性并发顺序；不是执行了这份DLL或在用户设备上重现。成功停用时物理动作是否已停止，也不能由公开Null单独证明。
+
+二、Null不是冻结的Disabled值
+SubsystemStateFactoryBase.CreateNullState捕获的是manager引用，lambda每次读取当前Configuration?.Enabled，而非创建时的bool快照。
+NullState.GetNextState循环while(!isEnabled())等待10秒，满足true后返回CreateNotConnectedState。SubsystemHost正常迭代会新建链接应用stoppingToken的CTS，不永久沿用先前侧CTS。
+因此在host仍运行、到达可用Null迭代、没有后续写者/取消等条件下，旧快照恢复true可允许后续状态离开Null；不能保证马上、一定重连或执行任何阀泵动作。公开状态还经过Host finally协调，设备发现/固件/连接门槛仍适用。
+
+三、保存失败时分层状态与重试
+Update先换RAM，Save失败不会统一回滚RAM。Save finally释放saveGate；savedJson只有SaveConfiguration正常返回才更新。
+本轮在serialize/open_tmp/write_tmp/flush_tmp/replace_main执行之前注入异常，初始无tmp文件、主文件有效；这是明确选定的操作前失败，不模拟所有真实IO部分副作用。
+Disable路径：异常先于Null/Cancel，因此所选模型RAM.Enabled=false，主文件/savedJson仍true，公开Ready且旧CTS未取消。再次Disable没有“RAM已false就返回”的短路，可重试保存后走Null/Cancel。
+Target路径：SaveTargetFirmness的catch记录异常后返回；SendFirmnessCommand可继续到发送方法。标记进入方法不等于实际串口写出。失败目标仍在RAM，后续另一次成功保存可将它一并落盘。
+相同JSON的Save会跳过IO，但Disable后续Null/Cancel不因此跳过；失败注入点若位于未执行的IO步骤，本次不会在那里失败。
+.tmp内容、Flush成功和主文件替换分别记录；没有据此保证掉电原子性、父目录持久性、文件系统全部错误行为或真实恢复效果。
+
+四、验证与覆盖
+run_cases.py/MODEL_RESULTS.json：20项具名有限例，包括三种旧/新快照与Disable顺序、五步骤的Disable失败/重试/目标失败、后续保存带入旧失败目标、同JSON跳过IO。不是此前20项左右侧交错枚举，也不是现场概率。
+source/：既有官方bundle对应C#/IL完整副本、原件账本及旧字节验收；SOURCE_LEDGER.json核每个本轮来源SHA。review/保存独立IL复核、host/Null条件和模型审阅。
+仍未覆盖：真实多线程可见性、日志/取消callback异常、所有文件系统部分失败、全Host交错、断线/串口/机械效果。A02 Fault1–4和Keeson32B提交者不由本结果补齐。

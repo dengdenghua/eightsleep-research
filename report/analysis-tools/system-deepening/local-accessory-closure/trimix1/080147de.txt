@@ -1,0 +1,71 @@
+TARGET 080147de function=080147de
+REF_TO 08014836 UNCONDITIONAL_CALL owner=08014822
+REF_TO 08014844 UNCONDITIONAL_CALL owner=08014822
+REF_TO 0801484e UNCONDITIONAL_CALL owner=08014822
+REF_TO 0801485a UNCONDITIONAL_CALL owner=08014822
+REF_TO 08014866 UNCONDITIONAL_CALL owner=08014822
+FUNCTION_BODY [[080147de, 08014821]]
+
+uint FUN_080147de(int param_1)
+
+{
+  ushort uVar1;
+  ushort uVar2;
+  uint uVar3;
+  int iVar4;
+  int iVar5;
+  int iVar6;
+  
+  uVar3 = 0;
+  iVar4 = 0;
+  do {
+    iVar5 = 0;
+    do {
+      iVar6 = param_1 + iVar5 * 2;
+      uVar2 = *(ushort *)(param_1 + iVar5 * 2);
+      uVar1 = *(ushort *)(iVar6 + 2);
+      if (uVar1 < uVar2) {
+        *(ushort *)(param_1 + iVar5 * 2) = uVar1;
+        *(ushort *)(iVar6 + 2) = uVar2;
+      }
+      iVar5 = iVar5 + 1;
+    } while (iVar5 < 0x28 - iVar4);
+    iVar4 = iVar4 + 1;
+  } while (iVar4 < 0x27);
+  iVar4 = 10;
+  do {
+    uVar3 = uVar3 + *(ushort *)(param_1 + iVar4 * 2);
+    iVar4 = iVar4 + 1;
+  } while (iVar4 < 0x1e);
+  return uVar3 / 0x14 & 0xffff;
+}
+
+
+INSN 080147de 70b5 push {r4,r5,r6,lr}
+INSN 080147e0 0021 movs r1,#0x0
+INSN 080147e2 0022 movs r2,#0x0
+INSN 080147e4 0023 movs r3,#0x0
+INSN 080147e6 00eb4304 add.w r4,r0,r3, lsl #0x1
+INSN 080147ea 30f81360 ldrh.w r6,[r0,r3,lsl #0x1]
+INSN 080147ee 6588 ldrh r5,[r4,#0x2]
+INSN 080147f0 b542 cmp r5,r6
+INSN 080147f2 3cbf itt cc
+INSN 080147f4 20f81350 strh.cc.w r5,[r0,r3,lsl #0x1]
+INSN 080147f8 6680 strh.cc r6,[r4,#0x2]
+INSN 080147fa 5b1c adds r3,r3,#0x1
+INSN 080147fc c2f12804 rsb.w r4,r2,#0x28
+INSN 08014800 a342 cmp r3,r4
+INSN 08014802 f0db blt 0x080147e6 REF[CONDITIONAL_JUMP:080147e6]
+INSN 08014804 521c adds r2,r2,#0x1
+INSN 08014806 272a cmp r2,#0x27
+INSN 08014808 ecdb blt 0x080147e4 REF[CONDITIONAL_JUMP:080147e4]
+INSN 0801480a 0a22 movs r2,#0xa
+INSN 0801480c 30f81230 ldrh.w r3,[r0,r2,lsl #0x1]
+INSN 08014810 c918 adds r1,r1,r3
+INSN 08014812 521c adds r2,r2,#0x1
+INSN 08014814 1e2a cmp r2,#0x1e
+INSN 08014816 f9db blt 0x0801480c REF[CONDITIONAL_JUMP:0801480c]
+INSN 08014818 1420 movs r0,#0x14
+INSN 0801481a b1fbf0f0 udiv r0,r1,r0
+INSN 0801481e 80b2 uxth r0,r0
+INSN 08014820 70bd pop {r4,r5,r6,pc}

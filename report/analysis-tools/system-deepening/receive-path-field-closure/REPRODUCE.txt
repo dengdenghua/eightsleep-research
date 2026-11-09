@@ -1,0 +1,98 @@
+复现说明
+========
+
+本目录所有结论都可以在没有 Ghidra、没有设备、没有网络的条件下重算。
+
+
+一、环境
+--------
+
+  python3（标准库即可，无第三方依赖）
+  工作目录：仓库根目录
+  冻结输入：
+    materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/
+    lib/subsystem_updates/firmware-sensor-g0.bbin
+    132896 字节，SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+
+两个脚本都会先断言镜像长度与哈希，不匹配就立刻失败，不会在错误的输入上继续。
+
+
+二、运行顺序
+------------
+
+  cd report/analysis-tools/system-deepening/receive-path-field-closure
+  python3 model/build_round13.py            # 113 条断言
+  python3 scripts/verify_round13.py         # 81 项独立核验
+  python3 scripts/write_source_manifest.py  # 12 个输入的 SHA256
+
+期望输出：
+
+  assertions=113 failures=0 status=PASS
+  sink modes=3 insn=35 | dispatch table=5 targets=5 | queue fields=11 writes=11
+  holes=2 unwitnessed=7B | block offsets=44 accesses=385 functions=59
+
+  checks=81 failures=0 status=PASS
+  sink_bytes=74 cmd_table=5 queue_writes=11 hole_witness=12 block=44/385
+
+  entries=12 missing=0 no_new_ghidra_calls=true
+
+
+三、产物
+--------
+
+  SINK_SEMANTICS.json       sink 0x0800a578 的签名、状态字段、三种模式
+  DOWNSTREAM_DISPATCH.json  状态 4 之后的 bit7 分派、第二张跳转表与五个处理块
+  QUEUE_FIELDS.json         队列对象 0x2000240c 的十一个字段与初始化写者
+  HOLE_RESCAN.json          两个残余空洞的全量复扫与见证判定
+  BLOCK_10F0.json           0x10f0 块的偏移、访问、方向分布与分段热点
+  MODEL_RESULTS.json        断言汇总与关键数字
+  BYTE_VALIDATION.json      独立核验的逐项结果
+  SOURCE_MANIFEST.json      12 个输入文件的 SHA256
+
+模型与核验两个脚本互不导入，各自从字节重算，因此同一个数字在两边都出现才算成立。
+
+
+四、取数要点（容易踩的坑）
+--------------------------
+
+1. 跳转表基址取返回地址
+   0x08016fd8 bl 0x08008484 的表在 0x08016fdc；0x0801712e bl 0x0800814c 的表在
+   0x08017132。辅助函数是 lr 与 ~1 相与后加偏移，所以基址永远等于 bl 地址加 4。
+   按表前一条指令的地址去读会整体错位。
+
+2. 导出文本的十六进制与镜像字节序
+   对 16 位指令，导出按字节递增书写，0x0800a578 处 0223 对应字节 02 23，
+   小端半字是 0x2302。对 32 位指令的第二半字，0x08017130 处 f80d 对应字节 0d f8，
+   小端半字是 0xF80D。直接用字符串互比会失败，核验脚本因此改用解码后的语义断言。
+
+3. ldr 字面量的寄存器号在 bit8..bit10
+   0x49BB 解码为 ldr r1,[pc,#0x2ec]，低三位不是目标寄存器。写成 i&7 会把 r1 当成 r3，
+   于是所有字段偏移都挂到错误的寄存器上，表现为「扫描结果只剩几个」而不是报错。
+
+4. 32 位指令必须一次前进 4 字节
+   线性扫描若一律前进 2，会把 bl 的后半字当成独立指令，进而误判出多余的 store。
+   核验脚本用 f000/f800 前缀判断宽度。
+
+5. 伪 C 的 param_N 不一定是本对象
+   地址在镜像 0x08008000..0x08028720 之外的导出属于其他模块，其 param_2 是另一个
+   对象。host-legacy-sample-consumers/pass5/0018a510.txt 是典型例子。
+
+6. 空洞见证需要同一基址，而不是同一函数
+   同函数触及两个已覆盖偏移不足以证明洞内偏移属于同一对象。必须同一个基址表达式
+   同时寻址洞内偏移与洞外紧邻偏移。08014298 的孤立 0x281 就是被这条规则排除的。
+
+7. 状态 2 有两个入口
+   0x08016e9c 线性扫描只有 40 字节，与 44 字节的区间不符；补上 0x08016ec4 的
+   两条冷尾才自洽。冷尾不写缓冲，只推进索引。
+
+8. 函数体可能是多区间
+   FUNCTION_BODY 形如 [[a,b] [c,d] ...]，正则只取前两项会漏掉多块函数。
+   0x08016e22 就是四个区间。
+
+
+五、边界
+--------
+
+没有执行固件、没有连接设备、没有访问账号、没有联网。Ghidra 工程未被打开，
+未重新反汇编，未创建新的 passN 目录。SOURCE_MANIFEST.json 里
+no_new_ghidra_calls / no_new_exports / ghidra_workspace_untouched 三项都是 true。

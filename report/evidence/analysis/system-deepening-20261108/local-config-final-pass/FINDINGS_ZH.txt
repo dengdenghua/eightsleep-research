@@ -1,0 +1,63 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Capybara 气囊参数最终来源：启动配置、保存状态、队列与控制板应用
+日期：2026-11-08。官方 MTK 包静态分析；未执行原厂代码、访问设备、账号或外部接口。
+
+结论
+参数不是一张全局优先级表。Capybara 启动配置决定选哪些连接和选项；R12.json 保存开关、目标、mode、preset、容差和遥测 profile；MCU 另有默认值、Flash 校准与运行参数。当前已闭合这三层在气囊链上的主要正常入口、复制/覆盖顺序、失败后状态及消费者。
+最重要的边界：firmness/set 与 setmode 的成功响应只表示请求入队；同批请求按类型只取最后一条，校准请求优先且跳过本批普通目标/mode。目标和mode先更新主控保存状态再发送，容差/profile则先发送后保存。保存值、界面字段、控制板应用成功必须分别判断。
+
+一、样本与证据身份
+原始 Eight.Capybara 单文件 SHA256 e35875ef9007a11f5125531742ad69ebe8f748cc2e7c380b7ecf6a2d688f165d。从既有 bundle-inventory 的原始 offset 逐项重读7份程序集，与保留DLL逐字节一致；不依赖文件名来归属MTK。
+主要输入为 Eight.Capybara / Eight.Config / Eight.Capybara.Config / Eight.Firmness / Eight.Lsp.Subsystems，以及随包 Microsoft.Extensions.Configuration 和 Microsoft.Extensions.Options。34项来源身份、28次选定静态导出保留于 SOURCE_LEDGER 与 il/COMMANDS；程序未被加载执行，使用ILSpy仅静态读取。
+每条正文按 source/ 下命名空间文件对应；关键IL位置见 IL_ANCHORS.json。一次误用 FirmnessStateFactory 命名空间的失败输出保留在 failures，已用源namespace纠正，不把空输出作为代码证据。
+
+二、真正的启动配置源与覆盖顺序
+Program.LoadConfiguration 创建空 ConfigurationBuilder，先用空配置调用 EightEnvironment；该扩展仅读取配置中的NODE_ENV，空值返回Development，因此此处计算出的 machine.json optional 为true。这只是这个加载参数的计算，不是已确认实机运行环境为开发环境。
+路径按 cwd/config 是否存在二选一，否则 cwd/../config；先添加 default.json（必需、reloadOnChange=false），再添加 machine.json（上述optional，所用重载不启用reload）。没有在该LoadConfiguration里添加环境变量、命令行、production.json或staging.json。
+Main虽调用Host.CreateDefaultBuilder(args)，随后自己的ConfigureAppConfiguration明确 b.Sources.Clear，再只AddConfiguration上面构建的root。故不能将通用.NET默认“环境变量/命令行最后覆盖”的规则套到这份应用业务配置上，也不能因为Eight.Config.Config.Create存在就认为它是当前Main调用的入口。主机环境/框架其他用途仍可能消费参数，本结论限该业务IConfiguration及本次消费者。
+随包ConfigurationRoot.GetConfiguration从providers末项向前找同一个完整key，后provider同key优先；前provider其他key保留。这是按路径key查找，不是整份default.json被machine.json整体替换。
+BalloonOptions依次经过类内默认→根firmness节Bind→HostExtensions.PostConfigure。随包OptionsFactory先运行Configure，后运行全部PostConfigure，已用实际DLL静态代码确认。这里注册成IOptions.Value的singleton，不是每次操作重新读配置文件。
+
+三、主机板型选择与连接参数
+MachineConfig只在根节名满足^[A-Z][0-9]{2}$时参与选择，取字符串序不大于hwrev的最大节；没有候选回A00。当前文件只有A00/I00/I21，所以I20选I00，I21及更大适用字符串可选I21；这不是按营销Pod代数选择。
+PostConfigure先填实机DeviceId和MachineSection，再读取选定节:firmness:usbPortConfig；节存在则新建UsbPortConfig替换根绑定对象。usbRoots只有数组非空时才覆盖根options。没有自动把A00节补进I00节：当前I00没有usbRoots，根firmness也没有，因此实际推导为不设置roots，而不是继承A00的1-1.3。
+条件差异：若另一配置的根firmness本来有roots，所选节的空数组不会清掉它；所选usbPortConfig即使只含一侧，也会替换原两侧对象，未给的一侧不保留旧对象中的值。均是正常类型的有限例，不声称当前原包包含这些修改。
+FirmnessService.SidesToRun：roots非空走SidePartNumbers.Keys；否则取UsbPorts字典的可用侧，并记录未配置侧。这决定创建哪些侧的状态机，不证明线束物理方向。
+当前default根firmness选择A00/A02官方附件文件、设置校准选项；MachineSection主要在此补USB连接参数。原配置firmness节完整摘录在CONFIG_EXCERPTS，原文件哈希保留；其余无关配置未复制。
+
+四、R12.json：独立保存状态，并非覆盖整份启动配置
+AddPodConfigurationManager→AddFirmnessConfiguration绑定/persistent/R12.json。FirmnessConfiguration包含Enabled、两侧目标/目标mode、自定义preset、动态模式开关、容差和遥测profile；它没有这条MCU校准a/b/ci/al/cl记录，也没有替代BalloonOptions全局配置。
+PodConifgurationManager.Create启动读取一次。不存在、空文件、读取IO/权限错误返回null；合法JSON但本build无法映射时保留原文件并返回null；语法错误时尝试移到.corrupt，已存在.corrupt则保留早先样本，不覆盖。这里只分析读取分类，未制作或执行故障文件测试。
+Configuration是缓存属性，后续由UpdateConfiguration赋值；该类没有文件监视器或外部修改后自动重新读取路径。独立DynamicModeService读取研究文件的mtime逻辑不能移植到R12。
+UpdateConfiguration先赋RAM，再调用Save。Save的信号量只包序列化和文件保存；序列化内容相同则跳过重写。写入先.tmp→FileStream.Write→Flush(true)→File.Move(overwrite=true)，成功后更新savedJson。写失败会留下新的RAM配置与旧磁盘配置，savedJson仍为旧值；后续同值更新仍可再次尝试写。没有在此恢复RAM旧值或读取.tmp恢复。
+原代码没有在文件rename之后显式fsync父目录；本次不把临时文件加Flush描述为完整掉电事务保证，也未测存储介质效果。
+调用者以旧record做with再Update，整个读-改-写不在一个共享锁里。有限交错可由左右两更新各自基于同一旧快照，后者覆盖前者字段；保存信号量只保证其包围的写序列，不保证合并两份旧record。未测真实并发频率。
+
+五、使能、恢复与正常请求顺序
+SubsystemStateFactoryBase给NullState传入 ()=>config.Configuration?.Enabled??false；NullState每10秒检查至使能后转NotConnected。Enable在配置null时先新建Enabled=false记录再改true；Disable先保存false，再将各侧重置Null并取消任务。实际状态转移还取决于连接和组件返回，不能把配置true当作附件已ready。
+SpecializationFirmnessGate在Pillow时拒绝；服务启动若gate拒绝且已保存Enabled则调用Disable，pair接口也检查gate。没有把该门控解释为所有运行期间操作都逐条再次验证。
+Ready.Initialize顺序：硬件信息→恢复保存目标及mode→保存容差→保存遥测profile。目标存在才发0x52；配置存在但mode空时发送enum默认demo。配置本身null则此函数不发目标/mode。各阶段包含自己的异常处理，部分失败后仍可能继续后续阶段。
+Ready有50ms名义轮询。RunTick把当时能取出的队列全部取出，分别保留最后SetFirmness、最后SetMode和最后StartCalibration。若有校准，等待deviceWriteLock、标记handoff并转Calibrating，本批已经取出的硬度/mode不再处理。否则固定先硬度后mode；不是按两类请求的原始总顺序发送。
+firmness/set、firmness/setmode接口在校验状态和参数后MakeRequest，立即返回success=true；没有等待上述RunTick或设备ACK。Calibration手动系数写入有独立RunDeviceWrite锁，控制器检查handoff pending，锁内检查handedOff；它与普通目标队列不是统一事务。这里不重新审所有连接重试与并发交错。
+
+六、保存与发送的先后随字段不同
+目标硬度/mode：OnRequest先SaveTargetFirmness/SaveTargetMode，再Send。保存函数捕获失败，Send函数也捕获失败，因此可出现已保存目标而发送失败，或RAM已更新/磁盘保存失败但设备发送成功。固件应用效果另需回读；GET中的mode读ConfiguredMode，来自主控配置，不是当次MCU mode回读。
+硬度档0..10对应固定kPa表：0, .05, .4, .9, 1.45, 2.05, 2.65, 3.6, 4.8, 6.8, 8.5；并非线性插值。原double字节已在DLL中定位且唯一，见RAW_PRESSURE_TABLE。发0x52前按实际BagCount截断多余档，数量不足则失败；转换为float32并按袋写LE值。这不是床垫生理算法或实体压力精度验证。
+容差：ApplyAndPersistToleranceBands先依序发送range和排序后的bins，全部完成才与已存容差按BinIndex合并并保存。后续某一发送失败，不会进入保存，但此前成功的控制板修改没有在这条路径回滚。Initialize恢复函数的日志说保留默认，不能将这句日志当作多命令事务回滚的实现。
+遥测profile也先发送再保存。恢复时LegacyOnly不额外重发，能静音0x5A的profile被拒绝重申；其他profile尝试发送。保存profile与控制板当前profile仍分别记录。
+0x60系数stage/save、0x53/9运行覆盖、0x54 mode，以及0x50/51执行器各自作用域另见local-parameter-resolution和本轮local-control-final-pass，不能用R12.json代替MCU校准Flash或运行结构。
+
+七、手动与动态模式没有固定来源优先级
+DynamicModeService与firmness/set都向Ready写同一种SetFirmnessRequest。该队列不保存“手动高于动态”的优先级；同一RunTick取到的最后目标胜出，之后的批次还可再次覆盖。手动SetFirmness代码没有自动关闭DynamicModeEnabled。
+动态读取仅在配置Enabled且该侧动态开关为true时进行；研究文件mtime不变会在心跳检查前返回。所以超过5分钟墙钟时间并不自动保证每5秒重新作失效判断，必须到达实际处理入口。
+mtime改变且心跳正常时，相同的actionable姿态不会重复发送preset。因此手动目标被应用后，若后续研究文件仍是同姿态，动态消费者不一定马上改回；新姿态或实际到达的过期/未知路径可排入另一目标。
+ProcessDevicePosture在ApplyPresetToSide之前先记录LastPosture；若此刻设备未Ready，apply被跳过，但内部姿态已经记住。后续相同姿态不能被当作保证重试。未知/过期默认路径与非actionable计时则有自己的状态规则，当前报告不把它们全部化成同一个“5分钟恢复”。
+PresetRepository按ID选择自定义值覆盖原厂default集合，名称取原厂定义；更新只接受现有default ID。UpdateDynamicMode遇配置null时只警告并返回，但其控制器仍组success=true及请求值；接口回显不等于持久状态改变。
+这里恢复的是已有姿态标签如何影响机械目标；产生current_posture的程序仍缺，不能将本报告写成姿态识别算法恢复。
+
+八、验证、交付与关闭范围
+28次静态导出、34份来源、7份原bundle成员身份、8组关键IL锚点与34个有限模型均通过；模型落盘逐项observed==expected，案例值均深拷贝避免后续修改污染。VERIFY不声称第二套IL解码器逐字节重解全部方法，也不声称真实调度/Flash或MCU行为已执行。
+已关闭当前限定问题：这份Capybara业务配置的来源顺序与板型PostConfigure；R12字段及保存/错误边界；气囊请求按类型取末条与校准优先；各参数保存/发送先后；手动与动态在已识别入口的作用关系；最终目标映射与消息出口。
+仍需实机/新材料：本机启动cwd与实际default/machine内容、硬件label、R12与MCU Flash读数、真实命令/ACK/生效记录；研究姿态生产者；进程崩溃/断电后的磁盘行为。未将此限定链推广成全系统热控、蓝牙、云端策略和所有第三方框架的统一优先级。

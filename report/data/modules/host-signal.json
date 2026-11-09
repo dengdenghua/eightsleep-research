@@ -1,0 +1,73 @@
+{
+  "id": "host-signal",
+  "title": "主控时间映射与数据整理",
+  "layer": "device",
+  "status": "partial",
+  "order": 30,
+  "summary": "主控先按LSP长度、转义和CRC接收，再映射时间、整理双侧秒桶并编码。贯通模型能逐点追到合成CBOR和发布尝试，不能替代实机或云端记录。",
+  "inputs": [
+    "每侧 LSP 0x3c 数据",
+    "主机系统时间及 MCU tick"
+  ],
+  "outputs": [
+    "raw.x.sens.stealth CBOR sequence",
+    "主机消费水位与缺值布局"
+  ],
+  "findings": [
+    "使用整数秒锚点、uint32 tick 差与固定斜率，漂移分支门限为严格超过2秒。",
+    "只补恰好一个缺失位置，复制下一点；跨秒只退 relative 的路径可放错秒末槽。",
+    "双侧按桶数选主侧，主侧中间缺槽可提前删除双方整桶。",
+    "大幅回退计数由两侧共用；门控放行不等于端到端恢复。",
+    "34场景联合模型已绑定生产共享mask、四类buffer、gate交错/取消、异常与gain/version；成功编码对照独立解码器。",
+    "extADC adc=0x41时，loader虽填四个RAM数组，实际仅编码left1/right1；内存存在不代表都会上传。",
+    "SEQNO.RAW是两个uint64序号状态，不能按旧波形容器解读。",
+    "旧34场景止于body_candidate；8场景把合成采样、规范LSP、主控输出和Frank队列连接起来。两组覆盖范围分开，编码、入队与发布尝试不互相代替。",
+    "实际UsbSensor运行接收路由已闭合；CRC仅覆盖body，转义状态跨read保留，残留0x7d可能吞掉下一帧起点，不能保证只丢当前帧。",
+    "配置2048字节只限制body写入；超长帧完整走到CRC时仍按完整计数读取，可证超出body子缓冲，未证明整个对象越界或实机崩溃。",
+    "8个固定条件贯通场景形成9份各30128字节的候选，独立解码核对88200个标量；完整、缺值、旧值和复制值可有相同包长，包长不证明信息完整。",
+    "0x3c按长度重算ADC/IMU布局；0x33短payload可读接收缓冲旧尾部，≥28则输出清零后仍请求CapSense；正常生产来源现已补齐，实机状态待核。",
+    "G0 USB此前遗漏的0802572c已恢复：正常主循环执行FDC换算、CAPDAC调整、有效值缓存与状态计时，生成0x33/0x44。原发送点枚举的阴性结论已被补证修正；当前实机启用仍待核对。",
+    "旧式Sensor正常0x34消费链已闭合；稳定时基无补点模型中24次解码更新、25次提交、24个唯一槽，末次覆写槽23。条件选择piezo-dual时只编码left1/right1。",
+    "旧式0x35的10行四列经重排进入lps/pres与raw.sens.lps；当前所审UsbSensor对0x34/0x35走完成分支，不调用这两个decoder。物理单位与实际启用状态仍未知。",
+    "0x35的两路ADC范围统计与两路LIS Z/status已映射到lps/pres；NTC有10项有效范围均值与加权组合，字段名不提供物理单位或生理含义。",
+    "Pillow独立闭合六IMU缓存/批次、FDC补偿、LIS缓存均值、温湿度及Frank四类出口；orientation是XYZ均值而非姿态分类。",
+    "0x39已接通辅助磁传感/TMP缓存到raw.sens.blanket；decoder复制第一组，但最终左右按USB对象side聚合，不可误称左右恒同。",
+    "blanketReadings.version构造为0；sinfo.rev>=0xa00的USB固件启动分支将共享字段写为130。当前队列不透传wire version，CBOR读取主控快照；不是睡眠算法版本。"
+  ],
+  "unknowns": [
+    "实机LSP到CBOR的时序、gain、缺点及发生率对照",
+    "真实旧波形RAW或另一版本writer",
+    "云端对异常时间和缺值的处理",
+    "同源编码候选、Frank入队/发布尝试与NATS接收的运行对照",
+    "实机0x33/0x44启用状态、旧式Sensor实际配置/启用状态，以及协议字段与物理传感的对应"
+  ],
+  "evidence": [
+    "analysis/signal-host/SIGNAL_HOST_ANALYSIS.txt",
+    "analysis/signal-host/TIMING_CONTINUITY_ZH.txt",
+    "analysis/signal-host/DUAL_SIDE_CONTINUITY_ZH.txt",
+    "analysis/signal-host/GAIN_METADATA_ZH.txt",
+    "analysis/device-side-followup/upload-distortion/FINDINGS_ZH.txt",
+    "analysis/device-side-followup/recovery-round/time-recovery/FINDINGS_ZH.txt",
+    "analysis/next-round-20261107/host-model/FINDINGS_ZH.txt",
+    "analysis/finishable-20261107/host-model/FINDINGS_ZH.txt",
+    "analysis/finishable-20261107/cbor-encoder/FINDINGS_ZH.txt",
+    "analysis/finishable-20261107/raw-upload/HOST_03_FINDINGS_ZH.txt",
+    "analysis/prepublish-queue-20261108/code-audit/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/host-usb-receiver/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/integrated-capture-model/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/integration-contract-review/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/host-payload-boundaries/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/capsense-producer-binding/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/host-legacy-sample-consumers/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/local-signal-closure/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/local-pillow-closure/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/local-tmag-closure/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/local-aggregate-version-followup/FINDINGS_ZH.txt"
+  ],
+  "next": [
+    "HOST-02",
+    "HOST-03",
+    "RAW-05"
+  ],
+  "plain_intro": "主控处理解帧、时间槽、补点、覆盖、双侧归并和编码；以固定条件的合成数据继续追到发布尝试。生产睡眠分类仍缺实现。"
+}

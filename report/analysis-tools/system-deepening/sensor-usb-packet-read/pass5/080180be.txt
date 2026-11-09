@@ -1,0 +1,55 @@
+TARGET 080180be function=080180be
+REF_TO 0801baf0 UNCONDITIONAL_CALL owner=none
+FUNCTION_BODY [[080180be, 080180f9]]
+
+undefined4 FUN_080180be(int param_1)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  
+  iVar1 = *(int *)((*(int *)(param_1 + 0x2d4) + 0xb0) * 4 + param_1);
+  uVar2 = 3;
+  if (iVar1 != 0) {
+    uVar2 = 1;
+    if (*(int *)(iVar1 + 0x214) == 0) {
+      *(undefined4 *)(iVar1 + 0x214) = 1;
+      uVar2 = *(undefined4 *)(iVar1 + 0x208);
+      *(undefined4 *)(param_1 + 0x2c) = *(undefined4 *)(iVar1 + 0x210);
+      FUN_0801c048(param_1,0x81,uVar2);
+      uVar2 = 0;
+    }
+  }
+  return uVar2;
+}
+
+
+INSN 080180be b523 movs r3,#0xb5
+INSN 080180c0 9b00 lsls r3,r3,#0x2
+INSN 080180c2 c358 ldr r3,[r0,r3]
+INSN 080180c4 10b5 push {r4,lr}
+INSN 080180c6 b033 adds r3,#0xb0
+INSN 080180c8 9b00 lsls r3,r3,#0x2
+INSN 080180ca 1a58 ldr r2,[r3,r0]
+INSN 080180cc 0323 movs r3,#0x3
+INSN 080180ce 002a cmp r2,#0x0
+INSN 080180d0 11d0 beq 0x080180f6 REF[CONDITIONAL_JUMP:080180f6]
+INSN 080180d2 8521 movs r1,#0x85
+INSN 080180d4 8900 lsls r1,r1,#0x2
+INSN 080180d6 5458 ldr r4,[r2,r1]
+INSN 080180d8 023b subs r3,#0x2
+INSN 080180da 002c cmp r4,#0x0
+INSN 080180dc 0bd1 bne 0x080180f6 REF[CONDITIONAL_JUMP:080180f6]
+INSN 080180de 5350 str r3,[r2,r1]
+INSN 080180e0 8423 movs r3,#0x84
+INSN 080180e2 9b00 lsls r3,r3,#0x2
+INSN 080180e4 d358 ldr r3,[r2,r3]
+INSN 080180e6 0c39 subs r1,#0xc
+INSN 080180e8 5258 ldr r2,[r2,r1]
+INSN 080180ea 8839 subs r1,#0x88
+INSN 080180ec c362 str r3,[r0,#0x2c]
+INSN 080180ee ff39 subs r1,#0xff
+INSN 080180f0 03f0aaff bl 0x0801c048 REF[UNCONDITIONAL_CALL:0801c048]
+INSN 080180f4 2300 movs r3,r4
+INSN 080180f6 1800 movs r0,r3
+INSN 080180f8 10bd pop {r4,pc}

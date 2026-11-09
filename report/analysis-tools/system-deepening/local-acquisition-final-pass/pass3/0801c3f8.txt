@@ -1,0 +1,74 @@
+TARGET 0801c3f8 function=0801c3f8
+REF_TO 08012cf0 UNCONDITIONAL_CALL owner=08012cd4
+FUNCTION_BODY [[0801c3f8, 0801c441]]
+
+undefined8 FUN_0801c3f8(int param_1,undefined4 param_2)
+
+{
+  undefined2 local_c;
+  undefined1 local_a;
+  undefined1 uStack_9;
+  
+  local_c = (undefined2)param_2;
+  local_a = (undefined1)((uint)param_2 >> 0x10);
+  uStack_9 = (undefined1)((uint)param_2 >> 0x18);
+  if (param_1 == 0x10) {
+    DAT_20001920 = 1;
+    FUN_0801a50c();
+    DAT_20001920 = 0;
+  }
+  else if (DAT_2000191c != 0) {
+    if (param_1 == 2) {
+      local_c = 0;
+    }
+    else if (param_1 == 0x80) {
+      local_c = 1;
+    }
+    else {
+      local_c = 3;
+      if (param_1 == 4) {
+        local_c = 2;
+      }
+    }
+    local_a = 1;
+    FUN_0801c388(DAT_2000191c,&local_c);
+  }
+  return CONCAT17(uStack_9,CONCAT16(local_a,CONCAT24(local_c,param_1)));
+}
+
+
+INSN 0801c3f8 0200 movs r2,r0
+INSN 0801c3fa 13b5 push {r0,r1,r4,lr}
+INSN 0801c3fc 1028 cmp r0,#0x10
+INSN 0801c3fe 07d1 bne 0x0801c410 REF[CONDITIONAL_JUMP:0801c410]
+INSN 0801c400 0123 movs r3,#0x1
+INSN 0801c402 104c ldr r4,[0x0801c444] REF[READ:0801c444=20001920]
+INSN 0801c404 2370 strb r3,[r4,#0x0] REF[WRITE:20001920]
+INSN 0801c406 fef781f8 bl 0x0801a50c REF[UNCONDITIONAL_CALL:0801a50c]
+INSN 0801c40a 0023 movs r3,#0x0
+INSN 0801c40c 2370 strb r3,[r4,#0x0] REF[WRITE:20001920]
+INSN 0801c40e 13bd pop {r0,r1,r4,pc}
+INSN 0801c410 0d4b ldr r3,[0x0801c448] REF[READ:0801c448=2000191c]
+INSN 0801c412 1868 ldr r0,[r3,#0x0] REF[READ:2000191c]
+INSN 0801c414 0028 cmp r0,#0x0
+INSN 0801c416 fad0 beq 0x0801c40e REF[CONDITIONAL_JUMP:0801c40e]
+INSN 0801c418 022a cmp r2,#0x2
+INSN 0801c41a 0ed0 beq 0x0801c43a REF[CONDITIONAL_JUMP:0801c43a]
+INSN 0801c41c 802a cmp r2,#0x80
+INSN 0801c41e 0ed0 beq 0x0801c43e REF[CONDITIONAL_JUMP:0801c43e]
+INSN 0801c420 0323 movs r3,#0x3
+INSN 0801c422 042a cmp r2,#0x4
+INSN 0801c424 01d1 bne 0x0801c42a REF[CONDITIONAL_JUMP:0801c42a]
+INSN 0801c426 013b subs r3,#0x1
+INSN 0801c428 9bb2 uxth r3,r3
+INSN 0801c42a 6a46 mov r2,sp
+INSN 0801c42c 9380 strh r3,[r2,#0x4] REF[WRITE:Stack[-0xc]]
+INSN 0801c42e 0123 movs r3,#0x1
+INSN 0801c430 01a9 add r1,sp,#0x4
+INSN 0801c432 9371 strb r3,[r2,#0x6] REF[WRITE:Stack[-0xa]]
+INSN 0801c434 fff7a8ff bl 0x0801c388 REF[UNCONDITIONAL_CALL:0801c388]
+INSN 0801c438 e9e7 b 0x0801c40e REF[UNCONDITIONAL_JUMP:0801c40e]
+INSN 0801c43a 0023 movs r3,#0x0
+INSN 0801c43c f4e7 b 0x0801c428 REF[UNCONDITIONAL_JUMP:0801c428]
+INSN 0801c43e 0123 movs r3,#0x1
+INSN 0801c440 f2e7 b 0x0801c428 REF[UNCONDITIONAL_JUMP:0801c428]

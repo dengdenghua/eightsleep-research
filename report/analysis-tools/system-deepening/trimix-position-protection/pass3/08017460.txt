@@ -1,0 +1,27 @@
+TARGET 08017460 function=08017460
+REF_TO 08012d36 UNCONDITIONAL_CALL owner=08012c20
+FUNCTION_BODY [[08017460, 08017471]]
+
+void FUN_08017460(int param_1,int param_2)
+
+{
+  uint uVar1;
+  
+  if (param_2 == 0) {
+    uVar1 = *(uint *)(param_1 + 8) & 0xfffffeff;
+  }
+  else {
+    uVar1 = *(uint *)(param_1 + 8) | 0x100;
+  }
+  *(uint *)(param_1 + 8) = uVar1;
+  return;
+}
+
+
+INSN 08017460 0029 cmp r1,#0x0
+INSN 08017462 8168 ldr r1,[r0,#0x8]
+INSN 08017464 14bf ite ne
+INSN 08017466 41f48071 orr.ne r1,r1,#0x100
+INSN 0801746a 21f48071 bic.eq r1,r1,#0x100
+INSN 0801746e 8160 str r1,[r0,#0x8]
+INSN 08017470 7047 bx lr

@@ -1,0 +1,56 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+nonUSB 床罩固件：K60 启动通道表到 ADC 消费的有界代码证据
+
+结论
+在已下载官方 firmware-sensor-g0.bbin 中，以制造 hwrev=0x0A60（K60）为条件，正常初始化完成后的 ADC1 启动表为 [3,2,1,0,4,5,6,7]。本次已从配置入口追到实际复制 helper、目标缓冲区、ADC 对象中的指针及采样时的索引写入；不再只依据 USB/nonUSB 的局部字节相同推测。
+与此前独立分析的 firmware-sensor-g0-usb.bbin 相比，这一窄范围的 K60 启动映射关系一致。API 仍没有给出实机 transport 或 MCU 镜像 hash；不能把该一致性扩大为两个固件全部等价或已经确认实机部署。
+
+固定样本与方法
+nonUSB BBIN：132896 字节；版本字段 5.5.34.0；SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891。
+完整文件映射基址 0x08008000，含 128 字节头。使用独立持久 Ghidra 工程 ghidra/NonUsbSensor.gpr，反编译伪代码与 Thumb 汇编交叉检查；未执行目标二进制。
+初始新工程曾将 SRAM 属性误设只读，已修正为 writable、uninitialized 并重新导出。initial-exports 及 config-chain/pass1 不作为最终语义证据；有效证据为 copy-final、adc-link、adc-sample 和 config-chain/pass2。未修改旧 USB 分析工程。
+
+1. 配置入口与 K60 分支
+调用者 0x080152D8 在 0x080152E0..0x080152EA 将 sp+0x11C 的 0x1A8 字节配置清零，随后调用 0x0801D888。清零 helper 0x080086A4 是逐字节 fill；该调用者伪代码存在 jumptable 恢复失败，本项采用明确的汇编窗口。
+初始化函数在 0x08025DA4 的 revision 表中应用所有 threshold<=hwrev 的回调。K60 条件下为 12/14 个；K37 回调 0x0800FD0C 无条件令 cfg+0x1A4 指向 0x08025EE8，其原始 8 字节为 03 02 01 00 04 05 06 07。cfg+0x1A0 从零开始，所审配置回调与后置 hook 未覆盖它。
+K35 安装的 wrapper 0x08011100 先调用旧 hook 0x08012AD8；wrapper 的特殊 map 覆盖要求精确 K35，旧 hook 的特殊 IMU 重排要求精确 K32，均不适用于 K60。平台/通信初始化直接函数体未见通过 cfg 的 map store；未递归证明整个 HAL、中断或任意别名写不存在。完整配置链及 20 份来源摘要见 config-chain/FINDINGS_ZH.txt、CONFIG_CHAIN.json。
+
+2. 默认表、目标缓冲区与复制方向
+0x0801D888 的 r7 为 cfg，r6 为 state。先清 state 的前 0x3E08 字节，再为下列两个缓冲区写入 identity [0,1,2,3,4,5,6,7]：
+  ADC0 map：state+0x1BF8，保存到 sp+0x6C 的指令为 0x0801E1A4。
+  ADC1 map：state+0x1C00，保存到 sp+0x70 的指令为 0x0801E1AC。
+后面的 ADC 区域清零从 state+0xB08 开始、长度 0x10F0，排他终点恰为 state+0x1BF8，不会由这次 fill 清掉 map。
+末尾的两个判断/复制为：
+  0x0801E662..0x0801E670：若 cfg+0x1A0 非空，复制 8 字节到 state+0x1BF8。
+  0x0801E674..0x0801E682：若 cfg+0x1A4 非空，复制 8 字节到 state+0x1C00。
+两条原始 Thumb BL 独立解码均指向 0x08020F94；其汇编明确按 r2 长度逐字节从 r1 读、向 r0 写。K60 的已审正常配置链因此保留 ADC0 identity、以 K37 表覆盖 ADC1。
+ADC0 的配置描述在适用回调中被禁用；保存 identity 不代表 ADC0 在实机上产生有效样本。
+
+3. 控制流验证范围
+flow-facts.tsv 来自修正后工程的实际指令，不是从伪代码推导图。verify_flow.py 构建 1829 个指令节点，在调用正常返回、条件分支保留两边的静态 CFG 中，入口可达 1829 个；所导出已解码函数体的非调用跳转无未解析目标，唯一正常返回指令为 0x0801EABA 的 pop {...,pc}。
+8 个删点可达性检查通过：两个目标地址的赋值分别支配 ADC 初始化实参读取、末尾复制目标读取与对应 copy call；两个可选复制判断支配正常返回。注意是判断必经，copy 本身仍受非空条件控制。
+对 sp+0x6C、sp+0x70 的四处读取，反向直接 store 分析均只到达对应的新地址赋值，没有到达之前用途的临时值。两槽确实在函数前段复用，故不能单凭地址顺序跳过此验证。
+以上模型将所有调用视为按 ABI 正常返回，保留条件跳转的两边。它不证明调用一定返回、ADC 一定启动，也不涵盖栈损坏、间接别名写、中断干扰或全程序内存安全。TSV 历史列名 return 实际由 isTerminal() 生成；验证脚本显式核对了唯一 terminal 的真实返回指令。
+结果见 FLOW_VERIFICATION.json，可本地重跑 verify_flow.py；这不是实机执行轨迹。
+
+4. ADC 真正消费这份 map
+初始化函数的 0x0801E25A/0x0801E3BA 调用 0x08013CC0，分别为 state+0x16E4、state+0x17AC 的 ADC 对象传入对应 map，作为第 12 个参数。callee 在 0x08013CEC..0x08013CF4 把该参数写入对象+0xC4。它保存的是缓冲区地址，因此后续向缓冲区复制的表内容可被采样函数读取。
+采样函数 0x080139E4 实际通过对象+0xC4 取得 map。对于状态位标记有效的源通道 i，其语义为：
+  output[map[i]] = signed24_big_endian(raw[i]) * multiplier_argument
+因此 [3,2,1,0,4,5,6,7] 表示源 0→目的 3、源 1→目的 2、源 2→目的 1、源 3→目的 0；其余 4..7 保持同号目的。索引表示逻辑槽，不是床上物理位置。
+函数还检查对象 active、计时/缓存、DRDY 与 SPI 返回，并只更新有效通道；这些是 MCU 端采集和格式处理证据，不是云端生理去伪影、HR/RR 或睡眠分类器实现。ADC 未激活、读取失败和缓存复用仍有各自路径。
+
+对实机与导出的影响
+用户已明确目前无法让设备联网。本轮仅检查本地文件及保留登录进程的本地状态，没有新的上游账号/设备 API 请求，设备写操作为零；不以离线状态解释此前 /live 的 404 原因。
+并行复核的 readonly-export-entry-audit/FINDINGS_ZH.txt 识别到设备侧 debugfirmness/get、debugsubsystem/usbports、debugnats/get，但未建立从账号 HTTP 到这些设备 RPC 的可用路径；前者的原始信息包也不是完整 MCU 固件或睡眠波形下载。没有据此尝试猜测接口。
+本轮减少的是两种已下载 transport 固件在 K60 启动映射上的不确定性。仍缺实机当前 MCU/系统镜像对应、制造区与运行期 map、物理标定、真实原始数据，以及生产清洗/融合、分期和云温控策略代码。没有将这些缺口标为完成。
+
+来源导航
+copy-final/0801d888.txt：初始化、identity、区域 fill、可选 map copy 与 ADC 调用。
+copy-final/08020f94.txt：字节 copy helper；adc-link/080086a4.txt：字节 fill helper。
+adc-link/08013cc0.txt：ADC 对象 map 指针写入；adc-sample/080139e4.txt：实际采样消费。
+config-chain/FINDINGS_ZH.txt、CONFIG_CHAIN.json：配置入口、累积回调、平台/hook 边界。
+FLOW_VERIFICATION.json、verify_flow.py：可复现有界 CFG/原始 BL 校验。
+evidence-index.json：有效导出与报告的 SHA256 账本，排除可变 Ghidra 数据库和废止导出。

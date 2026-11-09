@@ -1,0 +1,29 @@
+TARGET 08011aea function=08011aea
+FUNCTION_BODY [[08011aea, 08011b03]]
+
+void analyst_normal_entry_08011aea(int param_1)
+
+{
+  int iVar1;
+  
+  iVar1 = *(int *)(param_1 + 0x28);
+  *(uint *)(iVar1 + 0x58) = *(uint *)(iVar1 + 0x58) | 0x40;
+  *(uint *)(iVar1 + 0x5c) = *(uint *)(iVar1 + 0x5c) | 4;
+  (**(code **)(iVar1 + 0x70))();
+  return;
+}
+
+
+INSN 08011aea 4023 movs r3,#0x40
+INSN 08011aec 806a ldr r0,[r0,#0x28]
+INSN 08011aee 10b5 push {r4,lr}
+INSN 08011af0 826d ldr r2,[r0,#0x58]
+INSN 08011af2 1343 orrs r3,r2
+INSN 08011af4 8365 str r3,[r0,#0x58]
+INSN 08011af6 0423 movs r3,#0x4
+INSN 08011af8 c26d ldr r2,[r0,#0x5c]
+INSN 08011afa 1343 orrs r3,r2
+INSN 08011afc c365 str r3,[r0,#0x5c]
+INSN 08011afe 036f ldr r3,[r0,#0x70]
+INSN 08011b00 9847 blx r3
+INSN 08011b02 10bd pop {r4,pc}

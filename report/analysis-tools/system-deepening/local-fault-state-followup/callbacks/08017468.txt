@@ -1,0 +1,31 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+void FUN_08017468(int param_1)
+
+{
+  undefined4 uVar1;
+  
+  if (*(char *)(param_1 + 8) != '\0') {
+    uVar1 = FUN_08011424();
+    *(undefined4 *)(param_1 + 4) = uVar1;
+    *(undefined1 *)(param_1 + 8) = 0;
+  }
+  FUN_080173ac(param_1);
+  return;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08017468 10b5 push {r4,lr}
+0801746a 037a ldrb r3,[r0,#0x8]
+0801746c 0400 movs r4,r0
+0801746e 002b cmp r3,#0x0
+08017470 04d0 beq 0x0801747c
+08017472 f9f7d7ff bl 0x08011424
+08017476 0023 movs r3,#0x0
+08017478 6060 str r0,[r4,#0x4]
+0801747a 2372 strb r3,[r4,#0x8]
+0801747c 2000 movs r0,r4
+0801747e fff795ff bl 0x080173ac
+08017482 10bd pop {r4,pc}

@@ -1,0 +1,160 @@
+{
+  "kind": "existing Python contract probes, not firmware oracle",
+  "cases": 9,
+  "passed": true,
+  "results": [
+    {
+      "case": "parser_adapter_fields",
+      "synthetic": true,
+      "flags": 8704,
+      "sample_keys": [
+        "adc",
+        "device_tick_ms",
+        "logger_routes"
+      ],
+      "tick_sequence": [
+        10000,
+        10002,
+        10004,
+        10006,
+        10008
+      ],
+      "disabled_adc_slots": 8,
+      "disabled_imu_groups": 3,
+      "adapter_must_supply": [
+        "ADC sentinel",
+        "flattened/shared 24 IMU values and sentinels",
+        "version=flags16",
+        "capture side",
+        "host wall now"
+      ]
+    },
+    {
+      "case": "strict_length_reject",
+      "synthetic": true,
+      "error": "non-canonical payload length: 1 trailing bytes",
+      "not_firmware_rejection_proof": true
+    },
+    {
+      "case": "non500_parser_only",
+      "synthetic": true,
+      "frequency": 333,
+      "tick_step": 3,
+      "host_model_fixed_slot_ms": 2,
+      "encoder_fixed_adc_frequency": 500,
+      "integration_should_reject_or_out_of_scope": true
+    },
+    {
+      "case": "unsafe_defaults_are_values",
+      "synthetic": true,
+      "adc": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "imu": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23
+      ],
+      "version": 1,
+      "warning": "Omission fabricates model default payload; adapter must never omit actual fields"
+    },
+    {
+      "case": "explicit_payload_metadata_cbor",
+      "synthetic": true,
+      "cbor_objects": [
+        "piezo-buzzer",
+        "imu-multi-channel"
+      ],
+      "body_bytes": 30128,
+      "body_sha256": "4c8efc544b6dfd1ec472bf530818b71f5fbadccb6c92a1356520144644cae1a1",
+      "last_accepted_version": 62208,
+      "left_gain": [
+        800,
+        800,
+        800,
+        800,
+        800
+      ],
+      "missing_side_gain": [
+        400,
+        400,
+        400,
+        400,
+        400
+      ],
+      "missing_side_version_mirrored": true,
+      "imu_points_per_channel": 100,
+      "buzzer_points_per_channel": 500
+    },
+    {
+      "case": "auto_flush_false_still_capacity_flush",
+      "synthetic": true,
+      "outputs": 1,
+      "pending_buckets": 10,
+      "reason": "inherited offer capacity branch flushes independently of auto_flush"
+    },
+    {
+      "case": "empty_flush_still_creates_cbor",
+      "synthetic": true,
+      "load": null,
+      "cbor_objects": 2,
+      "epoch": 0,
+      "should_not_force_drain_empty_pipeline": true
+    },
+    {
+      "case": "queue_capacity_is_body_count",
+      "synthetic": true,
+      "externally_preloaded_records": 15,
+      "raw_capacity": 16,
+      "candidate_A_accepted": true,
+      "candidate_B_rejected": true,
+      "caller_sequence_after_two": 2,
+      "one_stealth_body_cbor_objects": 2
+    },
+    {
+      "case": "retry_does_not_reencode_or_readmit",
+      "synthetic": true,
+      "publish_attempts": 2,
+      "caller_sequence": 1,
+      "unchanged_body_sha256": "4c8efc544b6dfd1ec472bf530818b71f5fbadccb6c92a1356520144644cae1a1",
+      "remote_acceptance": "unknown; failure fixture may have accepted",
+      "ack_observed": null
+    }
+  ]
+}

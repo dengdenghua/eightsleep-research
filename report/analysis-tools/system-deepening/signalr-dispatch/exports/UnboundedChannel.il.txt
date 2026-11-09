@@ -1,0 +1,1187 @@
+// IL code: System.Threading.Channels
+.class private auto ansi sealed beforefieldinit System.Threading.Channels.UnboundedChannel`1<T>
+	extends class System.Threading.Channels.Channel`1<!T>
+	implements class System.Threading.Channels.IDebugEnumerable`1<!T>
+{
+	.custom instance void [System.Runtime]System.Diagnostics.DebuggerDisplayAttribute::.ctor(string) = (
+		01 00 46 49 74 65 6d 73 20 3d 20 7b 49 74 65 6d
+		73 43 6f 75 6e 74 46 6f 72 44 65 62 75 67 67 65
+		72 7d 2c 20 43 6c 6f 73 65 64 20 3d 20 7b 43 68
+		61 6e 6e 65 6c 49 73 43 6c 6f 73 65 64 46 6f 72
+		44 65 62 75 67 67 65 72 7d 00 00
+	)
+	.custom instance void [System.Runtime]System.Diagnostics.DebuggerTypeProxyAttribute::.ctor(class [System.Runtime]System.Type) = (
+		01 00 34 53 79 73 74 65 6d 2e 54 68 72 65 61 64
+		69 6e 67 2e 43 68 61 6e 6e 65 6c 73 2e 44 65 62
+		75 67 45 6e 75 6d 65 72 61 74 6f 72 44 65 62 75
+		67 56 69 65 77 60 31 00 00
+	)
+	// Nested Types
+	.class nested private auto ansi sealed beforefieldinit UnboundedChannelReader<T>
+		extends class System.Threading.Channels.ChannelReader`1<!T>
+		implements class System.Threading.Channels.IDebugEnumerable`1<!T>
+	{
+		.custom instance void [System.Runtime]System.Diagnostics.DebuggerDisplayAttribute::.ctor(string) = (
+			01 00 0f 49 74 65 6d 73 20 3d 20 7b 43 6f 75 6e
+			74 7d 00 00
+		)
+		.custom instance void [System.Runtime]System.Diagnostics.DebuggerTypeProxyAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 34 53 79 73 74 65 6d 2e 54 68 72 65 61 64
+			69 6e 67 2e 43 68 61 6e 6e 65 6c 73 2e 44 65 62
+			75 67 45 6e 75 6d 65 72 61 74 6f 72 44 65 62 75
+			67 56 69 65 77 60 31 00 00
+		)
+		// Fields
+		.field assembly initonly class System.Threading.Channels.UnboundedChannel`1<!T> _parent
+		.field private initonly class System.Threading.Channels.BlockedReadAsyncOperation`1<!T> _readerSingleton
+		.field private initonly class System.Threading.Channels.WaitingReadAsyncOperation _waiterSingleton
+
+		// Methods
+		.method assembly hidebysig specialname rtspecialname 
+			instance void .ctor (
+				class System.Threading.Channels.UnboundedChannel`1<!T> parent
+			) cil managed 
+		{
+			// Method begins at RVA 0x5e58
+			// Header size: 12
+			// Code size: 70 (0x46)
+			.maxstack 5
+			.locals (
+				[0] valuetype [System.Runtime]System.Threading.CancellationToken
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: call instance void class System.Threading.Channels.ChannelReader`1<!T>::.ctor()
+			IL_0006: ldarg.0
+			IL_0007: ldarg.1
+			IL_0008: stfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+			IL_000d: ldarg.0
+			IL_000e: ldarg.1
+			IL_000f: ldfld bool class System.Threading.Channels.UnboundedChannel`1<!T>::_runContinuationsAsynchronously
+			IL_0014: ldloca.s 0
+			IL_0016: initobj [System.Runtime]System.Threading.CancellationToken
+			IL_001c: ldloc.0
+			IL_001d: ldc.i4.1
+			IL_001e: ldnull
+			IL_001f: newobj instance void class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>::.ctor(bool, valuetype [System.Runtime]System.Threading.CancellationToken, bool, class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken>)
+			IL_0024: stfld class System.Threading.Channels.BlockedReadAsyncOperation`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_readerSingleton
+			IL_0029: ldarg.0
+			IL_002a: ldarg.1
+			IL_002b: ldfld bool class System.Threading.Channels.UnboundedChannel`1<!T>::_runContinuationsAsynchronously
+			IL_0030: ldloca.s 0
+			IL_0032: initobj [System.Runtime]System.Threading.CancellationToken
+			IL_0038: ldloc.0
+			IL_0039: ldc.i4.1
+			IL_003a: ldnull
+			IL_003b: newobj instance void System.Threading.Channels.WaitingReadAsyncOperation::.ctor(bool, valuetype [System.Runtime]System.Threading.CancellationToken, bool, class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken>)
+			IL_0040: stfld class System.Threading.Channels.WaitingReadAsyncOperation class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_waiterSingleton
+			IL_0045: ret
+		} // end of method UnboundedChannelReader::.ctor
+
+		.method public hidebysig specialname virtual 
+			instance class [System.Runtime]System.Threading.Tasks.Task get_Completion () cil managed 
+		{
+			// Method begins at RVA 0x5eaa
+			// Header size: 1
+			// Code size: 17 (0x11)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+			IL_0006: ldfld class [System.Runtime]System.Threading.Tasks.TaskCompletionSource class System.Threading.Channels.UnboundedChannel`1<!T>::_completion
+			IL_000b: callvirt instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Threading.Tasks.TaskCompletionSource::get_Task()
+			IL_0010: ret
+		} // end of method UnboundedChannelReader::get_Completion
+
+		.method public hidebysig specialname virtual 
+			instance bool get_CanCount () cil managed 
+		{
+			// Method begins at RVA 0x31ec
+			// Header size: 1
+			// Code size: 2 (0x2)
+			.maxstack 8
+
+			IL_0000: ldc.i4.1
+			IL_0001: ret
+		} // end of method UnboundedChannelReader::get_CanCount
+
+		.method public hidebysig specialname virtual 
+			instance bool get_CanPeek () cil managed 
+		{
+			// Method begins at RVA 0x31ec
+			// Header size: 1
+			// Code size: 2 (0x2)
+			.maxstack 8
+
+			IL_0000: ldc.i4.1
+			IL_0001: ret
+		} // end of method UnboundedChannelReader::get_CanPeek
+
+		.method public hidebysig specialname virtual 
+			instance int32 get_Count () cil managed 
+		{
+			// Method begins at RVA 0x5ebc
+			// Header size: 1
+			// Code size: 17 (0x11)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+			IL_0006: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+			IL_000b: callvirt instance int32 class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::get_Count()
+			IL_0010: ret
+		} // end of method UnboundedChannelReader::get_Count
+
+		.method public hidebysig virtual 
+			instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<!T> ReadAsync (
+				valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+			) cil managed 
+		{
+			// Method begins at RVA 0x5ed0
+			// Header size: 12
+			// Code size: 220 (0xdc)
+			.maxstack 4
+			.locals (
+				[0] class System.Threading.Channels.UnboundedChannel`1<!T>,
+				[1] !T,
+				[2] object,
+				[3] bool,
+				[4] class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>,
+				[5] valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<!T>
+			)
+
+			IL_0000: ldarga.s cancellationToken
+			IL_0002: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+			IL_0007: brfalse.s IL_0015
+
+			IL_0009: ldarg.1
+			IL_000a: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromCanceled<!T>(valuetype [System.Runtime]System.Threading.CancellationToken)
+			IL_000f: newobj instance void valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<!T>::.ctor(class [System.Runtime]System.Threading.Tasks.Task`1<!0>)
+			IL_0014: ret
+
+			IL_0015: ldarg.0
+			IL_0016: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+			IL_001b: stloc.0
+			IL_001c: ldloc.0
+			IL_001d: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+			IL_0022: ldloca.s 1
+			IL_0024: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::TryDequeue(!0&)
+			IL_0029: brfalse.s IL_0038
+
+			IL_002b: ldloc.0
+			IL_002c: call void class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::CompleteIfDone(class System.Threading.Channels.UnboundedChannel`1<!0>)
+			IL_0031: ldloc.1
+			IL_0032: newobj instance void valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<!T>::.ctor(!0)
+			IL_0037: ret
+
+			IL_0038: ldloc.0
+			IL_0039: callvirt instance object class System.Threading.Channels.UnboundedChannel`1<!T>::get_SyncObj()
+			IL_003e: stloc.2
+			IL_003f: ldc.i4.0
+			IL_0040: stloc.3
+			.try
+			{
+				IL_0041: ldloc.2
+				IL_0042: ldloca.s 3
+				IL_0044: call void [System.Threading]System.Threading.Monitor::Enter(object, bool&)
+				IL_0049: ldloc.0
+				IL_004a: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+				IL_004f: ldloca.s 1
+				IL_0051: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::TryDequeue(!0&)
+				IL_0056: brfalse.s IL_0068
+
+				IL_0058: ldloc.0
+				IL_0059: call void class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::CompleteIfDone(class System.Threading.Channels.UnboundedChannel`1<!0>)
+				IL_005e: ldloc.1
+				IL_005f: newobj instance void valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<!T>::.ctor(!0)
+				IL_0064: stloc.s 5
+				IL_0066: leave.s IL_00d9
+
+				IL_0068: ldloc.0
+				IL_0069: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+				IL_006e: brfalse.s IL_007f
+
+				IL_0070: ldloc.0
+				IL_0071: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+				IL_0076: call valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<!!0> System.Threading.Channels.ChannelUtilities::GetInvalidCompletionValueTask<!T>(class [System.Runtime]System.Exception)
+				IL_007b: stloc.s 5
+				IL_007d: leave.s IL_00d9
+
+				IL_007f: ldarga.s cancellationToken
+				IL_0081: call instance bool [System.Runtime]System.Threading.CancellationToken::get_CanBeCanceled()
+				IL_0086: brtrue.s IL_0095
+
+				IL_0088: ldarg.0
+				IL_0089: ldfld class System.Threading.Channels.BlockedReadAsyncOperation`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_readerSingleton
+				IL_008e: callvirt instance bool class System.Threading.Channels.AsyncOperation`2<class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>, !T>::TryOwnAndReset()
+				IL_0093: brtrue.s IL_00af
+
+				IL_0095: ldloc.0
+				IL_0096: ldfld bool class System.Threading.Channels.UnboundedChannel`1<!T>::_runContinuationsAsynchronously
+				IL_009b: ldarg.1
+				IL_009c: ldc.i4.0
+				IL_009d: ldarg.0
+				IL_009e: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+				IL_00a3: callvirt instance class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken> class System.Threading.Channels.UnboundedChannel`1<!T>::get_CancellationCallbackDelegate()
+				IL_00a8: newobj instance void class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>::.ctor(bool, valuetype [System.Runtime]System.Threading.CancellationToken, bool, class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken>)
+				IL_00ad: br.s IL_00b5
+
+				IL_00af: ldarg.0
+				IL_00b0: ldfld class System.Threading.Channels.BlockedReadAsyncOperation`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_readerSingleton
+
+				IL_00b5: stloc.s 4
+				IL_00b7: ldloc.0
+				IL_00b8: ldflda class System.Threading.Channels.BlockedReadAsyncOperation`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_blockedReadersHead
+				IL_00bd: ldloc.s 4
+				IL_00bf: call void System.Threading.Channels.ChannelUtilities::Enqueue<class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>>(!!0&, !!0)
+				IL_00c4: ldloc.s 4
+				IL_00c6: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<!1> class System.Threading.Channels.AsyncOperation`2<class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>, !T>::get_ValueTaskOfT()
+				IL_00cb: stloc.s 5
+				IL_00cd: leave.s IL_00d9
+			} // end .try
+			finally
+			{
+				IL_00cf: ldloc.3
+				IL_00d0: brfalse.s IL_00d8
+
+				IL_00d2: ldloc.2
+				IL_00d3: call void [System.Threading]System.Threading.Monitor::Exit(object)
+
+				IL_00d8: endfinally
+			} // end handler
+
+			IL_00d9: ldloc.s 5
+			IL_00db: ret
+		} // end of method UnboundedChannelReader::ReadAsync
+
+		.method public hidebysig virtual 
+			instance bool TryRead (
+				[out] !T& item
+			) cil managed 
+		{
+			.param [1]
+				.custom instance void [System.Runtime]System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute::.ctor(bool) = (
+					01 00 00 00 00
+				)
+			// Method begins at RVA 0x5fc8
+			// Header size: 12
+			// Code size: 38 (0x26)
+			.maxstack 2
+			.locals (
+				[0] class System.Threading.Channels.UnboundedChannel`1<!T>
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+			IL_0006: stloc.0
+			IL_0007: ldloc.0
+			IL_0008: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+			IL_000d: ldarg.1
+			IL_000e: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::TryDequeue(!0&)
+			IL_0013: brfalse.s IL_001d
+
+			IL_0015: ldloc.0
+			IL_0016: call void class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::CompleteIfDone(class System.Threading.Channels.UnboundedChannel`1<!0>)
+			IL_001b: ldc.i4.1
+			IL_001c: ret
+
+			IL_001d: ldarg.1
+			IL_001e: initobj !T
+			IL_0024: ldc.i4.0
+			IL_0025: ret
+		} // end of method UnboundedChannelReader::TryRead
+
+		.method public hidebysig virtual 
+			instance bool TryPeek (
+				[out] !T& item
+			) cil managed 
+		{
+			.param [1]
+				.custom instance void [System.Runtime]System.Diagnostics.CodeAnalysis.MaybeNullWhenAttribute::.ctor(bool) = (
+					01 00 00 00 00
+				)
+			// Method begins at RVA 0x5ffa
+			// Header size: 1
+			// Code size: 18 (0x12)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+			IL_0006: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+			IL_000b: ldarg.1
+			IL_000c: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::TryPeek(!0&)
+			IL_0011: ret
+		} // end of method UnboundedChannelReader::TryPeek
+
+		.method private hidebysig static 
+			void CompleteIfDone (
+				class System.Threading.Channels.UnboundedChannel`1<!T> parent
+			) cil managed 
+		{
+			// Method begins at RVA 0x600d
+			// Header size: 1
+			// Code size: 39 (0x27)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+			IL_0006: brfalse.s IL_0026
+
+			IL_0008: ldarg.0
+			IL_0009: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+			IL_000e: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::get_IsEmpty()
+			IL_0013: brfalse.s IL_0026
+
+			IL_0015: ldarg.0
+			IL_0016: ldfld class [System.Runtime]System.Threading.Tasks.TaskCompletionSource class System.Threading.Channels.UnboundedChannel`1<!T>::_completion
+			IL_001b: ldarg.0
+			IL_001c: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+			IL_0021: call void System.Threading.Channels.ChannelUtilities::Complete(class [System.Runtime]System.Threading.Tasks.TaskCompletionSource, class [System.Runtime]System.Exception)
+
+			IL_0026: ret
+		} // end of method UnboundedChannelReader::CompleteIfDone
+
+		.method public hidebysig virtual 
+			instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool> WaitToReadAsync (
+				valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+			) cil managed 
+		{
+			// Method begins at RVA 0x6038
+			// Header size: 12
+			// Code size: 239 (0xef)
+			.maxstack 4
+			.locals (
+				[0] class System.Threading.Channels.UnboundedChannel`1<!T>,
+				[1] object,
+				[2] bool,
+				[3] class System.Threading.Channels.WaitingReadAsyncOperation,
+				[4] valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>,
+				[5] valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>
+			)
+
+			IL_0000: ldarga.s cancellationToken
+			IL_0002: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+			IL_0007: brfalse.s IL_0015
+
+			IL_0009: ldarg.1
+			IL_000a: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromCanceled<bool>(valuetype [System.Runtime]System.Threading.CancellationToken)
+			IL_000f: newobj instance void valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>::.ctor(class [System.Runtime]System.Threading.Tasks.Task`1<!0>)
+			IL_0014: ret
+
+			IL_0015: ldarg.0
+			IL_0016: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+			IL_001b: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+			IL_0020: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::get_IsEmpty()
+			IL_0025: brtrue.s IL_002e
+
+			IL_0027: ldc.i4.1
+			IL_0028: newobj instance void valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>::.ctor(!0)
+			IL_002d: ret
+
+			IL_002e: ldarg.0
+			IL_002f: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+			IL_0034: stloc.0
+			IL_0035: ldloc.0
+			IL_0036: callvirt instance object class System.Threading.Channels.UnboundedChannel`1<!T>::get_SyncObj()
+			IL_003b: stloc.1
+			IL_003c: ldc.i4.0
+			IL_003d: stloc.2
+			.try
+			{
+				IL_003e: ldloc.1
+				IL_003f: ldloca.s 2
+				IL_0041: call void [System.Threading]System.Threading.Monitor::Enter(object, bool&)
+				IL_0046: ldloc.0
+				IL_0047: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+				IL_004c: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::get_IsEmpty()
+				IL_0051: brtrue.s IL_0060
+
+				IL_0053: ldc.i4.1
+				IL_0054: newobj instance void valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>::.ctor(!0)
+				IL_0059: stloc.s 4
+				IL_005b: leave IL_00ec
+
+				IL_0060: ldloc.0
+				IL_0061: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+				IL_0066: brfalse.s IL_0095
+
+				IL_0068: ldloc.0
+				IL_0069: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+				IL_006e: ldsfld class [System.Runtime]System.Exception System.Threading.Channels.ChannelUtilities::s_doneWritingSentinel
+				IL_0073: bne.un.s IL_0081
+
+				IL_0075: ldloca.s 5
+				IL_0077: initobj valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>
+				IL_007d: ldloc.s 5
+				IL_007f: br.s IL_0091
+
+				IL_0081: ldloc.0
+				IL_0082: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+				IL_0087: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromException<bool>(class [System.Runtime]System.Exception)
+				IL_008c: newobj instance void valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>::.ctor(class [System.Runtime]System.Threading.Tasks.Task`1<!0>)
+
+				IL_0091: stloc.s 4
+				IL_0093: leave.s IL_00ec
+
+				IL_0095: ldarga.s cancellationToken
+				IL_0097: call instance bool [System.Runtime]System.Threading.CancellationToken::get_CanBeCanceled()
+				IL_009c: brtrue.s IL_00ab
+
+				IL_009e: ldarg.0
+				IL_009f: ldfld class System.Threading.Channels.WaitingReadAsyncOperation class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_waiterSingleton
+				IL_00a4: callvirt instance bool class System.Threading.Channels.AsyncOperation`2<class System.Threading.Channels.WaitingReadAsyncOperation, bool>::TryOwnAndReset()
+				IL_00a9: brtrue.s IL_00c5
+
+				IL_00ab: ldloc.0
+				IL_00ac: ldfld bool class System.Threading.Channels.UnboundedChannel`1<!T>::_runContinuationsAsynchronously
+				IL_00b1: ldarg.1
+				IL_00b2: ldc.i4.0
+				IL_00b3: ldarg.0
+				IL_00b4: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+				IL_00b9: callvirt instance class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken> class System.Threading.Channels.UnboundedChannel`1<!T>::get_CancellationCallbackDelegate()
+				IL_00be: newobj instance void System.Threading.Channels.WaitingReadAsyncOperation::.ctor(bool, valuetype [System.Runtime]System.Threading.CancellationToken, bool, class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken>)
+				IL_00c3: br.s IL_00cb
+
+				IL_00c5: ldarg.0
+				IL_00c6: ldfld class System.Threading.Channels.WaitingReadAsyncOperation class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_waiterSingleton
+
+				IL_00cb: stloc.3
+				IL_00cc: ldloc.0
+				IL_00cd: ldflda class System.Threading.Channels.WaitingReadAsyncOperation class System.Threading.Channels.UnboundedChannel`1<!T>::_waitingReadersHead
+				IL_00d2: ldloc.3
+				IL_00d3: call void System.Threading.Channels.ChannelUtilities::Enqueue<class System.Threading.Channels.WaitingReadAsyncOperation>(!!0&, !!0)
+				IL_00d8: ldloc.3
+				IL_00d9: callvirt instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<!1> class System.Threading.Channels.AsyncOperation`2<class System.Threading.Channels.WaitingReadAsyncOperation, bool>::get_ValueTaskOfT()
+				IL_00de: stloc.s 4
+				IL_00e0: leave.s IL_00ec
+			} // end .try
+			finally
+			{
+				IL_00e2: ldloc.2
+				IL_00e3: brfalse.s IL_00eb
+
+				IL_00e5: ldloc.1
+				IL_00e6: call void [System.Threading]System.Threading.Monitor::Exit(object)
+
+				IL_00eb: endfinally
+			} // end handler
+
+			IL_00ec: ldloc.s 4
+			IL_00ee: ret
+		} // end of method UnboundedChannelReader::WaitToReadAsync
+
+		.method private final hidebysig newslot virtual 
+			instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!T> 'System.Threading.Channels.IDebugEnumerable<T>.GetEnumerator' () cil managed 
+		{
+			.override method instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class System.Threading.Channels.IDebugEnumerable`1<!T>::GetEnumerator()
+			// Method begins at RVA 0x6144
+			// Header size: 1
+			// Code size: 17 (0x11)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::_parent
+			IL_0006: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+			IL_000b: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::GetEnumerator()
+			IL_0010: ret
+		} // end of method UnboundedChannelReader::'System.Threading.Channels.IDebugEnumerable<T>.GetEnumerator'
+
+		// Properties
+		.property instance class [System.Runtime]System.Threading.Tasks.Task Completion()
+		{
+			.get instance class [System.Runtime]System.Threading.Tasks.Task System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader::get_Completion()
+		}
+		.property instance bool CanCount()
+		{
+			.get instance bool System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader::get_CanCount()
+		}
+		.property instance bool CanPeek()
+		{
+			.get instance bool System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader::get_CanPeek()
+		}
+		.property instance int32 Count()
+		{
+			.get instance int32 System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader::get_Count()
+		}
+
+	} // end of class UnboundedChannelReader
+
+	.class nested private auto ansi sealed beforefieldinit UnboundedChannelWriter<T>
+		extends class System.Threading.Channels.ChannelWriter`1<!T>
+		implements class System.Threading.Channels.IDebugEnumerable`1<!T>
+	{
+		.custom instance void [System.Runtime]System.Diagnostics.DebuggerDisplayAttribute::.ctor(string) = (
+			01 00 1f 49 74 65 6d 73 20 3d 20 7b 49 74 65 6d
+			73 43 6f 75 6e 74 46 6f 72 44 65 62 75 67 67 65
+			72 7d 00 00
+		)
+		.custom instance void [System.Runtime]System.Diagnostics.DebuggerTypeProxyAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 34 53 79 73 74 65 6d 2e 54 68 72 65 61 64
+			69 6e 67 2e 43 68 61 6e 6e 65 6c 73 2e 44 65 62
+			75 67 45 6e 75 6d 65 72 61 74 6f 72 44 65 62 75
+			67 56 69 65 77 60 31 00 00
+		)
+		// Fields
+		.field assembly initonly class System.Threading.Channels.UnboundedChannel`1<!T> _parent
+
+		// Methods
+		.method assembly hidebysig specialname rtspecialname 
+			instance void .ctor (
+				class System.Threading.Channels.UnboundedChannel`1<!T> parent
+			) cil managed 
+		{
+			// Method begins at RVA 0x6156
+			// Header size: 1
+			// Code size: 14 (0xe)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: call instance void class System.Threading.Channels.ChannelWriter`1<!T>::.ctor()
+			IL_0006: ldarg.0
+			IL_0007: ldarg.1
+			IL_0008: stfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelWriter<!T>::_parent
+			IL_000d: ret
+		} // end of method UnboundedChannelWriter::.ctor
+
+		.method public hidebysig virtual 
+			instance bool TryComplete (
+				class [System.Runtime]System.Exception 'error'
+			) cil managed 
+		{
+			// Method begins at RVA 0x6168
+			// Header size: 12
+			// Code size: 150 (0x96)
+			.maxstack 3
+			.locals (
+				[0] class System.Threading.Channels.UnboundedChannel`1<!T>,
+				[1] class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>,
+				[2] class System.Threading.Channels.WaitingReadAsyncOperation,
+				[3] bool,
+				[4] object,
+				[5] bool,
+				[6] bool
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelWriter<!T>::_parent
+			IL_0006: stloc.0
+			IL_0007: ldloc.0
+			IL_0008: callvirt instance object class System.Threading.Channels.UnboundedChannel`1<!T>::get_SyncObj()
+			IL_000d: stloc.s 4
+			IL_000f: ldc.i4.0
+			IL_0010: stloc.s 5
+			.try
+			{
+				IL_0012: ldloc.s 4
+				IL_0014: ldloca.s 5
+				IL_0016: call void [System.Threading]System.Threading.Monitor::Enter(object, bool&)
+				IL_001b: ldloc.0
+				IL_001c: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+				IL_0021: brfalse.s IL_0028
+
+				IL_0023: ldc.i4.0
+				IL_0024: stloc.s 6
+				IL_0026: leave.s IL_0093
+
+				IL_0028: ldloc.0
+				IL_0029: ldarg.1
+				IL_002a: dup
+				IL_002b: brtrue.s IL_0033
+
+				IL_002d: pop
+				IL_002e: ldsfld class [System.Runtime]System.Exception System.Threading.Channels.ChannelUtilities::s_doneWritingSentinel
+
+				IL_0033: stfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+				IL_0038: ldloc.0
+				IL_0039: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+				IL_003e: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::get_IsEmpty()
+				IL_0043: stloc.3
+				IL_0044: ldloc.0
+				IL_0045: ldfld class System.Threading.Channels.BlockedReadAsyncOperation`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_blockedReadersHead
+				IL_004a: stloc.1
+				IL_004b: ldloc.0
+				IL_004c: ldfld class System.Threading.Channels.WaitingReadAsyncOperation class System.Threading.Channels.UnboundedChannel`1<!T>::_waitingReadersHead
+				IL_0051: stloc.2
+				IL_0052: ldloc.0
+				IL_0053: ldnull
+				IL_0054: stfld class System.Threading.Channels.BlockedReadAsyncOperation`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_blockedReadersHead
+				IL_0059: ldloc.0
+				IL_005a: ldnull
+				IL_005b: stfld class System.Threading.Channels.WaitingReadAsyncOperation class System.Threading.Channels.UnboundedChannel`1<!T>::_waitingReadersHead
+				IL_0060: leave.s IL_006e
+			} // end .try
+			finally
+			{
+				IL_0062: ldloc.s 5
+				IL_0064: brfalse.s IL_006d
+
+				IL_0066: ldloc.s 4
+				IL_0068: call void [System.Threading]System.Threading.Monitor::Exit(object)
+
+				IL_006d: endfinally
+			} // end handler
+
+			IL_006e: ldloc.3
+			IL_006f: brfalse.s IL_007d
+
+			IL_0071: ldloc.0
+			IL_0072: ldfld class [System.Runtime]System.Threading.Tasks.TaskCompletionSource class System.Threading.Channels.UnboundedChannel`1<!T>::_completion
+			IL_0077: ldarg.1
+			IL_0078: call void System.Threading.Channels.ChannelUtilities::Complete(class [System.Runtime]System.Threading.Tasks.TaskCompletionSource, class [System.Runtime]System.Exception)
+
+			IL_007d: ldloc.1
+			IL_007e: ldarg.1
+			IL_007f: call class [System.Runtime]System.Exception System.Threading.Channels.ChannelUtilities::CreateInvalidCompletionException(class [System.Runtime]System.Exception)
+			IL_0084: call void System.Threading.Channels.ChannelUtilities::FailOperations<class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>>(!!0, class [System.Runtime]System.Exception)
+			IL_0089: ldloc.2
+			IL_008a: ldc.i4.0
+			IL_008b: ldarg.1
+			IL_008c: call void System.Threading.Channels.ChannelUtilities::SetOrFailOperations<class System.Threading.Channels.WaitingReadAsyncOperation, bool>(!!0, !!1, class [System.Runtime]System.Exception)
+			IL_0091: ldc.i4.1
+			IL_0092: ret
+
+			IL_0093: ldloc.s 6
+			IL_0095: ret
+		} // end of method UnboundedChannelWriter::TryComplete
+
+		.method public hidebysig virtual 
+			instance bool TryWrite (
+				!T item
+			) cil managed 
+		{
+			// Method begins at RVA 0x621c
+			// Header size: 12
+			// Code size: 121 (0x79)
+			.maxstack 2
+			.locals (
+				[0] class System.Threading.Channels.UnboundedChannel`1<!T>,
+				[1] class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>,
+				[2] class System.Threading.Channels.WaitingReadAsyncOperation,
+				[3] object,
+				[4] bool,
+				[5] bool
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelWriter<!T>::_parent
+			IL_0006: stloc.0
+			IL_0007: ldnull
+			IL_0008: stloc.1
+			IL_0009: ldnull
+			IL_000a: stloc.2
+			IL_000b: ldloc.0
+			IL_000c: callvirt instance object class System.Threading.Channels.UnboundedChannel`1<!T>::get_SyncObj()
+			IL_0011: stloc.3
+			IL_0012: ldc.i4.0
+			IL_0013: stloc.s 4
+			.try
+			{
+				IL_0015: ldloc.3
+				IL_0016: ldloca.s 4
+				IL_0018: call void [System.Threading]System.Threading.Monitor::Enter(object, bool&)
+				IL_001d: ldloc.0
+				IL_001e: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+				IL_0023: brfalse.s IL_002a
+
+				IL_0025: ldc.i4.0
+				IL_0026: stloc.s 5
+				IL_0028: leave.s IL_0076
+
+				IL_002a: ldloc.0
+				IL_002b: ldflda class System.Threading.Channels.BlockedReadAsyncOperation`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_blockedReadersHead
+				IL_0030: call !!0 System.Threading.Channels.ChannelUtilities::TryDequeueAndReserveCompletionIfCancelable<class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>>(!!0&)
+				IL_0035: stloc.1
+				IL_0036: ldloc.1
+				IL_0037: brtrue.s IL_0051
+
+				IL_0039: ldloc.0
+				IL_003a: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+				IL_003f: ldarg.1
+				IL_0040: callvirt instance void class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::Enqueue(!0)
+				IL_0045: ldloc.0
+				IL_0046: ldflda class System.Threading.Channels.WaitingReadAsyncOperation class System.Threading.Channels.UnboundedChannel`1<!T>::_waitingReadersHead
+				IL_004b: call !!0 System.Threading.Channels.ChannelUtilities::TryReserveCompletionIfCancelable<class System.Threading.Channels.WaitingReadAsyncOperation>(!!0&)
+				IL_0050: stloc.2
+
+				IL_0051: leave.s IL_005e
+			} // end .try
+			finally
+			{
+				IL_0053: ldloc.s 4
+				IL_0055: brfalse.s IL_005d
+
+				IL_0057: ldloc.3
+				IL_0058: call void [System.Threading]System.Threading.Monitor::Exit(object)
+
+				IL_005d: endfinally
+			} // end handler
+
+			IL_005e: ldloc.1
+			IL_005f: brfalse.s IL_006a
+
+			IL_0061: ldloc.1
+			IL_0062: ldarg.1
+			IL_0063: callvirt instance void class System.Threading.Channels.AsyncOperation`2<class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>, !T>::DangerousSetResult(!1)
+			IL_0068: br.s IL_0074
+
+			IL_006a: ldloc.2
+			IL_006b: brfalse.s IL_0074
+
+			IL_006d: ldloc.2
+			IL_006e: ldc.i4.1
+			IL_006f: call void System.Threading.Channels.ChannelUtilities::DangerousSetOperations<class System.Threading.Channels.WaitingReadAsyncOperation, bool>(!!0, !!1)
+
+			IL_0074: ldc.i4.1
+			IL_0075: ret
+
+			IL_0076: ldloc.s 5
+			IL_0078: ret
+		} // end of method UnboundedChannelWriter::TryWrite
+
+		.method public hidebysig virtual 
+			instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool> WaitToWriteAsync (
+				valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+			) cil managed 
+		{
+			// Method begins at RVA 0x62b4
+			// Header size: 12
+			// Code size: 73 (0x49)
+			.maxstack 2
+			.locals (
+				[0] class [System.Runtime]System.Exception,
+				[1] valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelWriter<!T>::_parent
+			IL_0006: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+			IL_000b: stloc.0
+			IL_000c: ldarga.s cancellationToken
+			IL_000e: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+			IL_0013: brtrue.s IL_003d
+
+			IL_0015: ldloc.0
+			IL_0016: brfalse.s IL_0036
+
+			IL_0018: ldloc.0
+			IL_0019: ldsfld class [System.Runtime]System.Exception System.Threading.Channels.ChannelUtilities::s_doneWritingSentinel
+			IL_001e: bne.un.s IL_002a
+
+			IL_0020: ldloca.s 1
+			IL_0022: initobj valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>
+			IL_0028: ldloc.1
+			IL_0029: ret
+
+			IL_002a: ldloc.0
+			IL_002b: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromException<bool>(class [System.Runtime]System.Exception)
+			IL_0030: newobj instance void valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>::.ctor(class [System.Runtime]System.Threading.Tasks.Task`1<!0>)
+			IL_0035: ret
+
+			IL_0036: ldc.i4.1
+			IL_0037: newobj instance void valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>::.ctor(!0)
+			IL_003c: ret
+
+			IL_003d: ldarg.1
+			IL_003e: call class [System.Runtime]System.Threading.Tasks.Task`1<!!0> [System.Runtime]System.Threading.Tasks.Task::FromCanceled<bool>(valuetype [System.Runtime]System.Threading.CancellationToken)
+			IL_0043: newobj instance void valuetype [System.Runtime]System.Threading.Tasks.ValueTask`1<bool>::.ctor(class [System.Runtime]System.Threading.Tasks.Task`1<!0>)
+			IL_0048: ret
+		} // end of method UnboundedChannelWriter::WaitToWriteAsync
+
+		.method public hidebysig virtual 
+			instance valuetype [System.Runtime]System.Threading.Tasks.ValueTask WriteAsync (
+				!T item,
+				valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+			) cil managed 
+		{
+			// Method begins at RVA 0x630c
+			// Header size: 12
+			// Code size: 67 (0x43)
+			.maxstack 2
+			.locals (
+				[0] valuetype [System.Runtime]System.Threading.Tasks.ValueTask
+			)
+
+			IL_0000: ldarga.s cancellationToken
+			IL_0002: call instance bool [System.Runtime]System.Threading.CancellationToken::get_IsCancellationRequested()
+			IL_0007: brtrue.s IL_0037
+
+			IL_0009: ldarg.0
+			IL_000a: ldarg.1
+			IL_000b: callvirt instance bool class System.Threading.Channels.ChannelWriter`1<!T>::TryWrite(!0)
+			IL_0010: brtrue.s IL_002d
+
+			IL_0012: ldarg.0
+			IL_0013: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelWriter<!T>::_parent
+			IL_0018: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+			IL_001d: call class [System.Runtime]System.Exception System.Threading.Channels.ChannelUtilities::CreateInvalidCompletionException(class [System.Runtime]System.Exception)
+			IL_0022: call class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Threading.Tasks.Task::FromException(class [System.Runtime]System.Exception)
+			IL_0027: newobj instance void [System.Runtime]System.Threading.Tasks.ValueTask::.ctor(class [System.Runtime]System.Threading.Tasks.Task)
+			IL_002c: ret
+
+			IL_002d: ldloca.s 0
+			IL_002f: initobj [System.Runtime]System.Threading.Tasks.ValueTask
+			IL_0035: ldloc.0
+			IL_0036: ret
+
+			IL_0037: ldarg.2
+			IL_0038: call class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Threading.Tasks.Task::FromCanceled(valuetype [System.Runtime]System.Threading.CancellationToken)
+			IL_003d: newobj instance void [System.Runtime]System.Threading.Tasks.ValueTask::.ctor(class [System.Runtime]System.Threading.Tasks.Task)
+			IL_0042: ret
+		} // end of method UnboundedChannelWriter::WriteAsync
+
+		.method private hidebysig specialname 
+			instance int32 get_ItemsCountForDebugger () cil managed 
+		{
+			// Method begins at RVA 0x635b
+			// Header size: 1
+			// Code size: 17 (0x11)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelWriter<!T>::_parent
+			IL_0006: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+			IL_000b: callvirt instance int32 class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::get_Count()
+			IL_0010: ret
+		} // end of method UnboundedChannelWriter::get_ItemsCountForDebugger
+
+		.method private final hidebysig newslot virtual 
+			instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!T> 'System.Threading.Channels.IDebugEnumerable<T>.GetEnumerator' () cil managed 
+		{
+			.override method instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class System.Threading.Channels.IDebugEnumerable`1<!T>::GetEnumerator()
+			// Method begins at RVA 0x636d
+			// Header size: 1
+			// Code size: 17 (0x11)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class System.Threading.Channels.UnboundedChannel`1<!0> class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelWriter<!T>::_parent
+			IL_0006: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+			IL_000b: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::GetEnumerator()
+			IL_0010: ret
+		} // end of method UnboundedChannelWriter::'System.Threading.Channels.IDebugEnumerable<T>.GetEnumerator'
+
+		// Properties
+		.property instance int32 ItemsCountForDebugger()
+		{
+			.get instance int32 System.Threading.Channels.UnboundedChannel`1/UnboundedChannelWriter::get_ItemsCountForDebugger()
+		}
+
+	} // end of class UnboundedChannelWriter
+
+	.class nested private auto ansi sealed serializable beforefieldinit '<>c'<T>
+		extends [System.Runtime]System.Object
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Fields
+		.field public static initonly class System.Threading.Channels.UnboundedChannel`1/'<>c'<!T> '<>9'
+		.field public static class [System.Runtime]System.Action`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!T>, class System.Threading.Channels.AsyncOperation>> '<>9__13_1'
+
+		// Methods
+		.method private hidebysig specialname rtspecialname static 
+			void .cctor () cil managed 
+		{
+			// Method begins at RVA 0x637f
+			// Header size: 1
+			// Code size: 11 (0xb)
+			.maxstack 8
+
+			IL_0000: newobj instance void class System.Threading.Channels.UnboundedChannel`1/'<>c'<!T>::.ctor()
+			IL_0005: stsfld class System.Threading.Channels.UnboundedChannel`1/'<>c'<!0> class System.Threading.Channels.UnboundedChannel`1/'<>c'<!T>::'<>9'
+			IL_000a: ret
+		} // end of method '<>c'::.cctor
+
+		.method public hidebysig specialname rtspecialname 
+			instance void .ctor () cil managed 
+		{
+			// Method begins at RVA 0x2e08
+			// Header size: 1
+			// Code size: 7 (0x7)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+			IL_0006: ret
+		} // end of method '<>c'::.ctor
+
+		.method assembly hidebysig 
+			instance void '<get_CancellationCallbackDelegate>b__13_1' (
+				valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!T>, class System.Threading.Channels.AsyncOperation> state
+			) cil managed 
+		{
+			// Method begins at RVA 0x638c
+			// Header size: 12
+			// Code size: 107 (0x6b)
+			.maxstack 2
+			.locals (
+				[0] object,
+				[1] bool,
+				[2] class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>,
+				[3] class System.Threading.Channels.WaitingReadAsyncOperation,
+				[4] class System.Threading.Channels.AsyncOperation
+			)
+
+			IL_0000: ldarga.s state
+			IL_0002: call instance !0 valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!T>, class System.Threading.Channels.AsyncOperation>::get_Key()
+			IL_0007: callvirt instance object class System.Threading.Channels.UnboundedChannel`1<!T>::get_SyncObj()
+			IL_000c: stloc.0
+			IL_000d: ldc.i4.0
+			IL_000e: stloc.1
+			.try
+			{
+				IL_000f: ldloc.0
+				IL_0010: ldloca.s 1
+				IL_0012: call void [System.Threading]System.Threading.Monitor::Enter(object, bool&)
+				IL_0017: ldarga.s state
+				IL_0019: call instance !1 valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!T>, class System.Threading.Channels.AsyncOperation>::get_Value()
+				IL_001e: stloc.s 4
+				IL_0020: ldloc.s 4
+				IL_0022: isinst class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>
+				IL_0027: stloc.2
+				IL_0028: ldloc.2
+				IL_0029: brtrue.s IL_0038
+
+				IL_002b: ldloc.s 4
+				IL_002d: isinst System.Threading.Channels.WaitingReadAsyncOperation
+				IL_0032: stloc.3
+				IL_0033: ldloc.3
+				IL_0034: brtrue.s IL_004c
+
+				IL_0036: leave.s IL_006a
+
+				IL_0038: ldarga.s state
+				IL_003a: call instance !0 valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!T>, class System.Threading.Channels.AsyncOperation>::get_Key()
+				IL_003f: ldflda class System.Threading.Channels.BlockedReadAsyncOperation`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_blockedReadersHead
+				IL_0044: ldloc.2
+				IL_0045: call void System.Threading.Channels.ChannelUtilities::Remove<class System.Threading.Channels.BlockedReadAsyncOperation`1<!T>>(!!0&, !!0)
+				IL_004a: leave.s IL_006a
+
+				IL_004c: ldarga.s state
+				IL_004e: call instance !0 valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!T>, class System.Threading.Channels.AsyncOperation>::get_Key()
+				IL_0053: ldflda class System.Threading.Channels.WaitingReadAsyncOperation class System.Threading.Channels.UnboundedChannel`1<!T>::_waitingReadersHead
+				IL_0058: ldloc.3
+				IL_0059: call void System.Threading.Channels.ChannelUtilities::Remove<class System.Threading.Channels.WaitingReadAsyncOperation>(!!0&, !!0)
+				IL_005e: leave.s IL_006a
+			} // end .try
+			finally
+			{
+				IL_0060: ldloc.1
+				IL_0061: brfalse.s IL_0069
+
+				IL_0063: ldloc.0
+				IL_0064: call void [System.Threading]System.Threading.Monitor::Exit(object)
+
+				IL_0069: endfinally
+			} // end handler
+
+			IL_006a: ret
+		} // end of method '<>c'::'<get_CancellationCallbackDelegate>b__13_1'
+
+	} // end of class <>c
+
+
+	// Fields
+	.field private initonly class [System.Runtime]System.Threading.Tasks.TaskCompletionSource _completion
+	.field private initonly class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T> _items
+	.field private initonly bool _runContinuationsAsynchronously
+	.field private class System.Threading.Channels.BlockedReadAsyncOperation`1<!T> _blockedReadersHead
+	.field private class System.Threading.Channels.WaitingReadAsyncOperation _waitingReadersHead
+	.field private class [System.Runtime]System.Exception _doneWriting
+	.field private class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken> '<CancellationCallbackDelegate>k__BackingField'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+
+	// Methods
+	.method assembly hidebysig specialname rtspecialname 
+		instance void .ctor (
+			bool runContinuationsAsynchronously
+		) cil managed 
+	{
+		// Method begins at RVA 0x5d64
+		// Header size: 12
+		// Code size: 68 (0x44)
+		.maxstack 2
+
+		IL_0000: ldarg.0
+		IL_0001: newobj instance void class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::.ctor()
+		IL_0006: stfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+		IL_000b: ldarg.0
+		IL_000c: call instance void class System.Threading.Channels.Channel`1<!T>::.ctor()
+		IL_0011: ldarg.0
+		IL_0012: ldarg.1
+		IL_0013: stfld bool class System.Threading.Channels.UnboundedChannel`1<!T>::_runContinuationsAsynchronously
+		IL_0018: ldarg.0
+		IL_0019: ldarg.1
+		IL_001a: brtrue.s IL_001f
+
+		IL_001c: ldc.i4.0
+		IL_001d: br.s IL_0021
+
+		IL_001f: ldc.i4.s 64
+
+		IL_0021: newobj instance void [System.Runtime]System.Threading.Tasks.TaskCompletionSource::.ctor(valuetype [System.Runtime]System.Threading.Tasks.TaskCreationOptions)
+		IL_0026: stfld class [System.Runtime]System.Threading.Tasks.TaskCompletionSource class System.Threading.Channels.UnboundedChannel`1<!T>::_completion
+		IL_002b: ldarg.0
+		IL_002c: ldarg.0
+		IL_002d: newobj instance void class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelReader<!T>::.ctor(class System.Threading.Channels.UnboundedChannel`1<!0>)
+		IL_0032: call instance void class System.Threading.Channels.Channel`2<!T, !T>::set_Reader(class System.Threading.Channels.ChannelReader`1<!1>)
+		IL_0037: ldarg.0
+		IL_0038: ldarg.0
+		IL_0039: newobj instance void class System.Threading.Channels.UnboundedChannel`1/UnboundedChannelWriter<!T>::.ctor(class System.Threading.Channels.UnboundedChannel`1<!0>)
+		IL_003e: call instance void class System.Threading.Channels.Channel`2<!T, !T>::set_Writer(class System.Threading.Channels.ChannelWriter`1<!0>)
+		IL_0043: ret
+	} // end of method UnboundedChannel`1::.ctor
+
+	.method private hidebysig specialname 
+		instance object get_SyncObj () cil managed 
+	{
+		// Method begins at RVA 0x5db4
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+		IL_0006: ret
+	} // end of method UnboundedChannel`1::get_SyncObj
+
+	.method private hidebysig specialname 
+		instance class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken> get_CancellationCallbackDelegate () cil managed 
+	{
+		// Method begins at RVA 0x5dbc
+		// Header size: 12
+		// Code size: 32 (0x20)
+		.maxstack 3
+		.locals (
+			[0] class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken> class System.Threading.Channels.UnboundedChannel`1<!T>::'<CancellationCallbackDelegate>k__BackingField'
+		IL_0006: dup
+		IL_0007: brtrue.s IL_001f
+
+		IL_0009: pop
+		IL_000a: ldarg.0
+		IL_000b: ldarg.0
+		IL_000c: ldftn instance void class System.Threading.Channels.UnboundedChannel`1<!T>::'<get_CancellationCallbackDelegate>b__13_0'(object, valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_0012: newobj instance void class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken>::.ctor(object, native int)
+		IL_0017: dup
+		IL_0018: stloc.0
+		IL_0019: stfld class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken> class System.Threading.Channels.UnboundedChannel`1<!T>::'<CancellationCallbackDelegate>k__BackingField'
+		IL_001e: ldloc.0
+
+		IL_001f: ret
+	} // end of method UnboundedChannel`1::get_CancellationCallbackDelegate
+
+	.method private hidebysig specialname 
+		instance int32 get_ItemsCountForDebugger () cil managed 
+	{
+		// Method begins at RVA 0x5de8
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+		IL_0006: callvirt instance int32 class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::get_Count()
+		IL_000b: ret
+	} // end of method UnboundedChannel`1::get_ItemsCountForDebugger
+
+	.method private hidebysig specialname 
+		instance bool get_ChannelIsClosedForDebugger () cil managed 
+	{
+		// Method begins at RVA 0x5df5
+		// Header size: 1
+		// Code size: 13 (0xd)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.Exception class System.Threading.Channels.UnboundedChannel`1<!T>::_doneWriting
+		IL_0006: ldnull
+		IL_0007: ceq
+		IL_0009: ldc.i4.0
+		IL_000a: ceq
+		IL_000c: ret
+	} // end of method UnboundedChannel`1::get_ChannelIsClosedForDebugger
+
+	.method private final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!T> 'System.Threading.Channels.IDebugEnumerable<T>.GetEnumerator' () cil managed 
+	{
+		.override method instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class System.Threading.Channels.IDebugEnumerable`1<!T>::GetEnumerator()
+		// Method begins at RVA 0x5e03
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!0> class System.Threading.Channels.UnboundedChannel`1<!T>::_items
+		IL_0006: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentQueue`1<!T>::GetEnumerator()
+		IL_000b: ret
+	} // end of method UnboundedChannel`1::'System.Threading.Channels.IDebugEnumerable<T>.GetEnumerator'
+
+	.method private hidebysig 
+		instance void '<get_CancellationCallbackDelegate>b__13_0' (
+			object state,
+			valuetype [System.Runtime]System.Threading.CancellationToken cancellationToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x5e10
+		// Header size: 12
+		// Code size: 60 (0x3c)
+		.maxstack 3
+		.locals (
+			[0] class System.Threading.Channels.AsyncOperation
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: castclass System.Threading.Channels.AsyncOperation
+		IL_0006: stloc.0
+		IL_0007: ldloc.0
+		IL_0008: ldarg.2
+		IL_0009: callvirt instance bool System.Threading.Channels.AsyncOperation::TrySetCanceled(valuetype [System.Runtime]System.Threading.CancellationToken)
+		IL_000e: brfalse.s IL_003b
+
+		IL_0010: ldsfld class [System.Runtime]System.Action`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!0>, class System.Threading.Channels.AsyncOperation>> class System.Threading.Channels.UnboundedChannel`1/'<>c'<!T>::'<>9__13_1'
+		IL_0015: dup
+		IL_0016: brtrue.s IL_002f
+
+		IL_0018: pop
+		IL_0019: ldsfld class System.Threading.Channels.UnboundedChannel`1/'<>c'<!0> class System.Threading.Channels.UnboundedChannel`1/'<>c'<!T>::'<>9'
+		IL_001e: ldftn instance void class System.Threading.Channels.UnboundedChannel`1/'<>c'<!T>::'<get_CancellationCallbackDelegate>b__13_1'(valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!0>, class System.Threading.Channels.AsyncOperation>)
+		IL_0024: newobj instance void class [System.Runtime]System.Action`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!T>, class System.Threading.Channels.AsyncOperation>>::.ctor(object, native int)
+		IL_0029: dup
+		IL_002a: stsfld class [System.Runtime]System.Action`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!0>, class System.Threading.Channels.AsyncOperation>> class System.Threading.Channels.UnboundedChannel`1/'<>c'<!T>::'<>9__13_1'
+
+		IL_002f: ldarg.0
+		IL_0030: ldloc.0
+		IL_0031: newobj instance void valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!T>, class System.Threading.Channels.AsyncOperation>::.ctor(!0, !1)
+		IL_0036: call void System.Threading.Channels.ChannelUtilities::UnsafeQueueUserWorkItem<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<class System.Threading.Channels.UnboundedChannel`1<!T>, class System.Threading.Channels.AsyncOperation>>(class [System.Runtime]System.Action`1<!!0>, !!0)
+
+		IL_003b: ret
+	} // end of method UnboundedChannel`1::'<get_CancellationCallbackDelegate>b__13_0'
+
+	// Properties
+	.property instance object SyncObj()
+	{
+		.get instance object System.Threading.Channels.UnboundedChannel`1::get_SyncObj()
+	}
+	.property instance class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken> CancellationCallbackDelegate()
+	{
+		.get instance class [System.Runtime]System.Action`2<object, valuetype [System.Runtime]System.Threading.CancellationToken> System.Threading.Channels.UnboundedChannel`1::get_CancellationCallbackDelegate()
+	}
+	.property instance int32 ItemsCountForDebugger()
+	{
+		.get instance int32 System.Threading.Channels.UnboundedChannel`1::get_ItemsCountForDebugger()
+	}
+	.property instance bool ChannelIsClosedForDebugger()
+	{
+		.get instance bool System.Threading.Channels.UnboundedChannel`1::get_ChannelIsClosedForDebugger()
+	}
+
+} // end of class System.Threading.Channels.UnboundedChannel`1

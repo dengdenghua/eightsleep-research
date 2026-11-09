@@ -1,0 +1,4496 @@
+
+=== S01 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara/HostExtensions.cs ===
+SHA256 2403b23de1447a9219678bff05963e5059503e047c4f607ba72d4d1f3a0ec430
+0001: using System;
+0002: using Eight.Audio;
+0003: using Eight.Capybara.AutoPairing;
+0004: using Eight.Capybara.Ble;
+0005: using Eight.Capybara.Ble.Characteristics;
+0006: using Eight.Capybara.DBus;
+0007: using Eight.Capybara.DeviceApi;
+0008: using Eight.Capybara.Extensions;
+0009: using Eight.Capybara.Firmness;
+0010: using Eight.Cavia;
+0011: using Eight.DBus;
+0012: using Eight.DeviceApiClient;
+0013: using Eight.Firmness.Extensions;
+0014: using Eight.Firmness.Models;
+0015: using Eight.Firmness.Services;
+0016: using Eight.Lsp.Subsystems.Models;
+0017: using Eight.Nats.Extensions;
+0018: using Eight.Nats.State;
+0019: using Eight.Wifi;
+0020: using Eight.Wifi.Scan;
+0021: using Microsoft.Extensions.Configuration;
+0022: using Microsoft.Extensions.DependencyInjection;
+0023: using Microsoft.Extensions.Hosting;
+0024: using Microsoft.Extensions.Logging;
+0025: using NodaTime;
+0026: using Serilog;
+0027: using Serilog.Events;
+0028: using Serilog.Formatting.Json;
+0029: 
+0030: namespace Eight.Capybara;
+0031: 
+0032: public static class HostExtensions
+0033: {
+0034: 	private static IHostBuilder ConfigureCapybara(this IHostBuilder hostBuilder, IPod3Hardware podHardware, Eight.Wifi.NetworkManager nm, WifiDevice wifiDevice)
+0035: 	{
+0036: 		return hostBuilder.ConfigureServices((HostBuilderContext context, IServiceCollection services) =>
+0037: 		{
+0038: 			services.AddSingleton(podHardware);
+0039: 			services.AddSingleton<IAdapterProvider, AdapterProvider>();
+0040: 			services.AddSingleton<IBluetoothHealthProbe, BluetoothHealthProbe>();
+0041: 			services.AddSingleton(wifiDevice);
+0042: 			services.AddSingleton((IServiceProvider sp) => sp.GetRequiredService<IPod3Hardware>().HardwareInfo);
+0043: 			services.AddSingleton((IServiceProvider sp) => sp.GetRequiredService<IPod3Hardware>().Buttons);
+0044: 			services.AddHostedService<CapybaraWorker>();
+0045: 			services.AddHostedButtonService();
+0046: 			services.AddHostedService<FrankMonitor>();
+0047: 			services.AddHostedService<BleHealthMonitorService>();
+0048: 			services.AddLeakMonitoring();
+0049: 			services.AddStatsd();
+0050: 			services.AddPairingServices();
+0051: 			services.RegisterHandlers(fullFeatures: true);
+0052: 			services.AddDeviceAPIService(podHardware.HardwareInfo.DeviceCertificateChainPem);
+0053: 			services.AddPodConfigurationManager();
+0054: 			services.AddDBus();
+0055: 			services.AddAdjustableBase();
+0056: 			services.AddSpeaker();
+0057: 			services.AddBleCommunication();
+0058: 			services.AddFirmnessServices();
+0059: 			services.PostConfigure((BalloonOptions options) =>
+0060: 			{
+0061: 				options.DeviceId = podHardware.HardwareInfo.DeviceId.Raw;
+0062: 				string text = (options.MachineSection = MachineConfig.ResolveSectionKey(context.Configuration, podHardware.HardwareInfo.Label.HwRev));
+0063: 				IConfigurationSection section = context.Configuration.GetSection(text + ":firmness:usbPortConfig");
+0064: 				if (section.Exists())
+0065: 				{
+0066: 					UsbPortConfig usbPortConfig = new UsbPortConfig();
+0067: 					section.Bind(usbPortConfig);
+0068: 					options.UsbPortConfig = usbPortConfig;
+0069: 				}
+0070: 				string[] array = context.Configuration.GetSection(text + ":firmness:usbRoots").Get<string[]>();
+0071: 				if (array != null && array.Length > 0)
+0072: 				{
+0073: 					options.UsbRoots = array;
+0074: 				}
+0075: 			});
+0076: 			services.AddNatsPublisher();
+0077: 			services.AddNatsMonitoring();
+0078: 			services.AddAccessoryMetrics();
+0079: 			services.AddDeviceStatePlane();
+0080: 			services.AddDeviceStateKey("frank.frozen.priming", "frank", "frozen", (DeviceStateEnvelope env) => PrimingStateMapper.Map(env.Payload), PrimingReadBody.Fallback, null, (bool frankIsFresh) => (!frankIsFresh) ? PrimingReadBody.Fallback : PrimingReadBody.FrozenUnavailable);
+0081: 			services.AddDeviceStateKey("frank.frozen.cap", "frank", "frozen", (DeviceStateEnvelope env) => CapStateMapper.Map(env.Payload), CapReadBody.Fallback);
+0082: 			services.AddSingleton((IServiceProvider sp) => Dac.Create(sp.GetRequiredService<ILogger<Dac>>()));
+0083: 			services.AddSingleton((IServiceProvider _) => DeviceSpecialization.FromPath("/persistent/deviceinfo"));
+0084: 			services.AddSingleton<IFirmnessGate, SpecializationFirmnessGate>();
+0085: 		});
+0086: 	}
+0087: 
+0088: 	private static IHostBuilder ConfigureCavia(this IHostBuilder hostBuilder, IPod3Hardware podHardware, Eight.Wifi.NetworkManager nm, WifiDevice wifiDevice)
+0089: 	{
+0090: 		NetworkScanner scanner = new NetworkScanner(wifiDevice);
+0091: 		NetworkStateMonitor networkStateMonitor = new NetworkStateMonitor(wifiDevice, nm);
+0092: 		WifiSetup wifiSetup = new WifiSetup(scanner, nm, wifiDevice, networkStateMonitor);
+0093: 		return hostBuilder.ConfigureServices((IServiceCollection services) =>
+0094: 		{
+0095: 			services.AddSingleton(podHardware);
+0096: 			services.AddSingleton(wifiSetup);
+0097: 			services.AddScoped((IServiceProvider sp) => new UsbRetriever(sp.GetRequiredService<ILogger<UsbRetriever>>()));
+0098: 			services.AddSingleton((IServiceProvider sp) => Dac.Create(sp.GetRequiredService<ILogger<Dac>>()));
+0099: 			services.AddHostedService<CaviaService>();
+0100: 			services.RegisterHandlers(fullFeatures: false);
+0101: 			services.AddDeviceAPIService(podHardware.HardwareInfo.DeviceCertificateChainPem);
+0102: 		});
+0103: 	}
+0104: 
+0105: 	public static IHostBuilder ConfigureServices(this IHostBuilder hostBuilder, IRunInfoManager runInfoManager, IPod3Hardware podHardware, Eight.Wifi.NetworkManager nm, WifiDevice wifiDevice, bool startInPairingMode)
+0106: 	{
+0107: 		PairingMode pairingMode = new PairingMode(startInPairingMode);
+0108: 		hostBuilder.ConfigureServices((IServiceCollection services) =>
+0109: 		{
+0110: 			services.AddSerilog((IServiceProvider sp, LoggerConfiguration loggerConfiguration) =>
+0111: 			{
+0112: 				loggerConfiguration.ConfigureCapybaraLogging(sp.GetRequiredService<IConfiguration>());
+0113: 			});
+0114: 			services.AddSingleton(runInfoManager).AddSingleton((IPairingMode)pairingMode);
+0115: 			services.AddSingleton(nm);
+0116: 			services.AddHostedService<SystemdWatchdogService>();
+0117: 		});
+0118: 		return runInfoManager.LaunchType switch
+0119: 		{
+0120: 			LaunchType.Capybara => hostBuilder.ConfigureCapybara(podHardware, nm, wifiDevice), 
+0121: 			LaunchType.Cavia => hostBuilder.ConfigureCavia(podHardware, nm, wifiDevice), 
+0122: 			_ => throw new ArgumentException($"Unknown launch type: {runInfoManager.LaunchType}"), 
+0123: 		};
+0124: 	}
+0125: 
+0126: 	public static LoggerConfiguration ConfigureCapybaraLogging(this LoggerConfiguration loggerConfiguration, IConfiguration configuration)
+0127: 	{
+0128: 		IConfigurationSection section = configuration.GetSection("logging");
+0129: 		loggerConfiguration.MinimumLevel.Is(ParseLogLevel(section["minimumLevel"])).Enrich.FromLogContext().WriteTo.Console(new JsonFormatter(null, renderMessage: true)).ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+0130: 		foreach (IConfigurationSection child in section.GetSection("overrides").GetChildren())
+0131: 		{
+0132: 			loggerConfiguration.MinimumLevel.Override(child.Key, ParseLogLevel(child.Value));
+0133: 		}
+0134: 		return loggerConfiguration;
+0135: 	}
+0136: 
+0137: 	private static LogEventLevel ParseLogLevel(string? level)
+0138: 	{
+0139: 		switch (level?.ToLowerInvariant())
+0140: 		{
+0141: 		case "verbose":
+0142: 			return LogEventLevel.Verbose;
+0143: 		case "debug":
+0144: 			return LogEventLevel.Debug;
+0145: 		case "info":
+0146: 		case "information":
+0147: 			return LogEventLevel.Information;
+0148: 		case "warning":
+0149: 		case "warn":
+0150: 			return LogEventLevel.Warning;
+0151: 		case "error":
+0152: 			return LogEventLevel.Error;
+0153: 		case "fatal":
+0154: 			return LogEventLevel.Fatal;
+0155: 		default:
+0156: 			return LogEventLevel.Information;
+0157: 		}
+0158: 	}
+0159: }
+
+=== S02 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.Extensions/HandlerExtensions.cs ===
+SHA256 9fab25d2b278082da43b8c75f5abbce141e75d59a6da7d2cd7d3408919ce6e3f
+0001: using System;
+0002: using System.IO;
+0003: using Eight.Capybara.AutoPairing;
+0004: using Eight.Capybara.DeviceAPI.Handlers;
+0005: using Eight.DBus;
+0006: using Eight.DeviceApiClient;
+0007: using Eight.Firmness.Extensions;
+0008: using Microsoft.Extensions.DependencyInjection;
+0009: using Microsoft.Extensions.Logging;
+0010: 
+0011: namespace Eight.Capybara.Extensions;
+0012: 
+0013: public static class HandlerExtensions
+0014: {
+0015: 	public static IServiceCollection RegisterAlarmsController(this IServiceCollection serviceCollection)
+0016: 	{
+0017: 		return serviceCollection;
+0018: 	}
+0019: 
+0020: 	public static IServiceCollection RegisterRemoteConnectivityController(this IServiceCollection serviceCollection)
+0021: 	{
+0022: 		serviceCollection.AddSingleton((IServiceProvider s) => new RemoteConnectivityService(s.GetRequiredService<ILogger<RemoteConnectivityService>>(), "remote-connectivity-api.8slp.net", new FileInfo("/run/dac/ssh_key"), s.GetRequiredService<IPairingMode>()));
+0023: 		serviceCollection.AddScopedController<RemoteConnectivityController>();
+0024: 		return serviceCollection;
+0025: 	}
+0026: 
+0027: 	public static IServiceCollection RegisterBedFrameController(this IServiceCollection serviceCollection)
+0028: 	{
+0029: 		serviceCollection.AddScopedController<AdjustableBaseController>();
+0030: 		serviceCollection.AddScopedController<DebugAdjustableBaseController>();
+0031: 		return serviceCollection;
+0032: 	}
+0033: 
+0034: 	public static IServiceCollection RegisterLeakController(this IServiceCollection serviceCollection)
+0035: 	{
+0036: 		serviceCollection.AddScopedController<LeakController>();
+0037: 		return serviceCollection;
+0038: 	}
+0039: 
+0040: 	public static IServiceCollection RegisterPairingController(this IServiceCollection serviceCollection)
+0041: 	{
+0042: 		serviceCollection.AddPairingServices();
+0043: 		serviceCollection.AddScopedController<PairingController>();
+0044: 		return serviceCollection;
+0045: 	}
+0046: 
+0047: 	public static IServiceCollection RegisterSpeakerController(this IServiceCollection serviceCollection)
+0048: 	{
+0049: 		serviceCollection.AddScopedController<SpeakerController>();
+0050: 		serviceCollection.AddScopedController<DebugSpeakerController>();
+0051: 		return serviceCollection;
+0052: 	}
+0053: 
+0054: 	public static IServiceCollection RegisterHandlers(this IServiceCollection serviceCollection, bool fullFeatures)
+0055: 	{
+0056: 		if (fullFeatures)
+0057: 		{
+0058: 			serviceCollection.RegisterAlarmsController();
+0059: 			serviceCollection.RegisterBedFrameController();
+0060: 			serviceCollection.RegisterSpeakerController();
+0061: 			serviceCollection.RegisterFirmnessController();
+0062: 			serviceCollection.RegisterLeakController();
+0063: 			serviceCollection.AddScopedController<DebugNetworkingController>();
+0064: 		}
+0065: 		serviceCollection.RegisterRemoteConnectivityController();
+0066: 		serviceCollection.RegisterPairingController();
+0067: 		return serviceCollection;
+0068: 	}
+0069: }
+
+=== S03 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.Extensions/DeviceApiExtensions.cs ===
+SHA256 d1276265756d72f58c1c975e65492a24e90db05631296ff53c8a23a49b6e8181
+0001: using Eight.DeviceApiClient;
+0002: using Eight.Firmness.DeviceAPI;
+0003: using Microsoft.Extensions.DependencyInjection;
+0004: 
+0005: namespace Eight.Firmness.Extensions;
+0006: 
+0007: public static class DeviceApiExtensions
+0008: {
+0009: 	public static IServiceCollection RegisterFirmnessController(this IServiceCollection services)
+0010: 	{
+0011: 		services.AddScopedController<FirmnessController>();
+0012: 		services.AddScopedController<FirmnessDebugController>();
+0013: 		services.AddScopedController<FirmnessPresetController>();
+0014: 		services.AddScopedController<SubsystemDebugController>();
+0015: 		services.AddScopedController<CalibrationController>();
+0016: 		services.AddScopedController<TelemetryProfileDebugController>();
+0017: 		services.AddScopedController<ToleranceDebugController>();
+0018: 		return services;
+0019: 	}
+0020: }
+
+=== S04 analysis/sleep-pipeline/decompiled/Eight.Nats/Eight.Nats.Extensions/ServiceCollectionExtensions.cs ===
+SHA256 982b228a8193d8f23fc4734c57208665965941fe3ab4f7f0a5d53cdd55b3ba9c
+0001: using System;
+0002: using Eight.DeviceApiClient;
+0003: using Eight.Nats.DeviceAPI;
+0004: using Eight.Nats.Metrics;
+0005: using Eight.Nats.Monitoring;
+0006: using Microsoft.Extensions.Configuration;
+0007: using Microsoft.Extensions.DependencyInjection;
+0008: using Microsoft.Extensions.DependencyInjection.Extensions;
+0009: using Microsoft.Extensions.Logging;
+0010: using NATS.Client.Core;
+0011: using NodaTime;
+0012: 
+0013: namespace Eight.Nats.Extensions;
+0014: 
+0015: public static class ServiceCollectionExtensions
+0016: {
+0017: 	public static IServiceCollection AddNatsPublisher(this IServiceCollection services)
+0018: 	{
+0019: 		services.AddSingleton((IServiceProvider sp) =>
+0020: 		{
+0021: 			IConfiguration requiredService = sp.GetRequiredService<IConfiguration>();
+0022: 			string url = requiredService["nats:url"] ?? throw new InvalidOperationException("nats:url configuration is required");
+0023: 			string streamName = requiredService["nats:streamName"];
+0024: 			return new NatsPublisher(sp.GetRequiredService<ILogger<NatsPublisher>>(), sp.GetRequiredService<TimeProvider>(), new NatsOpts
+0025: 			{
+0026: 				Url = url,
+0027: 				ConnectTimeout = TimeSpan.FromSeconds(10L)
+0028: 			}, streamName);
+0029: 		});
+0030: 		services.AddSingleton((Func<IServiceProvider, INatsPublisher>)((IServiceProvider sp) => sp.GetRequiredService<NatsPublisher>()));
+0031: 		services.AddHostedService<NatsHostedService>();
+0032: 		return services;
+0033: 	}
+0034: 
+0035: 	public static IServiceCollection AddFleetMetrics(this IServiceCollection services)
+0036: 	{
+0037: 		services.TryAddSingleton((IClock)SystemClock.Instance);
+0038: 		services.TryAddSingleton(TimeProvider.System);
+0039: 		services.AddSingleton((IServiceProvider sp) =>
+0040: 		{
+0041: 			string url = sp.GetRequiredService<IConfiguration>()["nats:url"] ?? throw new InvalidOperationException("nats:url configuration is required");
+0042: 			return new NatsCoreMetricsTransport(new NatsOpts
+0043: 			{
+0044: 				Url = url,
+0045: 				Name = "capybara-metrics",
+0046: 				ConnectTimeout = TimeSpan.FromSeconds(2L)
+0047: 			});
+0048: 		});
+0049: 		services.AddSingleton((Func<IServiceProvider, IMetricsTransport>)((IServiceProvider sp) => sp.GetRequiredService<NatsCoreMetricsTransport>()));
+0050: 		services.AddSingleton((IServiceProvider sp) =>
+0051: 		{
+0052: 			string text = sp.GetRequiredService<IConfiguration>()["nats:metricsSubject"];
+0053: 			return new NatsFleetMetrics(sp.GetRequiredService<ILogger<NatsFleetMetrics>>(), sp.GetRequiredService<IClock>(), sp.GetRequiredService<TimeProvider>(), sp.GetRequiredService<IMetricsTransport>(), string.IsNullOrWhiteSpace(text) ? "metrics" : text);
+0054: 		});
+0055: 		services.AddSingleton((Func<IServiceProvider, IFleetMetrics>)((IServiceProvider sp) => sp.GetRequiredService<NatsFleetMetrics>()));
+0056: 		services.AddHostedService((IServiceProvider sp) => sp.GetRequiredService<NatsFleetMetrics>());
+0057: 		return services;
+0058: 	}
+0059: 
+0060: 	public static IServiceCollection AddNatsMonitoring(this IServiceCollection services)
+0061: 	{
+0062: 		services.AddSingleton((Func<IServiceProvider, INatsMonitoringClient>)((IServiceProvider sp) => new NatsMonitoringClient(sp.GetRequiredService<IConfiguration>()["nats:monitoringUrl"] ?? throw new InvalidOperationException("nats:monitoringUrl configuration is required"))));
+0063: 		services.AddScopedController<DebugNatsController>();
+0064: 		return services;
+0065: 	}
+0066: }
+
+=== S05 analysis/sleep-pipeline/decompiled/Eight.Capybara.DeviceApi/Eight.Capybara.DeviceApi/DeviceApiExtensions.cs ===
+SHA256 1302904bfff41c7233ca6308ffa364b1d7212333497c5496e2d09b381d263b9e
+0001: using System;
+0002: using Eight.DeviceApiClient;
+0003: using Microsoft.Extensions.Configuration;
+0004: using Microsoft.Extensions.DependencyInjection;
+0005: using Microsoft.Extensions.Logging;
+0006: 
+0007: namespace Eight.Capybara.DeviceApi;
+0008: 
+0009: public static class DeviceApiExtensions
+0010: {
+0011: 	public static IServiceCollection AddTestDeviceAPIService(this IServiceCollection services, string id)
+0012: 	{
+0013: 		AddDeviceAPIClient(services, new TestClientId(id));
+0014: 		return services;
+0015: 	}
+0016: 
+0017: 	public static IServiceCollection AddDeviceAPIService(this IServiceCollection services, string pem)
+0018: 	{
+0019: 		AddDeviceAPIClient(services, new CertificateClientId(pem));
+0020: 		return services;
+0021: 	}
+0022: 
+0023: 	private static IServiceCollection AddDeviceAPIClient(IServiceCollection services, ClientId id)
+0024: 	{
+0025: 		services.AddSingleton((IServiceProvider sp) =>
+0026: 		{
+0027: 			IConfigurationSection section = sp.GetRequiredService<IConfiguration>().GetSection("connections");
+0028: 			string uriString = section["deviceAPI"] ?? throw new InvalidOperationException("DeviceAPI endpoint not configured");
+0029: 			bool value = section.GetValue<bool>("allowInsecureTls");
+0030: 			return ConnectionHelpers.CreateConnection(new ConnectionOptions(new Uri(uriString), id, value), new LoggingOptions(sp.GetRequiredService<ILoggerProvider>(), null));
+0031: 		});
+0032: 		services.AddSingleton<ParameterParserFactory>();
+0033: 		services.AddSingleton(ScopedRouter.Create);
+0034: 		services.AddHostedService<DeviceAPIService>();
+0035: 		return services;
+0036: 	}
+0037: }
+
+=== S06 analysis/sleep-pipeline/decompiled/Eight.DeviceApiClient/Eight.DeviceApiClient/ConnectionOptions.cs ===
+SHA256 add58d05c929653fd88ef2e4401219fdbdcf6fa933b29a8d77b588865ef504c7
+0001: using System;
+0002: using System.Linq;
+0003: using System.Net.Security;
+0004: using System.Net.WebSockets;
+0005: using System.Security.Cryptography.X509Certificates;
+0006: using MessagePack.Resolvers;
+0007: using Microsoft.AspNetCore.Http.Connections;
+0008: using Microsoft.AspNetCore.Http.Connections.Client;
+0009: using Microsoft.AspNetCore.SignalR;
+0010: using Microsoft.AspNetCore.SignalR.Client;
+0011: using Microsoft.Extensions.DependencyInjection;
+0012: 
+0013: namespace Eight.DeviceApiClient;
+0014: 
+0015: public record ConnectionOptions(Uri Endpoint, ClientId ClientId, bool AllowInsecureTls = false)
+0016: {
+0017: 	private static readonly string[] EightHostSuffixes = new string[2] { ".8slp.net", ".8slp.net.cn" };
+0018: 
+0019: 	public IHubConnectionBuilder ApplyToBuilder(IHubConnectionBuilder builder)
+0020: 	{
+0021: 		return builder.WithUrl(Endpoint, ConfigureHttpConnection).AddMessagePackProtocol((MessagePackHubProtocolOptions cc) =>
+0022: 		{
+0023: 			cc.SerializerOptions.WithResolver(CompositeResolver.Create(NativeGuidResolver.Instance, StandardResolver.Instance));
+0024: 		});
+0025: 	}
+0026: 
+0027: 	public void ConfigureHttpConnection(HttpConnectionOptions options)
+0028: 	{
+0029: 		options.Transports = HttpTransportType.WebSockets;
+0030: 		options.SkipNegotiation = true;
+0031: 		RemoteCertificateValidationCallback validateCertificate = CreateServerCertificateValidator(Endpoint);
+0032: 		options.WebSocketConfiguration = (ClientWebSocketOptions sockets) =>
+0033: 		{
+0034: 			sockets.RemoteCertificateValidationCallback = (AllowInsecureTls ? ((RemoteCertificateValidationCallback)((object _, X509Certificate? _, X509Chain? _, SslPolicyErrors _) => true)) : validateCertificate);
+0035: 		};
+0036: 		ClientId.AuthenticateConnection(options);
+0037: 	}
+0038: 
+0039: 	internal static bool IsEightHost(string host)
+0040: 	{
+0041: 		return EightHostSuffixes.Any((string suffix) => host.Equals(suffix.TrimStart('.'), StringComparison.OrdinalIgnoreCase) || host.EndsWith(suffix, StringComparison.OrdinalIgnoreCase));
+0042: 	}
+0043: 
+0044: 	internal static RemoteCertificateValidationCallback CreateServerCertificateValidator(Uri endpoint)
+0045: 	{
+0046: 		return (object _, X509Certificate? _, X509Chain? _, SslPolicyErrors sslPolicyErrors) => sslPolicyErrors == SslPolicyErrors.None && IsEightHost(endpoint.Host);
+0047: 	}
+0048: }
+
+=== S07 analysis/sleep-pipeline/decompiled/Eight.DeviceApiClient/Eight.DeviceApiClient/CertificateClientId.cs ===
+SHA256 57c64d9f9f3f3ba37ae6e3d89087c67bc80452816c778f83e877f3fae36e5c0c
+0001: using System;
+0002: using System.Text;
+0003: using Microsoft.AspNetCore.Http.Connections.Client;
+0004: 
+0005: namespace Eight.DeviceApiClient;
+0006: 
+0007: public record CertificateClientId(string Pem) : ClientId
+0008: {
+0009: 	public override void AuthenticateConnection(HttpConnectionOptions options)
+0010: 	{
+0011: 		byte[] bytes = Encoding.UTF8.GetBytes(Pem);
+0012: 		options.Headers.Add("X-Ssl-Cert", Convert.ToBase64String(bytes));
+0013: 	}
+0014: }
+
+=== S08 analysis/sleep-pipeline/decompiled/Eight.Capybara.DeviceApi/Eight.Capybara.DeviceApi/DeviceAPIService.cs ===
+SHA256 2b6005188e4de29f6d4207365e283b4c7e3fe18637db3c9274c750b70f7851a3
+0001: using System;
+0002: using System.Net.WebSockets;
+0003: using System.Threading;
+0004: using System.Threading.Channels;
+0005: using System.Threading.Tasks;
+0006: using Eight.DeviceApiClient;
+0007: using Eight.DeviceProtocol;
+0008: using Microsoft.AspNetCore.SignalR.Client;
+0009: using Microsoft.Extensions.Logging;
+0010: 
+0011: namespace Eight.Capybara.DeviceApi;
+0012: 
+0013: public sealed class DeviceAPIService : Client
+0014: {
+0015: 	private new readonly Channel<Request> serverRequests = Channel.CreateUnbounded<Request>();
+0016: 
+0017: 	private TaskCompletionSource connectionClosedSource = new TaskCompletionSource();
+0018: 
+0019: 	public DeviceAPIService(ILogger<DeviceAPIService> logger, HubConnection hubConnection, IRouter router)
+0020: 		: base(hubConnection, router, logger)
+0021: 	{
+0022: 		DeviceAPIService deviceAPIService = this;
+0023: 		hubConnection.On("Request", async (Request a) =>
+0024: 		{
+0025: 			await deviceAPIService.serverRequests.Writer.WriteAsync(a);
+0026: 		});
+0027: 		hubConnection.Closed += (Exception? error) =>
+0028: 		{
+0029: 			logger.LogError(error, "device-api connection closed");
+0030: 			deviceAPIService.connectionClosedSource.SetResult();
+0031: 			return Task.CompletedTask;
+0032: 		};
+0033: 	}
+0034: 
+0035: 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+0036: 	{
+0037: 		ProcessRequests(serverRequests.Reader, stoppingToken);
+0038: 		int millisecondsDelay = Random.Shared.Next(0, 10000);
+0039: 		await Task.Delay(millisecondsDelay, stoppingToken);
+0040: 		while (!stoppingToken.IsCancellationRequested)
+0041: 		{
+0042: 			try
+0043: 			{
+0044: 				connectionClosedSource = new TaskCompletionSource();
+0045: 				using CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, new CancellationTokenSource(30000).Token);
+0046: 				await SetupConnection(linkedTokenSource.Token);
+0047: 				logger.LogInformation("device-api connected");
+0048: 				await connectionClosedSource.Task.WaitAsync(stoppingToken);
+0049: 			}
+0050: 			catch (TaskCanceledException)
+0051: 			{
+0052: 				stoppingToken.ThrowIfCancellationRequested();
+0053: 				millisecondsDelay = Random.Shared.Next(0, 10000);
+0054: 				logger.LogInformation("device-api connection closed, waiting {Milliseconds} milliseconds before attempting reconnect", millisecondsDelay);
+0055: 				await Task.Delay(millisecondsDelay, stoppingToken);
+0056: 			}
+0057: 			catch (WebSocketException exception)
+0058: 			{
+0059: 				millisecondsDelay = Random.Shared.Next(0, 10000);
+0060: 				logger.LogWarning(exception, "Failed to initialize connection to device-api, waiting {Milliseconds} milliseconds before attempting reconnect", millisecondsDelay);
+0061: 				await Task.Delay(millisecondsDelay, stoppingToken);
+0062: 			}
+0063: 			catch (Exception exception2)
+0064: 			{
+0065: 				millisecondsDelay = Random.Shared.Next(0, 10000);
+0066: 				logger.LogError(exception2, "Failed to initialize connection to device-api, waiting {Milliseconds} milliseconds before attempting reconnect", millisecondsDelay);
+0067: 				await Task.Delay(millisecondsDelay, stoppingToken);
+0068: 			}
+0069: 		}
+0070: 	}
+0071: }
+
+=== S09 analysis/sleep-pipeline/decompiled/Eight.DeviceApiClient/Eight.DeviceApiClient/Client.cs ===
+SHA256 bf54aca9419cf5150fffb699bb882ef60e866bff7a326d2c410c3a973874b996
+0001: using System;
+0002: using System.Threading;
+0003: using System.Threading.Channels;
+0004: using System.Threading.Tasks;
+0005: using Eight.DeviceProtocol;
+0006: using Microsoft.AspNetCore.SignalR.Client;
+0007: using Microsoft.Extensions.Hosting;
+0008: using Microsoft.Extensions.Logging;
+0009: 
+0010: namespace Eight.DeviceApiClient;
+0011: 
+0012: public class Client : BackgroundService
+0013: {
+0014: 	protected readonly HubConnection hubConnection;
+0015: 
+0016: 	private readonly IRouter router;
+0017: 
+0018: 	protected readonly ILogger<Client> logger;
+0019: 
+0020: 	protected readonly Channel<Request> serverRequests = Channel.CreateUnbounded<Request>();
+0021: 
+0022: 	public Client(HubConnection hubConnection, IRouter router, ILogger<Client> logger)
+0023: 	{
+0024: 		this.hubConnection = hubConnection;
+0025: 		this.router = router;
+0026: 		this.logger = logger;
+0027: 		hubConnection.On("Request", async (Request a) =>
+0028: 		{
+0029: 			await serverRequests.Writer.WriteAsync(a);
+0030: 		});
+0031: 	}
+0032: 
+0033: 	protected async Task SetupConnection(CancellationToken cancellationToken)
+0034: 	{
+0035: 		if (hubConnection.State != HubConnectionState.Disconnected)
+0036: 		{
+0037: 			throw new InvalidOperationException("already connected");
+0038: 		}
+0039: 		await hubConnection.StartAsync(cancellationToken);
+0040: 	}
+0041: 
+0042: 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+0043: 	{
+0044: 		await SetupConnection(stoppingToken);
+0045: 		await ProcessRequests(serverRequests.Reader, stoppingToken);
+0046: 	}
+0047: 
+0048: 	protected async Task ProcessRequests(ChannelReader<Request> requests, CancellationToken cancellation)
+0049: 	{
+0050: 		_ = 2;
+0051: 		try
+0052: 		{
+0053: 			await foreach (Request item in requests.ReadAllAsync(cancellation))
+0054: 			{
+0055: 				await ProcessRequest(item, cancellation);
+0056: 			}
+0057: 		}
+0058: 		catch (TaskCanceledException)
+0059: 		{
+0060: 		}
+0061: 		catch (Exception exception)
+0062: 		{
+0063: 			logger.LogError(exception, "Unhandled exception while processing server requests.");
+0064: 			throw;
+0065: 		}
+0066: 	}
+0067: 
+0068: 	private async Task ProcessRequest(Request request, CancellationToken cancellation)
+0069: 	{
+0070: 		_ = 1;
+0071: 		try
+0072: 		{
+0073: 			await TrySendResponse(await router.ExecuteRequest(request), cancellation);
+0074: 		}
+0075: 		catch (TaskCanceledException) when (cancellation.IsCancellationRequested)
+0076: 		{
+0077: 		}
+0078: 		catch (Exception exception)
+0079: 		{
+0080: 			logger.LogError(exception, "Unhandled exception while processing request.");
+0081: 		}
+0082: 	}
+0083: 
+0084: 	private async Task TrySendResponse(Response response, CancellationToken cancellation)
+0085: 	{
+0086: 		try
+0087: 		{
+0088: 			await hubConnection.InvokeAsync<bool>("Response", response, cancellation);
+0089: 		}
+0090: 		catch (TaskCanceledException) when (cancellation.IsCancellationRequested)
+0091: 		{
+0092: 		}
+0093: 		catch (Exception exception)
+0094: 		{
+0095: 			logger.LogError(exception, "Unhandled exception while responding to server.");
+0096: 		}
+0097: 	}
+0098: }
+
+=== S10 analysis/sleep-pipeline/decompiled/Eight.DeviceApiClient/Eight.DeviceApiClient/Helpers.cs ===
+SHA256 1d369412f3a48f0db65efc10fa511bb9270090fa8573b2045bf5976eea027d28
+0001: using System;
+0002: using System.Linq;
+0003: using System.Reflection;
+0004: using Microsoft.Extensions.DependencyInjection;
+0005: using Microsoft.Extensions.Logging;
+0006: 
+0007: namespace Eight.DeviceApiClient;
+0008: 
+0009: public static class Helpers
+0010: {
+0011: 	public static IServiceCollection AddScopedController<T>(this IServiceCollection services) where T : RequestController
+0012: 	{
+0013: 		services.AddScoped<T>();
+0014: 		services.AddSingleton(DiscoverFunctions<T>);
+0015: 		return services;
+0016: 	}
+0017: 
+0018: 	public static IServiceCollection AddTransientController<T>(this IServiceCollection services) where T : RequestController
+0019: 	{
+0020: 		services.AddTransient<T>();
+0021: 		services.AddSingleton(DiscoverFunctions<T>);
+0022: 		return services;
+0023: 	}
+0024: 
+0025: 	public static RoutesCollection DiscoverFunctions<T>(IServiceProvider services) where T : RequestController
+0026: 	{
+0027: 		Type controllerType = typeof(T);
+0028: 		MethodInfo[] methods = controllerType.GetMethods();
+0029: 		ParameterParserFactory paramFactory = services.GetRequiredService<ParameterParserFactory>();
+0030: 		ILogger<FunctionRoute> logger = services.GetRequiredService<ILogger<FunctionRoute>>();
+0031: 		return new RoutesCollection((from m in methods
+0032: 			select FunctionRoute.TryCreate(logger, paramFactory, controllerType, m) into r
+0033: 			where r != null
+0034: 			select r).ToArray());
+0035: 	}
+0036: }
+
+=== S11 analysis/sleep-pipeline/decompiled/Eight.DeviceApiClient/Eight.DeviceApiClient/ScopedRouter.cs ===
+SHA256 c5fa8ac24473b5c683f49eca82423924a6c7e0b40cd214d0bbc99a36aceabf88
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using System.Linq;
+0004: using System.Threading.Tasks;
+0005: using Eight.DeviceProtocol;
+0006: using Microsoft.Extensions.DependencyInjection;
+0007: 
+0008: namespace Eight.DeviceApiClient;
+0009: 
+0010: public class ScopedRouter : IRouter
+0011: {
+0012: 	private readonly IServiceProvider serviceProvider;
+0013: 
+0014: 	private readonly IReadOnlyDictionary<string, FunctionRoute> routes;
+0015: 
+0016: 	public ScopedRouter(IServiceProvider serviceProvider, IReadOnlyDictionary<string, FunctionRoute> routes)
+0017: 	{
+0018: 		this.serviceProvider = serviceProvider;
+0019: 		this.routes = routes;
+0020: 	}
+0021: 
+0022: 	public async Task<Response> ExecuteRequest(Request request)
+0023: 	{
+0024: 		string type = request.Type;
+0025: 		if (!routes.TryGetValue(type, out FunctionRoute value))
+0026: 		{
+0027: 			return new Response(request.Id, null, new Error("Unknown function \"" + type + "\".", null, "BadRequest"));
+0028: 		}
+0029: 		Response result;
+0030: 		await using (AsyncServiceScope scope = serviceProvider.CreateAsyncScope())
+0031: 		{
+0032: 			IServiceProvider provider = scope.ServiceProvider;
+0033: 			result = await value.InvokeFunction(provider, request);
+0034: 		}
+0035: 		return result;
+0036: 	}
+0037: 
+0038: 	public static IRouter Create(IServiceProvider serviceProvider)
+0039: 	{
+0040: 		return new ScopedRouter(serviceProvider, serviceProvider.GetServices<RoutesCollection>().SelectMany((RoutesCollection c) => c.Routes).ToDictionary((FunctionRoute r) => r.Name));
+0041: 	}
+0042: }
+
+=== S12 analysis/sleep-pipeline/decompiled/Eight.DeviceApiClient/Eight.DeviceApiClient/FunctionRoute.cs ===
+SHA256 394765ebed1a643ec71af3eeebf65fad3cb32a45af5e0038b0cbd56207b20fcf
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using System.Linq;
+0004: using System.Reflection;
+0005: using System.Threading.Tasks;
+0006: using Eight.DeviceProtocol;
+0007: using Microsoft.Extensions.DependencyInjection;
+0008: using Microsoft.Extensions.Logging;
+0009: 
+0010: namespace Eight.DeviceApiClient;
+0011: 
+0012: public class FunctionRoute
+0013: {
+0014: 	private readonly ILogger<FunctionRoute> logger;
+0015: 
+0016: 	private readonly Type controllerType;
+0017: 
+0018: 	private readonly MethodInfo methodInfo;
+0019: 
+0020: 	private readonly IReadOnlyList<Func<Request, object>> paramParsers;
+0021: 
+0022: 	private readonly Func<Request, object?, Task<Response>> responseSerializer;
+0023: 
+0024: 	public string Name { get; }
+0025: 
+0026: 	public FunctionRoute(ILogger<FunctionRoute> logger, string name, Type controllerType, MethodInfo methodInfo, IReadOnlyList<Func<Request, object>> paramParsers, Func<Request, object?, Task<Response>> responseSerializer)
+0027: 	{
+0028: 		this.logger = logger;
+0029: 		Name = name;
+0030: 		this.controllerType = controllerType;
+0031: 		this.methodInfo = methodInfo;
+0032: 		this.paramParsers = paramParsers;
+0033: 		this.responseSerializer = responseSerializer;
+0034: 	}
+0035: 
+0036: 	public Task<Response> InvokeFunction(IServiceProvider provider, Request request)
+0037: 	{
+0038: 		return InvokeFunction(provider.GetRequiredService(controllerType), request);
+0039: 	}
+0040: 
+0041: 	public async Task<Response> InvokeFunction(object controller, Request request)
+0042: 	{
+0043: 		try
+0044: 		{
+0045: 			object[] parameters = paramParsers.Select((Func<Request, object> p) => p(request)).ToArray();
+0046: 			object arg = methodInfo.Invoke(controller, parameters);
+0047: 			return await responseSerializer(request, arg);
+0048: 		}
+0049: 		catch (TargetInvocationException ex)
+0050: 		{
+0051: 			if (ex.InnerException is ClassifiedException ex2)
+0052: 			{
+0053: 				logger.LogError(ex2, ex2.Message);
+0054: 				return new Response(request.Id, null, new Error(ex2.Message, ex2.StackTrace, ex2.Classifier));
+0055: 			}
+0056: 			logger.LogError(ex.InnerException, "Exception during request processing: {Message}", ex.InnerException.Message);
+0057: 			return new Response(request.Id, null, new Error(ex.InnerException.Message, ex.InnerException.StackTrace, null));
+0058: 		}
+0059: 		catch (ClassifiedException ex3)
+0060: 		{
+0061: 			logger.LogError(ex3, "Classied Exception during request processing: {Message}", ex3.Message);
+0062: 			return new Response(request.Id, null, new Error(ex3.Message, ex3.StackTrace, ex3.Classifier));
+0063: 		}
+0064: 		catch (Exception ex4)
+0065: 		{
+0066: 			logger.LogError(ex4, "Unhandled Message during request processing: {Message}", ex4.Message);
+0067: 			return new Response(request.Id, null, new Error(ex4.Message, ex4.StackTrace, null));
+0068: 		}
+0069: 	}
+0070: 
+0071: 	public static FunctionRoute? TryCreate(ILogger<FunctionRoute> logger, ParameterParserFactory parameterParsers, Type handlerType, MethodInfo method)
+0072: 	{
+0073: 		ValidateMethod(method);
+0074: 		FunctionHandlerAttribute functionHandlerAttribute = (FunctionHandlerAttribute)Attribute.GetCustomAttribute(method, typeof(FunctionHandlerAttribute));
+0075: 		if (functionHandlerAttribute == null)
+0076: 		{
+0077: 			return null;
+0078: 		}
+0079: 		return new FunctionRoute(logger, "functions." + functionHandlerAttribute.FunctionName, handlerType, method, parameterParsers.GetParameterParsers(method), parameterParsers.GetResponseSerializer(method));
+0080: 	}
+0081: 
+0082: 	private static void ValidateMethod(MethodInfo method)
+0083: 	{
+0084: 		if (!method.IsPublic || method.IsStatic)
+0085: 		{
+0086: 			throw new NotSupportedException("Only public instance methods are supported (" + method.Name + ").");
+0087: 		}
+0088: 	}
+0089: }
+
+=== S13 analysis/sleep-pipeline/decompiled/Eight.DeviceApiClient/Eight.DeviceApiClient/ParameterParserFactory.cs ===
+SHA256 637e1335a3eebba65f0fe2387ea662da98373cb0424404c6fd5b4c437d6cb0b7
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using System.Linq;
+0004: using System.Reflection;
+0005: using System.Runtime.CompilerServices;
+0006: using System.Threading.Tasks;
+0007: using Eight.DeviceProtocol;
+0008: 
+0009: namespace Eight.DeviceApiClient;
+0010: 
+0011: public class ParameterParserFactory
+0012: {
+0013: 	[Serializable]
+0014: 	[CompilerGenerated]
+0015: 	private sealed class _003C_003Ec
+0016: 	{
+0017: 		public static readonly _003C_003Ec _003C_003E9 = new _003C_003Ec();
+0018: 
+0019: 		public static Func<Request, object> _003C_003E9__11_0;
+0020: 
+0021: 		internal object _003CGetRawParameterParser_003Eb__11_0(Request r)
+0022: 		{
+0023: 			return r;
+0024: 		}
+0025: 	}
+0026: 
+0027: 	private readonly JsonSerializer serializer;
+0028: 
+0029: 	public ParameterParserFactory()
+0030: 	{
+0031: 		serializer = new JsonSerializer();
+0032: 	}
+0033: 
+0034: 	public IReadOnlyList<Func<Request, object>> GetParameterParsers(MethodInfo method)
+0035: 	{
+0036: 		return method.GetParameters().Select(GetParameterParser).ToArray();
+0037: 	}
+0038: 
+0039: 	public Func<Request, object?, Task<Response>> GetResponseSerializer(MethodInfo method)
+0040: 	{
+0041: 		Type returnType = method.ReturnType;
+0042: 		if (returnType == typeof(Task))
+0043: 		{
+0044: 			return VoidSerializer;
+0045: 		}
+0046: 		if (!returnType.IsGenericType || !(returnType.BaseType == typeof(Task)))
+0047: 		{
+0048: 			throw new NotSupportedException("A function handler must always return a Task.");
+0049: 		}
+0050: 		return GetGenericResponseSerializer(returnType);
+0051: 	}
+0052: 
+0053: 	private Func<Request, object?, Task<Response>> GetGenericResponseSerializer(Type returnType)
+0054: 	{
+0055: 		Type[] genericTypeArguments = returnType.GenericTypeArguments;
+0056: 		if (genericTypeArguments.Length != 1)
+0057: 		{
+0058: 			throw new InvalidOperationException("Unexpected number of generic arguments.");
+0059: 		}
+0060: 		if (!(genericTypeArguments[0] == typeof(Response)))
+0061: 		{
+0062: 			return GetJsonSerializer(returnType);
+0063: 		}
+0064: 		return DirectResponseSerializer;
+0065: 	}
+0066: 
+0067: 	private async Task<Response> VoidSerializer(Request request, object? methodResult)
+0068: 	{
+0069: 		Task task = (Task)methodResult;
+0070: 		try
+0071: 		{
+0072: 			await task;
+0073: 			return new Response(request.Id, null, null);
+0074: 		}
+0075: 		catch (Exception ex)
+0076: 		{
+0077: 			return SerializeException(request, ex);
+0078: 		}
+0079: 	}
+0080: 
+0081: 	private static async Task<Response> DirectResponseSerializer(Request request, object? methodResult)
+0082: 	{
+0083: 		Response response;
+0084: 		try
+0085: 		{
+0086: 			response = await (Task<Response>)methodResult;
+0087: 		}
+0088: 		catch (Exception ex)
+0089: 		{
+0090: 			return SerializeException(request, ex);
+0091: 		}
+0092: 		return response with
+0093: 		{
+0094: 			Id = request.Id
+0095: 		};
+0096: 	}
+0097: 
+0098: 	private Func<Request, object?, Task<Response>> GetJsonSerializer(Type taskType)
+0099: 	{
+0100: 		MethodInfo resultGetter = taskType.GetProperty("Result").GetGetMethod();
+0101: 		return async (Request request, object? methodResult) =>
+0102: 		{
+0103: 			try
+0104: 			{
+0105: 				Task resultTask = (Task)methodResult;
+0106: 				await resultTask;
+0107: 				object obj = resultGetter.Invoke(resultTask, null);
+0108: 				byte[] array = serializer.Serialize(obj);
+0109: 				return new Response(request.Id, array, null);
+0110: 			}
+0111: 			catch (Exception ex)
+0112: 			{
+0113: 				return SerializeException(request, ex);
+0114: 			}
+0115: 		};
+0116: 	}
+0117: 
+0118: 	private static Response SerializeException(Request request, Exception ex)
+0119: 	{
+0120: 		if (ex is ClassifiedException)
+0121: 		{
+0122: 			return new Response(request.Id, null, new Error(FormatExceptionMessage(ex), ex.StackTrace, ((ClassifiedException)ex).Classifier));
+0123: 		}
+0124: 		return new Response(request.Id, null, new Error(FormatExceptionMessage(ex), ex.StackTrace, null));
+0125: 	}
+0126: 
+0127: 	private static string FormatExceptionMessage(Exception ex)
+0128: 	{
+0129: 		return ex.GetType().FullName + ": " + ex.Message;
+0130: 	}
+0131: 
+0132: 	private Func<Request, object> GetParameterParser(ParameterInfo parameter)
+0133: 	{
+0134: 		FunctionArgAttribute customAttribute = parameter.GetCustomAttribute<FunctionArgAttribute>();
+0135: 		if (!(customAttribute is SerializedRequestArgAttribute))
+0136: 		{
+0137: 			if (!(customAttribute is RawRequestArgAttribute))
+0138: 			{
+0139: 				if (customAttribute != null)
+0140: 				{
+0141: 					object obj = customAttribute;
+0142: 					throw new NotSupportedException("Parameter arg " + obj.GetType().Name + " is not supported");
+0143: 				}
+0144: 				throw new NotSupportedException("Every function argument should be marked with a FunctionArgAttribute");
+0145: 			}
+0146: 			return GetRawParameterParser(parameter);
+0147: 		}
+0148: 		return GetSerializedParameterParser(parameter);
+0149: 	}
+0150: 
+0151: 	private static Func<Request, object> GetRawParameterParser(ParameterInfo parameter)
+0152: 	{
+0153: 		if (!(parameter.ParameterType != typeof(Request)))
+0154: 		{
+0155: 			Func<Request, object> func = _003C_003Ec._003C_003E9__11_0;
+0156: 			if (func == null)
+0157: 			{
+0158: 				return _003C_003Ec._003C_003E9__11_0 = (Request r) => r;
+0159: 			}
+0160: 			return func;
+0161: 		}
+0162: 		throw new NotSupportedException($"Parameter \"{parameter.Name}\" should be of type {typeof(Request).Name} to be marked as [{"RawRequestArgAttribute"}]");
+0163: 	}
+0164: 
+0165: 	private Func<Request, object> GetSerializedParameterParser(ParameterInfo parameter)
+0166: 	{
+0167: 		return (Request r) => serializer.Deserialize(parameter.ParameterType, r.Payload.Span);
+0168: 	}
+0169: }
+
+=== S14 analysis/sleep-pipeline/decompiled/Eight.DeviceApiClient/Eight.DeviceApiClient/JsonSerializer.cs ===
+SHA256 bf23370a7fe6ae52a66be4d420f04ebd3e8c596b3d1c40a6dc1e615fd0a58557
+0001: using System;
+0002: using System.Text.Json;
+0003: using System.Text.Json.Serialization;
+0004: using NodaTime;
+0005: using NodaTime.Serialization.SystemTextJson;
+0006: 
+0007: namespace Eight.DeviceApiClient;
+0008: 
+0009: public class JsonSerializer
+0010: {
+0011: 	private readonly JsonSerializerOptions serializationOptions;
+0012: 
+0013: 	public JsonSerializer()
+0014: 	{
+0015: 		serializationOptions = new JsonSerializerOptions
+0016: 		{
+0017: 			PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+0018: 			DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+0019: 			RespectRequiredConstructorParameters = true,
+0020: 			RespectNullableAnnotations = true
+0021: 		};
+0022: 		serializationOptions.Converters.Add(new JsonStringEnumConverter());
+0023: 		serializationOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+0024: 	}
+0025: 
+0026: 	public object Deserialize(Type type, ReadOnlySpan<byte> payload)
+0027: 	{
+0028: 		try
+0029: 		{
+0030: 			return System.Text.Json.JsonSerializer.Deserialize(payload, type, serializationOptions);
+0031: 		}
+0032: 		catch (JsonException ex)
+0033: 		{
+0034: 			throw new DeserializeException(ex.Message, ex);
+0035: 		}
+0036: 	}
+0037: 
+0038: 	public byte[] Serialize(object? obj)
+0039: 	{
+0040: 		return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(obj, serializationOptions);
+0041: 	}
+0042: }
+
+=== S15 analysis/sleep-pipeline/decompiled/Eight.DeviceApiClient/Eight.DeviceApiClient/DeserializeException.cs ===
+SHA256 6e2c2a272a4516d15176c8f53191f796cb8adb034ecf00e832319e90b13e4c31
+0001: using System;
+0002: 
+0003: namespace Eight.DeviceApiClient;
+0004: 
+0005: public class DeserializeException : Exception
+0006: {
+0007: 	public DeserializeException(string message, Exception inner)
+0008: 		: base(message, inner)
+0009: 	{
+0010: 	}
+0011: }
+
+=== S16 analysis/sleep-pipeline/decompiled/Eight.DeviceProtocol/Eight.DeviceProtocol/Request.cs ===
+SHA256 91a9d87c8d75ca42ad0e573895c32db061cd5a66aadd688f377ffebef2d4c1d9
+0001: using System;
+0002: using MessagePack;
+0003: 
+0004: namespace Eight.DeviceProtocol;
+0005: 
+0006: [MessagePackObject(true)]
+0007: public record Request(Guid Id, string Type, ReadOnlyMemory<byte> Payload);
+
+=== S17 analysis/sleep-pipeline/decompiled/Eight.DeviceProtocol/Eight.DeviceProtocol/Response.cs ===
+SHA256 b2a1b62e6236a476826cd709e3df252dd50f216ac888752ba1ef26c4f2ec772f
+0001: using System;
+0002: using MessagePack;
+0003: 
+0004: namespace Eight.DeviceProtocol;
+0005: 
+0006: [MessagePackObject(true)]
+0007: public record Response(Guid Id, ReadOnlyMemory<byte>? Payload, Error? Exception);
+
+=== S18 analysis/sleep-pipeline/decompiled/Eight.DeviceProtocol/Eight.DeviceProtocol/Error.cs ===
+SHA256 996549b64bb971f78dfd24e4ec1febcafaf0412af46a95bc92e80f1dc95f79eb
+0001: using MessagePack;
+0002: 
+0003: namespace Eight.DeviceProtocol;
+0004: 
+0005: [MessagePackObject(true)]
+0006: public record Error(string Message, string? StackTrace, string? Classifier);
+
+=== S19 analysis/sleep-pipeline/decompiled/Eight.Capybara.DeviceApi/Eight.Capybara.DeviceApi/Utils.cs ===
+SHA256 ca6ac48753ebe076e3651718922049d0e9fcc82b309438d860783c2eede0feb5
+0001: using System;
+0002: using System.Threading.Tasks;
+0003: using Eight.DeviceApiClient;
+0004: using Eight.DeviceProtocol;
+0005: 
+0006: namespace Eight.Capybara.DeviceApi;
+0007: 
+0008: public static class Utils
+0009: {
+0010: 	public static Response CreateFailure(string message, string? classifier)
+0011: 	{
+0012: 		return new Response(Guid.Empty, null, new Error(message, null, classifier));
+0013: 	}
+0014: 
+0015: 	public static Task<Response> CreateFailureResult(string message, string? classifier)
+0016: 	{
+0017: 		return Task.FromResult(CreateFailure(message, classifier));
+0018: 	}
+0019: 
+0020: 	public static Response EmptyResponse()
+0021: 	{
+0022: 		return new Response(Guid.Empty, null, null);
+0023: 	}
+0024: 
+0025: 	public static Task<Response> EmptyResponseResult()
+0026: 	{
+0027: 		return Task.FromResult(EmptyResponse());
+0028: 	}
+0029: 
+0030: 	public static Response CreateResponse<T>(T payload)
+0031: 	{
+0032: 		JsonSerializer jsonSerializer = new JsonSerializer();
+0033: 		return new Response(Guid.Empty, jsonSerializer.Serialize(payload), null);
+0034: 	}
+0035: 
+0036: 	public static Task<Response> CreateResponseResult<T>(T payload)
+0037: 	{
+0038: 		return Task.FromResult(CreateResponse(payload));
+0039: 	}
+0040: }
+
+=== S20 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/SubsystemDebugController.cs ===
+SHA256 68065240ee559cb3a7a4cb0adff37c5a7b75590cbd55c78c9277207a6c664a89
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using System.IO;
+0004: using System.Linq;
+0005: using System.Threading.Tasks;
+0006: using Eight.Capybara.DeviceApi;
+0007: using Eight.DeviceApiClient;
+0008: using Eight.DeviceProtocol;
+0009: using Eight.Lsp.Subsystems.Infrastructure;
+0010: using Microsoft.Extensions.Logging;
+0011: 
+0012: namespace Eight.Firmness.DeviceAPI;
+0013: 
+0014: public class SubsystemDebugController(ILogger<SubsystemDebugController> logger, IUsbPortMapper usbPortMapper) : RequestController
+0015: {
+0016: 	private readonly ILogger<SubsystemDebugController> logger = logger;
+0017: 
+0018: 	private readonly IUsbPortMapper usbPortMapper = usbPortMapper;
+0019: 
+0020: 	[FunctionHandler("debugsubsystem/usbports")]
+0021: 	public Task<Response> GetUsbPorts()
+0022: 	{
+0023: 		try
+0024: 		{
+0025: 			string[] availableSerialPorts = usbPortMapper.GetAvailableSerialPorts();
+0026: 			List<UsbPortMapping> list = new List<UsbPortMapping>();
+0027: 			foreach (string item in availableSerialPorts.OrderBy((string p) => p))
+0028: 			{
+0029: 				string fileName = Path.GetFileName(item);
+0030: 				if (fileName.StartsWith("ttyUSB") || fileName.StartsWith("ttyACM"))
+0031: 				{
+0032: 					string text = usbPortMapper.ResolveDeviceToUsbPort(fileName);
+0033: 					if (text != null)
+0034: 					{
+0035: 						list.Add(new UsbPortMapping(item, text));
+0036: 					}
+0037: 				}
+0038: 			}
+0039: 			return Task.FromResult(Utils.CreateResponse(list));
+0040: 		}
+0041: 		catch (PlatformNotSupportedException)
+0042: 		{
+0043: 			return Task.FromResult(Utils.CreateFailure("USB port discovery is only supported on Linux", "BadRequest"));
+0044: 		}
+0045: 		catch (Exception ex2)
+0046: 		{
+0047: 			logger.LogError(ex2, "Failed to enumerate USB ports: {Error}", ex2.Message);
+0048: 			return Task.FromResult(Utils.CreateFailure("Failed to enumerate USB ports: " + ex2.Message, "UnknownAccessory"));
+0049: 		}
+0050: 	}
+0051: }
+
+=== S21 analysis/sleep-pipeline/decompiled/Eight.Lsp.Subsystems/Eight.Lsp.Subsystems.Infrastructure/UsbPortMapper.cs ===
+SHA256 98d5e3d98f67b360b5a878e3e11c8a387ab6c0cb86678e55dd68d3b35141166e
+0001: using System;
+0002: using System.CodeDom.Compiler;
+0003: using System.Collections.Generic;
+0004: using System.IO;
+0005: using System.IO.Ports;
+0006: using System.Linq;
+0007: using System.Runtime.InteropServices;
+0008: using System.Text.RegularExpressions;
+0009: using System.Text.RegularExpressions.Generated;
+0010: using Microsoft.Extensions.Logging;
+0011: using Microsoft.Extensions.Logging.Abstractions;
+0012: 
+0013: namespace Eight.Lsp.Subsystems.Infrastructure;
+0014: 
+0015: public class UsbPortMapper : IUsbPortMapper
+0016: {
+0017: 	private const string DefaultUsbDevicesDir = "/sys/bus/usb/devices";
+0018: 
+0019: 	private readonly ILogger<UsbPortMapper> logger;
+0020: 
+0021: 	private readonly string usbDevicesDir;
+0022: 
+0023: 	[GeneratedRegex("^(?<port>\\d+-\\d+(?:\\.\\d+)*):\\d+\\.\\d+$")]
+0024: 	[GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.15.2218")]
+0025: 	private static Regex InterfaceDirPattern()
+0026: 	{
+0027: 		return _003CRegexGenerator_g_003EF20446936D011A008546DF076EB3EA1C73B683799C7B05FBC9C25A779E8078328__InterfaceDirPattern_0.Instance;
+0028: 	}
+0029: 
+0030: 	public UsbPortMapper(ILogger<UsbPortMapper>? logger = null, string usbDevicesDir = "/sys/bus/usb/devices")
+0031: 	{
+0032: 		this.logger = logger ?? NullLogger<UsbPortMapper>.Instance;
+0033: 		this.usbDevicesDir = usbDevicesDir;
+0034: 	}
+0035: 
+0036: 	public string? ResolveUsbPortToDevice(string usbPort)
+0037: 	{
+0038: 		RequireLinux();
+0039: 		foreach (var (text, text2) in EnumeratePortTtyPairs())
+0040: 		{
+0041: 			if (!(text != usbPort))
+0042: 			{
+0043: 				logger.LogDebug("Resolved USB port '{UsbPort}' to /dev/{Tty}", usbPort, text2);
+0044: 				return "/dev/" + text2;
+0045: 			}
+0046: 		}
+0047: 		logger.LogDebug("No tty device owned by USB port '{UsbPort}'", usbPort);
+0048: 		return null;
+0049: 	}
+0050: 
+0051: 	public string? ResolveDeviceToUsbPort(string ttyDevice)
+0052: 	{
+0053: 		RequireLinux();
+0054: 		foreach (var item in EnumeratePortTtyPairs())
+0055: 		{
+0056: 			var (text, _) = item;
+0057: 			if (!(item.Tty != ttyDevice))
+0058: 			{
+0059: 				logger.LogDebug("Resolved tty '{Tty}' to USB port '{UsbPort}'", ttyDevice, text);
+0060: 				return text;
+0061: 			}
+0062: 		}
+0063: 		logger.LogDebug("No USB port owns tty device '{TtyDevice}'", ttyDevice);
+0064: 		return null;
+0065: 	}
+0066: 
+0067: 	public string[] GetAvailableSerialPorts()
+0068: 	{
+0069: 		return SerialPort.GetPortNames();
+0070: 	}
+0071: 
+0072: 	public IReadOnlyList<UsbSerialPort> ListSerialPorts()
+0073: 	{
+0074: 		RequireLinux();
+0075: 		return (from pair in EnumeratePortTtyPairs()
+0076: 			select new UsbSerialPort(pair.Port, "/dev/" + pair.Tty, ParentHubPartNumber(pair.Port))).ToArray();
+0077: 	}
+0078: 
+0079: 	private int? ParentHubPartNumber(string usbPort)
+0080: 	{
+0081: 		int num = usbPort.LastIndexOf('.');
+0082: 		if (num < 0)
+0083: 		{
+0084: 			return null;
+0085: 		}
+0086: 		string path = Path.Combine(usbDevicesDir, usbPort.Substring(0, num), "serial");
+0087: 		string input;
+0088: 		try
+0089: 		{
+0090: 			input = File.ReadAllText(path).Trim();
+0091: 		}
+0092: 		catch (Exception ex) when ((ex is IOException || ex is UnauthorizedAccessException) ? true : false)
+0093: 		{
+0094: 			return null;
+0095: 		}
+0096: 		Match match = HubSerialPartNumberPattern().Match(input);
+0097: 		if (!match.Success)
+0098: 		{
+0099: 			return null;
+0100: 		}
+0101: 		return int.Parse(match.Groups["pn"].Value);
+0102: 	}
+0103: 
+0104: 	[GeneratedRegex("^(?<pn>\\d{5})-")]
+0105: 	[GeneratedCode("System.Text.RegularExpressions.Generator", "9.0.15.2218")]
+0106: 	private static Regex HubSerialPartNumberPattern()
+0107: 	{
+0108: 		return _003CRegexGenerator_g_003EF20446936D011A008546DF076EB3EA1C73B683799C7B05FBC9C25A779E8078328__HubSerialPartNumberPattern_1.Instance;
+0109: 	}
+0110: 
+0111: 	private static void RequireLinux()
+0112: 	{
+0113: 		if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+0114: 		{
+0115: 			throw new PlatformNotSupportedException("USB port resolution is only supported on Linux. Current platform: " + RuntimeInformation.OSDescription);
+0116: 		}
+0117: 	}
+0118: 
+0119: 	private IEnumerable<(string Port, string Tty)> EnumeratePortTtyPairs()
+0120: 	{
+0121: 		if (!Directory.Exists(usbDevicesDir))
+0122: 		{
+0123: 			logger.LogDebug("Directory {UsbDevicesDir} does not exist", usbDevicesDir);
+0124: 			yield break;
+0125: 		}
+0126: 		foreach (string item in EnumerateInterfaceDirs())
+0127: 		{
+0128: 			Match match = InterfaceDirPattern().Match(Path.GetFileName(item));
+0129: 			if (!match.Success)
+0130: 			{
+0131: 				continue;
+0132: 			}
+0133: 			foreach (string item2 in TtysOwnedBy(item))
+0134: 			{
+0135: 				yield return (Port: match.Groups["port"].Value, Tty: item2);
+0136: 			}
+0137: 		}
+0138: 	}
+0139: 
+0140: 	private IEnumerable<string> EnumerateInterfaceDirs()
+0141: 	{
+0142: 		string[] array = SafeGetDirectories(usbDevicesDir);
+0143: 		foreach (string entry in array)
+0144: 		{
+0145: 			yield return entry;
+0146: 			string[] array2 = SafeGetDirectories(entry);
+0147: 			for (int j = 0; j < array2.Length; j++)
+0148: 			{
+0149: 				yield return array2[j];
+0150: 			}
+0151: 		}
+0152: 	}
+0153: 
+0154: 	private IEnumerable<string> TtysOwnedBy(string interfaceDir)
+0155: 	{
+0156: 		string path = Path.Combine(interfaceDir, "tty");
+0157: 		string[] array;
+0158: 		if (Directory.Exists(path))
+0159: 		{
+0160: 			array = SafeGetDirectories(path);
+0161: 			for (int i = 0; i < array.Length; i++)
+0162: 			{
+0163: 				string fileName = Path.GetFileName(array[i]);
+0164: 				if (IsTtyName(fileName))
+0165: 				{
+0166: 					yield return fileName;
+0167: 				}
+0168: 			}
+0169: 		}
+0170: 		array = SafeGetDirectories(interfaceDir);
+0171: 		foreach (string text in array)
+0172: 		{
+0173: 			string fileName2 = Path.GetFileName(text);
+0174: 			if (IsTtyName(fileName2) && Directory.Exists(Path.Combine(text, "tty", fileName2)))
+0175: 			{
+0176: 				yield return fileName2;
+0177: 			}
+0178: 		}
+0179: 	}
+0180: 
+0181: 	private static bool IsTtyName(string name)
+0182: 	{
+0183: 		if (!name.StartsWith("ttyUSB"))
+0184: 		{
+0185: 			return name.StartsWith("ttyACM");
+0186: 		}
+0187: 		return true;
+0188: 	}
+0189: 
+0190: 	private string[] SafeGetDirectories(string path)
+0191: 	{
+0192: 		try
+0193: 		{
+0194: 			return Directory.GetDirectories(path);
+0195: 		}
+0196: 		catch (Exception ex)
+0197: 		{
+0198: 			logger.LogDebug("  Error listing {Path}: {Error}", path, ex.Message);
+0199: 			return Array.Empty<string>();
+0200: 		}
+0201: 	}
+0202: }
+
+=== S22 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/UsbPortMapping.cs ===
+SHA256 e160342c136936f115e3b23cf75a3e9aa6b921949e5510f9cda31358f6bede94
+0001: namespace Eight.Firmness.DeviceAPI;
+0002: 
+0003: public record UsbPortMapping(string Device, string UsbPort);
+
+=== S23 analysis/sleep-pipeline/decompiled/Eight.Nats/Eight.Nats.DeviceAPI/DebugNatsController.cs ===
+SHA256 d5745f8e88abec8edba8d43d03fbeea1a0277166ff629480f2f703c011038f88
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using System.IO;
+0004: using System.IO.Compression;
+0005: using System.Linq;
+0006: using System.Net;
+0007: using System.Net.Http;
+0008: using System.Runtime.CompilerServices;
+0009: using System.Text;
+0010: using System.Threading;
+0011: using System.Threading.Tasks;
+0012: using Eight.Capybara.DeviceApi;
+0013: using Eight.DeviceApiClient;
+0014: using Eight.DeviceProtocol;
+0015: using Eight.Nats.Monitoring;
+0016: using Microsoft.Extensions.Logging;
+0017: 
+0018: namespace Eight.Nats.DeviceAPI;
+0019: 
+0020: public class DebugNatsController(ILogger<DebugNatsController> logger, INatsMonitoringClient natsMonitoringClient) : RequestController
+0021: {
+0022: 	internal const int DefaultMaxBytes = 131072;
+0023: 
+0024: 	private static readonly HashSet<string> AllowedEndpoints = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "healthz", "varz", "jsz", "connz", "subsz", "stacksz" };
+0025: 
+0026: 	[FunctionHandler("debugnats/get")]
+0027: 	public async Task<Response> Get([SerializedRequestArg] DebugNatsArgs args)
+0028: 	{
+0029: 		string endpoint = args.Endpoint.Trim().ToLowerInvariant();
+0030: 		if (!AllowedEndpoints.Contains(endpoint))
+0031: 		{
+0032: 			return Utils.CreateFailure("Unknown debugnats endpoint '" + args.Endpoint + "'. Allowed: " + string.Join(", ", AllowedEndpoints.Order()), "BadRequest");
+0033: 		}
+0034: 		int offset = Math.Max(args.Offset.GetValueOrDefault(), 0);
+0035: 		int? maxBytes = args.MaxBytes;
+0036: 		int maxBytes2 = ((maxBytes.HasValue && maxBytes.GetValueOrDefault() > 0) ? args.MaxBytes.Value : 131072);
+0037: 		string path = ((endpoint == "jsz") ? "jsz?streams=true&consumers=true&config=true" : endpoint);
+0038: 		string s;
+0039: 		HttpStatusCode valueOrDefault = default;
+0040: 		try
+0041: 		{
+0042: 			s = await natsMonitoringClient.GetAsync(path, CancellationToken.None);
+0043: 		}
+0044: 		catch (HttpRequestException ex) when (((Func<bool>)delegate
+0045: 		{
+0046: 			// Could not convert BlockContainer to single expression
+0047: 			HttpStatusCode? statusCode = ex.StatusCode;
+0048: 			Unsafe.SkipInit(out int num);
+0049: 			if (statusCode.HasValue)
+0050: 			{
+0051: 				valueOrDefault = statusCode.GetValueOrDefault();
+0052: 				num = 1;
+0053: 			}
+0054: 			else
+0055: 			{
+0056: 				num = 0;
+0057: 			}
+0058: 			return num != 0;
+0059: 		}).Invoke())
+0060: 		{
+0061: 			return Utils.CreateFailure($"nats-server monitoring returned {(int)valueOrDefault} for /{endpoint}: {ex.Message}", "DeviceCommunication");
+0062: 		}
+0063: 		catch (HttpRequestException ex2)
+0064: 		{
+0065: 			return Utils.CreateFailure($"Could not reach nats-server monitoring endpoint at {natsMonitoringClient.BaseAddress.TrimEnd('/')}/{endpoint} (monitoring port may not be enabled, or nats-server is down): {ex2.Message}", "OfflineAccessory");
+0066: 		}
+0067: 		catch (OperationCanceledException)
+0068: 		{
+0069: 			return Utils.CreateFailure("nats-server monitoring request for /" + endpoint + " timed out", "DeviceCommunication");
+0070: 		}
+0071: 		byte[] bytes = Encoding.UTF8.GetBytes(s);
+0072: 		int num2 = bytes.Length;
+0073: 		int num3 = ((offset < num2) ? Math.Min(maxBytes2, num2 - offset) : 0);
+0074: 		byte[] array = ((num3 == 0) ? Array.Empty<byte>() : bytes.AsSpan(offset, num3).ToArray());
+0075: 		bool flag = offset + array.Length < num2;
+0076: 		string contentGzipB = GzipBase64(array);
+0077: 		logger.LogInformation("debugnats/get {Endpoint}: totalBytes={TotalBytes} offset={Offset} length={Length} truncated={Truncated}", endpoint, num2, offset, array.Length, flag);
+0078: 		return Utils.CreateResponse(new DebugNatsResponse(endpoint, num2, offset, array.Length, flag, contentGzipB));
+0079: 	}
+0080: 
+0081: 	private static string GzipBase64(byte[] data)
+0082: 	{
+0083: 		using MemoryStream memoryStream = new MemoryStream();
+0084: 		using (GZipStream gZipStream = new GZipStream(memoryStream, CompressionLevel.Optimal, leaveOpen: true))
+0085: 		{
+0086: 			gZipStream.Write(data, 0, data.Length);
+0087: 		}
+0088: 		return Convert.ToBase64String(memoryStream.ToArray());
+0089: 	}
+0090: }
+
+=== S24 analysis/sleep-pipeline/decompiled/Eight.Nats/Eight.Nats.DeviceAPI/DebugNatsArgs.cs ===
+SHA256 13bf3fdaf56369e1747d67f26cd0be92568034951ea5b17a61da6fb78545696a
+0001: namespace Eight.Nats.DeviceAPI;
+0002: 
+0003: public record DebugNatsArgs(string Endpoint, int? Offset = null, int? MaxBytes = null);
+
+=== S25 analysis/sleep-pipeline/decompiled/Eight.Nats/Eight.Nats.DeviceAPI/DebugNatsResponse.cs ===
+SHA256 fcb509f030d6ef4127de8f9b35ba2e587420aefe0f06bb88ba83f076d5b652f6
+0001: namespace Eight.Nats.DeviceAPI;
+0002: 
+0003: public record DebugNatsResponse(string Endpoint, int TotalBytes, int Offset, int Length, bool Truncated, string ContentGzipB64);
+
+=== S26 analysis/sleep-pipeline/decompiled/Eight.Nats/Eight.Nats.Monitoring/NatsMonitoringClient.cs ===
+SHA256 984c46de0dd1a733446c2162723eab6cc56845e5035a32ab9a577bb1acfea6ef
+0001: using System;
+0002: using System.Net.Http;
+0003: using System.Threading;
+0004: using System.Threading.Tasks;
+0005: 
+0006: namespace Eight.Nats.Monitoring;
+0007: 
+0008: public sealed class NatsMonitoringClient : INatsMonitoringClient
+0009: {
+0010: 	private readonly HttpClient httpClient;
+0011: 
+0012: 	public string BaseAddress { get; }
+0013: 
+0014: 	public NatsMonitoringClient(string baseAddress)
+0015: 	{
+0016: 		BaseAddress = baseAddress;
+0017: 		httpClient = new HttpClient
+0018: 		{
+0019: 			BaseAddress = new Uri(baseAddress.EndsWith('/') ? baseAddress : (baseAddress + "/")),
+0020: 			Timeout = TimeSpan.FromSeconds(5L)
+0021: 		};
+0022: 	}
+0023: 
+0024: 	public async Task<string> GetAsync(string path, CancellationToken cancellation)
+0025: 	{
+0026: 		using HttpResponseMessage response = await httpClient.GetAsync(path, cancellation);
+0027: 		response.EnsureSuccessStatusCode();
+0028: 		return await response.Content.ReadAsStringAsync(cancellation);
+0029: 	}
+0030: }
+
+=== S27 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/FirmnessDebugController.cs ===
+SHA256 23f999b5b41aae590ecea8b696024f47f6163b4fb63ab3e19dcfa0fd0de817b7
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using System.Linq;
+0004: using System.Threading.Tasks;
+0005: using Eight.Capybara.DeviceApi;
+0006: using Eight.DeviceApiClient;
+0007: using Eight.DeviceProtocol;
+0008: using Eight.Firmness.Models;
+0009: using Eight.Firmness.Models.Telemetry;
+0010: using Eight.Firmness.Services;
+0011: using Eight.Firmness.StateMachine;
+0012: using Eight.Firmness.StateMachine.States;
+0013: using Eight.Lsp.Protocol.Models;
+0014: using Eight.Lsp.Subsystems.Models;
+0015: using Eight.Lsp.Subsystems.StateMachine;
+0016: using Microsoft.Extensions.Logging;
+0017: 
+0018: namespace Eight.Firmness.DeviceAPI;
+0019: 
+0020: public class FirmnessDebugController(ILogger<FirmnessDebugController> logger, IFirmnessProvider provider, IDynamicModeProvider dynamicModeProvider) : RequestController
+0021: {
+0022: 	private readonly ILogger<FirmnessDebugController> logger = logger;
+0023: 
+0024: 	private readonly IFirmnessProvider provider = provider;
+0025: 
+0026: 	private readonly IDynamicModeProvider dynamicModeProvider = dynamicModeProvider;
+0027: 
+0028: 	private (Response?, FirmnessReadyState?) GetReadyDevice(Side side)
+0029: 	{
+0030: 		ISubsystemState currentState = provider.GetCurrentState(side);
+0031: 		Response response = FirmnessDeviceStatus.Classify(side, currentState, Utils.CreateFailure($"Calibration is running on {side}; debug telemetry is unavailable until the run finishes", "BadRequest"));
+0032: 		if ((object)response != null)
+0033: 		{
+0034: 			return (response, null);
+0035: 		}
+0036: 		if (!(currentState is FirmnessReadyState item))
+0037: 		{
+0038: 			return (FirmnessDeviceStatus.NotReady(side), null);
+0039: 		}
+0040: 		return (null, item);
+0041: 	}
+0042: 
+0043: 	[FunctionHandler("debugfirmness/get")]
+0044: 	public Task<Response> GetDebugTelemetry([SerializedRequestArg] DebugGetTelemetryArgs args)
+0045: 	{
+0046: 		var (response, firmnessReadyState) = GetReadyDevice(args.Side);
+0047: 		if ((object)response != null)
+0048: 		{
+0049: 			return Task.FromResult(response);
+0050: 		}
+0051: 		FirmnessDeviceState deviceState = firmnessReadyState.DeviceState;
+0052: 		PressureTelemetry pressureTelemetry = deviceState.PressureTelemetry;
+0053: 		ControlStateTelemetry controlTelemetry = deviceState.ControlTelemetry;
+0054: 		if ((object)pressureTelemetry == null)
+0055: 		{
+0056: 			return Task.FromResult(Utils.CreateFailure($"No pressure telemetry available for {args.Side} side", "AccessoryInitialization"));
+0057: 		}
+0058: 		if (pressureTelemetry.Sensors.Count < 4)
+0059: 		{
+0060: 			return Task.FromResult(Utils.CreateFailure("Insufficient pressure sensor data", "AccessoryInitialization"));
+0061: 		}
+0062: 		if ((object)controlTelemetry == null)
+0063: 		{
+0064: 			return Task.FromResult(Utils.CreateFailure($"No control telemetry available for {args.Side} side", "AccessoryInitialization"));
+0065: 		}
+0066: 		if (controlTelemetry.Bags.Count < 4)
+0067: 		{
+0068: 			return Task.FromResult(Utils.CreateFailure("Insufficient control telemetry bag data", "AccessoryInitialization"));
+0069: 		}
+0070: 		if ((object)deviceState.HardwareInfo == null || (object)deviceState.FirmwareInfo == null)
+0071: 		{
+0072: 			return Task.FromResult(FirmnessDeviceStatus.StartingUp(args.Side));
+0073: 		}
+0074: 		FirmnessHardwareInfo hardwareInfo = new FirmnessHardwareInfo(deviceState.HardwareInfo.Label, deviceState.HardwareInfo.Revision, deviceState.HardwareInfo.SerialNumber, deviceState.HardwareInfo.PartNumber, deviceState.HardwareInfo.Sku);
+0075: 		DebugFirmwareInfo firmwareInfo = new DebugFirmwareInfo($"0x{deviceState.FirmwareInfo.Crc:X8}", deviceState.FirmwareInfo.Length, Convert.ToHexString(deviceState.FirmwareInfo.RawData));
+0076: 		string mode = firmnessReadyState.ConfiguredMode.ToDisplayName();
+0077: 		FirmnessTarget storedTargetFirmness = firmnessReadyState.StoredTargetFirmness;
+0078: 		double num;
+0079: 		if (pressureTelemetry.Ambient.PressureKpa.Count <= 0)
+0080: 		{
+0081: 			num = 0.0;
+0082: 		}
+0083: 		else
+0084: 		{
+0085: 			List<double> pressureKpa = pressureTelemetry.Ambient.PressureKpa;
+0086: 			num = pressureKpa[pressureKpa.Count - 1];
+0087: 		}
+0088: 		double atmosphericPressure = num;
+0089: 		DebugFirmnessBagState bag = BuildDebugBagState(controlTelemetry.Bags[0], storedTargetFirmness?.Bag0 ?? 0, GetGaugePressure(0));
+0090: 		DebugFirmnessBagState bag2 = BuildDebugBagState(controlTelemetry.Bags[1], storedTargetFirmness?.Bag1 ?? 0, GetGaugePressure(1));
+0091: 		DebugFirmnessBagState bag3 = BuildDebugBagState(controlTelemetry.Bags[2], storedTargetFirmness?.Bag2 ?? 0, GetGaugePressure(2));
+0092: 		DebugFirmnessBagState bag4 = BuildDebugBagState(controlTelemetry.Bags[3], storedTargetFirmness?.Bag3 ?? 0, GetGaugePressure(3));
+0093: 		DebugFirmnessBagState bag5 = null;
+0094: 		if (controlTelemetry.Bags.Count > 4)
+0095: 		{
+0096: 			bag5 = BuildDebugBagState(controlTelemetry.Bags[4], (storedTargetFirmness?.Bag4).GetValueOrDefault(), GetGaugePressure(4));
+0097: 		}
+0098: 		DebugPressureTelemetry rawPressureTelemetry = TransformPressureTelemetry(pressureTelemetry, controlTelemetry);
+0099: 		DebugCurrentTelemetry rawCurrentTelemetry = null;
+0100: 		if ((object)deviceState.CurrentTelemetry != null)
+0101: 		{
+0102: 			rawCurrentTelemetry = TransformCurrentTelemetry(deviceState.CurrentTelemetry);
+0103: 		}
+0104: 		DebugControlTelemetry rawControlTelemetry = TransformControlTelemetry(controlTelemetry);
+0105: 		DebugHealthTelemetry rawHealthTelemetry = null;
+0106: 		if ((object)deviceState.HealthTelemetry != null)
+0107: 		{
+0108: 			rawHealthTelemetry = TransformHealthTelemetry(deviceState.HealthTelemetry);
+0109: 		}
+0110: 		return Task.FromResult(Utils.CreateResponse(new FirmnessDebugResponse(bag, bag2, bag3, bag4, bag5, hardwareInfo, mode, dynamicModeProvider.GetDynamicModeEnabled(args.Side), firmwareInfo, rawPressureTelemetry, rawCurrentTelemetry, rawControlTelemetry, rawHealthTelemetry)));
+0111: 		double GetGaugePressure(int sensorIndex)
+0112: 		{
+0113: 			PressureSensorData pressureSensorData = pressureTelemetry.Sensors[sensorIndex];
+0114: 			double num2;
+0115: 			if (pressureSensorData.PressureKpa.Count <= 0)
+0116: 			{
+0117: 				num2 = 0.0;
+0118: 			}
+0119: 			else
+0120: 			{
+0121: 				List<double> pressureKpa2 = pressureSensorData.PressureKpa;
+0122: 				num2 = pressureKpa2[pressureKpa2.Count - 1];
+0123: 			}
+0124: 			return num2 - atmosphericPressure;
+0125: 		}
+0126: 	}
+0127: 
+0128: 	[FunctionHandler("debugfirmness/gethardwareinfo")]
+0129: 	public Task<Response> GetHardwareInfo([SerializedRequestArg] DebugGetTelemetryArgs args)
+0130: 	{
+0131: 		var (response, firmnessReadyState) = GetReadyDevice(args.Side);
+0132: 		if ((object)response != null)
+0133: 		{
+0134: 			return Task.FromResult(response);
+0135: 		}
+0136: 		HardwareInfo hardwareInfo = firmnessReadyState.DeviceState.HardwareInfo;
+0137: 		if ((object)hardwareInfo == null)
+0138: 		{
+0139: 			return Task.FromResult(FirmnessDeviceStatus.StartingUp(args.Side));
+0140: 		}
+0141: 		return Task.FromResult(Utils.CreateResponse(new FirmnessHardwareInfo(hardwareInfo.Label, hardwareInfo.Revision, hardwareInfo.SerialNumber, hardwareInfo.PartNumber, hardwareInfo.Sku)));
+0142: 	}
+0143: 
+0144: 	private static DebugFirmnessBagState BuildDebugBagState(BagState bagState, int targetLevel, double gaugePressureKpa)
+0145: 	{
+0146: 		BagFsmState fsmState = bagState.FsmState;
+0147: 		bool flag = fsmState - 2 <= BagFsmState.Steady;
+0148: 		bool isAdjusting = flag;
+0149: 		return new DebugFirmnessBagState(gaugePressureKpa, bagState.CurrentPressureKpa, bagState.SetpointKpa, targetLevel, isAdjusting);
+0150: 	}
+0151: 
+0152: 	private static DebugPressureTelemetry TransformPressureTelemetry(PressureTelemetry telemetry, ControlStateTelemetry controlTelemetry)
+0153: 	{
+0154: 		double num;
+0155: 		if (telemetry.Ambient.PressureKpa.Count <= 0)
+0156: 		{
+0157: 			num = 0.0;
+0158: 		}
+0159: 		else
+0160: 		{
+0161: 			List<double> pressureKpa = telemetry.Ambient.PressureKpa;
+0162: 			num = pressureKpa[pressureKpa.Count - 1];
+0163: 		}
+0164: 		double atmosphericPressure = num;
+0165: 		DebugPressureSensorData bag = null;
+0166: 		if (telemetry.Sensors.Count > 4 && controlTelemetry.Bags.Count > 4)
+0167: 		{
+0168: 			bag = ToDebug(telemetry.Sensors[4], controlTelemetry.Bags[4]);
+0169: 		}
+0170: 		return new DebugPressureTelemetry(telemetry.Type, telemetry.Version, telemetry.Timestamp, telemetry.Frequency, ToDebug(telemetry.Sensors[0], controlTelemetry.Bags[0]), ToDebug(telemetry.Sensors[1], controlTelemetry.Bags[1]), ToDebug(telemetry.Sensors[2], controlTelemetry.Bags[2]), ToDebug(telemetry.Sensors[3], controlTelemetry.Bags[3]), bag, ToDebugAmbient(telemetry.Ambient));
+0171: 		DebugPressureSensorData ToDebug(PressureSensorData sensor, BagState bagState)
+0172: 		{
+0173: 			double num2;
+0174: 			if (sensor.PressureKpa.Count <= 0)
+0175: 			{
+0176: 				num2 = 0.0;
+0177: 			}
+0178: 			else
+0179: 			{
+0180: 				List<double> pressureKpa2 = sensor.PressureKpa;
+0181: 				num2 = pressureKpa2[pressureKpa2.Count - 1];
+0182: 			}
+0183: 			double currentPressure = num2 - atmosphericPressure;
+0184: 			double setpointKpa = bagState.SetpointKpa;
+0185: 			BagFsmState fsmState = bagState.FsmState;
+0186: 			bool flag = fsmState - 2 <= BagFsmState.Steady;
+0187: 			bool isAdjusting = flag;
+0188: 			return new DebugPressureSensorData(currentPressure, setpointKpa, isAdjusting, sensor.PressureKpa.ToList(), sensor.Temps.ToList());
+0189: 		}
+0190: 		static DebugPressureSensorData ToDebugAmbient(PressureSensorData sensor)
+0191: 		{
+0192: 			return new DebugPressureSensorData(0.0, 0.0, IsAdjusting: false, sensor.PressureKpa.ToList(), sensor.Temps.ToList());
+0193: 		}
+0194: 	}
+0195: 
+0196: 	private static DebugCurrentTelemetry TransformCurrentTelemetry(CurrentTelemetry telemetry)
+0197: 	{
+0198: 		return new DebugCurrentTelemetry(telemetry.Type, telemetry.Version, telemetry.Timestamp, telemetry.Frequency, telemetry.V12Ma.ToList(), telemetry.V5Ma.ToList(), telemetry.SolenoidMa.ToList(), telemetry.PumpMa.ToList());
+0199: 	}
+0200: 
+0201: 	private static DebugControlTelemetry TransformControlTelemetry(ControlStateTelemetry telemetry)
+0202: 	{
+0203: 		List<DebugBagState> bags = telemetry.Bags.Select((BagState b) => new DebugBagState(b.BagId, b.SetpointKpa, b.CurrentPressureKpa, b.FsmState.ToString(), b.SafetyReason, b.FaultReason)).ToList();
+0204: 		return new DebugControlTelemetry(telemetry.Timestamp, telemetry.DeviceTimestampMs, telemetry.SchedulerState.ToString(), telemetry.SelectedBagsMask, telemetry.GetSelectedBagIds(), telemetry.NumBagsSteady, telemetry.IsSleeping, bags);
+0205: 	}
+0206: 
+0207: 	private static DebugHealthTelemetry TransformHealthTelemetry(HealthTelemetry telemetry)
+0208: 	{
+0209: 		List<DebugSolenoidTemp> solenoidTemps = telemetry.SolenoidTemps.Select((SolenoidTemp s) => new DebugSolenoidTemp(s.BagId, s.InflateTempC, s.DeflateTempC)).ToList();
+0210: 		return new DebugHealthTelemetry(telemetry.Type, telemetry.Version, telemetry.Timestamp, telemetry.DeviceTimestampMs, solenoidTemps, telemetry.Pump0TempC, telemetry.Pump1TempC, telemetry.AmbientTempC, telemetry.AmbientHumidityPct, telemetry.Pump0Rpm, telemetry.Pump1Rpm);
+0211: 	}
+0212: }
+
+=== S28 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/FirmnessDeviceStatus.cs ===
+SHA256 ad6cc868192398a1b1a9870b5d59286e41a8f35d3845e39e35e962d783b9a084
+0001: using Eight.Capybara.DeviceApi;
+0002: using Eight.DeviceProtocol;
+0003: using Eight.Firmness.StateMachine.States;
+0004: using Eight.Lsp.Subsystems.Models;
+0005: using Eight.Lsp.Subsystems.StateMachine;
+0006: using Eight.Lsp.Subsystems.StateMachine.States;
+0007: 
+0008: namespace Eight.Firmness.DeviceAPI;
+0009: 
+0010: public static class FirmnessDeviceStatus
+0011: {
+0012: 	public static Response? Classify(Side side, ISubsystemState? state, Response? calibrating = null)
+0013: 	{
+0014: 		if (state != null && !(state is NullState))
+0015: 		{
+0016: 			if (!(state is NotConnectedState))
+0017: 			{
+0018: 				if (!(state is WaitingForBootloaderState))
+0019: 				{
+0020: 					if (!(state is CheckingFirmwareState) && !(state is BootingToFirmwareState))
+0021: 					{
+0022: 						if (!(state is UpdatingFirmwareState))
+0023: 						{
+0024: 							if (!(state is ErrorWaitingState))
+0025: 							{
+0026: 								if (!(state is CalibratingState))
+0027: 								{
+0028: 									if (state is FirmnessReadyState)
+0029: 									{
+0030: 										return null;
+0031: 									}
+0032: 									return NotReady(side);
+0033: 								}
+0034: 								return calibrating ?? Utils.CreateFailure($"Calibration is running on {side}", "BadRequest");
+0035: 							}
+0036: 							return Initializing($"{side} firmness device is recovering");
+0037: 						}
+0038: 						return Initializing($"{side} firmness device is updating firmware");
+0039: 					}
+0040: 					return StartingUp(side);
+0041: 				}
+0042: 				return Offline($"{side} firmness device is not responding");
+0043: 			}
+0044: 			return Offline($"{side} firmness device is disconnected");
+0045: 		}
+0046: 		return Utils.CreateFailure($"No firmness device configured on {side}", "UnknownAccessory");
+0047: 	}
+0048: 
+0049: 	public static Response StartingUp(Side side)
+0050: 	{
+0051: 		return Initializing($"{side} firmness device is starting up");
+0052: 	}
+0053: 
+0054: 	public static Response NotReady(Side side)
+0055: 	{
+0056: 		return Initializing($"{side} firmness device is not ready");
+0057: 	}
+0058: 
+0059: 	private static Response Offline(string message)
+0060: 	{
+0061: 		return Utils.CreateFailure(message, "OfflineAccessory");
+0062: 	}
+0063: 
+0064: 	private static Response Initializing(string message)
+0065: 	{
+0066: 		return Utils.CreateFailure(message, "AccessoryInitialization");
+0067: 	}
+0068: }
+
+=== S29 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.StateMachine.States/FirmnessReadyState.cs ===
+SHA256 21ab6cdedd3c0a498f0a15922beb890d3175043554523ac5adea2a554d317ecb
+0001: using System;
+0002: using System.Buffers.Binary;
+0003: using System.Collections.Concurrent;
+0004: using System.Collections.Generic;
+0005: using System.Linq;
+0006: using System.Threading;
+0007: using System.Threading.Tasks;
+0008: using Eight.Capybara.Config;
+0009: using Eight.Firmness.Models;
+0010: using Eight.Firmness.Models.Telemetry;
+0011: using Eight.Firmness.Protocol;
+0012: using Eight.Firmness.Services;
+0013: using Eight.Firmness.Services.Calibration;
+0014: using Eight.Lsp.Protocol;
+0015: using Eight.Lsp.Protocol.Models;
+0016: using Eight.Lsp.Subsystems.Models;
+0017: using Eight.Lsp.Subsystems.Services.Connection;
+0018: using Eight.Lsp.Subsystems.StateMachine;
+0019: using Eight.Lsp.Subsystems.StateMachine.States;
+0020: using Microsoft.Extensions.Logging;
+0021: 
+0022: namespace Eight.Firmness.StateMachine.States;
+0023: 
+0024: public class FirmnessReadyState(ILogger<FirmnessReadyState> logger, IFirmnessStateFactory stateFactory, IDeviceConnection connection, IPodConfigurationManager<FirmnessConfiguration> configManager, BalloonOptions options, FirmwareInfo firmwareInfo) : ReadyStateBase(logger, stateFactory, connection, firmwareInfo)
+0025: {
+0026: 	private readonly ConcurrentQueue<FirmnessRequest> requests = new ConcurrentQueue<FirmnessRequest>();
+0027: 
+0028: 	private readonly TimeSpan tickInterval = TimeSpan.FromMilliseconds(50L, 0L);
+0029: 
+0030: 	private readonly IFirmnessStateFactory firmnessStateFactory = stateFactory;
+0031: 
+0032: 	private readonly SemaphoreSlim deviceWriteLock = new SemaphoreSlim(1, 1);
+0033: 
+0034: 	private bool handedOffToCalibration;
+0035: 
+0036: 	protected override string DeviceType => "Balloon";
+0037: 
+0038: 	public bool CalibrationHandoffPending { get; private set; }
+0039: 
+0040: 	public FirmnessDeviceState DeviceState { get; private set; } = new FirmnessDeviceState();
+0041: 
+0042: 	public FirmnessTarget? StoredTargetFirmness
+0043: 	{
+0044: 		get
+0045: 		{
+0046: 			if (connection.Side != Side.Left)
+0047: 			{
+0048: 				return configManager.Configuration?.RightTargetFirmness;
+0049: 			}
+0050: 			return configManager.Configuration?.LeftTargetFirmness;
+0051: 		}
+0052: 	}
+0053: 
+0054: 	public DeviceMode ConfiguredMode => ((connection.Side != Side.Left) ? configManager.Configuration?.RightTargetMode : configManager.Configuration?.LeftTargetMode).GetValueOrDefault();
+0055: 
+0056: 	public ToleranceBands? StoredToleranceBands
+0057: 	{
+0058: 		get
+0059: 		{
+0060: 			if (connection.Side != Side.Left)
+0061: 			{
+0062: 				return configManager.Configuration?.RightToleranceBands;
+0063: 			}
+0064: 			return configManager.Configuration?.LeftToleranceBands;
+0065: 		}
+0066: 	}
+0067: 
+0068: 	public BalloonTelemetryProfile? StoredTelemetryProfile
+0069: 	{
+0070: 		get
+0071: 		{
+0072: 			if (connection.Side != Side.Left)
+0073: 			{
+0074: 				return configManager.Configuration?.RightTelemetryProfile;
+0075: 			}
+0076: 			return configManager.Configuration?.LeftTelemetryProfile;
+0077: 		}
+0078: 	}
+0079: 
+0080: 	public void MakeRequest(FirmnessRequest request)
+0081: 	{
+0082: 		requests.Enqueue(request);
+0083: 	}
+0084: 
+0085: 	public void RequestCalibration(IReadOnlyList<int>? bags, CalibrationDeflateMethod? method = null)
+0086: 	{
+0087: 		CalibrationHandoffPending = true;
+0088: 		MakeRequest(new StartCalibrationRequest(bags, method));
+0089: 	}
+0090: 
+0091: 	public Task<byte[]> GetDeviceCalibrationAsync(CancellationToken cancellation)
+0092: 	{
+0093: 		return RunDeviceWrite(() => connection.SendCustomCommandWithResponse(96, CalibrationProtocolEncoder.EncodeGetCalibration(), options.CommandTimeout, cancellation), cancellation);
+0094: 	}
+0095: 
+0096: 	public Task ApplyBagCalibrationAsync(IReadOnlyList<BagCalibrationSetting> bags, uint? saveAtUnixSeconds, CancellationToken cancellation)
+0097: 	{
+0098: 		return RunDeviceWrite(async () =>
+0099: 		{
+0100: 			foreach (BagCalibrationSetting item in bags.OrderBy((BagCalibrationSetting b) => b.BagId))
+0101: 			{
+0102: 				await connection.SendCustomCommand(96, CalibrationProtocolEncoder.EncodeSetBagCalibration((byte)item.BagId, (float)item.A, (float)item.B, (float)item.ResolvedCi, (float)item.ResolvedAl, (float)item.ResolvedCl), options.CommandTimeout, cancellation);
+0103: 			}
+0104: 			if (saveAtUnixSeconds.HasValue)
+0105: 			{
+0106: 				uint valueOrDefault = saveAtUnixSeconds.GetValueOrDefault();
+0107: 				await connection.SendCustomCommand(96, CalibrationProtocolEncoder.EncodeSaveCalibrationToFlash(valueOrDefault), options.CommandTimeout, cancellation);
+0108: 			}
+0109: 			logger.LogInformation("Wrote calibration for {BagCount} bag(s) on {Side}, persisted={Persisted}", bags.Count, connection.Side.ToLowerString(), saveAtUnixSeconds.HasValue);
+0110: 		}, cancellation);
+0111: 	}
+0112: 
+0113: 	protected override async Task Initialize(CancellationToken cancellation)
+0114: 	{
+0115: 		await FetchHardwareInfo(cancellation);
+0116: 		await LoadAndApplyStoredTargetFirmness(cancellation);
+0117: 		await ReapplyStoredToleranceBands(cancellation);
+0118: 		await ReapplyStoredTelemetryProfile(cancellation);
+0119: 	}
+0120: 
+0121: 	protected override async Task<ISubsystemState?> RunMonitorLoop(TaskCompletionSource<ISubsystemState> stateChangeTcs, CancellationToken cancellationToken)
+0122: 	{
+0123: 		using PeriodicTimer timer = new PeriodicTimer(tickInterval);
+0124: 		while (await timer.WaitForNextTickAsync(cancellationToken) && !cancellationToken.IsCancellationRequested && !stateChangeTcs.Task.IsCompleted)
+0125: 		{
+0126: 			ISubsystemState subsystemState = await RunTick(cancellationToken);
+0127: 			if (subsystemState != null)
+0128: 			{
+0129: 				return subsystemState;
+0130: 			}
+0131: 		}
+0132: 		return null;
+0133: 	}
+0134: 
+0135: 	protected override void OnPacketReceived(Packet packet, ProtocolContext context)
+0136: 	{
+0137: 		try
+0138: 		{
+0139: 			if (packet.Cmd == 89)
+0140: 			{
+0141: 				PressureTelemetry pressureTelemetry = TelemetryParser.ParsePressureTelemetry(packet.Payload);
+0142: 				DeviceState = DeviceState with
+0143: 				{
+0144: 					PressureTelemetry = pressureTelemetry
+0145: 				};
+0146: 			}
+0147: 			else if (packet.Cmd == 91)
+0148: 			{
+0149: 				CurrentTelemetry currentTelemetry = TelemetryParser.ParseCurrentTelemetry(packet.Payload);
+0150: 				DeviceState = DeviceState with
+0151: 				{
+0152: 					CurrentTelemetry = currentTelemetry
+0153: 				};
+0154: 			}
+0155: 			else if (packet.Cmd == 90)
+0156: 			{
+0157: 				ControlStateTelemetry controlTelemetry = TelemetryParser.ParseControlTelemetry(packet.Payload);
+0158: 				DeviceState = DeviceState with
+0159: 				{
+0160: 					ControlTelemetry = controlTelemetry
+0161: 				};
+0162: 			}
+0163: 			else if (packet.Cmd == 93)
+0164: 			{
+0165: 				HealthTelemetry healthTelemetry = TelemetryParser.ParseHealthTelemetry(packet.Payload);
+0166: 				DeviceState = DeviceState with
+0167: 				{
+0168: 					HealthTelemetry = healthTelemetry
+0169: 				};
+0170: 			}
+0171: 		}
+0172: 		catch (Exception ex)
+0173: 		{
+0174: 			logger.LogWarning(ex, "Failed to process telemetry packet for {Side}: {Error}", connection.Side.ToLowerString(), ex.Message);
+0175: 		}
+0176: 	}
+0177: 
+0178: 	private async Task LoadAndApplyStoredTargetFirmness(CancellationToken cancellation)
+0179: 	{
+0180: 		_ = 1;
+0181: 		try
+0182: 		{
+0183: 			FirmnessConfiguration configuration = configManager.Configuration;
+0184: 			if (configuration != null)
+0185: 			{
+0186: 				FirmnessTarget firmnessTarget = ((connection.Side == Side.Left) ? configuration.LeftTargetFirmness : configuration.RightTargetFirmness);
+0187: 				DeviceMode mode = ((connection.Side == Side.Left) ? configuration.LeftTargetMode : configuration.RightTargetMode).GetValueOrDefault();
+0188: 				if (firmnessTarget != null)
+0189: 				{
+0190: 					logger.LogInformation("Restoring target firmness for {Side}: {Target}", connection.Side.ToLowerString(), firmnessTarget);
+0191: 					await SendFirmnessCommand(firmnessTarget, cancellation);
+0192: 				}
+0193: 				logger.LogInformation("Setting mode for {Side}: {Mode}", connection.Side.ToLowerString(), mode.ToDisplayName());
+0194: 				await SendModeCommand(mode, cancellation);
+0195: 			}
+0196: 		}
+0197: 		catch (Exception exception)
+0198: 		{
+0199: 			logger.LogWarning(exception, "Failed to load stored target firmness for {Side}", connection.Side.ToLowerString());
+0200: 		}
+0201: 	}
+0202: 
+0203: 	private async Task FetchHardwareInfo(CancellationToken cancellation)
+0204: 	{
+0205: 		try
+0206: 		{
+0207: 			HardwareInfo hardwareInfo = await connection.GetHwInfo(cancellation);
+0208: 			(string? Revision, int BagCount) tuple = HardwareRevisionHelper.ParseRevisionAndBagCount(hardwareInfo.Label, logger);
+0209: 			string item = tuple.Revision;
+0210: 			int item2 = tuple.BagCount;
+0211: 			DeviceState = DeviceState with
+0212: 			{
+0213: 				HardwareInfo = hardwareInfo,
+0214: 				BagCount = item2,
+0215: 				FirmwareInfo = firmwareInfo
+0216: 			};
+0217: 			logger.LogInformation("Fetched hardware info for {Side}: {Label}, revision: {Revision}, bag count: {BagCount}", connection.Side.ToLowerString(), hardwareInfo.Label, item ?? "unknown", item2);
+0218: 			logger.LogInformation("Firmware info for {Side}: CRC 0x{Crc:X8} (from bootloader)", connection.Side.ToLowerString(), firmwareInfo.Crc);
+0219: 		}
+0220: 		catch (Exception exception)
+0221: 		{
+0222: 			logger.LogWarning(exception, "Failed to fetch hardware info for {Side}", connection.Side.ToLowerString());
+0223: 		}
+0224: 	}
+0225: 
+0226: 	private void SaveTargetFirmness(FirmnessTarget firmness)
+0227: 	{
+0228: 		try
+0229: 		{
+0230: 			FirmnessConfiguration configuration = configManager.Configuration;
+0231: 			if ((object)configuration == null)
+0232: 			{
+0233: 				logger.LogWarning("Cannot save target firmness for {Side}: configuration is null", connection.Side.ToLowerString());
+0234: 				return;
+0235: 			}
+0236: 			FirmnessConfiguration configuration2 = ((connection.Side == Side.Left) ? configuration with
+0237: 			{
+0238: 				LeftTargetFirmness = firmness
+0239: 			} : configuration with
+0240: 			{
+0241: 				RightTargetFirmness = firmness
+0242: 			});
+0243: 			configManager.UpdateConfiguration(configuration2);
+0244: 			logger.LogDebug("Saved target firmness for {Side}: {Target}", connection.Side.ToLowerString(), firmness);
+0245: 		}
+0246: 		catch (Exception exception)
+0247: 		{
+0248: 			logger.LogError(exception, "Failed to save target firmness for {Side}", connection.Side.ToLowerString());
+0249: 		}
+0250: 	}
+0251: 
+0252: 	private void SaveTargetMode(DeviceMode mode)
+0253: 	{
+0254: 		try
+0255: 		{
+0256: 			FirmnessConfiguration configuration = configManager.Configuration;
+0257: 			if ((object)configuration == null)
+0258: 			{
+0259: 				logger.LogWarning("Cannot save target mode for {Side}: configuration is null", connection.Side.ToLowerString());
+0260: 				return;
+0261: 			}
+0262: 			FirmnessConfiguration configuration2 = ((connection.Side == Side.Left) ? configuration with
+0263: 			{
+0264: 				LeftTargetMode = mode
+0265: 			} : configuration with
+0266: 			{
+0267: 				RightTargetMode = mode
+0268: 			});
+0269: 			configManager.UpdateConfiguration(configuration2);
+0270: 			logger.LogDebug("Saved target mode for {Side}: {Mode}", connection.Side.ToLowerString(), mode.ToDisplayName());
+0271: 		}
+0272: 		catch (Exception exception)
+0273: 		{
+0274: 			logger.LogError(exception, "Failed to save target mode for {Side}", connection.Side.ToLowerString());
+0275: 		}
+0276: 	}
+0277: 
+0278: 	private async Task<T> RunDeviceWrite<T>(Func<Task<T>> work, CancellationToken cancellation)
+0279: 	{
+0280: 		await deviceWriteLock.WaitAsync(cancellation);
+0281: 		try
+0282: 		{
+0283: 			if (handedOffToCalibration)
+0284: 			{
+0285: 				throw new CalibrationRunningException(connection.Side);
+0286: 			}
+0287: 			return await work();
+0288: 		}
+0289: 		finally
+0290: 		{
+0291: 			deviceWriteLock.Release();
+0292: 		}
+0293: 	}
+0294: 
+0295: 	private Task RunDeviceWrite(Func<Task> write, CancellationToken cancellation)
+0296: 	{
+0297: 		return RunDeviceWrite(async () =>
+0298: 		{
+0299: 			await write();
+0300: 			return (object?)null;
+0301: 		}, cancellation);
+0302: 	}
+0303: 
+0304: 	private void SaveToConfiguration(string what, Func<FirmnessConfiguration, FirmnessConfiguration> apply)
+0305: 	{
+0306: 		try
+0307: 		{
+0308: 			FirmnessConfiguration configuration = configManager.Configuration;
+0309: 			if ((object)configuration == null)
+0310: 			{
+0311: 				logger.LogWarning("Cannot save {What} for {Side}: configuration is null", what, connection.Side.ToLowerString());
+0312: 			}
+0313: 			else
+0314: 			{
+0315: 				configManager.UpdateConfiguration(apply(configuration));
+0316: 				logger.LogDebug("Saved {What} for {Side}", what, connection.Side.ToLowerString());
+0317: 			}
+0318: 		}
+0319: 		catch (Exception exception)
+0320: 		{
+0321: 			logger.LogError(exception, "Failed to save {What} for {Side}", what, connection.Side.ToLowerString());
+0322: 		}
+0323: 	}
+0324: 
+0325: 	public Task ApplyAndPersistToleranceBandsAsync(ToleranceBands bands, CancellationToken cancellation)
+0326: 	{
+0327: 		return RunDeviceWrite(async () =>
+0328: 		{
+0329: 			await SendToleranceBands(bands, cancellation);
+0330: 			SaveToleranceBands(bands.MergedOnto(StoredToleranceBands));
+0331: 		}, cancellation);
+0332: 	}
+0333: 
+0334: 	internal async Task ReapplyStoredToleranceBands(CancellationToken cancellation)
+0335: 	{
+0336: 		await RunDeviceWrite(async () =>
+0337: 		{
+0338: 			ToleranceBands bands = StoredToleranceBands;
+0339: 			if ((object)bands == null)
+0340: 			{
+0341: 				return;
+0342: 			}
+0343: 			try
+0344: 			{
+0345: 				await SendToleranceBands(bands, cancellation);
+0346: 				logger.LogInformation("Re-applied {BinCount} stored tolerance bin(s) for {Side}", bands.Bins.Count, connection.Side.ToLowerString());
+0347: 			}
+0348: 			catch (Exception exception)
+0349: 			{
+0350: 				logger.LogError(exception, "Failed to re-apply stored tolerance bands for {Side}; the board keeps its own defaults", connection.Side.ToLowerString());
+0351: 			}
+0352: 		}, cancellation);
+0353: 	}
+0354: 
+0355: 	private async Task SendToleranceBands(ToleranceBands bands, CancellationToken cancellation)
+0356: 	{
+0357: 		double? minKpa = bands.MinKpa;
+0358: 		if (minKpa.HasValue)
+0359: 		{
+0360: 			double valueOrDefault = minKpa.GetValueOrDefault();
+0361: 			minKpa = bands.MaxKpa;
+0362: 			if (minKpa.HasValue)
+0363: 			{
+0364: 				double valueOrDefault2 = minKpa.GetValueOrDefault();
+0365: 				await connection.SendCustomCommand(83, ControlLoopEncoder.EncodeToleranceRange((float)valueOrDefault, (float)valueOrDefault2), options.CommandTimeout, cancellation);
+0366: 			}
+0367: 		}
+0368: 		foreach (ToleranceBinSetting item in bands.Bins.OrderBy((ToleranceBinSetting b) => b.BinIndex))
+0369: 		{
+0370: 			await connection.SendCustomCommand(83, ControlLoopEncoder.EncodeToleranceBin((byte)item.BinIndex, (float)item.ArrivalKpa, (float)item.DepartureKpa), options.CommandTimeout, cancellation);
+0371: 		}
+0372: 	}
+0373: 
+0374: 	private void SaveToleranceBands(ToleranceBands bands)
+0375: 	{
+0376: 		SaveToConfiguration($"{bands.Bins.Count} tolerance bin(s)", (FirmnessConfiguration config) => (connection.Side != Side.Left) ? config with
+0377: 		{
+0378: 			RightToleranceBands = bands
+0379: 		} : config with
+0380: 		{
+0381: 			LeftToleranceBands = bands
+0382: 		});
+0383: 	}
+0384: 
+0385: 	public Task ApplyAndPersistTelemetryProfileAsync(BalloonTelemetryProfile profile, CancellationToken cancellation)
+0386: 	{
+0387: 		return RunDeviceWrite(async () =>
+0388: 		{
+0389: 			await SendTelemetryProfile(profile, cancellation);
+0390: 			SaveTelemetryProfile(profile);
+0391: 		}, cancellation);
+0392: 	}
+0393: 
+0394: 	internal async Task ReapplyStoredTelemetryProfile(CancellationToken cancellation)
+0395: 	{
+0396: 		await RunDeviceWrite(async () =>
+0397: 		{
+0398: 			BalloonTelemetryProfile? storedTelemetryProfile = StoredTelemetryProfile;
+0399: 			if (storedTelemetryProfile.HasValue)
+0400: 			{
+0401: 				BalloonTelemetryProfile profile = storedTelemetryProfile.GetValueOrDefault();
+0402: 				if (profile != BalloonTelemetryProfile.LegacyOnly)
+0403: 				{
+0404: 					if (!profile.SilencesControlTelemetry())
+0405: 					{
+0406: 						try
+0407: 						{
+0408: 							await SendTelemetryProfile(profile, cancellation);
+0409: 							logger.LogInformation("Re-asserted the {Profile} balloon telemetry profile for {Side}", profile, connection.Side.ToLowerString());
+0410: 							return;
+0411: 						}
+0412: 						catch (Exception exception)
+0413: 						{
+0414: 							logger.LogError(exception, "Failed to re-assert the balloon telemetry profile for {Side}; the board stays on its legacy-only default", connection.Side.ToLowerString());
+0415: 							return;
+0416: 						}
+0417: 					}
+0418: 					logger.LogWarning("Refusing to re-assert the stored {Profile} balloon telemetry profile for {Side}: it silences 0x5A and would leave firmness/get with no control telemetry. Clear the telemetry profile for this side in the pod configuration; the board stays on its legacy-only default", profile, connection.Side.ToLowerString());
+0419: 				}
+0420: 			}
+0421: 		}, cancellation);
+0422: 	}
+0423: 
+0424: 	private Task SendTelemetryProfile(BalloonTelemetryProfile profile, CancellationToken cancellation)
+0425: 	{
+0426: 		return connection.SendCustomCommand(83, ControlLoopEncoder.EncodeTelemetryProfile(profile), options.CommandTimeout, cancellation);
+0427: 	}
+0428: 
+0429: 	private void SaveTelemetryProfile(BalloonTelemetryProfile profile)
+0430: 	{
+0431: 		SaveToConfiguration($"the {profile} telemetry profile", (FirmnessConfiguration config) => (connection.Side != Side.Left) ? config with
+0432: 		{
+0433: 			RightTelemetryProfile = profile
+0434: 		} : config with
+0435: 		{
+0436: 			LeftTelemetryProfile = profile
+0437: 		});
+0438: 	}
+0439: 
+0440: 	internal async Task<ISubsystemState?> RunTick(CancellationToken cancellation)
+0441: 	{
+0442: 		SetFirmnessRequest setFirmnessRequest = null;
+0443: 		SetModeRequest lastModeRequest = null;
+0444: 		StartCalibrationRequest calibrationRequest = null;
+0445: 		FirmnessRequest result;
+0446: 		while (requests.TryDequeue(out result))
+0447: 		{
+0448: 			if (!(result is SetFirmnessRequest setFirmnessRequest2))
+0449: 			{
+0450: 				if (!(result is SetModeRequest setModeRequest))
+0451: 				{
+0452: 					if (result is StartCalibrationRequest startCalibrationRequest)
+0453: 					{
+0454: 						calibrationRequest = startCalibrationRequest;
+0455: 					}
+0456: 				}
+0457: 				else
+0458: 				{
+0459: 					lastModeRequest = setModeRequest;
+0460: 				}
+0461: 			}
+0462: 			else
+0463: 			{
+0464: 				setFirmnessRequest = setFirmnessRequest2;
+0465: 			}
+0466: 		}
+0467: 		if ((object)calibrationRequest != null)
+0468: 		{
+0469: 			logger.LogInformation("[{Side}] Handing off to calibration for bags [{Bags}]", connection.Side.ToLowerString(), (calibrationRequest.Bags == null) ? "default" : string.Join(", ", calibrationRequest.Bags));
+0470: 			await deviceWriteLock.WaitAsync(cancellation);
+0471: 			handedOffToCalibration = true;
+0472: 			deviceWriteLock.Release();
+0473: 			return firmnessStateFactory.CreateCalibratingState(connection, firmwareInfo, DeviceState.BagCount, calibrationRequest.Bags, calibrationRequest.Method);
+0474: 		}
+0475: 		if (setFirmnessRequest != null)
+0476: 		{
+0477: 			await OnRequest(setFirmnessRequest, cancellation);
+0478: 		}
+0479: 		if (lastModeRequest != null)
+0480: 		{
+0481: 			await OnRequest(lastModeRequest, cancellation);
+0482: 		}
+0483: 		return null;
+0484: 	}
+0485: 
+0486: 	private async Task OnRequest(FirmnessRequest request, CancellationToken cancellation)
+0487: 	{
+0488: 		logger.LogDebug("Processing request: {Request}", request);
+0489: 		if (!(request is SetFirmnessRequest setFirmnessRequest))
+0490: 		{
+0491: 			if (request is SetModeRequest setModeRequest)
+0492: 			{
+0493: 				SaveTargetMode(setModeRequest.Mode);
+0494: 				await SendModeCommand(setModeRequest.Mode, cancellation);
+0495: 			}
+0496: 		}
+0497: 		else
+0498: 		{
+0499: 			FirmnessTarget firmness = new FirmnessTarget(setFirmnessRequest.Bag0, setFirmnessRequest.Bag1, setFirmnessRequest.Bag2, setFirmnessRequest.Bag3, setFirmnessRequest.Bag4);
+0500: 			SaveTargetFirmness(firmness);
+0501: 			await SendFirmnessCommand(firmness, cancellation);
+0502: 		}
+0503: 	}
+0504: 
+0505: 	private async Task SendFirmnessCommand(FirmnessTarget firmness, CancellationToken cancellation)
+0506: 	{
+0507: 		try
+0508: 		{
+0509: 			int bagCount = DeviceState.BagCount;
+0510: 			int[] array = firmness.ToArray();
+0511: 			if (array.Length > bagCount)
+0512: 			{
+0513: 				logger.LogInformation("[{Side}] Truncating firmness from {InputCount} to {ExpectedCount} values (hardware has {BagCount} bags)", connection.Side.ToLowerString(), array.Length, bagCount, bagCount);
+0514: 				array = array[..bagCount];
+0515: 			}
+0516: 			else if (array.Length < bagCount)
+0517: 			{
+0518: 				throw new ArgumentException($"Expected at least {bagCount} firmness values, got {array.Length}", "firmness");
+0519: 			}
+0520: 			float[] array2 = new float[array.Length];
+0521: 			for (int i = 0; i < array.Length; i++)
+0522: 			{
+0523: 				array2[i] = (float)PressureMappings.GetPressureForLevel(array[i]);
+0524: 			}
+0525: 			logger.LogInformation("Sending firmness to {Side}: levels [{Levels}] -> pressures [{Pressures}] kPa", connection.Side.ToLowerString(), string.Join(", ", array), string.Join(", ", array2.Select((float p) => p.ToString("F2"))));
+0526: 			byte[] array3 = new byte[bagCount * 4];
+0527: 			for (int num = 0; num < bagCount; num++)
+0528: 			{
+0529: 				BinaryPrimitives.WriteSingleLittleEndian(array3.AsSpan(num * 4, 4), array2[num]);
+0530: 			}
+0531: 			await connection.SendCustomCommand(82, array3, options.CommandTimeout, cancellation);
+0532: 			logger.LogDebug("Firmness command sent successfully to {Side}", connection.Side.ToLowerString());
+0533: 		}
+0534: 		catch (Exception ex)
+0535: 		{
+0536: 			logger.LogError(ex, "Failed to send firmness command to {Side}: {Error}", connection.Side.ToLowerString(), ex.Message);
+0537: 		}
+0538: 	}
+0539: 
+0540: 	private async Task SendModeCommand(DeviceMode mode, CancellationToken cancellation)
+0541: 	{
+0542: 		try
+0543: 		{
+0544: 			logger.LogInformation("Setting mode to {Mode} for {Side}", mode.ToDisplayName(), connection.Side.ToLowerString());
+0545: 			byte[] payload = new byte[1] { mode.ToByte() };
+0546: 			await connection.SendCustomCommand(84, payload, options.CommandTimeout, cancellation);
+0547: 			logger.LogDebug("Mode command sent successfully to {Side}", connection.Side.ToLowerString());
+0548: 		}
+0549: 		catch (Exception ex)
+0550: 		{
+0551: 			logger.LogError(ex, "Failed to send mode command to {Side}: {Error}", connection.Side.ToLowerString(), ex.Message);
+0552: 		}
+0553: 	}
+0554: }
+
+=== S30 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.StateMachine.States/FirmnessDeviceState.cs ===
+SHA256 a5b7649cd8d6a4f2f5c2243396ca80398f1f1f513d85aa13470c9bc94ce40579
+0001: using Eight.Firmness.Models.Telemetry;
+0002: using Eight.Lsp.Protocol.Models;
+0003: 
+0004: namespace Eight.Firmness.StateMachine.States;
+0005: 
+0006: public record FirmnessDeviceState(HardwareInfo? HardwareInfo = null, FirmwareInfo? FirmwareInfo = null, int BagCount = 4, PressureTelemetry? PressureTelemetry = null, CurrentTelemetry? CurrentTelemetry = null, ControlStateTelemetry? ControlTelemetry = null, HealthTelemetry? HealthTelemetry = null);
+
+=== S31 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.StateMachine/FirmnessService.cs ===
+SHA256 e4cd78573b7ea90ebe4e3ddb50a7ce81ed4376c36be49d3918166ad65467f1b9
+0001: using System;
+0002: using System.Collections.Concurrent;
+0003: using System.Collections.Generic;
+0004: using System.Linq;
+0005: using System.Threading;
+0006: using System.Threading.Tasks;
+0007: using Eight.Capybara.Config;
+0008: using Eight.Firmness.Models;
+0009: using Eight.Firmness.Services;
+0010: using Eight.Lsp.Subsystems.Models;
+0011: using Eight.Lsp.Subsystems.StateMachine;
+0012: using Eight.Lsp.Subsystems.StateMachine.States;
+0013: using Microsoft.Extensions.Hosting;
+0014: using Microsoft.Extensions.Logging;
+0015: 
+0016: namespace Eight.Firmness.StateMachine;
+0017: 
+0018: public class FirmnessService(ILogger<FirmnessService> logger, ISubsystemStateFactory stateFactory, BalloonOptions options, IPodConfigurationManager<FirmnessConfiguration> configManager, IFirmnessGate gate, TimeProvider timeProvider) : BackgroundService, IFirmnessProvider
+0019: {
+0020: 	private readonly ILogger<FirmnessService> logger = logger;
+0021: 
+0022: 	private readonly ISubsystemStateFactory stateFactory = stateFactory;
+0023: 
+0024: 	private readonly BalloonOptions options = options;
+0025: 
+0026: 	private readonly IPodConfigurationManager<FirmnessConfiguration> configManager = configManager;
+0027: 
+0028: 	private readonly IFirmnessGate gate = gate;
+0029: 
+0030: 	private readonly TimeProvider timeProvider = timeProvider;
+0031: 
+0032: 	private readonly ConcurrentDictionary<Side, ISubsystemState> states = new ConcurrentDictionary<Side, ISubsystemState>();
+0033: 
+0034: 	private readonly ConcurrentDictionary<Side, CancellationTokenSource> cancellationTokenSources = new ConcurrentDictionary<Side, CancellationTokenSource>();
+0035: 
+0036: 	private bool disposed;
+0037: 
+0038: 	private string MachineSection
+0039: 	{
+0040: 		get
+0041: 		{
+0042: 			if (!string.IsNullOrEmpty(options.MachineSection))
+0043: 			{
+0044: 				return options.MachineSection;
+0045: 			}
+0046: 			return "unknown";
+0047: 		}
+0048: 	}
+0049: 
+0050: 	private static bool IsNullState(ISubsystemState state)
+0051: 	{
+0052: 		return state is NullState;
+0053: 	}
+0054: 
+0055: 	private void WarnUnconfiguredSides(Dictionary<Side, string[]> usbPorts)
+0056: 	{
+0057: 		foreach (Side item in UsbPortMap.UnconfiguredSides(usbPorts))
+0058: 		{
+0059: 			logger.LogWarning("no firmness usbPortConfig for {Section}/{Side} — R12 disabled", MachineSection, item.ToLowerString());
+0060: 		}
+0061: 	}
+0062: 
+0063: 	private IReadOnlyCollection<Side> SidesToRun()
+0064: 	{
+0065: 		string[] usbRoots = options.UsbRoots;
+0066: 		if (usbRoots != null && usbRoots.Length > 0)
+0067: 		{
+0068: 			return options.SidePartNumbers?.Keys.ToArray() ?? Array.Empty<Side>();
+0069: 		}
+0070: 		Dictionary<Side, string[]> usbPorts = options.UsbPorts;
+0071: 		WarnUnconfiguredSides(usbPorts);
+0072: 		return usbPorts.Keys;
+0073: 	}
+0074: 
+0075: 	protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+0076: 	{
+0077: 		if (!gate.IsAllowed && (configManager.Configuration?.Enabled ?? false))
+0078: 		{
+0079: 			logger.LogWarning("Firmness gate denied; disabling persisted configuration");
+0080: 			Disable();
+0081: 		}
+0082: 		IReadOnlyCollection<Side> readOnlyCollection = SidesToRun();
+0083: 		logger.LogInformation("Starting firmness service for {SideCount} side(s)", readOnlyCollection.Count);
+0084: 		await Task.WhenAll(readOnlyCollection.Select((Side side) => SubsystemHost.RunAsync(logger, timeProvider, side, "balloon", stateFactory, states, cancellationTokenSources, IsNullState, stoppingToken)).ToArray());
+0085: 	}
+0086: 
+0087: 	public IReadOnlyDictionary<Side, ISubsystemState> GetCurrentStates()
+0088: 	{
+0089: 		return states;
+0090: 	}
+0091: 
+0092: 	public ISubsystemState? GetCurrentState(Side side)
+0093: 	{
+0094: 		states.TryGetValue(side, out ISubsystemState value);
+0095: 		return value;
+0096: 	}
+0097: 
+0098: 	public void Enable()
+0099: 	{
+0100: 		FirmnessConfiguration firmnessConfiguration = configManager.Configuration ?? new FirmnessConfiguration(Enabled: false);
+0101: 		configManager.UpdateConfiguration(firmnessConfiguration with
+0102: 		{
+0103: 			Enabled = true
+0104: 		});
+0105: 		logger.LogInformation("Firmness devices enabled");
+0106: 	}
+0107: 
+0108: 	public void Disable()
+0109: 	{
+0110: 		FirmnessConfiguration firmnessConfiguration = configManager.Configuration ?? new FirmnessConfiguration(Enabled: false);
+0111: 		configManager.UpdateConfiguration(firmnessConfiguration with
+0112: 		{
+0113: 			Enabled = false
+0114: 		});
+0115: 		Side[] array = states.Keys.ToArray();
+0116: 		foreach (Side side in array)
+0117: 		{
+0118: 			ISubsystemState value = stateFactory.CreateNullState(side);
+0119: 			states[side] = value;
+0120: 			logger.LogInformation("[{Side}:balloon] Reset to NullState due to disable", side.ToLowerString());
+0121: 			if (cancellationTokenSources.TryGetValue(side, out CancellationTokenSource value2))
+0122: 			{
+0123: 				value2.Cancel();
+0124: 			}
+0125: 		}
+0126: 		logger.LogInformation("Firmness devices disabled");
+0127: 	}
+0128: 
+0129: 	public override void Dispose()
+0130: 	{
+0131: 		if (disposed)
+0132: 		{
+0133: 			return;
+0134: 		}
+0135: 		disposed = true;
+0136: 		foreach (CancellationTokenSource value in cancellationTokenSources.Values)
+0137: 		{
+0138: 			value.Cancel();
+0139: 			value.Dispose();
+0140: 		}
+0141: 		cancellationTokenSources.Clear();
+0142: 		base.Dispose();
+0143: 		GC.SuppressFinalize(this);
+0144: 	}
+0145: }
+
+=== S32 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/FirmnessDebugResponse.cs ===
+SHA256 7fba0b44ead18e68c19f62f729dfc7a0019ee829a8ece0a7d5d9825e015b0c62
+0001: namespace Eight.Firmness.DeviceAPI;
+0002: 
+0003: public record FirmnessDebugResponse(DebugFirmnessBagState Bag0, DebugFirmnessBagState Bag1, DebugFirmnessBagState Bag2, DebugFirmnessBagState Bag3, DebugFirmnessBagState? Bag4, FirmnessHardwareInfo HardwareInfo, string Mode, bool DynamicModeEnabled, DebugFirmwareInfo FirmwareInfo, DebugPressureTelemetry RawPressureTelemetry, DebugCurrentTelemetry? RawCurrentTelemetry, DebugControlTelemetry RawControlTelemetry, DebugHealthTelemetry? RawHealthTelemetry);
+
+=== S33 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/TelemetryProfileDebugController.cs ===
+SHA256 024052312170293c683f19b97d97eeab02ae2a8a37d880186bbbcda90ff8b17a
+0001: using System;
+0002: using System.Threading;
+0003: using System.Threading.Tasks;
+0004: using Eight.Capybara.DeviceApi;
+0005: using Eight.DeviceApiClient;
+0006: using Eight.DeviceProtocol;
+0007: using Eight.Firmness.Models;
+0008: using Eight.Firmness.StateMachine;
+0009: using Eight.Firmness.StateMachine.States;
+0010: using Eight.Lsp.Protocol;
+0011: using Eight.Lsp.Protocol.Exceptions;
+0012: using Eight.Lsp.Subsystems.Models;
+0013: using Eight.Lsp.Subsystems.StateMachine;
+0014: using Microsoft.Extensions.Logging;
+0015: 
+0016: namespace Eight.Firmness.DeviceAPI;
+0017: 
+0018: public class TelemetryProfileDebugController(ILogger<TelemetryProfileDebugController> logger, IFirmnessProvider provider) : RequestController
+0019: {
+0020: 	private readonly ILogger<TelemetryProfileDebugController> logger = logger;
+0021: 
+0022: 	private readonly IFirmnessProvider provider = provider;
+0023: 
+0024: 	private static Response NotOperational(Side side, ISubsystemState? state)
+0025: 	{
+0026: 		return FirmnessDeviceStatus.Classify(side, state) ?? FirmnessDeviceStatus.NotReady(side);
+0027: 	}
+0028: 
+0029: 	[FunctionHandler("debugfirmness/gettelemetryprofile")]
+0030: 	public Task<Response> Get([SerializedRequestArg] TelemetryProfileSideArgs args)
+0031: 	{
+0032: 		ISubsystemState currentState = provider.GetCurrentState(args.Side);
+0033: 		if (!(currentState is FirmnessReadyState { StoredTelemetryProfile: var storedTelemetryProfile }))
+0034: 		{
+0035: 			return Task.FromResult(NotOperational(args.Side, currentState));
+0036: 		}
+0037: 		return Task.FromResult(Utils.CreateResponse(new TelemetryProfileStateResponse(storedTelemetryProfile.HasValue, storedTelemetryProfile)));
+0038: 	}
+0039: 
+0040: 	[FunctionHandler("debugfirmness/settelemetryprofile")]
+0041: 	public async Task<Response> Set([SerializedRequestArg] TelemetryProfileSetArgs args)
+0042: 	{
+0043: 		ISubsystemState currentState = provider.GetCurrentState(args.Side);
+0044: 		if (!(currentState is FirmnessReadyState firmnessReadyState))
+0045: 		{
+0046: 			return NotOperational(args.Side, currentState);
+0047: 		}
+0048: 		if (!Enum.IsDefined(args.Profile))
+0049: 		{
+0050: 			return Utils.CreateFailure($"{(int)args.Profile} is not a balloon telemetry profile; expected one of " + string.Join(", ", Enum.GetNames<BalloonTelemetryProfile>()), "BadRequest");
+0051: 		}
+0052: 		if (args.Profile.SilencesControlTelemetry())
+0053: 		{
+0054: 			return Utils.CreateFailure($"{args.Profile} would stop the {args.Side} balloon board emitting 0x5A, which is the only source " + "of the control telemetry firmness/get reports; use " + $"{BalloonTelemetryProfile.Both} to add the enhanced documents alongside it", "BadRequest");
+0055: 		}
+0056: 		try
+0057: 		{
+0058: 			await firmnessReadyState.ApplyAndPersistTelemetryProfileAsync(args.Profile, CancellationToken.None);
+0059: 		}
+0060: 		catch (DeviceCommunicationException ex)
+0061: 		{
+0062: 			logger.LogWarning(ex, "[telemetryprofile] {Side} refused the telemetry profile", args.Side);
+0063: 			return (ex.ResponseCode == ResponseCode.Unsupported) ? Utils.CreateFailure($"{args.Side} balloon firmware predates the telemetry profile subcommand", "AccessoryInitialization") : Utils.CreateFailure($"{args.Side} balloon board rejected the {args.Profile} telemetry profile: {ex.Message}", "BadRequest");
+0064: 		}
+0065: 		logger.LogInformation("[telemetryprofile] {Side} set to {Profile}", args.Side, args.Profile);
+0066: 		return Utils.CreateResponse(new TelemetryProfileStateResponse(Configured: true, args.Profile));
+0067: 	}
+0068: }
+
+=== S34 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/TelemetryProfileStateResponse.cs ===
+SHA256 4a12e24eb5aacad13a8236e32d1c3f565101c58523a05b27580f146d2fe05a2f
+0001: using Eight.Firmness.Models;
+0002: 
+0003: namespace Eight.Firmness.DeviceAPI;
+0004: 
+0005: public record TelemetryProfileStateResponse(bool Configured, BalloonTelemetryProfile? Profile);
+
+=== S35 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/ToleranceDebugController.cs ===
+SHA256 c00ce810fb342a27cc8c73cb14410d83d3d6e1f0ea1c7e12cc21697034beea47
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using System.Threading;
+0004: using System.Threading.Tasks;
+0005: using Eight.Capybara.DeviceApi;
+0006: using Eight.DeviceApiClient;
+0007: using Eight.DeviceProtocol;
+0008: using Eight.Firmness.Models;
+0009: using Eight.Firmness.StateMachine;
+0010: using Eight.Firmness.StateMachine.States;
+0011: using Eight.Lsp.Protocol;
+0012: using Eight.Lsp.Protocol.Exceptions;
+0013: using Eight.Lsp.Subsystems.Models;
+0014: using Eight.Lsp.Subsystems.StateMachine;
+0015: using Microsoft.Extensions.Logging;
+0016: 
+0017: namespace Eight.Firmness.DeviceAPI;
+0018: 
+0019: public class ToleranceDebugController(ILogger<ToleranceDebugController> logger, IFirmnessProvider provider) : RequestController
+0020: {
+0021: 	private readonly ILogger<ToleranceDebugController> logger = logger;
+0022: 
+0023: 	private readonly IFirmnessProvider provider = provider;
+0024: 
+0025: 	private static Response NotOperational(Side side, ISubsystemState? state)
+0026: 	{
+0027: 		return FirmnessDeviceStatus.Classify(side, state) ?? FirmnessDeviceStatus.NotReady(side);
+0028: 	}
+0029: 
+0030: 	[FunctionHandler("debugfirmness/gettolerance")]
+0031: 	public Task<Response> Get([SerializedRequestArg] ToleranceSideArgs args)
+0032: 	{
+0033: 		ISubsystemState currentState = provider.GetCurrentState(args.Side);
+0034: 		if (!(currentState is FirmnessReadyState readyState))
+0035: 		{
+0036: 			return Task.FromResult(NotOperational(args.Side, currentState));
+0037: 		}
+0038: 		return Task.FromResult(Utils.CreateResponse(StoredState(readyState)));
+0039: 	}
+0040: 
+0041: 	private static ToleranceStateResponse StoredState(FirmnessReadyState readyState)
+0042: 	{
+0043: 		ToleranceBands storedToleranceBands = readyState.StoredToleranceBands;
+0044: 		if ((object)storedToleranceBands == null)
+0045: 		{
+0046: 			return new ToleranceStateResponse(Tuned: false, null, null, Array.Empty<ToleranceBinSetting>());
+0047: 		}
+0048: 		return new ToleranceStateResponse(Tuned: true, storedToleranceBands.MinKpa, storedToleranceBands.MaxKpa, storedToleranceBands.Bins);
+0049: 	}
+0050: 
+0051: 	[FunctionHandler("debugfirmness/settolerance")]
+0052: 	public async Task<Response> Set([SerializedRequestArg] ToleranceSetArgs args)
+0053: 	{
+0054: 		ISubsystemState currentState = provider.GetCurrentState(args.Side);
+0055: 		if (!(currentState is FirmnessReadyState readyState))
+0056: 		{
+0057: 			return NotOperational(args.Side, currentState);
+0058: 		}
+0059: 		ToleranceBands toleranceBands = new ToleranceBands(args.MinKpa, args.MaxKpa, args.Bins ?? new List<ToleranceBinSetting>());
+0060: 		string text = toleranceBands.Validate();
+0061: 		if (text != null)
+0062: 		{
+0063: 			return Utils.CreateFailure(text, "BadRequest");
+0064: 		}
+0065: 		return await Apply(readyState, args.Side, toleranceBands);
+0066: 	}
+0067: 
+0068: 	private async Task<Response> Apply(FirmnessReadyState readyState, Side side, ToleranceBands bands)
+0069: 	{
+0070: 		try
+0071: 		{
+0072: 			await readyState.ApplyAndPersistToleranceBandsAsync(bands, CancellationToken.None);
+0073: 		}
+0074: 		catch (DeviceCommunicationException ex)
+0075: 		{
+0076: 			return Refused(side, ex, "tolerance bands");
+0077: 		}
+0078: 		logger.LogInformation("[tolerance] {Side} set to {BinCount} bin(s), range {Min} to {Max}", side, bands.Bins.Count, bands.MinKpa, bands.MaxKpa);
+0079: 		return Utils.CreateResponse(StoredState(readyState));
+0080: 	}
+0081: 
+0082: 	private Response Refused(Side side, DeviceCommunicationException ex, string what)
+0083: 	{
+0084: 		logger.LogWarning(ex, "[tolerance] {Side} refused a {What} write", side, what);
+0085: 		if (ex.ResponseCode != ResponseCode.Unsupported)
+0086: 		{
+0087: 			return Utils.CreateFailure($"{side} balloon board rejected the {what}: {ex.Message}", "BadRequest");
+0088: 		}
+0089: 		return Utils.CreateFailure($"{side} balloon firmware does not support tolerance band configuration", "AccessoryInitialization");
+0090: 	}
+0091: }
+
+=== S36 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/ToleranceStateResponse.cs ===
+SHA256 d3939f05b920b30495bba2a4872b8236edf48c205912f0580217f075f6628b4a
+0001: using System.Collections.Generic;
+0002: using Eight.Firmness.Models;
+0003: 
+0004: namespace Eight.Firmness.DeviceAPI;
+0005: 
+0006: public record ToleranceStateResponse(bool Tuned, double? MinKpa, double? MaxKpa, IReadOnlyList<ToleranceBinSetting> Bins);
+
+=== S37 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.DeviceAPI.Handlers/PairingController.cs ===
+SHA256 7a94a26e199feef87965225b2602850ee3b2e361dff4f1e54d305370c34632bd
+0001: using System;
+0002: using System.Threading;
+0003: using System.Threading.Tasks;
+0004: using Eight.Capybara.AutoPairing;
+0005: using Eight.DeviceApiClient;
+0006: using Microsoft.Extensions.Logging;
+0007: 
+0008: namespace Eight.Capybara.DeviceAPI.Handlers;
+0009: 
+0010: public class PairingController(PairingService pairingService, ILogger<PairingController> logger) : RequestController
+0011: {
+0012: 	private readonly PairingService pairingService = pairingService;
+0013: 
+0014: 	private readonly ILogger<PairingController> logger = logger;
+0015: 
+0016: 	[FunctionHandler("pairing/pair")]
+0017: 	public async Task<PairingResponse> AutoPairingStart([SerializedRequestArg] PairingRequest args)
+0018: 	{
+0019: 		logger.LogInformation("[pairing] starting pairing {args}", args);
+0020: 		try
+0021: 		{
+0022: 			return new PairingResponse(Result: true, await pairingService.StartPairingAsync(args.TargetDeviceId, args.Specialization, args.MinRssi, CancellationToken.None), "Pairing started successfully");
+0023: 		}
+0024: 		catch (Exception ex)
+0025: 		{
+0026: 			logger.LogError(ex, "[pairing] Error starting pairing");
+0027: 			return new PairingResponse(Result: false, null, "Error starting pairing: " + ex.Message);
+0028: 		}
+0029: 	}
+0030: 
+0031: 	[FunctionHandler("pairing/status")]
+0032: 	public Task<PairingStatusResponse> AutoPairingStatus()
+0033: 	{
+0034: 		PairingState pairingState = pairingService.GetPairingState();
+0035: 		if (pairingState == null)
+0036: 		{
+0037: 			return Task.FromResult(new PairingStatusResponse(null, "No pairing currently in progress"));
+0038: 		}
+0039: 		logger.LogInformation("[pairing] Getting status for pairing ID: {PairingId}", pairingState.PairingId);
+0040: 		return Task.FromResult(new PairingStatusResponse(pairingState, null));
+0041: 	}
+0042: }
+
+=== S38 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.DeviceAPI.Handlers/PairingStatusResponse.cs ===
+SHA256 a31d50a7d3fdc479fdf9efca4b3972990e25b42d971b6555f3ec0b2803060fd4
+0001: using Eight.Capybara.AutoPairing;
+0002: 
+0003: namespace Eight.Capybara.DeviceAPI.Handlers;
+0004: 
+0005: public record PairingStatusResponse(PairingState? State, string? Message);
+
+=== S39 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.AutoPairing/PairingService.cs ===
+SHA256 379519e10932ef2415ec51f235b2bb17de18870053a901e72bfca146d99bfe00
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using System.Linq;
+0004: using System.Threading;
+0005: using System.Threading.Tasks;
+0006: using Eight.DBus;
+0007: using Eight.DBus.Bluez;
+0008: using Eight.Wifi;
+0009: using Microsoft.Extensions.Logging;
+0010: using NodaTime;
+0011: 
+0012: namespace Eight.Capybara.AutoPairing;
+0013: 
+0014: public class PairingService(IDeviceProvider deviceProvider, Eight.Wifi.NetworkManager networkManager, IPairingMode pairingMode, ILogger<PairingService> logger)
+0015: {
+0016: 	private PairingState? currentPairingState;
+0017: 
+0018: 	private readonly SemaphoreSlim pairingSemaphore = new SemaphoreSlim(1, 1);
+0019: 
+0020: 	private string? currentTargetDeviceId;
+0021: 
+0022: 	private string? currentTargetSpecialization;
+0023: 
+0024: 	private int? currentMinRssi;
+0025: 
+0026: 	public void EnablePairingMode()
+0027: 	{
+0028: 		pairingMode.EnterPairingMode();
+0029: 	}
+0030: 
+0031: 	public void DisablePairingMode()
+0032: 	{
+0033: 		pairingMode.ExitPairingMode();
+0034: 	}
+0035: 
+0036: 	public async Task<string> StartPairingAsync(string? targetDeviceId = null, string? specialization = null, int? minRssi = null, CancellationToken cancellationToken = default(CancellationToken))
+0037: 	{
+0038: 		if (!(await pairingSemaphore.WaitAsync(TimeSpan.Zero, cancellationToken)))
+0039: 		{
+0040: 			throw new InvalidOperationException("Pairing already in progress");
+0041: 		}
+0042: 		try
+0043: 		{
+0044: 			currentTargetDeviceId = targetDeviceId;
+0045: 			currentTargetSpecialization = specialization;
+0046: 			currentMinRssi = minRssi;
+0047: 			string pairingId = Guid.NewGuid().ToString("N");
+0048: 			currentPairingState = PairingState.CreateInitial(pairingId, logger);
+0049: 			Task.Run(async () =>
+0050: 			{
+0051: 				try
+0052: 				{
+0053: 					await ExecutePairingProcessAsync(pairingId, cancellationToken);
+0054: 				}
+0055: 				finally
+0056: 				{
+0057: 					pairingSemaphore.Release();
+0058: 				}
+0059: 			}, cancellationToken);
+0060: 			return pairingId;
+0061: 		}
+0062: 		catch (Exception ex)
+0063: 		{
+0064: 			logger.LogError(ex, "[pairing] Error scheduling pairing");
+0065: 			pairingSemaphore.Release();
+0066: 			throw new InvalidOperationException("Error scheduling pairing", ex);
+0067: 		}
+0068: 	}
+0069: 
+0070: 	public PairingState? GetPairingState()
+0071: 	{
+0072: 		return currentPairingState;
+0073: 	}
+0074: 
+0075: 	private async Task<Eight.Wifi.NetworkManager.NetworkCredentials> GetNetworkCredentials()
+0076: 	{
+0077: 		UpdateState((PairingState state) => state.WithCurrentStep(PairingStep.ReadNetworkCredentials, logger));
+0078: 		Eight.Wifi.NetworkManager.NetworkCredentials networkCredentials = await networkManager.GetNetworkCredentials();
+0079: 		if (networkCredentials == null || string.IsNullOrEmpty(networkCredentials.Ssid))
+0080: 		{
+0081: 			throw new InvalidOperationException("No WiFi credentials found");
+0082: 		}
+0083: 		UpdateState((PairingState state) => state.WithCompletedStep(PairingStep.ReadNetworkCredentials, logger));
+0084: 		return networkCredentials;
+0085: 	}
+0086: 
+0087: 	private async Task WriteWifiCredentials(BleDevice pairingModeDevice, Eight.Wifi.NetworkManager.NetworkCredentials credentials, string? specialization)
+0088: 	{
+0089: 		UpdateState((PairingState state) => state.WithCurrentStep(PairingStep.SendNetworkCredentials, logger));
+0090: 		if (!(await pairingModeDevice.WriteWifiCredentialsAsync(credentials.Ssid, credentials.Password, specialization ?? "pod")))
+0091: 		{
+0092: 			throw new InvalidOperationException("Failed to write WiFi credentials to device");
+0093: 		}
+0094: 		UpdateState((PairingState state) => state.WithCompletedStep(PairingStep.SendNetworkCredentials, logger));
+0095: 	}
+0096: 
+0097: 	private async Task MonitorWifiConnection(BleDevice pairingModeDevice, CancellationToken cancellationToken)
+0098: 	{
+0099: 		UpdateState((PairingState state) => state.WithCurrentStep(PairingStep.ValidateConnectivity, logger));
+0100: 		if (!(await pairingModeDevice.MonitorWifiConnectionAsync(cancellationToken)))
+0101: 		{
+0102: 			throw new InvalidOperationException("Device failed to connect to WiFi");
+0103: 		}
+0104: 		UpdateState((PairingState state) => state.WithCompletedStep(PairingStep.ValidateConnectivity, logger));
+0105: 	}
+0106: 
+0107: 	private async Task ExecutePairingProcessAsync(string pairingId, CancellationToken cancellationToken)
+0108: 	{
+0109: 		using (logger.BeginScope("[pairing] {pairingId}", pairingId))
+0110: 		{
+0111: 			BleDevice pairingModeDevice = null;
+0112: 			try
+0113: 			{
+0114: 				UpdateState((PairingState state) => state.WithStatus(Status.InProgress, logger));
+0115: 				UpdateState((PairingState state) => state.WithCurrentStep(PairingStep.IdentifyPairingMode, logger));
+0116: 				pairingModeDevice = (await FindPairingModeDeviceAsync(cancellationToken)) ?? throw new InvalidOperationException("No device in pairing mode found");
+0117: 				UpdateState((PairingState state) => state.WithCompletedStep(PairingStep.IdentifyPairingMode, logger));
+0118: 				string deviceId = pairingModeDevice.DeserializedProductInfo?.DeviceId;
+0119: 				if (deviceId != null)
+0120: 				{
+0121: 					UpdateState((PairingState state) => state.WithPairedDeviceId(deviceId, logger));
+0122: 				}
+0123: 				await WriteWifiCredentials(pairingModeDevice, await GetNetworkCredentials(), currentTargetSpecialization);
+0124: 				await MonitorWifiConnection(pairingModeDevice, cancellationToken);
+0125: 				UpdateState((PairingState state) => state.MarkAsComplete(logger));
+0126: 				logger.LogInformation("[pairing] completed successfully");
+0127: 			}
+0128: 			catch (OperationCanceledException)
+0129: 			{
+0130: 				UpdateState((PairingState state) => state.MarkAsFailed("Pairing process was canceled", logger));
+0131: 				logger.LogInformation("[pairing] process was canceled");
+0132: 			}
+0133: 			catch (Exception ex2)
+0134: 			{
+0135: 				Exception ex3 = ex2;
+0136: 				Exception ex4 = ex3;
+0137: 				UpdateState((PairingState state) => state.MarkAsFailed("Pairing failed: " + ex4.Message, logger));
+0138: 				logger.LogError(ex4, "[pairing] failed");
+0139: 			}
+0140: 			finally
+0141: 			{
+0142: 				pairingModeDevice?.Dispose();
+0143: 			}
+0144: 		}
+0145: 	}
+0146: 
+0147: 	private void UpdateState(Func<PairingState, PairingState> updateFunc)
+0148: 	{
+0149: 		if (currentPairingState != null)
+0150: 		{
+0151: 			currentPairingState = updateFunc(currentPairingState);
+0152: 		}
+0153: 	}
+0154: 
+0155: 	private async Task RemovePodDevices(CancellationToken cancellation)
+0156: 	{
+0157: 		await foreach (Device1 item in (await deviceProvider.GetExistingDevices()).ToAsyncEnumerable().WhereAwait((Device1 device) => BleDevice.IsTargetDeviceAsync(device, logger, currentMinRssi)))
+0158: 		{
+0159: 			await deviceProvider.RemoveDevice(item);
+0160: 		}
+0161: 	}
+0162: 
+0163: 	private Task<BleDevice?> FindPairingModeDeviceAsync(CancellationToken cancellationToken)
+0164: 	{
+0165: 		return Utils.DbusRetry(FindPairingModeDeviceAsyncInternal, 2, cancellationToken);
+0166: 	}
+0167: 
+0168: 	private async Task<BleDevice?> FindPairingModeDeviceAsyncInternal(CancellationToken cancellationToken)
+0169: 	{
+0170: 		await RemovePodDevices(cancellationToken);
+0171: 		if (!string.IsNullOrEmpty(currentTargetDeviceId))
+0172: 		{
+0173: 			logger.LogInformation("[pairing] Looking for specific device ID: {TargetDeviceId}", currentTargetDeviceId);
+0174: 		}
+0175: 		IAsyncEnumerable<Device1> source = deviceProvider.ScanDevices(Duration.FromMinutes(3L), cancellationToken).WhereAwait((Device1 device) => BleDevice.IsTargetDeviceAsync(device, logger, currentMinRssi));
+0176: 		await foreach (Device1 item in source.WithCancellation(cancellationToken))
+0177: 		{
+0178: 			BleDevice bleDevice = await BleDevice.TryConnectAndValidateAsync(item, logger, 3, Duration.FromSeconds(3L), cancellationToken);
+0179: 			if (bleDevice != null)
+0180: 			{
+0181: 				if (string.IsNullOrEmpty(currentTargetDeviceId) || !(bleDevice.DeserializedProductInfo?.DeviceId != currentTargetDeviceId))
+0182: 				{
+0183: 					return bleDevice;
+0184: 				}
+0185: 				logger.LogInformation("[pairing] Device {Address} is {DeviceId}, not the requested {TargetDeviceId}; disconnecting", bleDevice.Address, bleDevice.DeserializedProductInfo?.DeviceId, currentTargetDeviceId);
+0186: 				await bleDevice.DisconnectAsync();
+0187: 			}
+0188: 		}
+0189: 		return null;
+0190: 	}
+0191: }
+
+=== S40 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.AutoPairing/PairingState.cs ===
+SHA256 9174459d282356d7fa55789c60d1e92e8526818ad39a4c474fb8150cb6ca6ba9
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using Microsoft.Extensions.Logging;
+0004: 
+0005: namespace Eight.Capybara.AutoPairing;
+0006: 
+0007: public record PairingState(string PairingId, Status Status, PairingStep? CurrentStep, int ProgressPercent, DateTimeOffset? StartedAt, DateTimeOffset? LastUpdatedAt, IReadOnlyList<PairingStep> StepsCompleted, IReadOnlyList<PairingStep> StepsRemaining, int EstimatedTimeRemainingSeconds, IReadOnlyList<string> Errors, string? PairedDeviceId = null)
+0008: {
+0009: 	public static readonly IReadOnlyList<PairingStep> AllSteps = new _003C_003Ez__ReadOnlyArray<PairingStep>(new PairingStep[4]
+0010: 	{
+0011: 		PairingStep.IdentifyPairingMode,
+0012: 		PairingStep.ReadNetworkCredentials,
+0013: 		PairingStep.SendNetworkCredentials,
+0014: 		PairingStep.ValidateConnectivity
+0015: 	});
+0016: 
+0017: 	public static PairingState CreateInitial(string pairingId, ILogger<PairingService> logger)
+0018: 	{
+0019: 		logger.LogInformation("[pairing][state] CREATE");
+0020: 		return new PairingState(pairingId, Status.NotStarted, null, 0, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, Array.Empty<PairingStep>(), AllSteps, AllSteps.Count * 10, Array.Empty<string>());
+0021: 	}
+0022: 
+0023: 	public PairingState WithStatus(Status status, ILogger logger)
+0024: 	{
+0025: 		logger.LogInformation("[pairing][state] UPDATE: {Status}", status);
+0026: 		return Now() with
+0027: 		{
+0028: 			Status = status
+0029: 		};
+0030: 	}
+0031: 
+0032: 	public PairingState WithCurrentStep(PairingStep step, ILogger logger)
+0033: 	{
+0034: 		logger.LogInformation("[pairing][step] UPDATE: {CurrentStep}", step);
+0035: 		List<PairingStep> list = new List<PairingStep>(StepsCompleted);
+0036: 		List<PairingStep> list2 = new List<PairingStep>(StepsRemaining);
+0037: 		PairingStep? currentStep = CurrentStep;
+0038: 		if (currentStep.HasValue)
+0039: 		{
+0040: 			PairingStep valueOrDefault = currentStep.GetValueOrDefault();
+0041: 			if (!list.Contains(valueOrDefault))
+0042: 			{
+0043: 				list.Add(valueOrDefault);
+0044: 				list2.Remove(valueOrDefault);
+0045: 			}
+0046: 		}
+0047: 		int progressPercent = (int)Math.Round((double)list.Count / (double)AllSteps.Count * 100.0);
+0048: 		int estimatedTimeRemainingSeconds = list2.Count * 10;
+0049: 		return Now() with
+0050: 		{
+0051: 			CurrentStep = step,
+0052: 			ProgressPercent = progressPercent,
+0053: 			StepsCompleted = list,
+0054: 			StepsRemaining = list2,
+0055: 			EstimatedTimeRemainingSeconds = estimatedTimeRemainingSeconds
+0056: 		};
+0057: 	}
+0058: 
+0059: 	public PairingState WithError(string error, ILogger logger)
+0060: 	{
+0061: 		logger.LogError("[pairing][error] {Error}", error);
+0062: 		return Now() with
+0063: 		{
+0064: 			Errors = new _003C_003Ez__ReadOnlySingleElementList<string>(error)
+0065: 		};
+0066: 	}
+0067: 
+0068: 	public PairingState WithPairedDeviceId(string deviceId, ILogger logger)
+0069: 	{
+0070: 		logger.LogInformation("[pairing][device] PAIRED: {DeviceId}", deviceId);
+0071: 		return Now() with
+0072: 		{
+0073: 			PairedDeviceId = deviceId
+0074: 		};
+0075: 	}
+0076: 
+0077: 	public PairingState WithCompletedStep(PairingStep step, ILogger logger)
+0078: 	{
+0079: 		logger.LogInformation("[pairing][step] COMPLETE: {Step}", step);
+0080: 		List<PairingStep> list = new List<PairingStep>(StepsCompleted);
+0081: 		if (!list.Contains(step))
+0082: 		{
+0083: 			list.Add(step);
+0084: 		}
+0085: 		List<PairingStep> list2 = new List<PairingStep>(StepsRemaining);
+0086: 		list2.Remove(step);
+0087: 		int progressPercent = (int)Math.Round((double)list.Count / (double)AllSteps.Count * 100.0);
+0088: 		int estimatedTimeRemainingSeconds = list2.Count * 10;
+0089: 		return Now() with
+0090: 		{
+0091: 			ProgressPercent = progressPercent,
+0092: 			StepsCompleted = list,
+0093: 			StepsRemaining = list2,
+0094: 			EstimatedTimeRemainingSeconds = estimatedTimeRemainingSeconds
+0095: 		};
+0096: 	}
+0097: 
+0098: 	public PairingState MarkAsComplete(ILogger logger)
+0099: 	{
+0100: 		logger.LogInformation("[pairing][state] COMPLETE");
+0101: 		return Complete() with
+0102: 		{
+0103: 			Status = Status.Completed,
+0104: 			CurrentStep = null,
+0105: 			StepsCompleted = AllSteps,
+0106: 			StepsRemaining = Array.Empty<PairingStep>()
+0107: 		};
+0108: 	}
+0109: 
+0110: 	public PairingState MarkAsFailed(string error, ILogger logger)
+0111: 	{
+0112: 		logger.LogError("[pairing][state] FAILED: {Error}", error);
+0113: 		return Complete() with
+0114: 		{
+0115: 			Status = Status.Failed,
+0116: 			Errors = new _003C_003Ez__ReadOnlySingleElementList<string>(error)
+0117: 		};
+0118: 	}
+0119: 
+0120: 	private PairingState Now()
+0121: 	{
+0122: 		return this with
+0123: 		{
+0124: 			LastUpdatedAt = DateTimeOffset.UtcNow
+0125: 		};
+0126: 	}
+0127: 
+0128: 	private PairingState Complete()
+0129: 	{
+0130: 		return Now() with
+0131: 		{
+0132: 			EstimatedTimeRemainingSeconds = 0,
+0133: 			ProgressPercent = 100
+0134: 		};
+0135: 	}
+0136: }
+
+=== S41 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.DeviceAPI.Handlers/RemoteConnectivityController.cs ===
+SHA256 d038fd74ce0b780767ae25d4ed11ec09eca662ed6e538e119ef535b72dafcf85
+0001: using System;
+0002: using System.Threading.Tasks;
+0003: using Eight.Capybara.DeviceApi;
+0004: using Eight.DBus;
+0005: using Eight.DeviceApiClient;
+0006: using Eight.DeviceProtocol;
+0007: 
+0008: namespace Eight.Capybara.DeviceAPI.Handlers;
+0009: 
+0010: public class RemoteConnectivityController : RequestController
+0011: {
+0012: 	private readonly RemoteConnectivityService service;
+0013: 
+0014: 	private readonly IPairingMode pairingMode;
+0015: 
+0016: 	internal const string PairingRequiredReason = "Pairing mode is not enabled, cannot add authorized keys. Press the pairing button on the device, then retry.";
+0017: 
+0018: 	public RemoteConnectivityController(RemoteConnectivityService service, IPairingMode pairingMode)
+0019: 	{
+0020: 		this.service = service;
+0021: 		this.pairingMode = pairingMode;
+0022: 	}
+0023: 
+0024: 	[FunctionHandler("StartSSH")]
+0025: 	public async Task<StartSshResponse> StartSsh([SerializedRequestArg] StartSshRequest args)
+0026: 	{
+0027: 		if (args.Key != null)
+0028: 		{
+0029: 			await service.PrimeLegacyConnectivity(args.Key, default);
+0030: 		}
+0031: 		int port = args.Port ?? Random.Shared.Next(1025, 65535);
+0032: 		return service.RunRemoteConnectivity(port);
+0033: 	}
+0034: 
+0035: 	[FunctionHandler("remoteconnectivity/startssh")]
+0036: 	public Task<StartSshResponse> StartSsh2([SerializedRequestArg] StartSsh2Request args)
+0037: 	{
+0038: 		int num = 0;
+0039: 		if (!args.Port.HasValue || args.Port == 0)
+0040: 		{
+0041: 			num = Random.Shared.Next(1025, 65535);
+0042: 		}
+0043: 		if (num <= 1024)
+0044: 		{
+0045: 			return Task.FromResult(new StartSshResponse(Result: false, num, "Invalid port number supplied"));
+0046: 		}
+0047: 		return Task.FromResult(service.RunRemoteConnectivity(num));
+0048: 	}
+0049: 
+0050: 	[FunctionHandler("remoteconnectivity/getpublickey")]
+0051: 	public async Task<GetPublicKeyResponse> GetPublicKey()
+0052: 	{
+0053: 		return new GetPublicKeyResponse(await service.GetPublicKey(default));
+0054: 	}
+0055: 
+0056: 	[FunctionHandler("remoteconnectivity/addauthorizedkeys")]
+0057: 	public async Task<Response> AddAuthorizedKeys([SerializedRequestArg] AddAuthorizedKeysRequest args)
+0058: 	{
+0059: 		if (!pairingMode.Active)
+0060: 		{
+0061: 			return Eight.Capybara.DeviceApi.Utils.CreateFailure("Pairing mode is not enabled, cannot add authorized keys. Press the pairing button on the device, then retry.", "BadRequest");
+0062: 		}
+0063: 		await service.AddAuthorizedKeys(args.AuthorizedKeys, args.User, default);
+0064: 		return Eight.Capybara.DeviceApi.Utils.EmptyResponse();
+0065: 	}
+0066: }
+
+=== S42 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.DeviceAPI.Handlers/RemoteConnectivityService.cs ===
+SHA256 37410ee7b5cc30f66631dd720e13701fa1cb3751734a558bf43b0b9c2d340c5e
+0001: using System;
+0002: using System.Collections.Generic;
+0003: using System.Diagnostics;
+0004: using System.IO;
+0005: using System.Linq;
+0006: using System.Threading;
+0007: using System.Threading.Tasks;
+0008: using Eight.DBus;
+0009: using Microsoft.Extensions.Logging;
+0010: 
+0011: namespace Eight.Capybara.DeviceAPI.Handlers;
+0012: 
+0013: public class RemoteConnectivityService
+0014: {
+0015: 	private readonly ILogger<RemoteConnectivityService> logger;
+0016: 
+0017: 	private readonly FileInfo sshKeyFile;
+0018: 
+0019: 	private readonly FileInfo sshPublicKeyFile;
+0020: 
+0021: 	private readonly string remoteServer;
+0022: 
+0023: 	private readonly IPairingMode pairingMode;
+0024: 
+0025: 	private readonly string? authorizedKeysOverrideRoot;
+0026: 
+0027: 	private Process? tunnel;
+0028: 
+0029: 	private int sshPort;
+0030: 
+0031: 	internal const string TunnelLifetime = "2h";
+0032: 
+0033: 	internal const int ServerAliveIntervalSeconds = 15;
+0034: 
+0035: 	internal const int ServerAliveCountMax = 3;
+0036: 
+0037: 	private const string authorizedPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHtkRgwNftlKO1avvNNt33438J2qcOWTGp1PgKAmG8+i eng@eightsleep.com";
+0038: 
+0039: 	public const string DefaultAuthorizedKeysUser = "rewt";
+0040: 
+0041: 	private static readonly IReadOnlySet<string> allowedAuthorizedKeysUsers = new HashSet<string>(StringComparer.Ordinal) { "rewt", "root" };
+0042: 
+0043: 	public FileInfo AuthorizedKeysFile { get; } = new FileInfo("/etc/ssh/authorized_keys");
+0044: 
+0045: 	public RemoteConnectivityService(ILogger<RemoteConnectivityService> logger, string remoteServer, FileInfo sshKeyFile, IPairingMode pairingMode, string? authorizedKeysOverrideRoot = null)
+0046: 	{
+0047: 		this.logger = logger;
+0048: 		this.remoteServer = remoteServer;
+0049: 		this.sshKeyFile = sshKeyFile;
+0050: 		this.pairingMode = pairingMode;
+0051: 		this.authorizedKeysOverrideRoot = authorizedKeysOverrideRoot;
+0052: 		sshPublicKeyFile = new FileInfo(sshKeyFile.FullName + ".pub");
+0053: 	}
+0054: 
+0055: 	private void CleanArtifacts()
+0056: 	{
+0057: 		if (sshKeyFile.Exists)
+0058: 		{
+0059: 			sshKeyFile.Delete();
+0060: 		}
+0061: 		if (sshPublicKeyFile.Exists)
+0062: 		{
+0063: 			sshPublicKeyFile.Delete();
+0064: 		}
+0065: 	}
+0066: 
+0067: 	private static async Task AppendLineAsync(StreamWriter streamWriter, string contents, CancellationToken cancellationToken)
+0068: 	{
+0069: 		await streamWriter.WriteLineAsync(contents.AsMemory(), cancellationToken);
+0070: 	}
+0071: 
+0072: 	private static async Task ChmodAsync(FileInfo fileInfo, string permissions, CancellationToken cancellationToken)
+0073: 	{
+0074: 		Process chmodProc = new Process
+0075: 		{
+0076: 			StartInfo = new ProcessStartInfo
+0077: 			{
+0078: 				FileName = "chmod",
+0079: 				Arguments = permissions + " " + fileInfo.FullName
+0080: 			}
+0081: 		};
+0082: 		chmodProc.Start();
+0083: 		await chmodProc.WaitForExitAsync(cancellationToken);
+0084: 		if (chmodProc.ExitCode != 0)
+0085: 		{
+0086: 			throw new Exception($"chmod failed with exit code {chmodProc.ExitCode}");
+0087: 		}
+0088: 	}
+0089: 
+0090: 	private static async Task WriteFileWithPermissionsAsync(FileInfo fileInfo, string contents, string permissions, CancellationToken cancellationToken)
+0091: 	{
+0092: 		await WriteFileWithPermissionsAsync(fileInfo, new _003C_003Ez__ReadOnlySingleElementList<string>(contents), permissions, cancellationToken);
+0093: 	}
+0094: 
+0095: 	private static async Task WriteFileWithPermissionsAsync(FileInfo fileInfo, IEnumerable<string> lines, string permissions, CancellationToken cancellationToken)
+0096: 	{
+0097: 		using (StreamWriter streamWriter = new StreamWriter(fileInfo.FullName, append: true))
+0098: 		{
+0099: 			foreach (string line in lines)
+0100: 			{
+0101: 				await AppendLineAsync(streamWriter, line, cancellationToken);
+0102: 			}
+0103: 		}
+0104: 		await ChmodAsync(fileInfo, permissions, cancellationToken);
+0105: 	}
+0106: 
+0107: 	public Task AddAuthorizedKeys(IEnumerable<string> authorizedKeys, CancellationToken cancellationToken)
+0108: 	{
+0109: 		return AddAuthorizedKeys(authorizedKeys, null, cancellationToken);
+0110: 	}
+0111: 
+0112: 	public async Task AddAuthorizedKeys(IEnumerable<string> authorizedKeys, string? user, CancellationToken cancellationToken)
+0113: 	{
+0114: 		string resolvedUser = user ?? "rewt";
+0115: 		if (!allowedAuthorizedKeysUsers.Contains(resolvedUser))
+0116: 		{
+0117: 			logger.LogWarning("AddAuthorizedKeys rejected: invalid user='{User}' (allowed: [{Allowed}])", user, string.Join(", ", allowedAuthorizedKeysUsers));
+0118: 			throw new ArgumentException("user must be one of [" + string.Join(", ", allowedAuthorizedKeysUsers) + "]", "user");
+0119: 		}
+0120: 		int incomingCount = authorizedKeys.Count();
+0121: 		bool onEphemeral = ShouldUseEphemeralPath();
+0122: 		FileInfo target = ResolveAuthorizedKeysFile(resolvedUser, onEphemeral);
+0123: 		logger.LogInformation("AddAuthorizedKeys: user={User} target={Path} branch={Branch} incoming={Incoming}", resolvedUser, target.FullName, onEphemeral ? "ephemeral" : "legacy", incomingCount);
+0124: 		try
+0125: 		{
+0126: 			if (onEphemeral)
+0127: 			{
+0128: 				EnsureEphemeralAuthorizedKeysDirectories(target, resolvedUser);
+0129: 			}
+0130: 			HashSet<string> existing = await ReadExistingKeysAsync(target, cancellationToken);
+0131: 			List<string> novel = (from k in authorizedKeys
+0132: 				where !string.IsNullOrWhiteSpace(k)
+0133: 				select k.TrimEnd(new char[3] { '\r', '\n', ' ' }) into k
+0134: 				where !existing.Contains(k)
+0135: 				select k).Distinct(StringComparer.Ordinal).ToList();
+0136: 			if (novel.Count == 0)
+0137: 			{
+0138: 				logger.LogInformation("AddAuthorizedKeys: no novel keys to append (incoming={Incoming} existing={Existing}, all dedup)", incomingCount, existing.Count);
+0139: 				return;
+0140: 			}
+0141: 			string perms = (onEphemeral ? "0600" : "0644");
+0142: 			await WriteFileWithPermissionsAsync(target, novel, perms, cancellationToken);
+0143: 			logger.LogInformation("AddAuthorizedKeys: appended {Count} novel key(s) to {Path} (mode {Perms})", novel.Count, target.FullName, perms);
+0144: 			if (onEphemeral && authorizedKeysOverrideRoot == null && !string.Equals(resolvedUser, "root", StringComparison.Ordinal))
+0145: 			{
+0146: 				ChownSync(target.FullName, resolvedUser + ":" + resolvedUser);
+0147: 			}
+0148: 		}
+0149: 		catch (Exception exception)
+0150: 		{
+0151: 			logger.LogError(exception, "AddAuthorizedKeys failed for user={User} target={Path} branch={Branch}", resolvedUser, target.FullName, onEphemeral ? "ephemeral" : "legacy");
+0152: 			throw;
+0153: 		}
+0154: 	}
+0155: 
+0156: 	public async Task PrimeLegacyConnectivity(string key, CancellationToken cancellationToken)
+0157: 	{
+0158: 		logger.LogInformation("PrimeLegacyConnectivity: starting (sshKeyFile={Path})", sshKeyFile.FullName);
+0159: 		sshKeyFile.Refresh();
+0160: 		CleanArtifacts();
+0161: 		await AddAuthorizedKeys(new _003C_003Ez__ReadOnlySingleElementList<string>("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHtkRgwNftlKO1avvNNt33438J2qcOWTGp1PgKAmG8+i eng@eightsleep.com"), "rewt", cancellationToken);
+0162: 		await AddAuthorizedKeys(new _003C_003Ez__ReadOnlySingleElementList<string>("ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHtkRgwNftlKO1avvNNt33438J2qcOWTGp1PgKAmG8+i eng@eightsleep.com"), "root", cancellationToken);
+0163: 		try
+0164: 		{
+0165: 			await WriteFileWithPermissionsAsync(sshKeyFile, key, "0600", cancellationToken);
+0166: 			logger.LogInformation("PrimeLegacyConnectivity: wrote session ssh key to {Path}", sshKeyFile.FullName);
+0167: 		}
+0168: 		catch (Exception exception)
+0169: 		{
+0170: 			logger.LogError(exception, "PrimeLegacyConnectivity: failed to write ssh key to {Path}", sshKeyFile.FullName);
+0171: 			throw;
+0172: 		}
+0173: 	}
+0174: 
+0175: 	private FileInfo ResolveAuthorizedKeysFile(string user, bool onEphemeral)
+0176: 	{
+0177: 		if (authorizedKeysOverrideRoot != null)
+0178: 		{
+0179: 			return new FileInfo(Path.Combine(authorizedKeysOverrideRoot, "ssh", user, "authorized_keys"));
+0180: 		}
+0181: 		if (onEphemeral)
+0182: 		{
+0183: 			return new FileInfo("/ephemeral/ssh/" + user + "/authorized_keys");
+0184: 		}
+0185: 		return AuthorizedKeysFile;
+0186: 	}
+0187: 
+0188: 	private bool ShouldUseEphemeralPath()
+0189: 	{
+0190: 		if (authorizedKeysOverrideRoot != null)
+0191: 		{
+0192: 			return true;
+0193: 		}
+0194: 		return IsEphemeralMountpoint();
+0195: 	}
+0196: 
+0197: 	private bool IsEphemeralMountpoint()
+0198: 	{
+0199: 		try
+0200: 		{
+0201: 			using StreamReader streamReader = new StreamReader("/proc/self/mountinfo");
+0202: 			string text;
+0203: 			while ((text = streamReader.ReadLine()) != null)
+0204: 			{
+0205: 				string[] array = text.Split(' ');
+0206: 				if (array.Length >= 5 && array[4] == "/ephemeral")
+0207: 				{
+0208: 					return true;
+0209: 				}
+0210: 			}
+0211: 			return false;
+0212: 		}
+0213: 		catch (Exception exception)
+0214: 		{
+0215: 			logger.LogWarning(exception, "IsEphemeralMountpoint: failed to read /proc/self/mountinfo, assuming legacy path");
+0216: 			return false;
+0217: 		}
+0218: 	}
+0219: 
+0220: 	private void EnsureEphemeralAuthorizedKeysDirectories(FileInfo target, string user)
+0221: 	{
+0222: 		DirectoryInfo directory = target.Directory;
+0223: 		if (directory == null)
+0224: 		{
+0225: 			logger.LogWarning("EnsureEphemeralAuthorizedKeysDirectories: target {Path} has no parent directory", target.FullName);
+0226: 			return;
+0227: 		}
+0228: 		DirectoryInfo parent = directory.Parent;
+0229: 		if (parent != null)
+0230: 		{
+0231: 			EnsureDirectory(parent.FullName, "0755");
+0232: 		}
+0233: 		EnsureDirectory(directory.FullName, "0700");
+0234: 		if (authorizedKeysOverrideRoot == null && !string.Equals(user, "root", StringComparison.Ordinal))
+0235: 		{
+0236: 			ChownSync(directory.FullName, user + ":" + user);
+0237: 		}
+0238: 	}
+0239: 
+0240: 	private void EnsureDirectory(string path, string permissions)
+0241: 	{
+0242: 		try
+0243: 		{
+0244: 			Directory.CreateDirectory(path);
+0245: 		}
+0246: 		catch (Exception exception)
+0247: 		{
+0248: 			logger.LogError(exception, "EnsureDirectory: CreateDirectory failed for {Path}", path);
+0249: 			throw;
+0250: 		}
+0251: 		ChmodSync(path, permissions);
+0252: 	}
+0253: 
+0254: 	private void ChmodSync(string path, string permissions)
+0255: 	{
+0256: 		Process process = new Process
+0257: 		{
+0258: 			StartInfo = new ProcessStartInfo
+0259: 			{
+0260: 				FileName = "chmod",
+0261: 				Arguments = permissions + " " + path,
+0262: 				RedirectStandardError = true,
+0263: 				RedirectStandardOutput = true,
+0264: 				UseShellExecute = false
+0265: 			}
+0266: 		};
+0267: 		try
+0268: 		{
+0269: 			process.Start();
+0270: 			process.WaitForExit();
+0271: 		}
+0272: 		catch (Exception exception)
+0273: 		{
+0274: 			logger.LogError(exception, "ChmodSync: failed to launch chmod {Perms} {Path}", permissions, path);
+0275: 			throw;
+0276: 		}
+0277: 		if (process.ExitCode != 0)
+0278: 		{
+0279: 			string text = process.StandardError.ReadToEnd();
+0280: 			logger.LogError("ChmodSync: chmod {Perms} {Path} exited {Code}: {Stderr}", permissions, path, process.ExitCode, text.Trim());
+0281: 			throw new Exception($"chmod {permissions} {path} failed with exit code {process.ExitCode}");
+0282: 		}
+0283: 	}
+0284: 
+0285: 	private void ChownSync(string path, string userAndGroup)
+0286: 	{
+0287: 		Process process = new Process
+0288: 		{
+0289: 			StartInfo = new ProcessStartInfo
+0290: 			{
+0291: 				FileName = "chown",
+0292: 				Arguments = userAndGroup + " " + path,
+0293: 				RedirectStandardError = true,
+0294: 				RedirectStandardOutput = true,
+0295: 				UseShellExecute = false
+0296: 			}
+0297: 		};
+0298: 		try
+0299: 		{
+0300: 			process.Start();
+0301: 			process.WaitForExit();
+0302: 		}
+0303: 		catch (Exception exception)
+0304: 		{
+0305: 			logger.LogError(exception, "ChownSync: failed to launch chown {Owner} {Path}", userAndGroup, path);
+0306: 			throw;
+0307: 		}
+0308: 		if (process.ExitCode != 0)
+0309: 		{
+0310: 			string text = process.StandardError.ReadToEnd();
+0311: 			logger.LogError("ChownSync: chown {Owner} {Path} exited {Code}: {Stderr}", userAndGroup, path, process.ExitCode, text.Trim());
+0312: 			throw new Exception($"chown {userAndGroup} {path} failed with exit code {process.ExitCode}");
+0313: 		}
+0314: 		logger.LogInformation("ChownSync: chown {Owner} {Path} ok", userAndGroup, path);
+0315: 	}
+0316: 
+0317: 	private async Task<HashSet<string>> ReadExistingKeysAsync(FileInfo target, CancellationToken cancellationToken)
+0318: 	{
+0319: 		target.Refresh();
+0320: 		if (!target.Exists)
+0321: 		{
+0322: 			return new HashSet<string>(StringComparer.Ordinal);
+0323: 		}
+0324: 		try
+0325: 		{
+0326: 			return new HashSet<string>(from l in await File.ReadAllLinesAsync(target.FullName, cancellationToken)
+0327: 				select l.TrimEnd(new char[3] { '\r', '\n', ' ' }) into l
+0328: 				where l.Length > 0
+0329: 				select l, StringComparer.Ordinal);
+0330: 		}
+0331: 		catch (Exception exception)
+0332: 		{
+0333: 			logger.LogError(exception, "ReadExistingKeysAsync: failed to read {Path}", target.FullName);
+0334: 			throw;
+0335: 		}
+0336: 	}
+0337: 
+0338: 	public StartSshResponse RunRemoteConnectivity(int port, CancellationToken cancellationToken = default(CancellationToken))
+0339: 	{
+0340: 		if (!pairingMode.Active)
+0341: 		{
+0342: 			logger.LogWarning("Pairing mode is not enabled, cannot start SSH");
+0343: 			return new StartSshResponse(Result: false, 0, "Pairing mode is not enabled, cannot start SSH");
+0344: 		}
+0345: 		logger.LogDebug("Processing an SSH Request");
+0346: 		if (tunnel != null && !tunnel.HasExited)
+0347: 		{
+0348: 			logger.LogInformation("SSH session already running on port {Port}; reusing it", sshPort);
+0349: 			return new StartSshResponse(Result: true, sshPort, "Leveraging existing SSH session");
+0350: 		}
+0351: 		string text = "/usr/bin/timeout";
+0352: 		string text2 = TunnelArguments(port);
+0353: 		ProcessStartInfo startInfo = new ProcessStartInfo
+0354: 		{
+0355: 			FileName = text,
+0356: 			Arguments = text2,
+0357: 			RedirectStandardError = true,
+0358: 			RedirectStandardOutput = true,
+0359: 			UseShellExecute = false
+0360: 		};
+0361: 		logger.LogInformation(text + " " + text2);
+0362: 		try
+0363: 		{
+0364: 			tunnel = new Process
+0365: 			{
+0366: 				StartInfo = startInfo
+0367: 			};
+0368: 			tunnel.Start();
+0369: 			Task.WaitAny(new Task[2]
+0370: 			{
+0371: 				tunnel.WaitForExitAsync(cancellationToken),
+0372: 				Task.Delay(5000, cancellationToken)
+0373: 			}, cancellationToken);
+0374: 			if (tunnel.HasExited)
+0375: 			{
+0376: 				logger.LogInformation("Failed to initialize SSH connection: {@Result}", new
+0377: 				{
+0378: 					message = tunnel.StandardOutput.ReadToEnd(),
+0379: 					error = tunnel.StandardError.ReadToEnd()
+0380: 				});
+0381: 				CleanArtifacts();
+0382: 				return new StartSshResponse(Result: false, 0, "Failed to initialize SSH connection, check device logs");
+0383: 			}
+0384: 			sshPort = port;
+0385: 			logger.LogInformation("Successfully initialized SSH connection: {@Result}", new
+0386: 			{
+0387: 				Host = remoteServer,
+0388: 				port = port
+0389: 			});
+0390: 			return new StartSshResponse(Result: true, port, null);
+0391: 		}
+0392: 		catch (Exception exception)
+0393: 		{
+0394: 			logger.LogError(exception, "Critical failure in SSH handling");
+0395: 			CleanArtifacts();
+0396: 			return new StartSshResponse(Result: false, 0, "Critical failure in SSH handling");
+0397: 		}
+0398: 	}
+0399: 
+0400: 	internal string TunnelArguments(int port)
+0401: 	{
+0402: 		return $"{"2h"} /usr/bin/ssh -o StrictHostKeyChecking=no -o ServerAliveInterval={15} -o ServerAliveCountMax={3}" + " -o ExitOnForwardFailure=yes" + $" -i {sshKeyFile.FullName} -R {port}:localhost:8822 -p 8822 -tt ec2-user@{remoteServer}";
+0403: 	}
+0404: 
+0405: 	public async Task<string> GetPublicKey(CancellationToken cancellationToken)
+0406: 	{
+0407: 		sshKeyFile.Refresh();
+0408: 		sshPublicKeyFile.Refresh();
+0409: 		if (sshPublicKeyFile.Exists)
+0410: 		{
+0411: 			return await ReadPublicKey(cancellationToken);
+0412: 		}
+0413: 		if (!sshKeyFile.Exists)
+0414: 		{
+0415: 			await GenerateKeyPair(cancellationToken);
+0416: 		}
+0417: 		else
+0418: 		{
+0419: 			await RegeneratePublicKey(cancellationToken);
+0420: 		}
+0421: 		return await ReadPublicKey(cancellationToken);
+0422: 	}
+0423: 
+0424: 	private async Task<string> ReadPublicKey(CancellationToken cancellationToken)
+0425: 	{
+0426: 		using StreamReader streamReader = new StreamReader(sshPublicKeyFile.FullName);
+0427: 		return (await streamReader.ReadLineAsync(cancellationToken)) ?? throw new ArgumentNullException();
+0428: 	}
+0429: 
+0430: 	private async Task RegeneratePublicKey(CancellationToken cancellationToken)
+0431: 	{
+0432: 		string text = "/usr/bin/ssh-keygen";
+0433: 		string text2 = "-y -f " + sshKeyFile.FullName;
+0434: 		this.logger.LogInformation(text + " " + text2);
+0435: 		using Process keygen = new Process
+0436: 		{
+0437: 			StartInfo = new ProcessStartInfo
+0438: 			{
+0439: 				FileName = text,
+0440: 				Arguments = text2,
+0441: 				RedirectStandardError = true,
+0442: 				RedirectStandardOutput = true,
+0443: 				UseShellExecute = false
+0444: 			}
+0445: 		};
+0446: 		keygen.Start();
+0447: 		string publicKey = await keygen.StandardOutput.ReadToEndAsync(cancellationToken);
+0448: 		await keygen.WaitForExitAsync(cancellationToken);
+0449: 		if (keygen.ExitCode != 0)
+0450: 		{
+0451: 			ILogger logger = this.logger;
+0452: 			string text3 = await keygen.StandardError.ReadToEndAsync(cancellationToken);
+0453: 			logger.LogError("Failed to regenerate public key: {Stderr}", text3.Trim());
+0454: 			throw new ArgumentException("Failed to regenerate public key");
+0455: 		}
+0456: 		await File.WriteAllTextAsync(sshPublicKeyFile.FullName, publicKey, cancellationToken);
+0457: 	}
+0458: 
+0459: 	private async Task GenerateKeyPair(CancellationToken cancellationToken)
+0460: 	{
+0461: 		string text = "/usr/bin/ssh-keygen";
+0462: 		string text2 = "-t ed25519 -f " + sshKeyFile.FullName + " -q -N \"\"";
+0463: 		this.logger.LogInformation(text + " " + text2);
+0464: 		using Process keygen = new Process
+0465: 		{
+0466: 			StartInfo = new ProcessStartInfo
+0467: 			{
+0468: 				FileName = text,
+0469: 				Arguments = text2,
+0470: 				RedirectStandardError = true,
+0471: 				RedirectStandardOutput = true,
+0472: 				UseShellExecute = false
+0473: 			}
+0474: 		};
+0475: 		keygen.Start();
+0476: 		await keygen.WaitForExitAsync(cancellationToken);
+0477: 		if (keygen.ExitCode != 0)
+0478: 		{
+0479: 			ILogger logger = this.logger;
+0480: 			string text3 = await keygen.StandardError.ReadToEndAsync(cancellationToken);
+0481: 			logger.LogError("Failed to generate key pair: {Stderr}", text3.Trim());
+0482: 			throw new ArgumentException("Failed to generate key pair");
+0483: 		}
+0484: 	}
+0485: }
+
+=== S43 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara/PairingMode.cs ===
+SHA256 142e4fcca411a576c07cd21cddd264fc9f7e21c234f75212ea1be8fffff34a29
+0001: using System;
+0002: using Eight.DBus;
+0003: 
+0004: namespace Eight.Capybara;
+0005: 
+0006: public class PairingMode : IPairingMode
+0007: {
+0008: 	public bool Active { get; private set; }
+0009: 
+0010: 	public PairingMode(bool initialState)
+0011: 	{
+0012: 		Active = initialState;
+0013: 	}
+0014: 
+0015: 	public void EnterPairingMode()
+0016: 	{
+0017: 		Active = true;
+0018: 		Console.WriteLine($"pairing mode: {Active}");
+0019: 	}
+0020: 
+0021: 	public void ExitPairingMode()
+0022: 	{
+0023: 		Active = false;
+0024: 		Console.WriteLine($"pairing mode: {Active}");
+0025: 	}
+0026: }
+
+=== S44 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara/Program.cs ===
+SHA256 10a1464870986c4bfc7615d4766345a3684203e962e3e3b3a697c1c464801a00
+0001: using System;
+0002: using System.Drawing;
+0003: using System.IO;
+0004: using System.Linq;
+0005: using System.Runtime.ExceptionServices;
+0006: using System.Threading.Tasks;
+0007: using Eight.Cavia;
+0008: using Eight.Config;
+0009: using Eight.Core;
+0010: using Eight.DBus.Bluez;
+0011: using Eight.Wifi;
+0012: using Microsoft.Extensions.Configuration;
+0013: using Microsoft.Extensions.Hosting;
+0014: using Microsoft.Extensions.Logging;
+0015: using NetworkManager.DBus;
+0016: using NodaTime;
+0017: using Serilog;
+0018: using Serilog.Extensions.Logging;
+0019: using Tmds.DBus;
+0020: using Tmds.DBus.Protocol;
+0021: 
+0022: namespace Eight.Capybara;
+0023: 
+0024: internal class Program
+0025: {
+0026: 	private static async Task Main(string[] args)
+0027: 	{
+0028: 		IConfigurationRoot configuration = LoadConfiguration();
+0029: 		SerilogLoggerFactory hardwareLoggerFactory = new SerilogLoggerFactory(new LoggerConfiguration().ConfigureCapybaraLogging(configuration).CreateLogger());
+0030: 		IPod3Hardware podHardware = Pod3Hardware.Init(hardwareLoggerFactory, (Label label) =>
+0031: 		{
+0032: 			string sectionKey = MachineConfig.ResolveSectionKey(configuration, label.HwRev);
+0033: 			IConfigurationSection section = configuration.GetSection(sectionKey);
+0034: 			if (!section.GetChildren().Any())
+0035: 			{
+0036: 				throw new InvalidOperationException($"No machine.json section '{sectionKey}' for hwrev '{label.HwRev}'");
+0037: 			}
+0038: 			Console.WriteLine("[pod3] machine.json: hwrev=" + label.HwRev + " resolved=" + sectionKey);
+0039: 			UartDevice frozenPort = new UartDevice(GetValueOrThrow("frozenPort"));
+0040: 			string text = GetValue("sensorPort");
+0041: 			SubsystemConnections item = new SubsystemConnections(frozenPort, (text != null && text.Length > 0) ? new UartDevice(text) : null);
+0042: 			PortSet portSet;
+0043: 			switch (label.Generation)
+0044: 			{
+0045: 			case HardwareGeneration.H11:
+0046: 				portSet = new PortSet.H11Ports(new UsbDevice(GetValueOrThrow("topLeftPort")), new UsbDevice(GetValueOrThrow("topRightPort")), new UsbDevice(GetValueOrThrow("bottomLeftPort")), new UsbDevice(GetValueOrThrow("bottomRightPort")));
+0047: 				break;
+0048: 			case HardwareGeneration.A17B:
+0049: 				portSet = new PortSet.A17BPorts(new UsbDevice(GetValueOrThrow("usbAPort")), new UsbDevice(GetValueOrThrow("leftPillowPort")), new UsbDevice(GetValueOrThrow("rightPillowPort")));
+0050: 				break;
+0051: 			default:
+0052: 			{
+0053: 				string text2 = GetValue("usbAPort");
+0054: 				portSet = new PortSet.LegacyPorts((text2 != null && text2.Length > 0) ? new UsbDevice(text2) : new UsbDevice("1-1"));
+0055: 				break;
+0056: 			}
+0057: 			}
+0058: 			PortSet item2 = portSet;
+0059: 			return (item, item2);
+0060: 			string? GetValue(string key)
+0061: 			{
+0062: 				return section.GetValue<string>(key);
+0063: 			}
+0064: 			string GetValueOrThrow(string key)
+0065: 			{
+0066: 				return GetValue(key) ?? throw new InvalidOperationException($"machine.json '{sectionKey}' missing required key '{key}' (hwrev {label.HwRev})");
+0067: 			}
+0068: 		});
+0069: 		string rebootRecorderPath = configuration.GetValue<string>("paths:rebootRecorder");
+0070: 		RunInfoManager runInfoManager = new RunInfoManager(await InitializeHardware(podHardware, rebootRecorderPath, "/deviceinfo"), "/deviceinfo");
+0071: 		await runInfoManager.WriteRunInfo(default);
+0072: 		Eight.Wifi.NetworkManager nm = Eight.Wifi.NetworkManager.FromConnection(Tmds.DBus.Connection.System, new WifiProfileFlusher(new LibcFileSync(), hardwareLoggerFactory.CreateLogger<WifiProfileFlusher>()));
+0073: 		var (wifiDevice, startInPairingMode) = await InitializeConnectivityOrReboot(nm, rebootRecorderPath);
+0074: 		await Host.CreateDefaultBuilder(args).UseSystemd().ConfigureAppConfiguration((IConfigurationBuilder b) =>
+0075: 		{
+0076: 			b.Sources.Clear();
+0077: 			b.AddConfiguration(configuration);
+0078: 		})
+0079: 			.DisableConfigurationReload()
+0080: 			.ConfigureServices(runInfoManager, podHardware, nm, wifiDevice, startInPairingMode)
+0081: 			.Build()
+0082: 			.RunAsync();
+0083: 	}
+0084: 
+0085: 	private static async Task<(WifiDevice WifiDevice, bool StartInPairingMode)> InitializeConnectivityOrReboot(Eight.Wifi.NetworkManager nm, string? rebootRecorderPath)
+0086: 	{
+0087: 		StartupRebootRecorder recorder = StartupRebootRecorder.Create(rebootRecorderPath);
+0088: 		while (true)
+0089: 		{
+0090: 			try
+0091: 			{
+0092: 				WifiDevice wifiDevice;
+0093: 				using (Tmds.DBus.Protocol.Connection dbusConn = await GetTempDBusConnection())
+0094: 				{
+0095: 					Adapter1 bluezAdapter;
+0096: 					(wifiDevice, bluezAdapter) = await GetAdaptersOrReboot(nm, dbusConn, rebootRecorderPath);
+0097: 					await bluezAdapter.SetPoweredAsync(value: false).WithTimeout(Duration.FromSeconds(10L));
+0098: 					await Task.Delay(1000);
+0099: 					await bluezAdapter.SetPoweredAsync(value: true).WithTimeout(Duration.FromSeconds(10L));
+0100: 				}
+0101: 				bool startInPairingMode = !(await nm.HasExistingConnection("700a7a76-2105-4f46-b1b4-c9f3c791c440").WithTimeout(Duration.FromSeconds(30L)));
+0102: 				await recorder.ResetRebootCount();
+0103: 				return (WifiDevice: wifiDevice, StartInPairingMode: startInPairingMode);
+0104: 			}
+0105: 			catch (TimeoutException ex)
+0106: 			{
+0107: 				Console.WriteLine("[capybara] connectivity init timed out (" + ex.Message + ")");
+0108: 				await recorder.RecordNewReboot();
+0109: 				int num = await recorder.GetPreviousRebootCount();
+0110: 				if (num < 5)
+0111: 				{
+0112: 					Console.WriteLine($"[capybara] requesting reboot to clear the wedged daemon (attempt {num}/5)");
+0113: 					await LogindServiceManager.Reboot(default);
+0114: 					await Task.Delay(TimeSpan.FromMinutes(2L));
+0115: 				}
+0116: 				else
+0117: 				{
+0118: 					Console.WriteLine("[capybara] connectivity init still timing out after 5 reboots; retrying every 5 minutes without restarting");
+0119: 					await Task.Delay(TimeSpan.FromMinutes(5L));
+0120: 				}
+0121: 			}
+0122: 		}
+0123: 	}
+0124: 
+0125: 	private static async Task<Tmds.DBus.Protocol.Connection> GetTempDBusConnection()
+0126: 	{
+0127: 		Tmds.DBus.Protocol.Connection connection = new Tmds.DBus.Protocol.Connection(Tmds.DBus.Address.System);
+0128: 		await connection.ConnectAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(15L));
+0129: 		return connection;
+0130: 	}
+0131: 
+0132: 	private static async Task<LaunchType> InitializeHardware(IPod3Hardware podHardware, string? rebootRecorderPath, string runInfoDirectory)
+0133: 	{
+0134: 		Console.WriteLine("[capybara] starting...");
+0135: 		await InitalizeLed(podHardware).WithTimeout(Duration.FromSeconds(5L));
+0136: 		await podHardware.BringUpIoBoardUsb();
+0137: 		await podHardware.SetDeviceEnable(Pod3Device.IOBoard, state: true).WithTimeout(Duration.FromSeconds(5L));
+0138: 		Console.WriteLine("[capybara] pod HW initialized");
+0139: 		LaunchType result = default;
+0140: 		try
+0141: 		{
+0142: 			LaunchType launchType;
+0143: 			if (RunInfoManager.Exists(runInfoDirectory))
+0144: 			{
+0145: 				Console.WriteLine("[capybara] run_info present, skipping loopback test");
+0146: 				launchType = LaunchType.Capybara;
+0147: 			}
+0148: 			else
+0149: 			{
+0150: 				launchType = await LoopbackTest.Run(podHardware, default);
+0151: 			}
+0152: 			await EnableGpioPeripherals(podHardware).WithTimeout(Duration.FromSeconds(10L));
+0153: 			Console.WriteLine("[capybara] GPIO peripherals enabled");
+0154: 			HardwareInfo hardwareInfo = podHardware.HardwareInfo;
+0155: 			Console.WriteLine("[capybara] device config");
+0156: 			DeviceConfig.ConfigDevice(hardwareInfo, "/persistent");
+0157: 			Console.WriteLine("Running on " + Environment.MachineName);
+0158: 			result = launchType;
+0159: 			return result;
+0160: 		}
+0161: 		catch (RebootRequestedException ex)
+0162: 		{
+0163: 			StartupRebootRecorder recorder = StartupRebootRecorder.Create(rebootRecorderPath);
+0164: 			await recorder.RecordNewReboot();
+0165: 			if (await recorder.GetPreviousRebootCount() < 5)
+0166: 			{
+0167: 				await LogindServiceManager.Reboot(default);
+0168: 			}
+0169: 			ExceptionDispatchInfo.Capture((ex as Exception) ?? throw ex).Throw();
+0170: 		}
+0171: 		return result;
+0172: 	}
+0173: 
+0174: 	private static async Task InitalizeLed(IPod3Hardware podHardware)
+0175: 	{
+0176: 		await podHardware.SetDeviceEnable(Pod3Device.MainLed, state: true);
+0177: 		await podHardware.MainLed.Update(new LedState.On(RgbPatterns.Pulsing, Color.Yellow));
+0178: 	}
+0179: 
+0180: 	private static async Task EnableGpioPeripherals(IPod3Hardware podHardware)
+0181: 	{
+0182: 		await podHardware.RebootFrozen();
+0183: 		await podHardware.SetDeviceEnable(Pod3Device.FrozenComm, state: true);
+0184: 		await podHardware.SetDeviceEnable(Pod3Device.SensorPower, state: true);
+0185: 		await podHardware.SetDeviceEnable(Pod3Device.DebugBlue, state: true);
+0186: 	}
+0187: 
+0188: 	private static IConfigurationRoot LoadConfiguration()
+0189: 	{
+0190: 		ConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
+0191: 		bool optional = configurationBuilder.Build().EightEnvironment() == EightEnvironments.Development;
+0192: 		string currentDirectory = Directory.GetCurrentDirectory();
+0193: 		string basePath = (Directory.Exists(currentDirectory + "/config") ? (currentDirectory + "/config") : (currentDirectory + "/../config"));
+0194: 		configurationBuilder.SetBasePath(basePath);
+0195: 		configurationBuilder.AddJsonFile("default.json", optional: false, reloadOnChange: false);
+0196: 		configurationBuilder.AddJsonFile("machine.json", optional);
+0197: 		return configurationBuilder.Build();
+0198: 	}
+0199: 
+0200: 	private static async Task<(WifiDevice, Adapter1)> GetAdaptersOrReboot(Eight.Wifi.NetworkManager networkManager, Tmds.DBus.Protocol.Connection connection, string? rebootRecorderPath)
+0201: 	{
+0202: 		WifiDevice wifiDevice = await GetAdapterOrDefault(networkManager).WithTimeout(Duration.FromSeconds(30L));
+0203: 		Adapter1 bluezAdapter = (await new bluezService(connection, "org.bluez").GetAdaptersAsync().WithTimeout(Duration.FromSeconds(10L))).FirstOrDefault();
+0204: 		StartupRebootRecorder recorder = StartupRebootRecorder.Create(rebootRecorderPath);
+0205: 		if ((object)wifiDevice != null && bluezAdapter != null)
+0206: 		{
+0207: 			return (wifiDevice, bluezAdapter);
+0208: 		}
+0209: 		await recorder.RecordNewReboot();
+0210: 		if (await recorder.GetPreviousRebootCount() < 5)
+0211: 		{
+0212: 			await LogindServiceManager.Reboot(default);
+0213: 		}
+0214: 		while (true)
+0215: 		{
+0216: 			if ((object)wifiDevice == null)
+0217: 			{
+0218: 				Console.WriteLine("Could not find wlan0 adapter.");
+0219: 			}
+0220: 			if (bluezAdapter == null)
+0221: 			{
+0222: 				Console.WriteLine("Could not find hci0 adapter.");
+0223: 			}
+0224: 			await Task.Delay(TimeSpan.FromMinutes(1L));
+0225: 		}
+0226: 	}
+0227: 
+0228: 	private static async Task<WifiDevice?> GetAdapterOrDefault(Eight.Wifi.NetworkManager networkManager)
+0229: 	{
+0230: 		return await (await networkManager.GetWifiDevices()).ToAsyncEnumerable().FirstOrDefaultAwaitAsync(async (WifiDevice d) => await d.Node.As<IDevice>().GetInterfaceAsync() == "wlan0");
+0231: 	}
+0232: }
+
+=== S45 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara/CapybaraWorker.cs ===
+SHA256 deccf8cdbaf2f80677b82b475cf232d5eb902b67a8e66370d1bff8a4d8f66e82
+0001: using System;
+0002: using System.Reactive.Linq;
+0003: using System.Threading;
+0004: using System.Threading.Tasks;
+0005: using Eight.Audio.StateMachine;
+0006: using Eight.Capybara.AdjustableBase;
+0007: using Eight.Capybara.Ble;
+0008: using Eight.Capybara.Ble.Characteristics;
+0009: using Eight.DBus;
+0010: using Eight.DeviceApiClient;
+0011: using Eight.Nats.State;
+0012: using Eight.Wifi;
+0013: using Eight.Wifi.Scan;
+0014: using Microsoft.Extensions.Hosting;
+0015: using Microsoft.Extensions.Logging;
+0016: 
+0017: namespace Eight.Capybara;
+0018: 
+0019: public class CapybaraWorker : BackgroundService
+0020: {
+0021: 	private readonly ILogger<CapybaraWorker> logger;
+0022: 
+0023: 	private readonly IPod3Hardware podHardware;
+0024: 
+0025: 	private readonly IAdjustableBaseProvider adjustableBaseProvider;
+0026: 
+0027: 	private readonly ISpeakerProvider speakerProvider;
+0028: 
+0029: 	private readonly IBleSecurityProvider bleSecurityProvider;
+0030: 
+0031: 	private readonly Dac dac;
+0032: 
+0033: 	private readonly Eight.Wifi.NetworkManager networkManager;
+0034: 
+0035: 	private readonly WifiDevice wifiDevice;
+0036: 
+0037: 	private readonly DeviceSpecialization deviceSpecialization;
+0038: 
+0039: 	private readonly IPairingMode pairingMode;
+0040: 
+0041: 	private readonly IDeviceStateCache<PrimingReadBody> primingStateCache;
+0042: 
+0043: 	private readonly IDeviceStateCache<CapReadBody> capStateCache;
+0044: 
+0045: 	private const bool StartFrozen = false;
+0046: 
+0047: 	private const bool EnableDebugBLECharacteristics = false;
+0048: 
+0049: 	public CapybaraWorker(ILogger<CapybaraWorker> logger, IPod3Hardware podHardware, IAdjustableBaseProvider adjustableBaseProvider, ISpeakerProvider speakerProvider, IBleSecurityProvider bleSecurityProvider, Dac dac, Eight.Wifi.NetworkManager networkManager, WifiDevice wifiDevice, DeviceSpecialization deviceSpecialization, IPairingMode pairingMode, IDeviceStateCache<PrimingReadBody> primingStateCache, IDeviceStateCache<CapReadBody> capStateCache)
+0050: 	{
+0051: 		this.logger = logger;
+0052: 		this.podHardware = podHardware;
+0053: 		this.adjustableBaseProvider = adjustableBaseProvider;
+0054: 		this.speakerProvider = speakerProvider;
+0055: 		this.bleSecurityProvider = bleSecurityProvider;
+0056: 		this.dac = dac;
+0057: 		this.networkManager = networkManager;
+0058: 		this.wifiDevice = wifiDevice;
+0059: 		this.deviceSpecialization = deviceSpecialization;
+0060: 		this.pairingMode = pairingMode;
+0061: 		this.primingStateCache = primingStateCache;
+0062: 		this.capStateCache = capStateCache;
+0063: 	}
+0064: 
+0065: 	protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+0066: 	{
+0067: 		await RunCapybara(podHardware, adjustableBaseProvider, speakerProvider, bleSecurityProvider, dac, networkManager, wifiDevice, deviceSpecialization, primingStateCache, capStateCache, cancellationToken);
+0068: 	}
+0069: 
+0070: 	private static async Task StartFrozenRebooter(IPod3Hardware pod3Hardware, CancellationToken cancellationToken)
+0071: 	{
+0072: 		await FrozenRebooter.Create(pod3Hardware).Run(cancellationToken);
+0073: 	}
+0074: 
+0075: 	private static async Task StartUsbHubMonitor(IPod3Hardware pod3Hardware, CancellationToken cancellationToken)
+0076: 	{
+0077: 		await new UsbHubMonitor(pod3Hardware).Run(cancellationToken);
+0078: 	}
+0079: 
+0080: 	private static IObservable<ButtonEvent> GetButtonEvents(IButtons buttons)
+0081: 	{
+0082: 		IObservable<ButtonEvent> first = from _ in buttons.Pairing.Throttle(TimeSpan.FromSeconds(5L))
+0083: 			where _ == ButtonState.Down
+0084: 			select ButtonEvent.Pairing;
+0085: 		IObservable<ButtonEvent> second = from _ in buttons.FactoryReset.Throttle(TimeSpan.FromSeconds(10L))
+0086: 			where _ == ButtonState.Down
+0087: 			select ButtonEvent.FactoryReset;
+0088: 		return first.Merge(second);
+0089: 	}
+0090: 
+0091: 	private async Task RunCapybara(IPod3Hardware podHardware, IAdjustableBaseProvider adjustableBaseProvider, ISpeakerProvider speakerProvider, IBleSecurityProvider bleSecurityProvider, Dac dac, Eight.Wifi.NetworkManager networkManager, WifiDevice wifiDevice, DeviceSpecialization deviceSpecialization, IDeviceStateCache<PrimingReadBody> primingStateCache, IDeviceStateCache<CapReadBody> capStateCache, CancellationToken cancellationToken = default(CancellationToken))
+0092: 	{
+0093: 		NetworkScanner scanner = new NetworkScanner(wifiDevice);
+0094: 		NetworkStateMonitor networkStateMonitor = new NetworkStateMonitor(wifiDevice, networkManager);
+0095: 		WifiSetup wifiSetup = new WifiSetup(scanner, networkManager, wifiDevice, networkStateMonitor);
+0096: 		PollingDeviceState pollingDeviceState = PollingDeviceState.CreateDefault();
+0097: 		GetButtonEvents(podHardware.Buttons).Subscribe((ButtonEvent e) =>
+0098: 		{
+0099: 			Console.WriteLine($"[button] {e}");
+0100: 			if (e == ButtonEvent.Pairing)
+0101: 			{
+0102: 				pairingMode.EnterPairingMode();
+0103: 			}
+0104: 			if (e == ButtonEvent.FactoryReset)
+0105: 			{
+0106: 				Console.WriteLine("FactoryReset -> Rebooting...");
+0107: 				LogindServiceManager.Reboot(cancellationToken).GetAwaiter().GetResult();
+0108: 			}
+0109: 		});
+0110: 		SensorStatusHeartbeat sensorStatusHeartbeat = SensorStatusHeartbeat.Create(podHardware);
+0111: 		SwUpdateProgressMonitor swUpdateProgressMonitor = new SwUpdateProgressMonitor(logger);
+0112: 		Task task = new LedWorkers(podHardware.MainLed, wifiSetup, pairingMode, pollingDeviceState, sensorStatusHeartbeat, new PrimingStatus(primingStateCache), LedStateExtensions.HeatingColorFor(podHardware.HardwareInfo.Label.Generation)).LedUpdate(cancellationToken);
+0113: 		Task task2 = StartFrozenRebooter(podHardware, cancellationToken);
+0114: 		HardwareInfo hardwareInfo = podHardware.HardwareInfo;
+0115: 		NetworkInfoWorker networkInfoWorker = new NetworkInfoWorker(wifiDevice, FileNetworkInfoWriter.Create());
+0116: 		ProductInfoProvider productInfoProvider = new ProductInfoProvider(hardwareInfo, networkInfoWorker);
+0117: 		_003C_003Ey__InlineArray9<Task> buffer = default;
+0118: 		buffer[0] = pollingDeviceState.Run(cancellationToken);
+0119: 		buffer[1] = networkInfoWorker.Run(cancellationToken);
+0120: 		buffer[2] = networkStateMonitor.Run(cancellationToken);
+0121: 		buffer[3] = BleWorker.BleLoop(logger, productInfoProvider, hardwareInfo.DeviceId, scanner, wifiSetup, pairingMode, adjustableBaseProvider, speakerProvider, dac, primingStateCache, capStateCache, deviceSpecialization, enableDebugCharacteristics: false, networkStateMonitor, bleSecurityProvider, swUpdateProgressMonitor, TimeProvider.System, cancellationToken);
+0122: 		buffer[4] = task2;
+0123: 		buffer[5] = sensorStatusHeartbeat.Run(cancellationToken);
+0124: 		buffer[6] = swUpdateProgressMonitor.Run(cancellationToken);
+0125: 		buffer[7] = StartUsbHubMonitor(podHardware, cancellationToken);
+0126: 		buffer[8] = task;
+0127: 		await Task.WhenAll(buffer);
+0128: 	}
+0129: }
+
+=== S46 analysis/sleep-pipeline/decompiled/Eight.Lsp.Subsystems/Eight.Lsp.Subsystems.StateMachine.States/ReadyStateBase.cs ===
+SHA256 3cac43430960a6fb6fdef2450a5076b34dcfde5360aa81f4c033f06871a34f78
+0001: using System;
+0002: using System.Threading;
+0003: using System.Threading.Tasks;
+0004: using Eight.Lsp.Protocol;
+0005: using Eight.Lsp.Protocol.Models;
+0006: using Eight.Lsp.Subsystems.Models;
+0007: using Eight.Lsp.Subsystems.Services.Connection;
+0008: using Microsoft.Extensions.Logging;
+0009: 
+0010: namespace Eight.Lsp.Subsystems.StateMachine.States;
+0011: 
+0012: public abstract class ReadyStateBase(ILogger logger, ISubsystemStateFactory stateFactory, IDeviceConnection connection, FirmwareInfo firmwareInfo) : ISubsystemState
+0013: {
+0014: 	protected readonly ILogger logger = logger;
+0015: 
+0016: 	protected readonly ISubsystemStateFactory stateFactory = stateFactory;
+0017: 
+0018: 	protected readonly IDeviceConnection connection = connection;
+0019: 
+0020: 	protected readonly FirmwareInfo firmwareInfo = firmwareInfo;
+0021: 
+0022: 	public IDeviceConnection Connection => connection;
+0023: 
+0024: 	protected abstract string DeviceType { get; }
+0025: 
+0026: 	public async Task<ISubsystemState> GetNextState(CancellationToken cancellation)
+0027: 	{
+0028: 		logger.LogInformation("{DeviceType} device {Side} is ready", DeviceType, connection.Side.ToLowerString());
+0029: 		TaskCompletionSource<ISubsystemState> stateChangeTcs = new TaskCompletionSource<ISubsystemState>();
+0030: 		connection.StateChanged += OnStateChanged;
+0031: 		try
+0032: 		{
+0033: 			await Initialize(cancellation);
+0034: 			connection.PacketReceived += OnPacketReceived;
+0035: 			ISubsystemState subsystemState = await RunMonitorLoop(stateChangeTcs, cancellation);
+0036: 			cancellation.ThrowIfCancellationRequested();
+0037: 			if (subsystemState != null)
+0038: 			{
+0039: 				return subsystemState;
+0040: 			}
+0041: 			if (stateChangeTcs.Task.IsCompleted)
+0042: 			{
+0043: 				await connection.Close(CancellationToken.None);
+0044: 				return await stateChangeTcs.Task;
+0045: 			}
+0046: 		}
+0047: 		catch (OperationCanceledException)
+0048: 		{
+0049: 		}
+0050: 		finally
+0051: 		{
+0052: 			connection.PacketReceived -= OnPacketReceived;
+0053: 			connection.StateChanged -= OnStateChanged;
+0054: 		}
+0055: 		await connection.Close(CancellationToken.None);
+0056: 		return stateFactory.CreateNotConnectedState(connection.Side);
+0057: 		void OnStateChanged(DeviceState newState, DeviceState prevState)
+0058: 		{
+0059: 			logger.LogWarning("{DeviceType} device {Side} state changed from {PrevState} to {NewState}, transitioning to not connected", DeviceType, connection.Side.ToLowerString(), prevState.ToDisplayName(), newState.ToDisplayName());
+0060: 			if (newState != DeviceState.Firmware)
+0061: 			{
+0062: 				stateChangeTcs.TrySetResult(stateFactory.CreateNotConnectedState(connection.Side));
+0063: 			}
+0064: 		}
+0065: 	}
+0066: 
+0067: 	protected abstract Task Initialize(CancellationToken cancellation);
+0068: 
+0069: 	protected abstract void OnPacketReceived(Packet packet, ProtocolContext context);
+0070: 
+0071: 	protected abstract Task<ISubsystemState?> RunMonitorLoop(TaskCompletionSource<ISubsystemState> stateChangeTcs, CancellationToken cancellationToken);
+0072: }
+
+=== S47 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/FirmnessController.cs ===
+SHA256 c74aeb1e56ccf28b63c4dfc8b22b707d83a147c29c6944e1f81bcfd3967b12a0
+0001: using System;
+0002: using System.Linq;
+0003: using System.Threading.Tasks;
+0004: using Eight.Capybara.DeviceApi;
+0005: using Eight.DeviceApiClient;
+0006: using Eight.DeviceProtocol;
+0007: using Eight.Firmness.Models;
+0008: using Eight.Firmness.Models.Telemetry;
+0009: using Eight.Firmness.Services;
+0010: using Eight.Firmness.StateMachine;
+0011: using Eight.Firmness.StateMachine.States;
+0012: using Eight.Lsp.Subsystems.Models;
+0013: using Eight.Lsp.Subsystems.StateMachine;
+0014: using Microsoft.Extensions.Logging;
+0015: 
+0016: namespace Eight.Firmness.DeviceAPI;
+0017: 
+0018: public class FirmnessController(ILogger<FirmnessController> logger, IFirmnessProvider provider, IDynamicModeProvider dynamicModeProvider, IFirmnessGate gate) : RequestController
+0019: {
+0020: 	private readonly ILogger<FirmnessController> logger = logger;
+0021: 
+0022: 	private readonly IFirmnessProvider provider = provider;
+0023: 
+0024: 	private readonly IDynamicModeProvider dynamicModeProvider = dynamicModeProvider;
+0025: 
+0026: 	private readonly IFirmnessGate gate = gate;
+0027: 
+0028: 	private (Response?, ISubsystemState?) GetDevice(Side side)
+0029: 	{
+0030: 		ISubsystemState currentState = provider.GetCurrentState(side);
+0031: 		Response response = FirmnessDeviceStatus.Classify(side, currentState, Utils.CreateFailure($"Calibration is running on {side}; firmness cannot be read or changed until the run finishes", "BadRequest"));
+0032: 		if ((object)response == null)
+0033: 		{
+0034: 			return (null, currentState);
+0035: 		}
+0036: 		return (response, null);
+0037: 	}
+0038: 
+0039: 	[FunctionHandler("firmness/get")]
+0040: 	public Task<Response> GetFirmness([SerializedRequestArg] GetTelemetryArgs args)
+0041: 	{
+0042: 		var (response, subsystemState) = GetDevice(args.Side);
+0043: 		if ((object)response != null)
+0044: 		{
+0045: 			return Task.FromResult(response);
+0046: 		}
+0047: 		if (!(subsystemState is FirmnessReadyState firmnessReadyState))
+0048: 		{
+0049: 			return Task.FromResult(FirmnessDeviceStatus.NotReady(args.Side));
+0050: 		}
+0051: 		FirmnessDeviceState deviceState = firmnessReadyState.DeviceState;
+0052: 		PressureTelemetry pressureTelemetry = deviceState.PressureTelemetry;
+0053: 		ControlStateTelemetry controlTelemetry = deviceState.ControlTelemetry;
+0054: 		if ((object)pressureTelemetry == null || pressureTelemetry.Sensors.Count < 4)
+0055: 		{
+0056: 			return Task.FromResult(Utils.CreateFailure($"No pressure telemetry available for {args.Side} side", "AccessoryInitialization"));
+0057: 		}
+0058: 		if ((object)controlTelemetry == null)
+0059: 		{
+0060: 			return Task.FromResult(Utils.CreateFailure($"No control telemetry available for {args.Side} side", "AccessoryInitialization"));
+0061: 		}
+0062: 		if ((object)deviceState.HardwareInfo == null || (object)deviceState.FirmwareInfo == null)
+0063: 		{
+0064: 			return Task.FromResult(FirmnessDeviceStatus.StartingUp(args.Side));
+0065: 		}
+0066: 		FirmnessHardwareInfo hwInfo = new FirmnessHardwareInfo(deviceState.HardwareInfo.Label, deviceState.HardwareInfo.Revision, deviceState.HardwareInfo.SerialNumber, deviceState.HardwareInfo.PartNumber, deviceState.HardwareInfo.Sku);
+0067: 		FirmnessFirmwareInfo fwInfo = new FirmnessFirmwareInfo($"0x{deviceState.FirmwareInfo.Crc:X8}");
+0068: 		string mode = firmnessReadyState.ConfiguredMode.ToDisplayName();
+0069: 		return Task.FromResult(Utils.CreateResponse(FirmnessTelemetryBuilder.Build(controlTelemetry, firmnessReadyState.StoredTargetFirmness, hwInfo, fwInfo, mode, dynamicModeProvider.GetDynamicModeEnabled(args.Side))));
+0070: 	}
+0071: 
+0072: 	[FunctionHandler("firmness/set")]
+0073: 	public Task<Response> SetFirmness([SerializedRequestArg] SetFirmnessArgs args)
+0074: 	{
+0075: 		var (response, subsystemState) = GetDevice(args.Side);
+0076: 		if ((object)response != null)
+0077: 		{
+0078: 			return Task.FromResult(response);
+0079: 		}
+0080: 		if (!(subsystemState is FirmnessReadyState firmnessReadyState))
+0081: 		{
+0082: 			return Task.FromResult(FirmnessDeviceStatus.NotReady(args.Side));
+0083: 		}
+0084: 		int[] array = new int[4] { args.Bag0, args.Bag1, args.Bag2, args.Bag3 };
+0085: 		if (args.Bag4.HasValue)
+0086: 		{
+0087: 			int[] array2 = array;
+0088: 			int num = 0;
+0089: 			int[] array3 = new int[1 + array2.Length];
+0090: 			ReadOnlySpan<int> readOnlySpan = new ReadOnlySpan<int>(array2);
+0091: 			readOnlySpan.CopyTo(new Span<int>(array3).Slice(num, readOnlySpan.Length));
+0092: 			num += readOnlySpan.Length;
+0093: 			array3[num] = args.Bag4.Value;
+0094: 			array = array3;
+0095: 		}
+0096: 		if (!array.All((int level) => level >= 0 && level <= 10))
+0097: 		{
+0098: 			int value = array.First((int level) => level < 0 || level > 10);
+0099: 			return Task.FromResult(Utils.CreateFailure($"Firmness level must be between 0 and 10, got {value}", "BadRequest"));
+0100: 		}
+0101: 		if (firmnessReadyState.DeviceState.BagCount >= 5 && !args.Bag4.HasValue)
+0102: 		{
+0103: 			return Task.FromResult(Utils.CreateFailure($"Firmness device {args.Side} requires 5 bag values but only 4 were provided", "BadRequest"));
+0104: 		}
+0105: 		SetFirmnessRequest request = new SetFirmnessRequest(args.Bag0, args.Bag1, args.Bag2, args.Bag3, args.Bag4);
+0106: 		firmnessReadyState.MakeRequest(request);
+0107: 		if (args.Mode.HasValue)
+0108: 		{
+0109: 			SetModeRequest request2 = new SetModeRequest(args.Mode.Value);
+0110: 			firmnessReadyState.MakeRequest(request2);
+0111: 		}
+0112: 		if (args.Mode.HasValue)
+0113: 		{
+0114: 			logger.LogInformation("Set firmness for {Side}: levels [{Levels}] and mode to {Mode}", args.Side, string.Join(", ", array), args.Mode.Value.ToDisplayName());
+0115: 		}
+0116: 		else
+0117: 		{
+0118: 			logger.LogInformation("Set firmness for {Side}: levels [{Levels}]", args.Side, string.Join(", ", array));
+0119: 		}
+0120: 		return Task.FromResult(Utils.CreateResponse(new
+0121: 		{
+0122: 			success = true
+0123: 		}));
+0124: 	}
+0125: 
+0126: 	[FunctionHandler("firmness/setmode")]
+0127: 	public Task<Response> SetMode([SerializedRequestArg] SetModeArgs args)
+0128: 	{
+0129: 		var (response, subsystemState) = GetDevice(args.Side);
+0130: 		if ((object)response != null)
+0131: 		{
+0132: 			return Task.FromResult(response);
+0133: 		}
+0134: 		if (!(subsystemState is FirmnessReadyState firmnessReadyState))
+0135: 		{
+0136: 			return Task.FromResult(FirmnessDeviceStatus.NotReady(args.Side));
+0137: 		}
+0138: 		SetModeRequest request = new SetModeRequest(args.Mode);
+0139: 		firmnessReadyState.MakeRequest(request);
+0140: 		logger.LogInformation("Set mode for {Side}: {Mode}", args.Side, args.Mode.ToDisplayName());
+0141: 		return Task.FromResult(Utils.CreateResponse(new
+0142: 		{
+0143: 			success = true
+0144: 		}));
+0145: 	}
+0146: 
+0147: 	[FunctionHandler("firmness/pair")]
+0148: 	public Task<Response> EnableFirmness()
+0149: 	{
+0150: 		if (!gate.IsAllowed)
+0151: 		{
+0152: 			logger.LogWarning("Rejected firmness/pair: firmness is not available on this device specialization");
+0153: 			return Task.FromResult(Utils.CreateFailure("Firmness is not available on this device specialization", "UnknownAccessory"));
+0154: 		}
+0155: 		provider.Enable();
+0156: 		return Task.FromResult(Utils.CreateResponse(new
+0157: 		{
+0158: 			success = true,
+0159: 			enabled = true
+0160: 		}));
+0161: 	}
+0162: 
+0163: 	[FunctionHandler("firmness/remove")]
+0164: 	public Task<Response> DisableFirmness()
+0165: 	{
+0166: 		if (provider.GetCurrentState(Side.Left) is CalibratingState || provider.GetCurrentState(Side.Right) is CalibratingState)
+0167: 		{
+0168: 			return Task.FromResult(Utils.CreateFailure("Calibration is running; the firmness device cannot be removed until the run finishes or is cancelled", "BadRequest"));
+0169: 		}
+0170: 		provider.Disable();
+0171: 		return Task.FromResult(Utils.CreateResponse(new
+0172: 		{
+0173: 			success = true,
+0174: 			enabled = false
+0175: 		}));
+0176: 	}
+0177: 
+0178: 	[FunctionHandler("firmness/setdynamicmode")]
+0179: 	public Task<Response> SetDynamicMode([SerializedRequestArg] SetDynamicModeArgs args)
+0180: 	{
+0181: 		dynamicModeProvider.UpdateDynamicMode(args.Side, args.Enabled);
+0182: 		logger.LogInformation("Dynamic mode {Status} for {Side}", args.Enabled ? "enabled" : "disabled", args.Side);
+0183: 		return Task.FromResult(Utils.CreateResponse(new
+0184: 		{
+0185: 			success = true,
+0186: 			side = args.Side,
+0187: 			dynamicModeEnabled = args.Enabled
+0188: 		}));
+0189: 	}
+0190: }
+
+=== S48 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.Ble.Characteristics/WifiSetupCharacteristic.cs ===
+SHA256 6e1426a4132347cb4e0809c7f0894a45cd39432b610fbedb9873813647d574d6
+0001: using System;
+0002: using System.Diagnostics;
+0003: using System.Diagnostics.CodeAnalysis;
+0004: using System.Text;
+0005: using System.Text.Json;
+0006: using System.Text.Json.Serialization;
+0007: using System.Threading.Tasks;
+0008: using DotnetBleServer.Gatt;
+0009: using DotnetBleServer.Gatt.Description;
+0010: using Eight.Ble;
+0011: using Eight.DBus;
+0012: using Eight.Wifi;
+0013: using Eight.Wifi.Contract;
+0014: 
+0015: namespace Eight.Capybara.Ble.Characteristics;
+0016: 
+0017: public class WifiSetupCharacteristic : ICharacteristicSource
+0018: {
+0019: 	public static readonly JsonSerializerOptions serializerOptions = new JsonSerializerOptions
+0020: 	{
+0021: 		PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+0022: 		Converters = { (JsonConverter)new JsonStringEnumConverter(JsonNamingPolicy.CamelCase) }
+0023: 	};
+0024: 
+0025: 	private readonly WifiSetup wifiSetup;
+0026: 
+0027: 	private readonly IPairingMode pairingMode;
+0028: 
+0029: 	private readonly DeviceSpecialization deviceSpecialization;
+0030: 
+0031: 	[UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2026:RequiresUnreferencedCode", Justification = "Serialized/deserialized types are referenced and will be preserved by the trimmer.")]
+0032: 	public static WifiSetupRequestContract? TryDeserialize(ReadOnlySpan<byte> json)
+0033: 	{
+0034: 		try
+0035: 		{
+0036: 			WifiSetupRequestContract wifiSetupRequestContract = JsonSerializer.Deserialize<WifiSetupRequestContract>(json, serializerOptions);
+0037: 			if (wifiSetupRequestContract?.Ssid == null)
+0038: 			{
+0039: 				return null;
+0040: 			}
+0041: 			return wifiSetupRequestContract;
+0042: 		}
+0043: 		catch (JsonException value)
+0044: 		{
+0045: 			Console.WriteLine($"[wifisetup] invalid request json ({value})");
+0046: 			return null;
+0047: 		}
+0048: 	}
+0049: 
+0050: 	public WifiSetupCharacteristic(WifiSetup wifiSetup, IPairingMode pairingMode, DeviceSpecialization deviceSpecialization)
+0051: 	{
+0052: 		this.wifiSetup = wifiSetup;
+0053: 		this.pairingMode = pairingMode;
+0054: 		this.deviceSpecialization = deviceSpecialization;
+0055: 	}
+0056: 
+0057: 	[UnconditionalSuppressMessage("AssemblyLoadTrimming", "IL2026:RequiresUnreferencedCode", Justification = "Serialized types are referenced and will be preserved by the trimmer.")]
+0058: 	public async Task<byte[]> ReadValueAsync()
+0059: 	{
+0060: 		Stopwatch sw = Stopwatch.StartNew();
+0061: 		string text = JsonSerializer.Serialize(WifiSetupStatusContract.FromStatus(await wifiSetup.GetStatus()), serializerOptions);
+0062: 		byte[] result = GZipUtils.Compress(Encoding.UTF8.GetBytes(text));
+0063: 		Console.WriteLine($"[wifisetup][profile] read {text} took: {sw.ElapsedMilliseconds}ms");
+0064: 		return result;
+0065: 	}
+0066: 
+0067: 	private async Task DelayedConnect(byte[] value)
+0068: 	{
+0069: 		Stopwatch sw = Stopwatch.StartNew();
+0070: 		WifiSetupRequestContract wifiSetupRequestContract = TryDeserialize(GZipUtils.Decompress(value));
+0071: 		if ((object)wifiSetupRequestContract == null)
+0072: 		{
+0073: 			return;
+0074: 		}
+0075: 		var (text4, text5, specialization) = wifiSetupRequestContract;
+0076: 		Console.WriteLine($"[wifisetup] connecting to {text4} ({(string.IsNullOrEmpty(text5) ? "open" : "protected")})");
+0077: 		Console.WriteLine("[wifisetup] specialization: " + (specialization ?? "na"));
+0078: 		try
+0079: 		{
+0080: 			await wifiSetup.Connect(text4, text5);
+0081: 			await deviceSpecialization.TryUpdate(specialization);
+0082: 		}
+0083: 		finally
+0084: 		{
+0085: 			pairingMode.ExitPairingMode();
+0086: 			Console.WriteLine($"[wifisetup][profile] connect took: {sw.ElapsedMilliseconds}ms");
+0087: 		}
+0088: 	}
+0089: 
+0090: 	public Task WriteValueAsync(byte[] value)
+0091: 	{
+0092: 		Stopwatch stopwatch = Stopwatch.StartNew();
+0093: 		Task.Run(() => DelayedConnect(value).ConfigureAwait(continueOnCapturedContext: false));
+0094: 		Console.WriteLine($"[wifisetup][profile] write took: {stopwatch.ElapsedMilliseconds}ms");
+0095: 		return Task.CompletedTask;
+0096: 	}
+0097: 
+0098: 	public static implicit operator GattCharacteristicDescription(WifiSetupCharacteristic characteristic)
+0099: 	{
+0100: 		GattCharacteristicDescription gattCharacteristicDescription = new GattCharacteristicDescription();
+0101: 		gattCharacteristicDescription.UUID = "b52828ba-1af4-4e12-bc17-aeed13c743e5";
+0102: 		gattCharacteristicDescription.Flags = new string[2] { "read", "write" };
+0103: 		gattCharacteristicDescription.CharacteristicSource = new CharacteristicSourceLogger(characteristic);
+0104: 		return gattCharacteristicDescription;
+0105: 	}
+0106: }
+
+=== S49 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.Ble.Characteristics/WifiSetupClearCharacteristic.cs ===
+SHA256 4c0626d0d40e43bd6c6012d26e48c99c1522d1989e24fd672a77a2911143df1e
+0001: using System;
+0002: using System.Text;
+0003: using System.Threading.Tasks;
+0004: using DotnetBleServer.Gatt;
+0005: using DotnetBleServer.Gatt.Description;
+0006: using Eight.Ble;
+0007: using Eight.DBus;
+0008: using Eight.Wifi;
+0009: 
+0010: namespace Eight.Capybara.Ble.Characteristics;
+0011: 
+0012: public class WifiSetupClearCharacteristic : ICharacteristicSource
+0013: {
+0014: 	private readonly WifiSetup wifiSetup;
+0015: 
+0016: 	private readonly IPairingMode pairingMode;
+0017: 
+0018: 	public WifiSetupClearCharacteristic(WifiSetup wifiSetup, IPairingMode pairingMode)
+0019: 	{
+0020: 		this.wifiSetup = wifiSetup;
+0021: 		this.pairingMode = pairingMode;
+0022: 	}
+0023: 
+0024: 	public async Task<byte[]> ReadValueAsync()
+0025: 	{
+0026: 		WifiSetupStatus wifiSetupStatus = await wifiSetup.GetStatus();
+0027: 		string s = $"ConnectivityStatus: {wifiSetupStatus.ConnectivityStatus}\nDeviceStatus: {wifiSetupStatus.DeviceStatus}";
+0028: 		return Encoding.UTF8.GetBytes(s);
+0029: 	}
+0030: 
+0031: 	public static (string ssid, string? pass)? ParseSsidPass(byte[] value)
+0032: 	{
+0033: 		string[] array = Encoding.UTF8.GetString(value).Split(" ", 2);
+0034: 		return array.Length switch
+0035: 		{
+0036: 			1 => ((string ssid, string? pass)?)(array[0], null), 
+0037: 			2 => (array[0], array[1]), 
+0038: 			_ => null, 
+0039: 		};
+0040: 	}
+0041: 
+0042: 	public async Task WriteValueAsync(byte[] value)
+0043: 	{
+0044: 		(string, string)? tuple = ParseSsidPass(value);
+0045: 		if (tuple.HasValue)
+0046: 		{
+0047: 			var (text, text2) = tuple.Value;
+0048: 			Console.WriteLine($"[wifisetup] connecting to {text} ({(string.IsNullOrEmpty(text2) ? "open" : "protected")})");
+0049: 			await wifiSetup.Connect(text, text2);
+0050: 			pairingMode.ExitPairingMode();
+0051: 		}
+0052: 	}
+0053: 
+0054: 	public static implicit operator GattCharacteristicDescription(WifiSetupClearCharacteristic characteristic)
+0055: 	{
+0056: 		GattCharacteristicDescription gattCharacteristicDescription = new GattCharacteristicDescription();
+0057: 		gattCharacteristicDescription.UUID = "b52828ba-1af4-4e12-bc17-aeed13c743e6";
+0058: 		gattCharacteristicDescription.Flags = new string[2] { "read", "write" };
+0059: 		gattCharacteristicDescription.CharacteristicSource = new CharacteristicSourceLogger(characteristic);
+0060: 		return gattCharacteristicDescription;
+0061: 	}
+0062: }
+
+=== S50 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.DeviceAPI.Handlers/StartSsh2Request.cs ===
+SHA256 b2b60069fdb93b6bae82bc154b5f2fcbfe444a35c17cb8f4a42d0b2f336c3a8c
+0001: namespace Eight.Capybara.DeviceAPI.Handlers;
+0002: 
+0003: public record StartSsh2Request(int? Port = null);
+
+=== S51 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.DeviceAPI.Handlers/StartSshResponse.cs ===
+SHA256 6b457fd5513212f8c611b1dd04002eb4efcaaa4e9e556938bb1b6d6584ddc435
+0001: namespace Eight.Capybara.DeviceAPI.Handlers;
+0002: 
+0003: public record StartSshResponse(bool Result, int Port, string? Reason);
+
+=== S52 analysis/sleep-pipeline/decompiled/Eight.Capybara/Eight.Capybara.DeviceAPI.Handlers/GetPublicKeyResponse.cs ===
+SHA256 f14ae6527de6f1159627eac7c90dee38935b9ab0b231c7451e2b5fbd48d06d33
+0001: namespace Eight.Capybara.DeviceAPI.Handlers;
+0002: 
+0003: public record GetPublicKeyResponse(string PublicKey);
+
+=== S53 analysis/sleep-pipeline/decompiled/Eight.Firmness/Eight.Firmness.DeviceAPI/DebugGetTelemetryArgs.cs ===
+SHA256 2dba777dcc90f05db9a34bbddca434ed91ad75d24eb5c62cebaec86f47c17fce
+0001: using Eight.Lsp.Subsystems.Models;
+0002: 
+0003: namespace Eight.Firmness.DeviceAPI;
+0004: 
+0005: public record DebugGetTelemetryArgs(Side Side);
+
+=== S54 analysis/sleep-pipeline/decompiled/Eight.Lsp.Subsystems/Eight.Lsp.Subsystems.Models/Side.cs ===
+SHA256 88dae0f02d7ad659f90cd80912fa84e193c00d3ae3f5186e86f83a9d18db6450
+0001: namespace Eight.Lsp.Subsystems.Models;
+0002: 
+0003: public enum Side
+0004: {
+0005: 	Left,
+0006: 	Right
+0007: }

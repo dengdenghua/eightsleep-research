@@ -1,0 +1,50 @@
+TARGET 0801819e function=0801819e
+REF_TO 0801ba18 UNCONDITIONAL_CALL owner=none
+FUNCTION_BODY [[0801819e, 080181d3]]
+
+undefined8 FUN_0801819e(int param_1,int param_2)
+
+{
+  undefined4 uVar1;
+  
+  uVar1 = 3;
+  if (param_2 != 0) {
+    *(int *)(param_1 + 0x2b8) = param_2;
+    if (*(code **)(param_2 + 0x2c) != (code *)0x0) {
+      uVar1 = (**(code **)(param_2 + 0x2c))();
+      *(undefined4 *)(param_1 + 0x2d0) = uVar1;
+    }
+    *(int *)(param_1 + 0x2d8) = *(int *)(param_1 + 0x2d8) + 1;
+    uVar1 = 0;
+  }
+  return CONCAT44(param_1,uVar1);
+}
+
+
+INSN 0801819e 13b5 push {r0,r1,r4,lr}
+INSN 080181a0 6b46 mov r3,sp
+INSN 080181a2 0400 movs r4,r0
+INSN 080181a4 981d adds r0,r3,#0x6
+INSN 080181a6 0023 movs r3,#0x0
+INSN 080181a8 0380 strh r3,[r0,#0x0] REF[WRITE:Stack[-0xa]]
+INSN 080181aa 0333 adds r3,#0x3
+INSN 080181ac 0029 cmp r1,#0x0
+INSN 080181ae 0fd0 beq 0x080181d0 REF[CONDITIONAL_JUMP:080181d0]
+INSN 080181b0 ae23 movs r3,#0xae
+INSN 080181b2 9b00 lsls r3,r3,#0x2
+INSN 080181b4 e150 str r1,[r4,r3]
+INSN 080181b6 cb6a ldr r3,[r1,#0x2c]
+INSN 080181b8 002b cmp r3,#0x0
+INSN 080181ba 03d0 beq 0x080181c4 REF[CONDITIONAL_JUMP:080181c4]
+INSN 080181bc 9847 blx r3
+INSN 080181be b423 movs r3,#0xb4
+INSN 080181c0 9b00 lsls r3,r3,#0x2
+INSN 080181c2 e050 str r0,[r4,r3]
+INSN 080181c4 b622 movs r2,#0xb6
+INSN 080181c6 9200 lsls r2,r2,#0x2
+INSN 080181c8 a358 ldr r3,[r4,r2]
+INSN 080181ca 0133 adds r3,#0x1
+INSN 080181cc a350 str r3,[r4,r2]
+INSN 080181ce 0023 movs r3,#0x0
+INSN 080181d0 1800 movs r0,r3
+INSN 080181d2 16bd pop {r1,r2,r4,pc}

@@ -1,0 +1,47 @@
+FUNCTION 08008ab4 FUN_08008ab4 BODY [[08008ab4, 08008ae5]]
+INCOMING 0800b348 UNCONDITIONAL_CALL
+INCOMING 0800b33a UNCONDITIONAL_CALL
+
+void FUN_08008ab4(undefined4 *param_1)
+
+{
+  int iVar1;
+  
+  iVar1 = *(int *)*param_1;
+  if ((*(uint *)(iVar1 + 0x1c) & DAT_08008ae8) != 0) {
+    *(uint *)(iVar1 + 0x20) = DAT_08008ae8 | *(uint *)(iVar1 + 0x20);
+  }
+  *(uint *)(iVar1 + 0x20) = DAT_08008aec | *(uint *)(iVar1 + 0x20);
+  iVar1 = DAT_08008af0;
+  *(undefined4 *)(DAT_08008af0 + 0x7c) = 0x8000000;
+  *(undefined4 *)(iVar1 + 0x7c) = 0x10000000;
+  return;
+}
+
+
+ASSEMBLY
+08008ab4 ldr r3,[r0,#0x0] BYTES 0368
+08008ab6 sub sp,#0x8 BYTES 82b0
+08008ab8 ldr r3,[r3,#0x0] BYTES 1b68
+08008aba ldr r2,[r3,#0x1c] BYTES da69
+08008abc str r2,[sp,#0x4] BYTES 0192 REF WRITE=Stack[-0x4]
+08008abe ldr r1,[sp,#0x4] BYTES 0199 REF READ=Stack[-0x4]
+08008ac0 ldr r2,[0x08008ae8] BYTES 094a REF READ=08008ae8 WORD=84f
+08008ac2 tst r1,r2 BYTES 1142
+08008ac4 beq 0x08008acc BYTES 02d0 REF CONDITIONAL_JUMP=08008acc
+08008ac6 ldr r1,[r3,#0x20] BYTES 196a
+08008ac8 orrs r2,r1 BYTES 0a43
+08008aca str r2,[r3,#0x20] BYTES 1a62
+08008acc ldr r1,[r3,#0x20] BYTES 196a
+08008ace ldr r2,[0x08008aec] BYTES 074a REF READ=08008aec WORD=ffff
+08008ad0 orrs r2,r1 BYTES 0a43
+08008ad2 str r2,[r3,#0x20] BYTES 1a62
+08008ad4 movs r2,#0x80 BYTES 8022
+08008ad6 ldr r3,[0x08008af0] BYTES 064b REF READ=08008af0 WORD=e000e104
+08008ad8 lsls r2,r2,#0x14 BYTES 1205
+08008ada str r2,[r3,#0x7c] BYTES da67 REF WRITE=e000e180
+08008adc movs r2,#0x80 BYTES 8022
+08008ade lsls r2,r2,#0x15 BYTES 5205
+08008ae0 str r2,[r3,#0x7c] BYTES da67 REF WRITE=e000e180
+08008ae2 add sp,#0x8 BYTES 02b0
+08008ae4 bx lr BYTES 7047

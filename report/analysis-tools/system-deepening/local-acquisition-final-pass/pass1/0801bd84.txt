@@ -1,0 +1,29 @@
+TARGET 0801bd84 function=0801bd84
+REF_TO Entry Point EXTERNAL owner=none
+FUNCTION_BODY [[0801bd84, 0801bd9f]]
+
+void vector_handler_39(void)
+
+{
+  if ((*(uint *)(DAT_20000b50 + 0x18) & 0x700) == 0) {
+    FUN_08013c68();
+  }
+  else {
+    FUN_08013c7a();
+  }
+  return;
+}
+
+
+INSN 0801bd84 0648 ldr r0,[0x0801bda0] REF[READ:0801bda0=20000b50] REF[PARAM:20000b50]
+INSN 0801bd86 10b5 push {r4,lr}
+INSN 0801bd88 0368 ldr r3,[r0,#0x0] REF[READ:20000b50]
+INSN 0801bd8a 9a69 ldr r2,[r3,#0x18]
+INSN 0801bd8c e023 movs r3,#0xe0
+INSN 0801bd8e db00 lsls r3,r3,#0x3
+INSN 0801bd90 1a42 tst r2,r3
+INSN 0801bd92 02d0 beq 0x0801bd9a REF[CONDITIONAL_JUMP:0801bd9a]
+INSN 0801bd94 f7f771ff bl 0x08013c7a REF[UNCONDITIONAL_CALL:08013c7a]
+INSN 0801bd98 10bd pop {r4,pc}
+INSN 0801bd9a f7f765ff bl 0x08013c68 REF[UNCONDITIONAL_CALL:08013c68]
+INSN 0801bd9e fbe7 b 0x0801bd98 REF[UNCONDITIONAL_JUMP:0801bd98]

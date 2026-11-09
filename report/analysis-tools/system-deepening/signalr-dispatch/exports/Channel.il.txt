@@ -1,0 +1,219 @@
+// IL code: System.Threading.Channels
+.class public auto ansi abstract sealed beforefieldinit System.Threading.Channels.Channel
+	extends [System.Runtime]System.Object
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	// Methods
+	.method public hidebysig static 
+		class System.Threading.Channels.Channel`1<!!T> CreateUnbounded<T> () cil managed 
+	{
+		.param type T
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x3cbc
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldc.i4.1
+		IL_0001: newobj instance void class System.Threading.Channels.UnboundedChannel`1<!!T>::.ctor(bool)
+		IL_0006: ret
+	} // end of method Channel::CreateUnbounded
+
+	.method public hidebysig static 
+		class System.Threading.Channels.Channel`1<!!T> CreateUnbounded<T> (
+			class System.Threading.Channels.UnboundedChannelOptions options
+		) cil managed 
+	{
+		.param type T
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x3cc4
+		// Header size: 1
+		// Code size: 49 (0x31)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldstr "options"
+		IL_0006: call void [System.Runtime]System.ArgumentNullException::ThrowIfNull(object, string)
+		IL_000b: ldarg.0
+		IL_000c: callvirt instance bool System.Threading.Channels.ChannelOptions::get_SingleReader()
+		IL_0011: brfalse.s IL_0022
+
+		IL_0013: ldarg.0
+		IL_0014: callvirt instance bool System.Threading.Channels.ChannelOptions::get_AllowSynchronousContinuations()
+		IL_0019: ldc.i4.0
+		IL_001a: ceq
+		IL_001c: newobj instance void class System.Threading.Channels.SingleConsumerUnboundedChannel`1<!!T>::.ctor(bool)
+		IL_0021: ret
+
+		IL_0022: ldarg.0
+		IL_0023: callvirt instance bool System.Threading.Channels.ChannelOptions::get_AllowSynchronousContinuations()
+		IL_0028: ldc.i4.0
+		IL_0029: ceq
+		IL_002b: newobj instance void class System.Threading.Channels.UnboundedChannel`1<!!T>::.ctor(bool)
+		IL_0030: ret
+	} // end of method Channel::CreateUnbounded
+
+	.method public hidebysig static 
+		class System.Threading.Channels.Channel`1<!!T> CreateBounded<T> (
+			int32 capacity
+		) cil managed 
+	{
+		.param type T
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x3cf6
+		// Header size: 1
+		// Code size: 37 (0x25)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldc.i4.0
+		IL_0002: bgt.s IL_001b
+
+		IL_0004: ldarg.0
+		IL_0005: brfalse.s IL_0012
+
+		IL_0007: ldstr "capacity"
+		IL_000c: newobj instance void [System.Runtime]System.ArgumentOutOfRangeException::.ctor(string)
+		IL_0011: throw
+
+		IL_0012: ldc.i4.0
+		IL_0013: ldc.i4.1
+		IL_0014: ldnull
+		IL_0015: newobj instance void class System.Threading.Channels.RendezvousChannel`1<!!T>::.ctor(valuetype System.Threading.Channels.BoundedChannelFullMode, bool, class [System.Runtime]System.Action`1<!0>)
+		IL_001a: ret
+
+		IL_001b: ldarg.0
+		IL_001c: ldc.i4.0
+		IL_001d: ldc.i4.1
+		IL_001e: ldnull
+		IL_001f: newobj instance void class System.Threading.Channels.BoundedChannel`1<!!T>::.ctor(int32, valuetype System.Threading.Channels.BoundedChannelFullMode, bool, class [System.Runtime]System.Action`1<!0>)
+		IL_0024: ret
+	} // end of method Channel::CreateBounded
+
+	.method public hidebysig static 
+		class System.Threading.Channels.Channel`1<!!T> CreateBounded<T> (
+			class System.Threading.Channels.BoundedChannelOptions options
+		) cil managed 
+	{
+		.param type T
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x3d1c
+		// Header size: 1
+		// Code size: 8 (0x8)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldnull
+		IL_0002: call class System.Threading.Channels.Channel`1<!!0> System.Threading.Channels.Channel::CreateBounded<!!T>(class System.Threading.Channels.BoundedChannelOptions, class [System.Runtime]System.Action`1<!!0>)
+		IL_0007: ret
+	} // end of method Channel::CreateBounded
+
+	.method public hidebysig static 
+		class System.Threading.Channels.Channel`1<!!T> CreateBounded<T> (
+			class System.Threading.Channels.BoundedChannelOptions options,
+			class [System.Runtime]System.Action`1<!!T> itemDropped
+		) cil managed 
+	{
+		.param type T
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		.param [2]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 02 00 00 00 02 01 00 00
+			)
+		// Method begins at RVA 0x3d28
+		// Header size: 12
+		// Code size: 70 (0x46)
+		.maxstack 4
+
+		IL_0000: ldarg.0
+		IL_0001: ldstr "options"
+		IL_0006: call void [System.Runtime]System.ArgumentNullException::ThrowIfNull(object, string)
+		IL_000b: ldarg.0
+		IL_000c: callvirt instance int32 System.Threading.Channels.BoundedChannelOptions::get_Capacity()
+		IL_0011: ldc.i4.0
+		IL_0012: bgt.s IL_002a
+
+		IL_0014: ldarg.0
+		IL_0015: callvirt instance valuetype System.Threading.Channels.BoundedChannelFullMode System.Threading.Channels.BoundedChannelOptions::get_FullMode()
+		IL_001a: ldarg.0
+		IL_001b: callvirt instance bool System.Threading.Channels.ChannelOptions::get_AllowSynchronousContinuations()
+		IL_0020: ldc.i4.0
+		IL_0021: ceq
+		IL_0023: ldarg.1
+		IL_0024: newobj instance void class System.Threading.Channels.RendezvousChannel`1<!!T>::.ctor(valuetype System.Threading.Channels.BoundedChannelFullMode, bool, class [System.Runtime]System.Action`1<!0>)
+		IL_0029: ret
+
+		IL_002a: ldarg.0
+		IL_002b: callvirt instance int32 System.Threading.Channels.BoundedChannelOptions::get_Capacity()
+		IL_0030: ldarg.0
+		IL_0031: callvirt instance valuetype System.Threading.Channels.BoundedChannelFullMode System.Threading.Channels.BoundedChannelOptions::get_FullMode()
+		IL_0036: ldarg.0
+		IL_0037: callvirt instance bool System.Threading.Channels.ChannelOptions::get_AllowSynchronousContinuations()
+		IL_003c: ldc.i4.0
+		IL_003d: ceq
+		IL_003f: ldarg.1
+		IL_0040: newobj instance void class System.Threading.Channels.BoundedChannel`1<!!T>::.ctor(int32, valuetype System.Threading.Channels.BoundedChannelFullMode, bool, class [System.Runtime]System.Action`1<!0>)
+		IL_0045: ret
+	} // end of method Channel::CreateBounded
+
+	.method public hidebysig static 
+		class System.Threading.Channels.Channel`1<!!T> CreateUnboundedPrioritized<T> () cil managed 
+	{
+		.param type T
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x3d7a
+		// Header size: 1
+		// Code size: 8 (0x8)
+		.maxstack 8
+
+		IL_0000: ldc.i4.1
+		IL_0001: ldnull
+		IL_0002: newobj instance void class System.Threading.Channels.UnboundedPrioritizedChannel`1<!!T>::.ctor(bool, class [System.Runtime]System.Collections.Generic.IComparer`1<!0>)
+		IL_0007: ret
+	} // end of method Channel::CreateUnboundedPrioritized
+
+	.method public hidebysig static 
+		class System.Threading.Channels.Channel`1<!!T> CreateUnboundedPrioritized<T> (
+			class System.Threading.Channels.UnboundedPrioritizedChannelOptions`1<!!T> options
+		) cil managed 
+	{
+		.param type T
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x3d83
+		// Header size: 1
+		// Code size: 32 (0x20)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldstr "options"
+		IL_0006: call void [System.Runtime]System.ArgumentNullException::ThrowIfNull(object, string)
+		IL_000b: ldarg.0
+		IL_000c: callvirt instance bool System.Threading.Channels.ChannelOptions::get_AllowSynchronousContinuations()
+		IL_0011: ldc.i4.0
+		IL_0012: ceq
+		IL_0014: ldarg.0
+		IL_0015: callvirt instance class [System.Runtime]System.Collections.Generic.IComparer`1<!0> class System.Threading.Channels.UnboundedPrioritizedChannelOptions`1<!!T>::get_Comparer()
+		IL_001a: newobj instance void class System.Threading.Channels.UnboundedPrioritizedChannel`1<!!T>::.ctor(bool, class [System.Runtime]System.Collections.Generic.IComparer`1<!0>)
+		IL_001f: ret
+	} // end of method Channel::CreateUnboundedPrioritized
+
+} // end of class System.Threading.Channels.Channel

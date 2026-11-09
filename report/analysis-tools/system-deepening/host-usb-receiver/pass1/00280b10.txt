@@ -1,0 +1,74 @@
+TARGET 00280b10 function=00280b10
+REF_TO 004ce9fc INDIRECTION owner=none
+REF_TO 00505058 DATA owner=none
+REF_TO 0021d24c UNCONDITIONAL_CALL owner=0021d1b0
+REF_TO 00279fac UNCONDITIONAL_CALL owner=00279e64
+REF_TO 0027aa24 UNCONDITIONAL_CALL owner=0027a980
+REF_TO 0027b1d4 UNCONDITIONAL_CALL owner=0027abc0
+REF_TO 0027cc0c UNCONDITIONAL_CALL owner=0027c8d0
+REF_TO 00222298 UNCONDITIONAL_CALL owner=00222230
+REF_TO 0027d63c UNCONDITIONAL_CALL owner=0027d5d4
+REF_TO 00220000 UNCONDITIONAL_CALL owner=0021fed4
+REF_TO 002217ec UNCONDITIONAL_CALL owner=00221530
+FUNCTION_BODY [[00280b10, 00280b9f]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_00280b10(long param_1,undefined4 param_2,undefined4 param_3)
+
+{
+  code *local_20;
+  code *pcStack_18;
+  long local_10;
+  long local_8;
+  
+  local_10 = param_1 + 0x1070;
+  local_8 = ___stack_chk_guard;
+  *(undefined4 *)(param_1 + 0x1070) = param_3;
+  local_20 = FUN_00280ad0;
+  pcStack_18 = FUN_00280af0;
+  FUN_001d9a50(param_1,&local_20,param_1 + 0x1080,0x800,param_1 + 0x1078,param_2);
+  if (local_8 - ___stack_chk_guard == 0) {
+    return;
+  }
+                    /* WARNING: Subroutine does not return */
+  __stack_chk_fail(&__stack_chk_guard,local_8 - ___stack_chk_guard,0);
+}
+
+
+INSN 00280b10 3f2303d5 paciasp
+INSN 00280b14 e61a00f0 adrp x6,0x5df000
+INSN 00280b18 fd7bbda9 stp x29,x30,[sp, #-0x30]! REF[WRITE:Stack[-0x30]]
+INSN 00280b1c e503012a mov w5,w1
+INSN 00280b20 010e82d2 mov x1,#0x1070
+INSN 00280b24 fd030091 mov x29,sp
+INSN 00280b28 c6ac43f9 ldr x6,[x6, #0x758] REF[READ:005df758=5ee248]
+INSN 00280b2c 0800018b add x8,x0,x1
+INSN 00280b30 07000090 adrp x7,0x280000
+INSN 00280b34 e7402b91 add x7,x7,#0xad0 REF[PARAM:00280ad0=d503245f]
+INSN 00280b38 c10040f9 ldr x1,[x6] REF[READ:005ee248]
+INSN 00280b3c e11700f9 str x1,[sp, #0x28] REF[WRITE:Stack[-0x8]]
+INSN 00280b40 010080d2 mov x1,#0x0
+INSN 00280b44 06000090 adrp x6,0x280000
+INSN 00280b48 c6c02b91 add x6,x6,#0xaf0 REF[PARAM:00280af0=d503245f]
+INSN 00280b4c 091082d2 mov x9,#0x1080
+INSN 00280b50 027010b9 str w2,[x0, #0x1070]
+INSN 00280b54 030f82d2 mov x3,#0x1078
+INSN 00280b58 0200098b add x2,x0,x9
+INSN 00280b5c 0400038b add x4,x0,x3
+INSN 00280b60 e1430091 add x1,sp,#0x10
+INSN 00280b64 030081d2 mov x3,#0x800
+INSN 00280b68 e71b01a9 stp x7,x6,[sp, #0x10] REF[DATA:00280ad0=d503245f] REF[DATA:00280af0=d503245f] REF[WRITE:Stack[-0x20]]
+INSN 00280b6c e81300f9 str x8,[sp, #0x20] REF[WRITE:Stack[-0x10]]
+INSN 00280b70 b863fd97 bl 0x001d9a50 REF[UNCONDITIONAL_CALL:001d9a50]
+INSN 00280b74 e01a00f0 adrp x0,0x5df000
+INSN 00280b78 00ac43f9 ldr x0,[x0, #0x758] REF[READ:005df758=5ee248] REF[DATA:005ee248]
+INSN 00280b7c e11740f9 ldr x1,[sp, #0x28] REF[READ:Stack[-0x8]]
+INSN 00280b80 020040f9 ldr x2,[x0] REF[READ:005ee248]
+INSN 00280b84 210002eb subs x1,x1,x2
+INSN 00280b88 020080d2 mov x2,#0x0
+INSN 00280b8c 81000054 b.ne 0x00280b9c REF[CONDITIONAL_JUMP:00280b9c]
+INSN 00280b90 fd7bc3a8 ldp x29,x30,[sp], #0x30 REF[DATA:Stack[-0x30]]
+INSN 00280b94 bf2303d5 autiasp
+INSN 00280b98 c0035fd6 ret
+INSN 00280b9c bdcbfb97 bl 0x00173a90 REF[UNCONDITIONAL_CALL:00173a90]

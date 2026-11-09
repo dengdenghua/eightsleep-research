@@ -1,0 +1,134 @@
+nonUSB 第八轮复现说明：上报对象构造链 / 0x3e28 完整布局分区图
+2026-11-09
+只读静态逆向。不执行固件、不改 Ghidra 工程、不访问设备/账号/网络。
+
+============================================================
+一、不依赖 Ghidra 的复核（交付包内自包含）
+============================================================
+
+  cd report/analysis-tools/system-deepening/report-object-layout
+
+  python3 scripts/verify_layout_bytes.py     -> BYTE_VALIDATION.json
+                                                203 项, 0 失败
+  python3 model/build_layout.py              -> LAYOUT_MAP.json
+                                                CONSTRUCTOR_LEDGER.json
+                                                MODEL_RESULTS.json (99 断言, 0 失败)
+                                                COVERAGE_RESIDUAL.json
+  python3 scripts/write_export_commands.py  -> EXPORT_COMMANDS.json
+  python3 scripts/write_source_manifest.py  -> SOURCE_MANIFEST.json
+
+顺序有依赖：model/build_layout.py 读取 BYTE_VALIDATION.json 并把它的
+status=PASS / failures=0 / memset_sizes_derived=13 作为前置断言，所以
+verify_layout_bytes.py 必须先跑。其余三个脚本互不依赖。
+
+scripts/thumb_lite.py 是从第七轮 callback-implementations/scripts/ 原样复制的
+最小 Thumb 解码器，用途只有一个：对 8 个无 Ghidra 函数体的代码入口解出有界
+前缀并比对机器码。它不执行固件，只按冻结镜像的字节解码。本轮刻意没有给它
+补 LDMIA/STMIA —— 080191f4 的 c925 是 literal pool 常量的一半，不是指令。
+
+============================================================
+二、输入清单
+============================================================
+
+  1. 冻结镜像
+     materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/
+     opt/eight/lib/subsystem_updates/firmware-sensor-g0.bbin
+     132896B
+     SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+     VA -> 文件偏移：offset = VA - 0x08008000
+
+  2. 本目录 pass1/ (42 txt) 与 pass2/ (17 txt)
+     全部是 Ghidra 12.1.4 analyzeHeadless -readOnly -noanalysis 的只读导出，
+     精确 argv 见 pass1-export.log / pass2-export.log 的 COMMAND 行，
+     以及 EXPORT_COMMANDS.json。
+
+  3. 第七轮主分派导出
+     report/analysis-tools/system-deepening/callback-implementations/
+     pass2/0801d888.txt
+     提供 0801d888 的 pseudo-C，是本轮所有块操作 / 构造调用 / 顺序证据的来源。
+
+  4. 第七轮字段台账
+     callback-implementations/REPORT_FIELDS.json
+     仅用于跨轮子集校验（136 条写入 / 107 个唯一偏移 / 9 处块操作）。
+
+  以上 4 类输入的 SHA256 全部登记在 SOURCE_MANIFEST.json。
+
+============================================================
+三、依赖 Ghidra 的导出重生成（可选）
+============================================================
+
+只有需要重新生成 pass1/pass2 时才用；审计已发布结论不需要 Ghidra。
+
+  export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+  export PATH="$JAVA_HOME/bin:$PATH"
+  HEADLESS=/opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless
+  GHIDRA_PROJECT_DIR=/Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra
+  SCRIPT_DIR=report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts
+  OUT_DIR=report/analysis-tools/system-deepening/report-object-layout/pass1
+
+  "$HEADLESS" "$GHIDRA_PROJECT_DIR" NonUsbSensor \
+      -process firmware-sensor-g0.bbin -readOnly -noanalysis \
+      -scriptPath "$SCRIPT_DIR" -postScript ExportSensorDiff.java \
+      "$OUT_DIR" <每项一个 argv 的 target>
+
+注意：
+  - 不导出 JAVA_HOME 会报 "Unable to locate a Java Runtime" / "no TTY detected"。
+  - ExportSensorDiff.java 第 47 行是 Long.parseLong(args[n],16)，每个 target
+    必须是独立 argv；把地址用空格拼成一整个字符串会抛 NumberFormatException
+    （第七轮已踩过一次）。
+  - start:end 形式只 dump 已解码指令，不改反汇编。
+  - 脚本以当前 program 的 SHA256 守门，镜像不符直接拒绝执行。
+
+============================================================
+四、产物说明
+============================================================
+
+  BYTE_VALIDATION.json      字节/指令/literal/常量传播/前缀核验，203 项
+  LAYOUT_MAP.json           53 个区间、7 对相邻实例、覆盖率与 14 个空洞
+  CONSTRUCTOR_LEDGER.json   12 个唯一构造函数体、尺寸、调用偏移、去重说明
+  MODEL_RESULTS.json        99 条断言明细（含每组计数）
+  COVERAGE_RESIDUAL.json    本轮闭合项、纠偏、跨轮校验、残余清单
+  FINDINGS_ZH.txt           中文结论
+  EXPORT_COMMANDS.json      两批导出的精确 argv
+  SOURCE_MANIFEST.json      全部输入的 SHA256
+  REPRODUCE.txt             本文件
+
+派生 JSON 不进入 SOURCE_MANIFEST.json，避免自引用；排除名单写在脚本里。
+
+============================================================
+五、已知陷阱（本轮实际遇到并修掉）
+============================================================
+
+  1. insn_rows_total 首版写 7879，实测 7576；undecoded_exports 首版写 7，
+     实测 9（pass1 的 7 个 + pass2 的 0801c404/0801c440 两个）。已按导出
+     实测修正，并保留为回归基线。
+
+  2. 0x080191f4 是 literal pool 数据槽而非代码入口。判定方法：若某
+     function=none 的 TARGET 地址同时出现在其它导出的 REF[READ:addr=value]
+     中，就归类为数据槽，不做 Thumb 前缀解码。
+
+  3. 0x3E88 的十进制是 16008，不是 15944；0x3E08 = 15880，差 128B。
+
+  4. 本轮 FIELD 正则统计「pseudo-C 中出现的所有 param_2 偏移」= 156，
+     第七轮 REPORT_FIELDS.json 的 107 是「写入语句的唯一偏移」。两者是
+     子集关系，已做 all(o in fs) 断言，不要当成互相矛盾去改数。
+
+  5. 0x3df8 同偏移有 memset 与 memcpy 两条互斥分支，按 (kind, offset, size)
+     去重时要保留两条；by_off 字典只用于取 size，不要用来判 kind。
+
+  6. 080190e4 与 08019170 是同一 Ghidra body 的两个 TARGET，构造函数按
+     FUNCTION_BODY 的首地址去重为 12 个，导出份数是 13。
+
+  7. 清单同步必须在 build.py 与 validate.py 之后：build 会重写 index.html、
+     data/compiled-index.json、wiki/roadmap.md，validate 会重写
+     validation/structural-checks.json。RELEASE 清单包含
+     report/project-manifest.json，所以顺序固定为「先写 project 清单 ->
+     重新扫描 -> 最后写 RELEASE 清单」。
+
+============================================================
+六、确定性
+============================================================
+
+  verify_layout_bytes.py 与 build_layout.py 连续重跑两次，输出 JSON 的
+  SHA256 不变；所有解析基于冻结镜像字节和已留存的导出文本，不读系统时间、
+  不读 Ghidra 工程状态、不联网。

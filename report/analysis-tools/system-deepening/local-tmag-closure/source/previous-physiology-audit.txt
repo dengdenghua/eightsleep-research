@@ -1,0 +1,138 @@
+MT8365 frankenfirmware 本地生理处理有界审计（S4）
+日期：2026-11-07
+
+结论
+本轮从生理/占床/动作/信号处理候选引用，追到旧式 piezo、外部 ADC、电容数据的接收、协程、缓冲、CBOR 编码和 NATS 出口。在这些实际数据路径中，确认了格式解码、时钟对齐、按秒缓冲、缺失值和元数据处理；未观察到由波形计算在床、睡眠体动指标、HR、RR、HRV、睡眠阶段或睡眠质量的 producer→consumer 路线。
+
+主机确实有本地数值判断和动作处理：TMAG5273 磁场阈值用于连接/方向诊断，TTC 敲击事件用于调温等动作；这些不应写成“完全没有本地算法”。相反，本轮也不能把这些设备状态叫作人的生理结果。
+
+这是针对下列候选及调用链的静态负面结论，不是证明整个 stripped ELF、其他进程、MCU 或服务器都不存在相关算法。
+
+一、样本与方法
+样本：mediatek/rootfs-selected/opt/eight/bin/frankenfirmware
+SHA-256：84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375
+Ghidra：AARCH64:LE:64:v8A；image base 0x00100000；项目 SignalHost.gpr，已有 12,869 个函数。
+用户确认研究目标为国行 Pod 6/MT8365，且 Pod 5 也使用同一主控；本报告不从芯片平台或旧式协议名推断商品代际。
+
+1. 对二进制可打印字符串和 Ghidra 已定义字符串/符号建立候选：presence、occupancy、heartbeat、capSense、piezo、quality、filter、motion、gesture、orientation、posture、HR/RR/HRV、FFT 等。
+2. 不以未命中字串作为实现不存在的证据。对命中项读取交叉引用、函数体、直接调用者与消费者；对协程构造器继续跟随写入 frame 的函数指针，而非停在 allocator。
+3. 新导出放在 physiology/：97 份函数伪代码，去重 82 个地址，另有 refs、汇编和符号清单。导出数量不是已穷尽审计整个程序的比例。
+4. 全程 -noanalysis -readOnly；不执行固件、不连设备、不访问账户或云 API，不改旧报告或旧 manifest。新清单为 physiology/audit_inventory.json。
+
+证据路径以本报告所在目录为根。*.c 是 Ghidra 伪代码，不是原厂源码；*.asm.txt 用于核查反编译歧义。静态“确认”不表示设备运行时已验证。
+
+二、修复一个会造成错误负面结论的反编译缺口
+旧 Sensor::handleCommand 协程 FUN_002097a0 原导出只识别 1,068 bytes，even-state 主处理分支丢失，不能据其原伪代码判断“不做处理”。
+
+原始指令：00209888 比较 state 与 0x26；0020989c 从 0046d5c8 读取 state*2 的 halfword；002098a4 以 signed16*4 加 002098ac；002098a8 间接跳转。仅修复已由边界证明的 39 个表槽，所有目标均验证位于 002097a0..0020b3ff；odd states 使用另一清理分支。没有将表后面的数据当成目标。
+
+在只读会话中扩展函数体并写入 JumpTable override 后，恢复 7,264 bytes 和完整数据分派。更改随会话关闭丢弃，没有保存回原项目。
+证据：
+  physiology/trace3/002097a0-0020b3ff.asm.txt:59–73
+  physiology/legacy-fixed/002097a0.c（修复后，以下旧 Sensor 引用均以此为准）
+  scripts/FixLegacySensorSwitch.java；ghidra-physiology-legacy-fixed.log（39 项目标）
+  physiology/trace2/002097a0.c 保留修复前缺口，不能继续当作完整处理函数。
+
+三、旧式 piezo 与外部 ADC：已追到原始数据出口
+3.1 16-bit piezo
+接收：旧 Sensor 分派 opcode 0x30、0x32。
+  0x30 → 0021a6f0，解时间戳和 16-bit words；
+  0x32 → 0021a7e0/0021a870，解带采样参数的 header 和连续值。
+共同经过 001e0004 构造的 001e7634 协程，转入 001ef574 原始缓冲。它把样本按 millisecond%1000 写入左右两个 2,000-byte 缓冲，保存 gain；换秒时 flush。没有在这条链上读取峰间期、做呼吸带/心脏带分离或形成 HR/HRV 结果。
+
+出口：00200960 → 001fd7f0，生成 type=piezo 或 piezo-sub、freq=1000、左右 samples/gain。之后 001e9390 按 mask 发 raw.sens.sens 或 raw.sens.piezo。
+其中 freq=1000 是该旧编码器的字段，不是本轮确认所有硬件实际时钟都是 1 kHz，也不能替换已证明的 Stealth 500 Hz 路线。
+
+关键证据：
+  physiology/legacy-fixed/002097a0.c:253、:279、:665、:685
+  physiology/trace4/0021a6f0.c:16；0021a870.c:15
+  physiology/trace4/001e0004.c:59 → physiology/trace5/001e7634.c:66
+  physiology/trace6/001ef574.c:39、:78、:99、:127（位置写入、初始化、flush、写入）
+  physiology/trace1/001fd7f0.c:51、:103（CBOR），:160–162（清空下一秒）
+  physiology/trace4/00200960.c:44、:125；001e9390.c:92、:103
+
+3.2 外部 ADC / piezo-dual
+旧分派 opcode 0x34 → 0021a960/0021aa70。decoder 读取 32-bit words，按 header bit 决定有效侧及复制槽，缺失槽先填 0x7fffffff；调用既有时间映射，必要时复制一个时间位置补点。
+001e01b0 → 001e7960 → 001eef70：按 (milliseconds%1000)/2 将四个原始数值写入四个 500-sample 区域，保存 gain/version 和样本计数；跨秒 flush。
+00200960 → 001fb0b0：type=piezo-dual、freq=500，输出 left1/right1 等 byte strings；flush 后重新填 sentinel。这里的 gain/version 变化检查是记录采集元数据，不是计算生理信号质量。
+
+证据：
+  physiology/legacy-fixed/002097a0.c:303、:310、:751
+  physiology/trace4/0021aa70.c:17–64
+  physiology/trace4/001e01b0.c:59；physiology/trace2/001e7960.c:65
+  physiology/trace2/001eef70.c:56–77、:151–185
+  physiology/trace1/001fb0b0.c:110–117（500 Hz/gain），:146–169（重置）
+
+边界：上述是仍编译在本样本中的兼容路线；并未证明目标国行 Pod 6 正在启用每一种旧 opcode。Stealth 多路数据的完整路线继续以 SIGNAL_HOST_ANALYSIS.txt 为准。
+
+四、电容数据：状态来自接收包，没有在这条主机链上形成占床判定
+4.1 capSense
+旧 Sensor 的 opcode 0x33 → 0021abe0；USB Sensor 同样处理 0x33。decoder 读取时间戳、两个状态值和测量 words，随后主机只是排队/组帧。
+旧整体路线：001e0d20 → 001e4070 → 001ed7d4 → raw logger+0x1120；
+每侧路线：001e0ec0 → 001e61d0 → 001ed1d4 → 两侧队列；
+00200960 根据缓冲模式选择 001f2970 或 001f2c20，编码 type=capSense，左右 out/中间项/in/status，最终 raw.sens.capsense。
+不能仅凭字段 in/out 把其解释为“人在床/不在床”；在此追到的是数值字段，不是主机对人的二元判定。
+
+证据：
+  physiology/legacy-fixed/002097a0.c:338；physiology/trace2/0027e7b0.c:307
+  physiology/trace1/0021abe0.c:24–49
+  physiology/trace6/001ed7d4.c:62–65；physiology/seeds/001ed1d4.c:122–176
+  physiology/seeds/001f2970.c:45–110；physiology/trace4/00200960.c:168–174
+
+4.2 capSense2
+opcode 0x44 → 0021ad74：读 MCU tick、左右 16-bit statuses、version byte，然后读取 channel byte + 32-bit value。按 channel<8/≥8 分左右，检查通道和最少值数，状态用查表映射为 railed/locked/converged/unknown 等名称。
+001e13d0 → 001e56b0 → 001ec390，将 value vectors 和状态原样送到 raw logger+0x11a0；00200960 → 001f5b80 编码 type=capSense2、ts、version、left/right.values/status，mask0x1000 出口是 raw.sens.capextended。
+此链状态的 producer 是 MCU 包中的字段；host 的映射/边界检查不等于 host 根据电容波形计算 occupancy 或睡眠质量。
+
+证据：
+  physiology/seeds/0021ad74.c:71–120、:177–212
+  physiology/trace2/0027e7b0.c:159–179；physiology/legacy-fixed/002097a0.c:399
+  physiology/trace2/001e56b0.c:50；physiology/trace3/001ec390.c:66–72
+  physiology/seeds/001f5b80.c:41–105
+  physiology/trace4/00200960.c:220；001e9390.c:128–129
+
+五、容易被误认成生理计算的正向证据
+5.1 presence / occupied
+00182b50 的 presence override 写连接管理器侧 mask，日志明确为 thermal/priming 强制 attached；00236bd0 将 cover、frozen、左右 pillow/sensor 的 attached/detached 更新进连接表并清相应 override。
+00259f30 的 “multiple sensor units occupied” 来自 PortWorker::applyGroupAssignment，消费 USB topology 分组和设备路径，发 sensor-topology-conflict；不是判断多个睡眠者。
+证据：physiology/seeds/00182b50.c:28–40；00236bd0.c:70–117、:217–224；00259f30.c:35–69。
+
+5.2 heartbeat
+0018b294 组装 v/ts/subsystems/frozen/up 等，发布 device.heartbeat.frank。0020b574 的传感器 heartbeat 写文件计数器；0019d410 打开 BedFrameState 关联心跳文件并检查时间。
+这些都是服务/外设存活状态。在已读数据结构和调用链中没有人体逐搏间隔。
+证据：physiology/seeds/0018b294.c:115–166、:237；0020b574.c:202–209；0019d410.c:47–69。
+
+5.3 gesture / posture4
+00204c40（Sensor）和 00277cb0（UsbSensor）消费侧别及 taps 字段：2 taps 发出降温请求，3 taps 发出升温请求，≥4 taps 走床架相关动作，并更新按侧计数/状态；不是输出睡眠体动评分。后续生产端审阅已限定：旧hwrev<0x900以0x36传真实归并tap计数；Kxx走0x37数字按钮，handleButtonEvent将top/bottom长按转换为这套2/3动作编号。不能据消费者字段名认定新硬件也从多路压电/IMU检测两次或三次敲击。见../sensor-mcu/TAP_SIGNAL_PROCESSING_ZH.txt。
+0023c680 把模式枚举 0x0e 映射为 posture4，同时表中还有 rise/orbit/luna 等；结合 TTC 闹钟处理的 posture pattern 分支，应按动作/震动模式证据理解，不能视为人体睡姿分类器。
+这里审计的是事件消费及动作映射，不宣称已完整恢复所有 MCU 敲击检测算法。
+证据：physiology/trace5/00204c40.c:30–158；00277cb0.c:29–150；0023c680.c:17–38；0021e320.c（闹钟分支）。
+
+5.4 存在本地磁场数值判断，但对象是设备连接与方向
+00212280 从数据包取 float temp/x/y/z 与 TMAG5273 系列 sensor ID。计算 x²+y²：无效浮点哨兵时置无效；≤3.05 时不判连接；超过阈值时按轴符号和左右位置生成 is_connected、correct_orientation、flow_direction。
+0.25<x²+y²≤3.05 时计算 sqrt 并生成 weak field 诊断字符串。此为实质本地数值处理，不能因存在 sqrt/阈值而误称呼吸、心率或睡姿算法。
+此外，type=pillow-orientation 的 CBOR 编码器 001f2ec0 输出 x/y/z 数值；本轮没有由此找到人体睡姿标签或分期输出。
+证据：physiology/trace5/00212280.c:99–150、:159–200、:248–351；001f97e0.c:104–131；001f2ec0.c:30–66。
+
+5.5 filter / quality / min-avg-max
+“BIO to Core filter” → 002fe500 → 00298e60，后者源文件路径为 openssl-3.0.16/crypto/bio/bio_meth.c，创建 BIO method 和回调，不是生理带通滤波。
+cap_sense min/avg/max、sampling avg rates 等字串在 00282920 被编译为正则规则；002825b4 将规则与 900000/3600000 等间隔、回调一起登记。此处没有对传感样本计算 min/avg/max 的代码，它处理的是已存在的日志文本。
+qualityLabelledData、dSAQuality、singleLevelQuality、subtreeMinimumQuality、subtreeMaximumQuality 命中静态名称数据表引用；本轮未追到与传感器 producer 相连的执行函数，因此不将它们列为生理质量算法的正向证据。
+证据：physiology/seeds/002fe500.c:11–29；physiology/trace2/00298e60.c:10–26；physiology/seeds/00282920.c:177–323；physiology/trace3/002825b4.c:44–115；physiology/seeds/string-xrefs.txt。
+
+六、问题覆盖与未解决边界
+在床/occupancy：相关名称已区分为外设连接和拓扑占用；capSense producer→consumer 已追。未观察主机根据波形生成在床布尔值的路线；不据此排除别的二进制或服务器实现。
+体动：已追原始波形/IMU 输出和 TTC 事件消费；未观察分钟级体动、觉醒或活动分类器。未完整恢复所有 TTC 上游识别分支。
+HR/RR/HRV：在被追到的 piezo/ADC/capSense/Stealth 数据路径未观察心搏峰定位、呼吸周期估计、搏间期统计及结果发布；没有把字符串零命中作为单独结论。
+睡眠阶段/质量：未发现本轮路径生产或消费 wake/light/deep/REM 等分期结果；公开专利中的 ResNet/温控树不能填补此二进制中的证据缺口。
+信号质量：确认传输长度/通道检查、sentinel、时钟补点、gain/version、MCU 校准状态、磁场弱信号诊断；这些不等于临床意义的生理质量分数。
+
+保留的反编译限制：
+  旧 002097a0 的主体缺口已通过有界表修复，修复前后均保留。
+  seeds/00207cf0 仍有未恢复间接跳转，属于已选到的传感器断连/复位管理函数；本轮未将其扩展成完整复位状态机。
+  001fd6d0 有通用虚函数 tail-call 警告。相关 piezo caller 使用 vtable 0058eb48；其 +0x10 指针静态确认是 001f02b0，故命中函数内已展开的逐样本编码分支，而非未知替代处理器。参见 physiology/selected-data-pointers.txt 与 trace6/001fd6d0.asm.txt:17–47。
+  未穷尽 12,869 个函数，未枚举所有可动态间接调用、外部共享库或运行时订阅者，未分析真实用户数据，未证明量产设备启动了每个兼容路径。
+
+证据复用与后续方向
+本轮足以把“只是没看到相关字符串”提高为“对已恢复的主要原始信号兼容路径追到出口，仍未发现所问生理结果计算”。如继续缩小缺口，优先取同版本服务器/运行期合法抓包中的结果 schema，或按具体尚未审计的入口推进；不应再从固件中的 generic filter/quality 名称无限扩展猜测。
+温度日程代码另外导出于 schedule/、schedule2/、schedule3/，由另一子任务核查；它不是本轮分期算法证据。

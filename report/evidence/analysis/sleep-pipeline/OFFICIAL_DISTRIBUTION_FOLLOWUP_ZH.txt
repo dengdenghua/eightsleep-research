@@ -1,0 +1,85 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方分发入口补查：中国区腾讯应用宝 APK 已取得
+日期：2026-11-07（本地）；下列 HTTP 留档时间使用 UTC。
+
+结论
+本轮从腾讯应用宝自身的公开搜索 UI 找到了 Eight Sleep 中国区发行页，并从
+该页公开嵌入的下载 URL 取得完整 APK。不是第三方 APK 镜像；此前普通搜索引擎
+未命中该页面，不能据此前结果断言中国区无公开 Android 下载。
+
+官方详情页：https://sj.qq.com/appdetail/com.eightsleep.eight
+页面显示：Eight Sleep；八睡眠贸易(深圳)有限公司；7.63.5-cn-tencent；
+更新时间 2026.11.4；备案号 粤ICP备2025481980号-2A。
+页面简介明确这是中国区用户配套 App，包含设备管理、设置和睡眠报告查看。
+
+安装包
+相对本报告目录：
+distribution-followup/com.eightsleep.eight_7.63.5-cn-tencent.apk
+长度：151778699 字节。
+MD5：d3f4d3472ab64e865756d59463b962da（与商店公开 md_5 完全一致）。
+SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+请求：HTTPS 200；没有重定向；Content-Type=application/vnd.android.package-archive。
+商店原文 download_url 使用 HTTP；本次仅将同一公开 URL 的 scheme 升级为 HTTPS，
+host/path/query 保持不变，未猜测下载文件名或私有路径：
+https://imtt2.dd.qq.com/sjy.00008/sjy.00004/16891/apk/D3F4D3472AB64E865756D59463B962DA.apk?fsname=com.eightsleep.eight_7.63.5-cn-tencent.apk
+
+来源链和身份边界
+1. 已有官方 app.eightsleep.com 的 deeplink.js 明示 Google Play 包名
+   com.eightsleep.eight、Apple App ID 1086913845。
+2. Apple 中国商店同一 App ID 的发行人为 Eight Sleep, Inc；开发者网站链接
+   eightsleep.com/china；隐私政策明确链接 https://8slp.net.cn/privacy.html。
+3. 该隐私政策定义服务提供者为八睡眠贸易（深圳）有限公司；现有 china-home
+   页面也显示该主体及 Eight Sleep。此链在上一轮已留档，本轮复核原始文件。
+4. 应用宝真实站内搜索结果及详情页的包名、发行主体、隐私政策 URL 与上述链
+   一致。详情页 __NEXT_DATA__ 的 app item 提供 app_id=53055332、实际 CDN URL、
+   预期 MD5 和长度；下载结果同时满足两项核验。
+5. APK 的 AndroidManifest 再次给出相同包名及版本；签名本身验证成功。
+这些是公开官方/官方商店分发来源证据。签名 DN 自述本身不能独立证明法律主体；
+未取得另一渠道同版本 APK 来比较证书，因此没有断言全球 Google Play 包与此
+中国渠道包具有相同签名，也没有把中国 App 发行归属直接等同某 SWU 的地域归属。
+
+包身份和签名
+Android SDK build-tools 36.1.0 的 aapt/apksigner 静态核验：
+- package=com.eightsleep.eight
+- versionName=7.63.5-cn-tencent；versionCode=1007063005
+- minSdkVersion=33；targetSdkVersion=36；compileSdkVersion=36
+- launchable activity=com.eightsleep.eight.MainActivity（只读声明，未运行）
+- APK Signature Scheme v2=true，1 signer；v1/v3/v3.1/v4/SourceStamp=false。
+  这表示该文件的 v2 签名通过；没有把“SourceStamp=false”当身份否定或损坏。
+- Signer certificate SHA256:
+  438f0b7ff264b0d612826f5e286bee27e86009c48b2ce3d71fd7ea45aae26d71
+- Signer DN: CN=Eight, OU=Eight, O=Eight, L=NY, ST=USA, C=NY
+- RSA 2048；证书 PEM/DER 及签名工具完整输出已留档。
+
+容器架构（实际 ZIP 观察）
+3492 个 ZIP entries，4 个 DEX：classes.dex、classes2.dex、classes3.dex、classes4.dex。
+20 个 .so，分布于 arm64-v8a、armeabi-v7a、x86、x86_64 四种 ABI；libruntime.so
+仅存在于 arm64-v8a、armeabi-v7a、x86_64；libjutils.so 仅在 arm64-v8a。
+assets/sentry-external-modules.txt 列出 Kotlin、Jetpack Compose、Moshi、Wire、
+kotlinx-serialization 及 design.spline:spline-runtime 等依赖。
+assets 下可见 baseline profile、两个 Pod Lottie JSON、Datadog/Sentry 元数据。
+在完整 ZIP 成员名检查中未见 index.android.bundle、Hermes/React Native 命名载荷；
+这与 Kotlin/Compose 应用形态相符，但不是仅凭文件名对全部实现语言的绝对证明。
+本轮未解析 DEX 方法，因此不将任何 stage/温控语义当作已经恢复；后续分析直接
+以此固定 SHA256 样本建立 REA 持久 workspace，静态跟踪实际消费者调用链。
+
+方法与范围
+先复核 COMPANION_SOURCE_AUDIT.txt、OFFICIAL_RESULT_SURFACE_AUDIT.txt 和既有
+检索日志，确认先前只查过 web 搜索引擎 domain queries，没有完成应用宝站内搜。
+本轮只补该有意义缺口；成功取得包后停止扩散商店查询，没有重复 64 个营销 JS
+扫描。Xiaomi/Huawei 站内入口本轮未走，不能称所有商店已穷尽。
+没有登录、没有读取用户睡眠/账户数据、没有猜测私有 API、没有安装或执行 APK。
+本机默认 java_home 不可用，改为已有 REA Java21 的绝对路径运行 apksigner；
+没有安装系统软件。完整解码由主线程另行执行，避免重复 workspace 和并发冲突。
+
+关键留档（均在 distribution-followup/）
+UI_DISCOVERY.txt：站内搜索和真实结果导航过程。
+tencent-search.html、tencent-detail.html、fetch-manifest.json：原始 HTTP 来源。
+tencent-app-detail.json：从页面 __NEXT_DATA__ 精确提取的应用对象。
+download-provenance.json：已发布 URL、HTTPS 请求、响应、长度和摘要。
+aapt-badging.txt、apksigner-verify.txt、apksigner-certificates.txt、signer.pem/der。
+zip-inventory.json、container-summary.json：完整成员目录和有界架构统计。
+SOURCE_LEDGER.json：结论/来源/边界；artifact-index.json：本轮文件摘要。
+validate_distribution.py：离线重新核验来源对象、APK 摘要、ZIP 和证书指纹。

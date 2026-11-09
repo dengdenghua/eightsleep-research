@@ -1,0 +1,40 @@
+TARGET 080124d8 function=080124d0
+REF_TO 080124de CONDITIONAL_JUMP
+FUNCTION_BODY [[080124d0, 080124eb]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_080124d0(void)
+
+{
+  undefined4 uVar1;
+  undefined4 *puVar2;
+  undefined4 *puVar3;
+  
+  puVar2 = &DAT_08008080;
+  puVar3 = &DAT_20000000;
+  do {
+    uVar1 = *puVar2;
+    puVar2 = puVar2 + 1;
+    *puVar3 = uVar1;
+    puVar3 = puVar3 + 1;
+  } while (puVar3 != (undefined4 *)0x200000c0);
+  _DAT_40021040 = _DAT_40021040 | 1;
+  return;
+}
+
+
+INSN 080124d0 8023 movs r3,#0x80
+INSN 080124d2 064a ldr r2,[0x080124ec] REF[READ:080124ec=8008080]
+INSN 080124d4 0649 ldr r1,[0x080124f0] REF[READ:080124f0=200000c0]
+INSN 080124d6 9b05 lsls r3,r3,#0x16
+INSN 080124d8 01ca ldmia r2!,{r0} REF[READ:08008080=20024000] REF[READ:08008084=801fd01] REF[DATA:0801fd01=f2468548]
+INSN 080124da 01c3 stmia r3!,{r0} REF[WRITE:20000000] REF[WRITE:20000004] REF[DATA:0801fd01=f2468548]
+INSN 080124dc 8b42 cmp r3,r1
+INSN 080124de fbd1 bne 0x080124d8 REF[CONDITIONAL_JUMP:080124d8]
+INSN 080124e0 0123 movs r3,#0x1
+INSN 080124e2 044a ldr r2,[0x080124f4] REF[READ:080124f4=40021000]
+INSN 080124e4 116c ldr r1,[r2,#0x40] REF[READ:40021040]
+INSN 080124e6 0b43 orrs r3,r1
+INSN 080124e8 1364 str r3,[r2,#0x40] REF[WRITE:40021040]
+INSN 080124ea 7047 bx lr

@@ -1,0 +1,46 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+离线控制边界补证 — 2026-11-07
+
+本轮新增结论是手机 BLE 凭据的实际缓存与到期分支：到期并不是这条执行链的硬停止条件。已有缓存时，App 在后台刷新，同时把旧缓存继续交给蓝牙操作；执行器只检查有没有 securityKey，没有再次检查 expiresAt。因而不能说“到期立即不能操作”，也不能说“登录一次就能永久离线”。手机和主机密钥仍须匹配，蓝牙及功能门控也须通过。
+
+这是本地静态分析，没有读取真实缓存、密钥、账号资料，没有联网或访问设备。Java 反编译不完整；核心结论已用编译后的 Smali 互证。下表的主机行为来自既有固件样本，未证明与当前 Pod 6 的运行固件完全一致。
+
+功能条件矩阵
+
+| 情境/功能 | 代码支持的范围 | 前提及不能保证的部分 |
+| --- | --- | --- |
+| 已登录后手机/主机断网，手动调温或关热 | 存在 BLE 路径，不要求先完成云同步 | 要有该设备可用的缓存密钥、可达蓝牙、支持的设备与启用的备用功能，且 App 的状态门控选择 BLE；“已登录”本身不等于已缓存密钥。[P01–P02,P15–P18,R01–R02] |
+| 缓存密钥标记已过期 | 当前 read/write 的 hydrate 分支启动后台刷新，并立即返回旧缓存供操作 | 不是过期立即拒绝；只有旧密钥仍与主机匹配时才可能成功。不能据此承诺固定的长期离线时长。[P01–P03,P06,P09] |
+| 手机从未取到密钥、清数据，或缓存解密失败 | 没有完整纯本地取钥链 | 缓存缺失时要刷新；刷新使用 BLE device token/nonce，再向已定义云端 security/key 请求新密钥。无网络时不能承诺恢复。[P01,P04–P12] |
+| 操作出现密钥不匹配导致的解密错误 | App 强制刷新离线数据后重试 | 这条恢复链需要云端取钥；不是忽略错误继续使用错误密钥。[P03,P10–P12] |
+| App 进程重启后继续操作 | 密钥缓存采用 Room，并由 AndroidKeyStore 密钥加密，具备跨进程持久化条件 | 不是仅内存缓存；数据库、Keystore 和必要设备/功能状态均须仍可读取。没有验证完整离线冷启动、登录会话到期或退出账号清理逻辑，不能把“缓存还在”扩大成“UI 必可进入”。[P04–P08] |
+| 主机断网超过一天 | 已分析主机样本会尝试更新，但云断开时跳过更新并继续保留当前密钥 | 解密函数没有独立的 24 小时拒绝门控。服务重启会读配置中的旧密钥；配置缺失时生成新随机值，手机旧缓存可能失配。这是样本行为，不是当前设备保证。[H01] |
+| 手动热控已启动后持续断网 | 本地热控及 Unix 到期逻辑不依赖日历调度 stub；BLE 调档传 36000 秒，再受固件最大时长裁剪 | 36000 秒即 10 小时，是请求时长，不是永久恒温，也不是自动每天重新预热；外设断开可提前关热。[H02,H06–H11,R01] |
+| 主机重启后的普通热控 | state1.dat 保存/恢复热控 expiration、mode、target | 文件内容与消费者支持“绝对 Unix 截止时间”解释；重启不应当被解读为重新获得完整 10 小时。恢复后是否继续须满足未到期、时钟正确、外设存在、状态可读。未实测重启。[H03–H11] |
+| 已落盘的本地闹钟 | 原生 alarm.cbr 读回后按 tt、di、du 定义的绝对时间窗口触发本地振动 | 可以论证保存窗口的恢复条件；不能等同每天循环、云端智能唤醒曲线或完整音频/温控闹钟。重启后窗口已结束不会按这条逻辑补响；窗口内可能只执行剩余秒数，属静态条件推断。[H12–H13,R03] |
+| 修改 bedtime 日程、闹钟配置、Autopilot 设置 | 已恢复 App 路径使用云服务 | 已证的 BLE 备用动作是局部手动控制、读取以及 dismiss/snooze 等，不涵盖完整新日程配置或新的 Autopilot 目标计算。[R01–R02] |
+
+新增证据的最短调用链
+
+1. OfflineRepository.write → cb.g0 功能门控 → cb.t0 获取 peripheral → cb.r0 → hydrateOfflineData → cb.o0 执行。
+   OfflineRepository.java:615–618；C2639t0.java:41–82；C2635r0.java:50–83。后两项 Java 仅帮助阅读，关键数据分支以下述 Smali 为准。
+2. OfflineRepository.smali:705–715 从 kb.e.h(deviceId) 取缓存；无缓存分支 :717–735 调 refreshOfflineData。
+   已有缓存分支 :769–785 检查 shouldRefresh 并 launch cb.K0；随后 :787–795 仍构造 Success(同一缓存 p2)。未过期分支 :806–815 返回同样缓存。
+3. cb/o0.smali:119–167 仅在缓存或 securityKey 缺失时返回 NoSecurityKeyException；:169–188 直接把 key 交给操作，没有调用 expired/shouldRefresh。
+4. OfflineModeData.java:97–107 的刷新条件是 MAC 空或 securityKey 缺失/过期；OfflineSecurityKey.java:53–54 用 expiresAt.isBefore(now)。DeviceKeyResponse.java:64–68 用响应 expiresIn 加上 now 生成到期时间，因此不能把通用缓存类的 1 day 字段当成统一强制有效期。
+5. kb/d.java:40–54 从 Room offline_mode_data 按 device_id 读并还原对象；kb/e.java:62–74 保存实体。OfflineSecurityKey.java:69–87 保存前 AES-GCM 包装，defpackage/a.java:9–21 复用 AndroidKeyStore 已有 alias。这里只检查源代码，没有打开用户数据库或 Keystore。
+6. cb/q0.smali:141–175 在解密错误时 force=true 刷新，:186–206 接重试回调。刷新使用 GetDeviceKeyRequest(nonce) 与 InterfaceC2341o.java 中的 POST v1/devices/{DEVICE_ID}/security/key。没有执行这个 POST。
+
+主机证据的解释边界
+
+主机热控到期和闹钟部分是对已存在代码证据的收敛复核，不冒充本轮新发现。旧 TemperatureScheduler 的 calendar stub 不能否定另两条使用 Unix 秒的普通 expiry/闹钟路径。另一方面，存在本地文件和 timer 也不能证明当前固件、真实已保存状态、冷启动校时或每日循环功能。对这几项本轮不扩大搜索。
+
+证据文件
+
+SOURCE_EXCERPTS.json：37 个静态文件的绝对路径、SHA-256、精确行范围与完整选段，P 为手机、H 为主机、R 为既有报告。
+REA_READS.json：当前持久索引对 hydrate / executor / decryption-recovery 三段 Smali 的 REA 原始记录与 evidence_id。
+AUDIT.json：目标身份、新增/复用证据分类与未覆盖边界。
+
+以上内容可以支撑“已缓存且匹配时的有条件离线手动操作”，还不能支撑“完全离线智能床”、固定离线保障天数或当前用户设备的重启承诺。

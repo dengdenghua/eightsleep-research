@@ -1,0 +1,209 @@
+{
+  "scope": "normal request payloads only; lengths are selected supported examples, not proof of all accepted shapes",
+  "hardware_threshold_notation": "0x700 and 0x720 are hexadecimal comparisons, not decimal700/720",
+  "dispatch": "CRC-valid packet: highbit response handled as response/log-only; request appends opcode|0x80 then builtins2..5 or normal handler; no command sent",
+  "routes": [
+    {
+      "opcode": "0x01",
+      "normal_request_data": "none",
+      "local_action": "constant identity byte",
+      "reply_after_response_opcode": "00 46",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x02",
+      "normal_request_data": "none",
+      "local_action": "copy first 128 bytes from selected hardware-info flash region",
+      "reply_after_response_opcode": "00 + 128 bytes",
+      "version_difference": "same normal contract",
+      "sources": [
+        "legacy-routes/0800cf48_0800cf8f.txt",
+        "legacy-routes/0800cfd8_0800d005.txt",
+        "sources/42292/0800bedc.txt"
+      ]
+    },
+    {
+      "opcode": "0x03",
+      "normal_request_data": "none",
+      "local_action": "unsupported built-in",
+      "reply_after_response_opcode": "04",
+      "version_difference": "same normal contract",
+      "sources": [
+        "legacy-routes/0800cf48_0800cf8f.txt",
+        "legacy-routes/0800cfd8_0800d005.txt",
+        "sources/42292/0800bedc.txt"
+      ]
+    },
+    {
+      "opcode": "0x04",
+      "normal_request_data": "none",
+      "local_action": "unsupported built-in",
+      "reply_after_response_opcode": "04",
+      "version_difference": "same normal contract",
+      "sources": [
+        "legacy-routes/0800cf48_0800cf8f.txt",
+        "legacy-routes/0800cfd8_0800d005.txt",
+        "sources/42292/0800bedc.txt"
+      ]
+    },
+    {
+      "opcode": "0x05",
+      "normal_request_data": "none",
+      "local_action": "flush success reply then delay(10) and reset helper; not executed",
+      "reply_after_response_opcode": "00",
+      "version_difference": "same normal contract",
+      "sources": [
+        "legacy-routes/0800cf48_0800cf8f.txt",
+        "legacy-routes/0800cfd8_0800d005.txt",
+        "sources/42292/0800bedc.txt"
+      ]
+    },
+    {
+      "opcode": "0x20",
+      "normal_request_data": "none",
+      "local_action": "read sampling rate field +0x10c",
+      "reply_after_response_opcode": "00 + BE32 rate",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x21",
+      "normal_request_data": "4 bytes: BE32 rate",
+      "local_action": "hwrev < 0x700 changes rate; if active stop/start and restore previous +0x108 tick; >=0x700 leaves rate unchanged",
+      "reply_after_response_opcode": "00",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x25",
+      "normal_request_data": "6 bytes: mode0,mode1,target0:BE16,target1:BE16; 8 adds power0,power1; both mode0 allow2",
+      "local_action": "normal modes 0/1; unsigned targets /100 float32 capped40; optional power capped100 or default100; enable triggers thermostat; disable clears state/power",
+      "reply_after_response_opcode": "00 + state0,state1,current:BE16,power_selector",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x26",
+      "normal_request_data": "none",
+      "local_action": "hwrev <0x700 reads two gain control bytes, >=0x700 returns zero pair",
+      "reply_after_response_opcode": "00 + code0,code1",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x27",
+      "normal_request_data": "2 bytes: code0,code1 (code also accepts3)",
+      "local_action": "hwrev <0x700 invokes two setters; >=0x700 does nothing",
+      "reply_after_response_opcode": "00",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x28",
+      "normal_request_data": "none",
+      "local_action": "start sampling",
+      "reply_after_response_opcode": "00",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x29",
+      "normal_request_data": "none",
+      "local_action": "stop sampling",
+      "reply_after_response_opcode": "00",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x2a",
+      "normal_request_data": "1 byte: logical temperature id0..10, or ff",
+      "local_action": "per-value float32*100 then signed truncate, low16 BE; -100 sentinel maps id10 to00ff, all others8000",
+      "reply_after_response_opcode": "00 + (id,BE16) once or all11",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x2b",
+      "normal_request_data": "4 bytes: two BE16 requested gains",
+      "local_action": "hw<0x700 each request>=100 quantized through control byte and reply actual recorded gains; hw>=0x700 first request selects one MCP gain, second not independent; success conditional on normal hardware transaction",
+      "reply_after_response_opcode": "00 + two BE16; MCP repeats first requested value",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x2c",
+      "normal_request_data": "7 bytes: side,power,pattern,duration_seconds:BE32; normal side0/1 pattern0/1; index2 is not established as a valid mode",
+      "local_action": "zero duration stops; idle nonzero power starts with duration*1000 u32, running start request preserves ongoing state",
+      "reply_after_response_opcode": "00 + original side",
+      "version_difference": "39704 contexts+218/+244; 42292+2ac/+2fc, extra counters/timers reset and pattern>2 normalizes0; index2 is not established valid (not executed or modeled)",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x2d",
+      "normal_request_data": "2 bytes: logical output,power",
+      "local_action": "passes to local output setter; physical GPIO/PWM mapped separately in local-legacy-control",
+      "reply_after_response_opcode": "00",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x2e",
+      "normal_request_data": "none",
+      "local_action": "logical GPIO assert then success append falls through default status append",
+      "reply_after_response_opcode": "00 02",
+      "version_difference": "39704 always invokes GPIO; 42292 only if hwrev<0x720; both append two statuses",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    },
+    {
+      "opcode": "0x2f",
+      "normal_request_data": "same as2a",
+      "local_action": "same temperature query",
+      "reply_after_response_opcode": "same as2a",
+      "version_difference": "same normal contract",
+      "sources": [
+        "sources/39704/0800b448.txt",
+        "sources/42292/0800b884.txt"
+      ]
+    }
+  ]
+}

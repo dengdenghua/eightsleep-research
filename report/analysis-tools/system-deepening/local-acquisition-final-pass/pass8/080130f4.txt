@@ -1,0 +1,28 @@
+TARGET 080130f4 function=080130f4
+FUNCTION_BODY [[080130f4, 0801310b]]
+
+void analyst_normal_entry_080130f4(int param_1)
+
+{
+  int *piVar1;
+  int iVar2;
+  
+  piVar1 = *(int **)(param_1 + 0x28);
+  iVar2 = *piVar1;
+  *(uint *)(iVar2 + 4) = *(uint *)(iVar2 + 4) | 0x8000;
+  FUN_08012f2c(piVar1,0x10);
+  return;
+}
+
+
+INSN 080130f4 8023 movs r3,#0x80
+INSN 080130f6 806a ldr r0,[r0,#0x28]
+INSN 080130f8 10b5 push {r4,lr}
+INSN 080130fa 0268 ldr r2,[r0,#0x0]
+INSN 080130fc 1b02 lsls r3,r3,#0x8
+INSN 080130fe 5168 ldr r1,[r2,#0x4]
+INSN 08013100 0b43 orrs r3,r1
+INSN 08013102 5360 str r3,[r2,#0x4]
+INSN 08013104 1021 movs r1,#0x10
+INSN 08013106 fff711ff bl 0x08012f2c REF[UNCONDITIONAL_CALL:08012f2c]
+INSN 0801310a 10bd pop {r4,pc}

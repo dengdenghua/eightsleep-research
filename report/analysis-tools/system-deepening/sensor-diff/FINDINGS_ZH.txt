@@ -1,0 +1,172 @@
+G0 USB / nonUSB：采样→队列→发送的局部功能差分
+日期：2026-11-08
+范围：同一官方包内两份5.5.34.0 BBIN；静态分析与合成合同检查。
+
+本轮结论
+========
+采样、队列和0x3c组包的关键行为在两版中对应一致；发送等待和提交前检查存在明确差别。
+这不是全程序等价证明，也没有运行固件或测量实机。K60启动通道map沿用旧证据，不计新增。
+
+新增的发送差异：
+1. USB版等待32槽发送buffer时，每轮先检查elapsed>=500，命中后返回本地失败；
+   nonUSB对应函数持续重扫32槽，本函数没有该截止分支。
+   500目前只确认为时钟计数，不能写成500ms。elapsed已追至RAM tick读取函数，
+   但tick更新与硬件分频未在本轮追完。
+2. USB提交adapter还有独立状态门槛；门槛开启且predicate失败时拒绝提交并记错。
+   nonUSB对应adapter没有该段。predicate的物理状态名仍未绑定，不能直接称为“USB拔出”。
+3. 两版都先从采样队列移除5条ADC和1条IMU，再调用发送wrapper。该调用点不重入队、不重试。
+   因此USB命中上述失败分支时，已移除batch无法由这个调用点恢复；正常返回也不是接收ACK。
+
+目标身份与方法
+==============
+USB：firmware-sensor-g0-usb.bbin，140828B，基址0x08010000。
+SHA256 1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563
+nonUSB：firmware-sensor-g0.bbin，132896B，基址0x08008000。
+SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+两者均在 mediatek/rootfs-selected/opt/eight/lib/subsystem_updates/。
+映射用完整BBIN：file_offset=地址-基址，128B头已经包含，不能再次加减128。
+
+使用两份各自既有Ghidra工程，-readOnly -noanalysis，未改变RAM属性、函数或指令数据库。
+REA MCP在本会话未加载，按技能检查后复用本地Ghidra12.1.4；这里不冒称REA生成的Evidence。
+程序/SRAM元数据见各pass的program.txt；命令、版本、错误与会话句柄见*.log和JOBS.json。
+所有新分析均位于本目录，没有访问账号、API、设备、浏览器或网络，也没有改P网页、F冻结包。
+
+端到端对应地址
+==============
+阶段                        USB                         nonUSB
+ADC读取                     0801d7dc                    080139e4
+IMU读取                     0801ef68                    08015170
+IMU四设备轮询               0801f840..0801f882          08015a48..08015a88
+采样timer callback          080233f4                    08019648
+采样队列push/pop            0801c388 / 0801c44c         080130f0 / 080131b4
+multi批次组包               0801f900..0801f9aa          08015b08..08015bb2
+16×BE32 ADC序列化           080266dc                    0801c730
+清采样队列                  08026722                    0801c776
+增益请求setter              08026758                    0801c7ac
+resync                      08026810                    0801c864
+start                       080268c8                    0801c91c
+发送wrapper                 0801c8c8                    080122d0
+帧buffer等待/编码           0801c764                    0801f2d4
+escape/flush                080292a0 / 08029254         080186cc / 08018688
+提交adapter                 0801d6fc                    0801321c
+
+逐项差分与指令锚点见DIFF_TABLE.json（17项），不是仅靠地址差推定函数相同。
+
+采样侧：确认相同的局部行为
+========================
+ADC存在旧缓存复用和partial-ready更新：
+- enabled分支中elapsed<8时复制32B备份缓存并成功返回，没有新SPI转换的保证。
+- disabled分支成功返回但不改目标。
+- DRDY/SPI/帧检查失败不刷新；ready mask只更新被标记的通道，其他通道沿用旧值。
+- 成功读后复制整个32B输出为备份。数据包没有逐通道freshness字段。
+本轮8也按源代码时钟计数描述；旧文档的“8ms”不是本轮新增校准结果。
+
+IMU两组三轴按两个ready位分别更新；未ready、SPI失败保留旧值。
+四颗IMU依次轮询，目标每颗12B；观察到DSB/DMB而非覆盖整轮的关中断快照。
+因此timer可能采到跨轮拼接值是代码允许的竞争窗口，尚无实机发生次数。
+
+队列、overflow及配对
+====================
+SamplingState=state+0xb08。
+ADC队列30条×80B；IMU队列12条×48B。这里按计数差判满，不是主控NATS环形队列的N-1容量。
+callback把tick和两组requested gain写进当前ADC record，然后尝试复制进ADC队列。
+满时拒绝新记录，保留原有内容；overflow计数加1。
+
+无论ADC是否入队成功，phase仍推进。每第5次callback另尝试IMU入队，IMU满时也记overflow。
+两条队列会独立拥塞，不存在“ADC失败就同步取消本次IMU”的分支。
+
+multi组包只检查ADC>=5和IMU非空，然后按FIFO取5条ADC与最旧1条IMU。
+没有按时间对齐或重新配对。合成检查构造了一个反例：
+- 1..35次callback没有消费：ADC保留1..30，拒绝31..35；IMU保留5..35七条。
+- 消费6批后，ADC空、IMU35仍在队首。
+- 再产生36..40：下一包ADC36..40会配IMU35，而IMU40继续等待。
+这些数字是合成记录ID，不是数据包字段或实际时刻。它证明“可能错位”，不证明实机已经错位。
+
+0x3c字段与已经丢失的信息
+=======================
+完整body为377B：
+  opcode(1) + 首条ADC tick(4) + 当前全局flags(2) + 常量500(2)
+  + 5×16×BE32 ADC(320) + IMU(48)
+opcode之后payload为376B，不要将两种长度混写。
+每条内部ADC记录80B，serializer只取+0xc..+0x48的16个word。
+两组requested gain和后四条tick不会进入此body；IMU队列记录本身也没有tick。
+flags在出队组包时从state+0x194c读取，不是ADC入队时附带的逐条flags。
+字段常量500不能代替实际采样间隔测量。
+
+命令与清队列的边界
+==================
+changed gain>99会更新8通道requested gain并标dirty。主循环处理dirty块时，
+成功写回才清对应dirty；随后公共尾部会flush并resync，失败也经过这个尾部。
+因此持续失败时存在重复清队列的路径，不能把清空只归因于一次成功命令。
+flush helper只清两队列，不清phase。start才明确flush→phase=0→active=1→resync→安装callback。
+周期resync调用点则没有先flush、没有重置phase。
+
+本轮新补nonUSB的四字节增益处理体1747e..174d8，包含174ae→1c7ac调用，
+两组BE16与“0沿用当前值”的处理与USB局部体一致。
+USB旧证据把该体标为0x2b；nonUSB的switch分发表尚未完整恢复，本轮不强行给它同opcode标签。
+nonUSB的1721c..17228局部体也调用start，但其完整命令可达边仍待核。
+
+发送侧：新增差异与影响
+======================
+两版framer均初始化32个槽，每槽1B状态+1024B正文。先输出0x7e，随后长度字段、body、
+16位校验字段；0x7e/0x7d按7d5e/7d5d转义。0x3c body即使使用4B长度并全部转义，
+也只有1+2×(4+377+2)=767B，未达到1024B分段边界。
+本轮不把未审计的更大消息跨buffer复用行为套进采样batch结论。
+
+USB的0801c764：先查elapsed；>=500时把buffer与状态指针清零。
+080292a0遇null不写，08029254遇null不提交；framer设置失败标记并返回false。
+USB wrapper增加失败计数后返回void。
+nonUSB的0801f2d4：所有32槽不可用时回到扫描循环，没有对应的elapsed截止。
+这只能说明本函数不因该阈值退出，不能称整机必然永久卡死；外层复位/看门狗未覆盖。
+
+USB adapter的额外gate：2000abfc非0且194a4()==false时拒绝提交。
+194a4要求20001648非0且2000abbc==3。此时status可置2并增加错误计数。
+这段没有在nonUSB 0801321c中出现。状态变量物理含义暂不命名。
+
+两版adapter都可直接启动底层callback或入64条descriptor队列（每项12B：ptr/len/statusptr）。
+descriptor满也会设置本地发送失败。64条descriptor不代表另有64个独立采样buffer，
+它和32槽buffer池、其他消息共享关系必须保留，不能累加成96个batch容量。
+
+两版batch调用点均在采样pop后发送，之后直接继续主循环。
+已审计的局部失败路径没有把batch放回采样队列。
+nonUSB若等待很久，主循环会受阻；只有IRQ仍能运行等条件成立时，采样才继续积压。
+尚未量化IRQ优先级或主循环停顿时间，因此不输出“真实丢样百分比”。
+“本地接收/排队/成功返回”均不等于硬件完成、主控收到或上传云端成功。
+
+验证与分析限制
+==============
+BYTE_VALIDATION.json：逐条核对导出INSN字节、flash literal与Thumb BL目标，
+直接从两份原始BBIN按各自基址读取，完整输入SHA256先验证。
+计数为导出出现次数（包括重叠导出），去重地址数另列；不能把该计数当独立覆盖百分比。
+字节相同只证明导出对准该文件，不自动证明每个范围是正确控制流。
+
+CONTRACT_CHECKS.json：6个合成合同检查通过：ADC先满后配对、两队列都满、
+flush保留phase、USB出队后timeout、nonUSB有限观察仍等待、500边界先于slot扫描。
+这些是已恢复分支的手写模型，不是固件执行、反编译C编译回放或实机测量。
+
+nonUSB持久main函数080152d8边界损坏，反编译只有极短body并报jumptable错误。
+采样主链改用现有listing明确地址范围；增益处理体用只读PseudoDisassembler临时解码。
+失败尝试保留日志：pass8上下文未启动；pass9第二范围穿过switch数据后停止。
+最终pass10 gain体有效到174d8；174da属于下一块。start证据仅1721c..17228，
+不能把该文件首条1721a（switch表尾）解释成路径内执行指令。
+未改变原工程去“修好”反编译，也没有把这些失败输出标为成功函数恢复。
+
+下一步可离线完成
+================
+1. 追RAM tick的写入者与定时器/SysTick配置，给500和8的单位建立独立证据。
+2. 恢复nonUSB switch表，确认增益、start与其他命令的opcode/可达边。
+3. 从硬件配置表绑定busy/start/完成callback，追descriptor完成与buffer状态回收，
+   并核USB gate设置者；这样才可比较两种物理传输在失败后的完整恢复行为。
+4. 将较大消息的buffer分段作为独立问题，不污染377B采样合同。
+真实配对/失败频率仍需被动抓包或设备研究数据；新鲜度不能只靠样本值恒定来判定。
+
+文件索引
+========
+DIFF_TABLE.json       逐项局部比较、两侧地址/文件、边界
+COVERAGE.json         已覆盖、未知项和下一步所需材料
+BYTE_VALIDATION.json  原件身份/原字节/常量/BL核对结果
+CONTRACT_CHECKS.json  六个合成检查及输入输出
+SOURCE_MANIFEST.json  原BBIN、旧证据、本轮导出/脚本/报告SHA256
+INPUTS.json           初始目标与基址
+JOBS.json + *.log     长进程句柄、退出与脚本错误区别
+scripts/             可复用只读导出器、校验器、模型及报告索引生成器

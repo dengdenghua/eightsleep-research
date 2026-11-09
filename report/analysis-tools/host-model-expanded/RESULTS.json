@@ -1,0 +1,994 @@
+{
+  "kind": "offline_python_reconstruction_NOT_original_binary_execution",
+  "passed": true,
+  "case_count": 34,
+  "cases": {
+    "complete_dual_channel_routes": {
+      "category": "synthetic_input",
+      "checked_behavior": "Both sides: buzzer ADC8..12, IMU24 axes only index%5==0, multi ADC14/15, extADC13 copied to arrays(0,2)/(1,3).",
+      "observed": {
+        "tokens": 1000,
+        "source_records": 1000,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1000
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1000,
+          "imu": 200,
+          "extadc": 1000,
+          "multi": 1000
+        },
+        "body_candidate_rows": {
+          "buzzer": 1000,
+          "imu": 200,
+          "multi": 1000,
+          "extadc": 1000
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "cross_second_copy": {
+      "category": "synthetic_input",
+      "checked_behavior": "Current epoch is unchanged in copy, relative-2 selects slot499 of next-second bucket; early break later deletes it.",
+      "observed": {
+        "tokens": 4,
+        "source_records": 3,
+        "copied_tokens": 1,
+        "dispositions": {
+          "bucket_consumed": 2,
+          "loader_unvisited_bucket_deleted": 2
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 2,
+        "loads": 2,
+        "watermark": 1700000001,
+        "staged_row_writes": {
+          "buzzer": 2,
+          "imu": 2,
+          "extadc": 2,
+          "multi": 2
+        },
+        "body_candidate_rows": {
+          "buzzer": 2,
+          "imu": 2,
+          "multi": 2,
+          "extadc": 2
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "leading_primary_hole_peer_epoch_zero": {
+      "category": "synthetic_input",
+      "checked_behavior": "Default primary index0 can stage peer IMU with output epoch0; subsequent primary timestamps do not repair that IMU metadata.",
+      "observed": {
+        "tokens": 5,
+        "source_records": 5,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 5
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 5,
+          "extadc": 5,
+          "multi": 5,
+          "imu": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 5,
+          "multi": 5,
+          "extadc": 5,
+          "imu": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "paired_primary_hole": {
+      "category": "synthetic_input",
+      "checked_behavior": "At index1 buzzer/extADC/multi reject epoch0; both side buckets removed including later valid peer records.",
+      "observed": {
+        "tokens": 7,
+        "source_records": 7,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 2,
+          "loader_unvisited_bucket_deleted": 4,
+          "loader_visited_no_stream_accepted": 1
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 2,
+          "imu": 2,
+          "extadc": 2,
+          "multi": 2
+        },
+        "body_candidate_rows": {
+          "buzzer": 2,
+          "imu": 2,
+          "multi": 2,
+          "extadc": 2
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "stale_buzzer_single": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "buzzer rejects at index0; the other three streams still accept index0, then the rest is deleted.",
+      "observed": {
+        "tokens": 3,
+        "source_records": 3,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1,
+          "loader_unvisited_bucket_deleted": 2
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "imu": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "imu": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "stale_buzzer_dual": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "buzzer rejects at index0; the other three streams still accept index0, then the rest is deleted.",
+      "observed": {
+        "tokens": 6,
+        "source_records": 6,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 2,
+          "loader_unvisited_bucket_deleted": 4
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "imu": 2,
+          "extadc": 2,
+          "multi": 2
+        },
+        "body_candidate_rows": {
+          "imu": 2,
+          "multi": 2,
+          "extadc": 2
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "stale_imu_single": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "imu rejects at index0; the other three streams still accept index0, then the rest is deleted.",
+      "observed": {
+        "tokens": 3,
+        "source_records": 3,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1,
+          "loader_unvisited_bucket_deleted": 2
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "stale_imu_dual": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "imu rejects at index0; the other three streams still accept index0, then the rest is deleted.",
+      "observed": {
+        "tokens": 6,
+        "source_records": 6,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 2,
+          "loader_unvisited_bucket_deleted": 4
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 2,
+          "extadc": 2,
+          "multi": 2
+        },
+        "body_candidate_rows": {
+          "buzzer": 2,
+          "multi": 2,
+          "extadc": 2
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "stale_extadc_single": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "extadc rejects at index0; the other three streams still accept index0, then the rest is deleted.",
+      "observed": {
+        "tokens": 3,
+        "source_records": 3,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1,
+          "loader_unvisited_bucket_deleted": 2
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "imu": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "imu": 1,
+          "multi": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "stale_extadc_dual": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "extadc rejects at index0; the other three streams still accept index0, then the rest is deleted.",
+      "observed": {
+        "tokens": 6,
+        "source_records": 6,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 2,
+          "loader_unvisited_bucket_deleted": 4
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 2,
+          "imu": 2,
+          "multi": 2
+        },
+        "body_candidate_rows": {
+          "buzzer": 2,
+          "imu": 2,
+          "multi": 2
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "stale_multi_single": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "multi rejects at index0; the other three streams still accept index0, then the rest is deleted.",
+      "observed": {
+        "tokens": 3,
+        "source_records": 3,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1,
+          "loader_unvisited_bucket_deleted": 2
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "imu": 1,
+          "extadc": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "imu": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "stale_multi_dual": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "multi rejects at index0; the other three streams still accept index0, then the rest is deleted.",
+      "observed": {
+        "tokens": 6,
+        "source_records": 6,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 2,
+          "loader_unvisited_bucket_deleted": 4
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 2,
+          "imu": 2,
+          "extadc": 2
+        },
+        "body_candidate_rows": {
+          "buzzer": 2,
+          "imu": 2,
+          "extadc": 2
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "nonzero_flags_same_epoch": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "Matching epoch does not bypass nonzero flags; other buffers still get first record.",
+      "observed": {
+        "tokens": 2,
+        "source_records": 2,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1,
+          "loader_unvisited_bucket_deleted": 1
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "compat_off_buzzer": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "At index0 both buffer attempts occur; extADC/multi are disabled.",
+      "observed": {
+        "tokens": 7,
+        "source_records": 7,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1,
+          "loader_unvisited_bucket_deleted": 6
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "imu": 1
+        },
+        "body_candidate_rows": {
+          "imu": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "compat_off_imu": {
+      "category": "injected_buffer_boundary_state_not_observed_device_fault",
+      "checked_behavior": "At index0 both buffer attempts occur; extADC/multi are disabled.",
+      "observed": {
+        "tokens": 7,
+        "source_records": 7,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1,
+          "loader_unvisited_bucket_deleted": 6
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "secondary_uses_primary_timestamp": {
+      "category": "synthetic_input",
+      "checked_behavior": "Peer payload is placed at primary destination; no correlation or independent peer timestamp in loader.",
+      "observed": {
+        "tokens": 2,
+        "source_records": 2,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 2
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 2,
+          "imu": 2,
+          "extadc": 2,
+          "multi": 2
+        },
+        "body_candidate_rows": {
+          "buzzer": 2,
+          "imu": 2,
+          "multi": 2,
+          "extadc": 2
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "encoder_failure_no_restore": {
+      "category": "injected_encoder_return",
+      "checked_behavior": "Injected IMU bool failure invalidates combined body; extADC remains separate; reset and watermark are not rolled back.",
+      "observed": {
+        "tokens": 501,
+        "source_records": 501,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 500,
+          "watermark_skip": 1
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 500,
+          "imu": 100,
+          "extadc": 500,
+          "multi": 500
+        },
+        "body_candidate_rows": {
+          "extadc": 500
+        },
+        "encode_dropped_rows": {
+          "buzzer": 500,
+          "imu": 100,
+          "multi": 500
+        }
+      }
+    },
+    "production_masks_delayed_consume_pair_isolation": {
+      "category": "synthetic_input",
+      "checked_behavior": "Actual ELF masks left(1,2)/right(2,1); consume at check1000; pillow has separate shared allocation.",
+      "observed": {
+        "tokens": 1003,
+        "source_records": 1003,
+        "copied_tokens": 0,
+        "dispositions": {
+          "input_slot_overwritten": 1,
+          "pending": 1002
+        },
+        "pending_tokens": 1002,
+        "waiting_tokens": 0,
+        "output_batches": 0,
+        "loads": 0,
+        "watermark": null,
+        "staged_row_writes": {},
+        "body_candidate_rows": {},
+        "encode_dropped_rows": {}
+      }
+    },
+    "clock_rollback_queue_recovery": {
+      "category": "synthetic_input",
+      "checked_behavior": "500 severely old attempts clear watermark/buckets; next epoch can re-enter.",
+      "observed": {
+        "tokens": 502,
+        "source_records": 502,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1,
+          "watermark_skip": 499,
+          "old_500_reset": 1,
+          "pending": 1
+        },
+        "pending_tokens": 1,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": null,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "imu": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "imu": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "capacity_retry": {
+      "category": "synthetic_input",
+      "checked_behavior": "Capacity return causes one flush and one retry; missing peer uses single loader.",
+      "observed": {
+        "tokens": 11,
+        "source_records": 11,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1,
+          "pending": 10
+        },
+        "pending_tokens": 10,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "imu": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "imu": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "unsigned_tick_wrap": {
+      "category": "synthetic_input",
+      "checked_behavior": "Tick regression triggers check; uint32 delta remains256, no unnecessary rebase.",
+      "observed": {
+        "tokens": 3,
+        "source_records": 3,
+        "copied_tokens": 0,
+        "dispositions": {
+          "pending": 3
+        },
+        "pending_tokens": 3,
+        "waiting_tokens": 0,
+        "output_batches": 0,
+        "loads": 0,
+        "watermark": null,
+        "staged_row_writes": {},
+        "body_candidate_rows": {},
+        "encode_dropped_rows": {}
+      }
+    },
+    "slot_overwrite_watermark_skip": {
+      "category": "synthetic_input",
+      "checked_behavior": "Two relative values in same slot replace input; consumed epoch rejects late arrival.",
+      "observed": {
+        "tokens": 3,
+        "source_records": 3,
+        "copied_tokens": 0,
+        "dispositions": {
+          "input_slot_overwritten": 1,
+          "bucket_consumed": 1,
+          "watermark_skip": 1
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "imu": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "imu": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "coroutine_contended_wait_and_ungated_enqueue": {
+      "category": "controlled_scheduler_normal_path_not_measured_runtime_timing",
+      "checked_behavior": "Second await CAS retries only after50000ticks; it flushes on resume even if threshold changed; ordinary enqueue can occur while flush gate is held.",
+      "observed": {
+        "tokens": 9,
+        "source_records": 9,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 4,
+          "pending": 5
+        },
+        "pending_tokens": 5,
+        "waiting_tokens": 0,
+        "output_batches": 2,
+        "loads": 2,
+        "watermark": 1700000001,
+        "staged_row_writes": {
+          "buzzer": 4,
+          "imu": 4,
+          "extadc": 4,
+          "multi": 4
+        },
+        "body_candidate_rows": {
+          "buzzer": 4,
+          "imu": 4,
+          "multi": 4,
+          "extadc": 4
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "coroutine_preflush_recheck_loop": {
+      "category": "synthetic_input",
+      "checked_behavior": "5 pending buckets require3 completed preflush awaits before insertion brings count back to3.",
+      "observed": {
+        "tokens": 6,
+        "source_records": 6,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 3,
+          "pending": 3
+        },
+        "pending_tokens": 3,
+        "waiting_tokens": 0,
+        "output_batches": 3,
+        "loads": 3,
+        "watermark": 1700000002,
+        "staged_row_writes": {
+          "buzzer": 3,
+          "imu": 3,
+          "extadc": 3,
+          "multi": 3
+        },
+        "body_candidate_rows": {
+          "buzzer": 3,
+          "imu": 3,
+          "multi": 3,
+          "extadc": 3
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "wait_exception_before_acquire": {
+      "category": "injected_timer_exception_data_plane_only",
+      "checked_behavior": "A timer error before gate acquisition does not flush/enqueue the waiting record or release another job gate.",
+      "observed": {
+        "tokens": 5,
+        "source_records": 5,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1,
+          "pending": 3,
+          "wait_exception_before_enqueue": 1
+        },
+        "pending_tokens": 3,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "imu": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "imu": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "dual_contiguous_mapping_queue_loader": {
+      "category": "synthetic_input",
+      "checked_behavior": "Mapping, automatic flush, dual selection and all four buffers run together on3002 synthetic records.",
+      "observed": {
+        "tokens": 3002,
+        "source_records": 3002,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1000,
+          "pending": 2002
+        },
+        "pending_tokens": 2002,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1000,
+          "imu": 200,
+          "extadc": 1000,
+          "multi": 1000
+        },
+        "body_candidate_rows": {
+          "buzzer": 1000,
+          "imu": 200,
+          "multi": 1000,
+          "extadc": 1000
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "metadata_to_real_cbor_gain_signedness": {
+      "category": "synthetic_input",
+      "checked_behavior": "Gain updated after enqueue is read at load; buzzer int16 signed vs multi uint16; single-side versions mirrored; extADC0x41 emits only left1/right1.",
+      "observed": {
+        "tokens": 1,
+        "source_records": 1,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "imu": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "imu": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "right_only_metadata_defaults_and_extadc_mirror": {
+      "category": "synthetic_input",
+      "checked_behavior": "Missing-side buzzer/multi gains stay400; extADC uses selected right gain on both metadata positions; versions mirror selected side.",
+      "observed": {
+        "tokens": 1,
+        "source_records": 1,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "imu": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "imu": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "version_changes_do_not_split_bucket": {
+      "category": "synthetic_input",
+      "checked_behavior": "Version metadata changes at accepted slots without splitting; final version labels arrays containing earlier-version source points.",
+      "observed": {
+        "tokens": 12,
+        "source_records": 12,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 12
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 12,
+          "imu": 4,
+          "extadc": 12,
+          "multi": 12
+        },
+        "body_candidate_rows": {
+          "buzzer": 12,
+          "imu": 4,
+          "multi": 12,
+          "extadc": 12
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "rejected_buffer_preserves_own_metadata": {
+      "category": "injected_buffer_boundary_state",
+      "checked_behavior": "Rejected buzzer retains old metadata; accepted other streams latch current side version/gains.",
+      "observed": {
+        "tokens": 1,
+        "source_records": 1,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "imu": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "imu": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "encoding_reset_keeps_metadata": {
+      "category": "synthetic_input",
+      "checked_behavior": "Encoder clears timestamp/count/data while version/gain persist, including an empty subsequent encode.",
+      "observed": {
+        "tokens": 1,
+        "source_records": 1,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 1
+        },
+        "pending_tokens": 0,
+        "waiting_tokens": 0,
+        "output_batches": 2,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 1,
+          "imu": 1,
+          "extadc": 1,
+          "multi": 1
+        },
+        "body_candidate_rows": {
+          "buzzer": 1,
+          "imu": 1,
+          "multi": 1,
+          "extadc": 1
+        },
+        "encode_dropped_rows": {}
+      }
+    },
+    "cancel_before_gate_acquire": {
+      "category": "controlled_destroy_boundary_not_live_scheduler_reachability",
+      "checked_behavior": "Explicit outer destructor does not release a CAS already acquired; before-acquisition cancellation leaves gate free.",
+      "observed": {
+        "tokens": 5,
+        "source_records": 5,
+        "copied_tokens": 0,
+        "dispositions": {
+          "pending": 3,
+          "cancelled_before_gate_acquire": 1,
+          "coroutine_waiting_preflush": 1
+        },
+        "pending_tokens": 3,
+        "waiting_tokens": 1,
+        "output_batches": 0,
+        "loads": 0,
+        "watermark": null,
+        "staged_row_writes": {},
+        "body_candidate_rows": {},
+        "encode_dropped_rows": {}
+      }
+    },
+    "cancel_after_gate_acquire": {
+      "category": "controlled_destroy_boundary_not_live_scheduler_reachability",
+      "checked_behavior": "Explicit outer destructor does not release a CAS already acquired; before-acquisition cancellation leaves gate free.",
+      "observed": {
+        "tokens": 5,
+        "source_records": 5,
+        "copied_tokens": 0,
+        "dispositions": {
+          "pending": 3,
+          "cancelled_after_gate_acquire": 1,
+          "coroutine_waiting_preflush": 1
+        },
+        "pending_tokens": 3,
+        "waiting_tokens": 1,
+        "output_batches": 0,
+        "loads": 0,
+        "watermark": null,
+        "staged_row_writes": {},
+        "body_candidate_rows": {},
+        "encode_dropped_rows": {}
+      }
+    },
+    "post_encoder_allocation_throw_then_destroy": {
+      "category": "injected_existing_throw_branch_and_explicit_destructor",
+      "checked_behavior": "At explicit post-encode bad_alloc point, main buffers/buckets are already consumed; extADC remains loaded because separate flush never runs; destroy does not release gate.",
+      "observed": {
+        "tokens": 7,
+        "source_records": 7,
+        "copied_tokens": 0,
+        "dispositions": {
+          "bucket_consumed": 2,
+          "pending": 4,
+          "publish_allocation_exception_after_encoder": 1
+        },
+        "pending_tokens": 4,
+        "waiting_tokens": 0,
+        "output_batches": 1,
+        "loads": 1,
+        "watermark": 1700000000,
+        "staged_row_writes": {
+          "buzzer": 2,
+          "imu": 2,
+          "extadc": 2,
+          "multi": 2
+        },
+        "body_candidate_rows": {
+          "buzzer": 2,
+          "imu": 2,
+          "multi": 2
+        },
+        "encode_dropped_rows": {}
+      }
+    }
+  },
+  "limits": [
+    "External scheduler ordering is supplied; hardware concurrency/fairness is not measured.",
+    "Synthetic actual-format CBOR is independently decoded; no original binary execution, publish ACK, cloud processing or device capture.",
+    "Buffer adverse states and codec failures are explicit injected boundary conditions.",
+    "Controlled outer destruction and explicit post-encode bad_alloc are covered; no proof of live scheduler cancellation frequency or arbitrary C++ unwinding."
+  ]
+}

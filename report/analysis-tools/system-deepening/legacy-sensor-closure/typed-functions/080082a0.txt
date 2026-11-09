@@ -1,0 +1,45 @@
+FUNCTION 080082a0 FUN_080082a0 BODY [[080082a0, 080082c9]]
+INCOMING 0800a88c UNCONDITIONAL_CALL
+INCOMING 0800a9b2 UNCONDITIONAL_CALL
+
+int FUN_080082a0(int *param_1,int param_2)
+
+{
+  int iVar1;
+  uint uVar2;
+  
+  uVar2 = (*(byte *)(*param_1 + param_2) & 0x1f) - 0x18;
+  iVar1 = 0;
+  if ((uVar2 & 0xff) < 4) {
+    iVar1 = *(int *)(&DAT_0800e31c + uVar2 * 4);
+  }
+  iVar1 = iVar1 + 1;
+  if ((uint)param_1[1] < (uint)(param_2 + iVar1)) {
+    iVar1 = 0;
+  }
+  return iVar1;
+}
+
+
+ASSEMBLY
+080082a0 movs r2,#0x1f BYTES 1f22
+080082a2 push {r4,lr} BYTES 10b5
+080082a4 ldr r3,[r0,#0x0] BYTES 0368
+080082a6 movs r4,r0 BYTES 0400
+080082a8 ldrb r3,[r3,r1] BYTES 5b5c
+080082aa ands r3,r2 BYTES 1340
+080082ac subs r3,#0x18 BYTES 183b
+080082ae uxtb r0,r3 BYTES d8b2
+080082b0 movs r2,#0x0 BYTES 0022
+080082b2 cmp r0,#0x3 BYTES 0328
+080082b4 bhi 0x080082bc BYTES 02d8 REF CONDITIONAL_JUMP=080082bc
+080082b6 ldr r2,[0x080082cc] BYTES 054a REF READ=080082cc WORD=800e31c
+080082b8 lsls r3,r3,#0x2 BYTES 9b00
+080082ba ldr r2,[r3,r2] BYTES 9a58 REF DATA=0800e31c WORD=1
+080082bc adds r0,r2,#0x1 BYTES 501c
+080082be ldr r3,[r4,#0x4] BYTES 6368
+080082c0 adds r1,r1,r0 BYTES 0918
+080082c2 cmp r1,r3 BYTES 9942
+080082c4 bls 0x080082c8 BYTES 00d9 REF CONDITIONAL_JUMP=080082c8
+080082c6 movs r0,#0x0 BYTES 0020
+080082c8 pop {r4,pc} BYTES 10bd

@@ -1,0 +1,5053 @@
+{
+  "kind": "bounded symbolic queue schedule, not firmware execution or real device observation",
+  "assumptions": [
+    "chosen callback counts are inputs, not timings inferred from main-loop or SPI speed",
+    "snapshot ordinals are provenance labels absent from the IMU wire record",
+    "phase-only flush runs with producer quiescent during drain; ISR cases inject only at stated operation boundaries",
+    "startup comparison assumes no pre-existing active timer produces snapshots before phase reset/reinstallation",
+    "callback continues while dirty write/sync execute; injected callbacks do not imply those operations always take that duration",
+    "no physical conversion cadence, waveform, gain success effect, current-device deployment or cloud compensation is modeled"
+  ],
+  "phase_only_flush_cases": [
+    {
+      "phase_before_flush": 0,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 10,
+          "mod5": 0,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 10,
+          "mod5": 0,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": null,
+        "injected_callbacks": 0,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "0": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 15
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          56,
+          57,
+          58,
+          59,
+          60
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 60
+      },
+      "end": {
+        "ordinal": 60,
+        "mod5": 0,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 60,
+          "output": 50,
+          "flush_discarded": 10,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 1,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 11,
+          "mod5": 1,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 11,
+          "mod5": 1,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": null,
+        "injected_callbacks": 0,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-1": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -1,
+        "emitted_at_ordinal": 16
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          57,
+          58,
+          59,
+          60,
+          61
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -1,
+        "emitted_at_ordinal": 61
+      },
+      "end": {
+        "ordinal": 61,
+        "mod5": 1,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 61,
+          "output": 50,
+          "flush_discarded": 11,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 2,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 12,
+          "mod5": 2,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 12,
+          "mod5": 2,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": null,
+        "injected_callbacks": 0,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-2": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 17
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          58,
+          59,
+          60,
+          61,
+          62
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 62
+      },
+      "end": {
+        "ordinal": 62,
+        "mod5": 2,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 62,
+          "output": 50,
+          "flush_discarded": 12,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 3,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 13,
+          "mod5": 3,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 13,
+          "mod5": 3,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": null,
+        "injected_callbacks": 0,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-3": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 18
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          59,
+          60,
+          61,
+          62,
+          63
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 63
+      },
+      "end": {
+        "ordinal": 63,
+        "mod5": 3,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 63,
+          "output": 50,
+          "flush_discarded": 13,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 4,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 14,
+          "mod5": 4,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 14,
+          "mod5": 4,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": null,
+        "injected_callbacks": 0,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-4": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -4,
+        "emitted_at_ordinal": 19
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          60,
+          61,
+          62,
+          63,
+          64
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -4,
+        "emitted_at_ordinal": 64
+      },
+      "end": {
+        "ordinal": 64,
+        "mod5": 4,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 64,
+          "output": 50,
+          "flush_discarded": 14,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    }
+  ],
+  "startup_phase_reset_controls": [
+    {
+      "phase_before_flush": 0,
+      "reset_phase_like_startup": true,
+      "flush": {
+        "before": {
+          "ordinal": 10,
+          "mod5": 0,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 10,
+          "mod5": 0,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": null,
+        "injected_callbacks": 0,
+        "phase_reset": true,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "0": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 15
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          56,
+          57,
+          58,
+          59,
+          60
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 60
+      },
+      "end": {
+        "ordinal": 60,
+        "mod5": 0,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 60,
+          "output": 50,
+          "flush_discarded": 10,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 1,
+      "reset_phase_like_startup": true,
+      "flush": {
+        "before": {
+          "ordinal": 11,
+          "mod5": 1,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 11,
+          "mod5": 0,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": null,
+        "injected_callbacks": 0,
+        "phase_reset": true,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "0": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 16,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 16
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          57,
+          58,
+          59,
+          60,
+          61
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 61,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 61
+      },
+      "end": {
+        "ordinal": 61,
+        "mod5": 0,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 61,
+          "output": 50,
+          "flush_discarded": 11,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 2,
+      "reset_phase_like_startup": true,
+      "flush": {
+        "before": {
+          "ordinal": 12,
+          "mod5": 2,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 12,
+          "mod5": 0,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": null,
+        "injected_callbacks": 0,
+        "phase_reset": true,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "0": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 17,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 17
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          58,
+          59,
+          60,
+          61,
+          62
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 62,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 62
+      },
+      "end": {
+        "ordinal": 62,
+        "mod5": 0,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 62,
+          "output": 50,
+          "flush_discarded": 12,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 3,
+      "reset_phase_like_startup": true,
+      "flush": {
+        "before": {
+          "ordinal": 13,
+          "mod5": 3,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 13,
+          "mod5": 0,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": null,
+        "injected_callbacks": 0,
+        "phase_reset": true,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "0": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 18,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 18
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          59,
+          60,
+          61,
+          62,
+          63
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 63,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 63
+      },
+      "end": {
+        "ordinal": 63,
+        "mod5": 0,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 63,
+          "output": 50,
+          "flush_discarded": 13,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 4,
+      "reset_phase_like_startup": true,
+      "flush": {
+        "before": {
+          "ordinal": 14,
+          "mod5": 4,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 14,
+          "mod5": 0,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": null,
+        "injected_callbacks": 0,
+        "phase_reset": true,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "0": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 19,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 19
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          60,
+          61,
+          62,
+          63,
+          64
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 64,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 64
+      },
+      "end": {
+        "ordinal": 64,
+        "mod5": 0,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 64,
+          "output": 50,
+          "flush_discarded": 14,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    }
+  ],
+  "single_irq_interleavings": [
+    {
+      "phase_before_flush": 0,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 10,
+          "mod5": 0,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 11,
+          "mod5": 1,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": "before_adc_final_empty_check",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-1": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -1,
+        "emitted_at_ordinal": 16
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          57,
+          58,
+          59,
+          60,
+          61
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -1,
+        "emitted_at_ordinal": 61
+      },
+      "end": {
+        "ordinal": 61,
+        "mod5": 1,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 61,
+          "output": 50,
+          "flush_discarded": 11,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 0,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 10,
+          "mod5": 0,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 11,
+          "mod5": 1,
+          "adc_ordinals": [
+            11
+          ],
+          "imu_ordinals": []
+        },
+        "window": "between_adc_and_imu_drains",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "0": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "adc_labels": [
+          "irq_between_drains",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 15
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          56,
+          57,
+          58,
+          59,
+          60
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 60
+      },
+      "end": {
+        "ordinal": 61,
+        "mod5": 1,
+        "adc_ordinals": [
+          61
+        ],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 61,
+          "output": 50,
+          "flush_discarded": 10,
+          "overflow_dropped": 0,
+          "remaining": 1
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 0,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 10,
+          "mod5": 0,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 11,
+          "mod5": 1,
+          "adc_ordinals": [
+            11
+          ],
+          "imu_ordinals": []
+        },
+        "window": "after_imu_final_empty_check",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "0": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "adc_labels": [
+          "irq_after_imu_empty",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 15
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          56,
+          57,
+          58,
+          59,
+          60
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 60
+      },
+      "end": {
+        "ordinal": 61,
+        "mod5": 1,
+        "adc_ordinals": [
+          61
+        ],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 61,
+          "output": 50,
+          "flush_discarded": 10,
+          "overflow_dropped": 0,
+          "remaining": 1
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 1,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 11,
+          "mod5": 1,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 12,
+          "mod5": 2,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": "before_adc_final_empty_check",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-2": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 17
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          58,
+          59,
+          60,
+          61,
+          62
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 62
+      },
+      "end": {
+        "ordinal": 62,
+        "mod5": 2,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 62,
+          "output": 50,
+          "flush_discarded": 12,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 1,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 11,
+          "mod5": 1,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 12,
+          "mod5": 2,
+          "adc_ordinals": [
+            12
+          ],
+          "imu_ordinals": []
+        },
+        "window": "between_adc_and_imu_drains",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-1": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "adc_labels": [
+          "irq_between_drains",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -1,
+        "emitted_at_ordinal": 16
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          57,
+          58,
+          59,
+          60,
+          61
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -1,
+        "emitted_at_ordinal": 61
+      },
+      "end": {
+        "ordinal": 62,
+        "mod5": 2,
+        "adc_ordinals": [
+          62
+        ],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 62,
+          "output": 50,
+          "flush_discarded": 11,
+          "overflow_dropped": 0,
+          "remaining": 1
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 1,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 11,
+          "mod5": 1,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 12,
+          "mod5": 2,
+          "adc_ordinals": [
+            12
+          ],
+          "imu_ordinals": []
+        },
+        "window": "after_imu_final_empty_check",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-1": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "adc_labels": [
+          "irq_after_imu_empty",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -1,
+        "emitted_at_ordinal": 16
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          57,
+          58,
+          59,
+          60,
+          61
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -1,
+        "emitted_at_ordinal": 61
+      },
+      "end": {
+        "ordinal": 62,
+        "mod5": 2,
+        "adc_ordinals": [
+          62
+        ],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 62,
+          "output": 50,
+          "flush_discarded": 11,
+          "overflow_dropped": 0,
+          "remaining": 1
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 2,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 12,
+          "mod5": 2,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 13,
+          "mod5": 3,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": "before_adc_final_empty_check",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-3": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 18
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          59,
+          60,
+          61,
+          62,
+          63
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 63
+      },
+      "end": {
+        "ordinal": 63,
+        "mod5": 3,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 63,
+          "output": 50,
+          "flush_discarded": 13,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 2,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 12,
+          "mod5": 2,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 13,
+          "mod5": 3,
+          "adc_ordinals": [
+            13
+          ],
+          "imu_ordinals": []
+        },
+        "window": "between_adc_and_imu_drains",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-2": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "adc_labels": [
+          "irq_between_drains",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 17
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          58,
+          59,
+          60,
+          61,
+          62
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 62
+      },
+      "end": {
+        "ordinal": 63,
+        "mod5": 3,
+        "adc_ordinals": [
+          63
+        ],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 63,
+          "output": 50,
+          "flush_discarded": 12,
+          "overflow_dropped": 0,
+          "remaining": 1
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 2,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 12,
+          "mod5": 2,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 13,
+          "mod5": 3,
+          "adc_ordinals": [
+            13
+          ],
+          "imu_ordinals": []
+        },
+        "window": "after_imu_final_empty_check",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-2": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "adc_labels": [
+          "irq_after_imu_empty",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 17
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          58,
+          59,
+          60,
+          61,
+          62
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 62
+      },
+      "end": {
+        "ordinal": 63,
+        "mod5": 3,
+        "adc_ordinals": [
+          63
+        ],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 63,
+          "output": 50,
+          "flush_discarded": 12,
+          "overflow_dropped": 0,
+          "remaining": 1
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 3,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 13,
+          "mod5": 3,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 14,
+          "mod5": 4,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": "before_adc_final_empty_check",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-4": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -4,
+        "emitted_at_ordinal": 19
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          60,
+          61,
+          62,
+          63,
+          64
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -4,
+        "emitted_at_ordinal": 64
+      },
+      "end": {
+        "ordinal": 64,
+        "mod5": 4,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 64,
+          "output": 50,
+          "flush_discarded": 14,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 3,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 13,
+          "mod5": 3,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 14,
+          "mod5": 4,
+          "adc_ordinals": [
+            14
+          ],
+          "imu_ordinals": []
+        },
+        "window": "between_adc_and_imu_drains",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-3": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "adc_labels": [
+          "irq_between_drains",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 18
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          59,
+          60,
+          61,
+          62,
+          63
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 63
+      },
+      "end": {
+        "ordinal": 64,
+        "mod5": 4,
+        "adc_ordinals": [
+          64
+        ],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 64,
+          "output": 50,
+          "flush_discarded": 13,
+          "overflow_dropped": 0,
+          "remaining": 1
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 3,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 13,
+          "mod5": 3,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 14,
+          "mod5": 4,
+          "adc_ordinals": [
+            14
+          ],
+          "imu_ordinals": []
+        },
+        "window": "after_imu_final_empty_check",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-3": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "adc_labels": [
+          "irq_after_imu_empty",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 18
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          59,
+          60,
+          61,
+          62,
+          63
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 63
+      },
+      "end": {
+        "ordinal": 64,
+        "mod5": 4,
+        "adc_ordinals": [
+          64
+        ],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 64,
+          "output": 50,
+          "flush_discarded": 13,
+          "overflow_dropped": 0,
+          "remaining": 1
+        },
+        "imu": {
+          "produced": 12,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 4,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 14,
+          "mod5": 4,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 15,
+          "mod5": 0,
+          "adc_ordinals": [],
+          "imu_ordinals": []
+        },
+        "window": "before_adc_final_empty_check",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10,
+          15
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "0": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          16,
+          17,
+          18,
+          19,
+          20
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 20,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 20
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          61,
+          62,
+          63,
+          64,
+          65
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 65,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 65
+      },
+      "end": {
+        "ordinal": 65,
+        "mod5": 0,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 65,
+          "output": 50,
+          "flush_discarded": 15,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 13,
+          "output": 10,
+          "flush_discarded": 3,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 4,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 14,
+          "mod5": 4,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 15,
+          "mod5": 0,
+          "adc_ordinals": [
+            15
+          ],
+          "imu_ordinals": []
+        },
+        "window": "between_adc_and_imu_drains",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10,
+          15
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "1": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "adc_labels": [
+          "irq_between_drains",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 20,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 1,
+        "emitted_at_ordinal": 20
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          60,
+          61,
+          62,
+          63,
+          64
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 65,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": 1,
+        "emitted_at_ordinal": 65
+      },
+      "end": {
+        "ordinal": 65,
+        "mod5": 0,
+        "adc_ordinals": [
+          65
+        ],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 65,
+          "output": 50,
+          "flush_discarded": 14,
+          "overflow_dropped": 0,
+          "remaining": 1
+        },
+        "imu": {
+          "produced": 13,
+          "output": 10,
+          "flush_discarded": 3,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "phase_before_flush": 4,
+      "reset_phase_like_startup": false,
+      "flush": {
+        "before": {
+          "ordinal": 14,
+          "mod5": 4,
+          "adc_ordinals": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "imu_ordinals": [
+            5,
+            10
+          ]
+        },
+        "after": {
+          "ordinal": 15,
+          "mod5": 0,
+          "adc_ordinals": [
+            15
+          ],
+          "imu_ordinals": [
+            15
+          ]
+        },
+        "window": "after_imu_final_empty_check",
+        "injected_callbacks": 1,
+        "phase_reset": false,
+        "discarded_adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "discarded_imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "post_flush_callback_count": 50,
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-4": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "adc_labels": [
+          "irq_after_imu_empty",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 15,
+        "imu_label": "irq_after_imu_empty",
+        "imu_minus_last_adc_callback_intervals": -4,
+        "emitted_at_ordinal": 19
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          60,
+          61,
+          62,
+          63,
+          64
+        ],
+        "adc_labels": [
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush",
+          "after_flush"
+        ],
+        "imu_ordinal": 60,
+        "imu_label": "after_flush",
+        "imu_minus_last_adc_callback_intervals": -4,
+        "emitted_at_ordinal": 64
+      },
+      "end": {
+        "ordinal": 65,
+        "mod5": 0,
+        "adc_ordinals": [
+          65
+        ],
+        "imu_ordinals": [
+          65
+        ]
+      },
+      "accounting": {
+        "adc": {
+          "produced": 65,
+          "output": 50,
+          "flush_discarded": 14,
+          "overflow_dropped": 0,
+          "remaining": 1
+        },
+        "imu": {
+          "produced": 13,
+          "output": 10,
+          "flush_discarded": 2,
+          "overflow_dropped": 0,
+          "remaining": 1
+        }
+      }
+    }
+  ],
+  "five_irq_boundary_case": {
+    "phase_before_flush": 0,
+    "reset_phase_like_startup": false,
+    "flush": {
+      "before": {
+        "ordinal": 10,
+        "mod5": 0,
+        "adc_ordinals": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "imu_ordinals": [
+          5,
+          10
+        ]
+      },
+      "after": {
+        "ordinal": 15,
+        "mod5": 0,
+        "adc_ordinals": [
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "imu_ordinals": []
+      },
+      "window": "between_adc_and_imu_drains",
+      "injected_callbacks": 5,
+      "phase_reset": false,
+      "discarded_adc_ordinals": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "discarded_imu_ordinals": [
+        5,
+        10,
+        15
+      ]
+    },
+    "post_flush_callback_count": 50,
+    "packets": 10,
+    "skew_histogram_callback_intervals": {
+      "5": 10
+    },
+    "first_packet": {
+      "adc_ordinals": [
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "adc_labels": [
+        "irq_between_drains",
+        "irq_between_drains",
+        "irq_between_drains",
+        "irq_between_drains",
+        "irq_between_drains"
+      ],
+      "imu_ordinal": 20,
+      "imu_label": "after_flush",
+      "imu_minus_last_adc_callback_intervals": 5,
+      "emitted_at_ordinal": 20
+    },
+    "last_packet": {
+      "adc_ordinals": [
+        56,
+        57,
+        58,
+        59,
+        60
+      ],
+      "adc_labels": [
+        "after_flush",
+        "after_flush",
+        "after_flush",
+        "after_flush",
+        "after_flush"
+      ],
+      "imu_ordinal": 65,
+      "imu_label": "after_flush",
+      "imu_minus_last_adc_callback_intervals": 5,
+      "emitted_at_ordinal": 65
+    },
+    "end": {
+      "ordinal": 65,
+      "mod5": 0,
+      "adc_ordinals": [
+        61,
+        62,
+        63,
+        64,
+        65
+      ],
+      "imu_ordinals": []
+    },
+    "accounting": {
+      "adc": {
+        "produced": 65,
+        "output": 50,
+        "flush_discarded": 10,
+        "overflow_dropped": 0,
+        "remaining": 5
+      },
+      "imu": {
+        "produced": 13,
+        "output": 10,
+        "flush_discarded": 3,
+        "overflow_dropped": 0,
+        "remaining": 0
+      }
+    }
+  },
+  "three_failures_then_success": [
+    {
+      "write_callbacks_per_attempt": 2,
+      "sync_callbacks_per_attempt": 0,
+      "injected_failures": 3,
+      "final_success": true,
+      "dirty_at_end": false,
+      "packets_during_dirty_iterations": 0,
+      "iterations": [
+        {
+          "attempt": 1,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 2,
+              "mod5": 2,
+              "adc_ordinals": [
+                1,
+                2
+              ],
+              "imu_ordinals": []
+            },
+            "after": {
+              "ordinal": 2,
+              "mod5": 2,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              1,
+              2
+            ],
+            "discarded_imu_ordinals": []
+          },
+          "packet_after_sync": null,
+          "state_after_iteration": {
+            "ordinal": 2,
+            "mod5": 2,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          }
+        },
+        {
+          "attempt": 2,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 4,
+              "mod5": 4,
+              "adc_ordinals": [
+                3,
+                4
+              ],
+              "imu_ordinals": []
+            },
+            "after": {
+              "ordinal": 4,
+              "mod5": 4,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              3,
+              4
+            ],
+            "discarded_imu_ordinals": []
+          },
+          "packet_after_sync": null,
+          "state_after_iteration": {
+            "ordinal": 4,
+            "mod5": 4,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          }
+        },
+        {
+          "attempt": 3,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 6,
+              "mod5": 1,
+              "adc_ordinals": [
+                5,
+                6
+              ],
+              "imu_ordinals": [
+                5
+              ]
+            },
+            "after": {
+              "ordinal": 6,
+              "mod5": 1,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              5,
+              6
+            ],
+            "discarded_imu_ordinals": [
+              5
+            ]
+          },
+          "packet_after_sync": null,
+          "state_after_iteration": {
+            "ordinal": 6,
+            "mod5": 1,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          }
+        },
+        {
+          "attempt": 4,
+          "write_readback_success": true,
+          "dirty_after_write": false,
+          "flush": {
+            "before": {
+              "ordinal": 8,
+              "mod5": 3,
+              "adc_ordinals": [
+                7,
+                8
+              ],
+              "imu_ordinals": []
+            },
+            "after": {
+              "ordinal": 8,
+              "mod5": 3,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              7,
+              8
+            ],
+            "discarded_imu_ordinals": []
+          },
+          "packet_after_sync": null,
+          "state_after_iteration": {
+            "ordinal": 8,
+            "mod5": 3,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          }
+        }
+      ],
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "-3": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "adc_labels": [
+          "after_success",
+          "after_success",
+          "after_success",
+          "after_success",
+          "after_success"
+        ],
+        "imu_ordinal": 10,
+        "imu_label": "after_success",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 13
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          54,
+          55,
+          56,
+          57,
+          58
+        ],
+        "adc_labels": [
+          "after_success",
+          "after_success",
+          "after_success",
+          "after_success",
+          "after_success"
+        ],
+        "imu_ordinal": 55,
+        "imu_label": "after_success",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 58
+      },
+      "end": {
+        "ordinal": 58,
+        "mod5": 3,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 58,
+          "output": 50,
+          "flush_discarded": 8,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 11,
+          "output": 10,
+          "flush_discarded": 1,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "write_callbacks_per_attempt": 2,
+      "sync_callbacks_per_attempt": 4,
+      "injected_failures": 3,
+      "final_success": true,
+      "dirty_at_end": false,
+      "packets_during_dirty_iterations": 0,
+      "iterations": [
+        {
+          "attempt": 1,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 2,
+              "mod5": 2,
+              "adc_ordinals": [
+                1,
+                2
+              ],
+              "imu_ordinals": []
+            },
+            "after": {
+              "ordinal": 2,
+              "mod5": 2,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              1,
+              2
+            ],
+            "discarded_imu_ordinals": []
+          },
+          "packet_after_sync": null,
+          "state_after_iteration": {
+            "ordinal": 6,
+            "mod5": 1,
+            "adc_ordinals": [
+              3,
+              4,
+              5,
+              6
+            ],
+            "imu_ordinals": [
+              5
+            ]
+          }
+        },
+        {
+          "attempt": 2,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 8,
+              "mod5": 3,
+              "adc_ordinals": [
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+              ],
+              "imu_ordinals": [
+                5
+              ]
+            },
+            "after": {
+              "ordinal": 8,
+              "mod5": 3,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "discarded_imu_ordinals": [
+              5
+            ]
+          },
+          "packet_after_sync": null,
+          "state_after_iteration": {
+            "ordinal": 12,
+            "mod5": 2,
+            "adc_ordinals": [
+              9,
+              10,
+              11,
+              12
+            ],
+            "imu_ordinals": [
+              10
+            ]
+          }
+        },
+        {
+          "attempt": 3,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 14,
+              "mod5": 4,
+              "adc_ordinals": [
+                9,
+                10,
+                11,
+                12,
+                13,
+                14
+              ],
+              "imu_ordinals": [
+                10
+              ]
+            },
+            "after": {
+              "ordinal": 14,
+              "mod5": 4,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "discarded_imu_ordinals": [
+              10
+            ]
+          },
+          "packet_after_sync": null,
+          "state_after_iteration": {
+            "ordinal": 18,
+            "mod5": 3,
+            "adc_ordinals": [
+              15,
+              16,
+              17,
+              18
+            ],
+            "imu_ordinals": [
+              15
+            ]
+          }
+        },
+        {
+          "attempt": 4,
+          "write_readback_success": true,
+          "dirty_after_write": false,
+          "flush": {
+            "before": {
+              "ordinal": 20,
+              "mod5": 0,
+              "adc_ordinals": [
+                15,
+                16,
+                17,
+                18,
+                19,
+                20
+              ],
+              "imu_ordinals": [
+                15,
+                20
+              ]
+            },
+            "after": {
+              "ordinal": 20,
+              "mod5": 0,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              15,
+              16,
+              17,
+              18,
+              19,
+              20
+            ],
+            "discarded_imu_ordinals": [
+              15,
+              20
+            ]
+          },
+          "packet_after_sync": null,
+          "state_after_iteration": {
+            "ordinal": 24,
+            "mod5": 4,
+            "adc_ordinals": [
+              21,
+              22,
+              23,
+              24
+            ],
+            "imu_ordinals": []
+          }
+        }
+      ],
+      "packets": 10,
+      "skew_histogram_callback_intervals": {
+        "0": 10
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          21,
+          22,
+          23,
+          24,
+          25
+        ],
+        "adc_labels": [
+          "during_sync",
+          "during_sync",
+          "during_sync",
+          "during_sync",
+          "after_success"
+        ],
+        "imu_ordinal": 25,
+        "imu_label": "after_success",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 25
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          66,
+          67,
+          68,
+          69,
+          70
+        ],
+        "adc_labels": [
+          "after_success",
+          "after_success",
+          "after_success",
+          "after_success",
+          "after_success"
+        ],
+        "imu_ordinal": 70,
+        "imu_label": "after_success",
+        "imu_minus_last_adc_callback_intervals": 0,
+        "emitted_at_ordinal": 70
+      },
+      "end": {
+        "ordinal": 74,
+        "mod5": 4,
+        "adc_ordinals": [
+          71,
+          72,
+          73,
+          74
+        ],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 74,
+          "output": 50,
+          "flush_discarded": 20,
+          "overflow_dropped": 0,
+          "remaining": 4
+        },
+        "imu": {
+          "produced": 14,
+          "output": 10,
+          "flush_discarded": 4,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "write_callbacks_per_attempt": 2,
+      "sync_callbacks_per_attempt": 5,
+      "injected_failures": 3,
+      "final_success": true,
+      "dirty_at_end": false,
+      "packets_during_dirty_iterations": 4,
+      "iterations": [
+        {
+          "attempt": 1,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 2,
+              "mod5": 2,
+              "adc_ordinals": [
+                1,
+                2
+              ],
+              "imu_ordinals": []
+            },
+            "after": {
+              "ordinal": 2,
+              "mod5": 2,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              1,
+              2
+            ],
+            "discarded_imu_ordinals": []
+          },
+          "packet_after_sync": {
+            "adc_ordinals": [
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "adc_labels": [
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync"
+            ],
+            "imu_ordinal": 5,
+            "imu_label": "during_sync",
+            "imu_minus_last_adc_callback_intervals": -2,
+            "emitted_at_ordinal": 7
+          },
+          "state_after_iteration": {
+            "ordinal": 7,
+            "mod5": 2,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          }
+        },
+        {
+          "attempt": 2,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 9,
+              "mod5": 4,
+              "adc_ordinals": [
+                8,
+                9
+              ],
+              "imu_ordinals": []
+            },
+            "after": {
+              "ordinal": 9,
+              "mod5": 4,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              8,
+              9
+            ],
+            "discarded_imu_ordinals": []
+          },
+          "packet_after_sync": {
+            "adc_ordinals": [
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "adc_labels": [
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync"
+            ],
+            "imu_ordinal": 10,
+            "imu_label": "during_sync",
+            "imu_minus_last_adc_callback_intervals": -4,
+            "emitted_at_ordinal": 14
+          },
+          "state_after_iteration": {
+            "ordinal": 14,
+            "mod5": 4,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          }
+        },
+        {
+          "attempt": 3,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 16,
+              "mod5": 1,
+              "adc_ordinals": [
+                15,
+                16
+              ],
+              "imu_ordinals": [
+                15
+              ]
+            },
+            "after": {
+              "ordinal": 16,
+              "mod5": 1,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              15,
+              16
+            ],
+            "discarded_imu_ordinals": [
+              15
+            ]
+          },
+          "packet_after_sync": {
+            "adc_ordinals": [
+              17,
+              18,
+              19,
+              20,
+              21
+            ],
+            "adc_labels": [
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync"
+            ],
+            "imu_ordinal": 20,
+            "imu_label": "during_sync",
+            "imu_minus_last_adc_callback_intervals": -1,
+            "emitted_at_ordinal": 21
+          },
+          "state_after_iteration": {
+            "ordinal": 21,
+            "mod5": 1,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          }
+        },
+        {
+          "attempt": 4,
+          "write_readback_success": true,
+          "dirty_after_write": false,
+          "flush": {
+            "before": {
+              "ordinal": 23,
+              "mod5": 3,
+              "adc_ordinals": [
+                22,
+                23
+              ],
+              "imu_ordinals": []
+            },
+            "after": {
+              "ordinal": 23,
+              "mod5": 3,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              22,
+              23
+            ],
+            "discarded_imu_ordinals": []
+          },
+          "packet_after_sync": {
+            "adc_ordinals": [
+              24,
+              25,
+              26,
+              27,
+              28
+            ],
+            "adc_labels": [
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync"
+            ],
+            "imu_ordinal": 25,
+            "imu_label": "during_sync",
+            "imu_minus_last_adc_callback_intervals": -3,
+            "emitted_at_ordinal": 28
+          },
+          "state_after_iteration": {
+            "ordinal": 28,
+            "mod5": 3,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          }
+        }
+      ],
+      "packets": 14,
+      "skew_histogram_callback_intervals": {
+        "-4": 1,
+        "-3": 11,
+        "-2": 1,
+        "-1": 1
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "adc_labels": [
+          "during_sync",
+          "during_sync",
+          "during_sync",
+          "during_sync",
+          "during_sync"
+        ],
+        "imu_ordinal": 5,
+        "imu_label": "during_sync",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 7
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          74,
+          75,
+          76,
+          77,
+          78
+        ],
+        "adc_labels": [
+          "after_success",
+          "after_success",
+          "after_success",
+          "after_success",
+          "after_success"
+        ],
+        "imu_ordinal": 75,
+        "imu_label": "after_success",
+        "imu_minus_last_adc_callback_intervals": -3,
+        "emitted_at_ordinal": 78
+      },
+      "end": {
+        "ordinal": 78,
+        "mod5": 3,
+        "adc_ordinals": [],
+        "imu_ordinals": []
+      },
+      "accounting": {
+        "adc": {
+          "produced": 78,
+          "output": 70,
+          "flush_discarded": 8,
+          "overflow_dropped": 0,
+          "remaining": 0
+        },
+        "imu": {
+          "produced": 15,
+          "output": 14,
+          "flush_discarded": 1,
+          "overflow_dropped": 0,
+          "remaining": 0
+        }
+      }
+    },
+    {
+      "write_callbacks_per_attempt": 2,
+      "sync_callbacks_per_attempt": 8,
+      "injected_failures": 3,
+      "final_success": true,
+      "dirty_at_end": false,
+      "packets_during_dirty_iterations": 4,
+      "iterations": [
+        {
+          "attempt": 1,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 2,
+              "mod5": 2,
+              "adc_ordinals": [
+                1,
+                2
+              ],
+              "imu_ordinals": []
+            },
+            "after": {
+              "ordinal": 2,
+              "mod5": 2,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              1,
+              2
+            ],
+            "discarded_imu_ordinals": []
+          },
+          "packet_after_sync": {
+            "adc_ordinals": [
+              3,
+              4,
+              5,
+              6,
+              7
+            ],
+            "adc_labels": [
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync"
+            ],
+            "imu_ordinal": 5,
+            "imu_label": "during_sync",
+            "imu_minus_last_adc_callback_intervals": -2,
+            "emitted_at_ordinal": 10
+          },
+          "state_after_iteration": {
+            "ordinal": 10,
+            "mod5": 0,
+            "adc_ordinals": [
+              8,
+              9,
+              10
+            ],
+            "imu_ordinals": [
+              10
+            ]
+          }
+        },
+        {
+          "attempt": 2,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 12,
+              "mod5": 2,
+              "adc_ordinals": [
+                8,
+                9,
+                10,
+                11,
+                12
+              ],
+              "imu_ordinals": [
+                10
+              ]
+            },
+            "after": {
+              "ordinal": 12,
+              "mod5": 2,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "discarded_imu_ordinals": [
+              10
+            ]
+          },
+          "packet_after_sync": {
+            "adc_ordinals": [
+              13,
+              14,
+              15,
+              16,
+              17
+            ],
+            "adc_labels": [
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync"
+            ],
+            "imu_ordinal": 15,
+            "imu_label": "during_sync",
+            "imu_minus_last_adc_callback_intervals": -2,
+            "emitted_at_ordinal": 20
+          },
+          "state_after_iteration": {
+            "ordinal": 20,
+            "mod5": 0,
+            "adc_ordinals": [
+              18,
+              19,
+              20
+            ],
+            "imu_ordinals": [
+              20
+            ]
+          }
+        },
+        {
+          "attempt": 3,
+          "write_readback_success": false,
+          "dirty_after_write": true,
+          "flush": {
+            "before": {
+              "ordinal": 22,
+              "mod5": 2,
+              "adc_ordinals": [
+                18,
+                19,
+                20,
+                21,
+                22
+              ],
+              "imu_ordinals": [
+                20
+              ]
+            },
+            "after": {
+              "ordinal": 22,
+              "mod5": 2,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              18,
+              19,
+              20,
+              21,
+              22
+            ],
+            "discarded_imu_ordinals": [
+              20
+            ]
+          },
+          "packet_after_sync": {
+            "adc_ordinals": [
+              23,
+              24,
+              25,
+              26,
+              27
+            ],
+            "adc_labels": [
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync"
+            ],
+            "imu_ordinal": 25,
+            "imu_label": "during_sync",
+            "imu_minus_last_adc_callback_intervals": -2,
+            "emitted_at_ordinal": 30
+          },
+          "state_after_iteration": {
+            "ordinal": 30,
+            "mod5": 0,
+            "adc_ordinals": [
+              28,
+              29,
+              30
+            ],
+            "imu_ordinals": [
+              30
+            ]
+          }
+        },
+        {
+          "attempt": 4,
+          "write_readback_success": true,
+          "dirty_after_write": false,
+          "flush": {
+            "before": {
+              "ordinal": 32,
+              "mod5": 2,
+              "adc_ordinals": [
+                28,
+                29,
+                30,
+                31,
+                32
+              ],
+              "imu_ordinals": [
+                30
+              ]
+            },
+            "after": {
+              "ordinal": 32,
+              "mod5": 2,
+              "adc_ordinals": [],
+              "imu_ordinals": []
+            },
+            "window": null,
+            "injected_callbacks": 0,
+            "phase_reset": false,
+            "discarded_adc_ordinals": [
+              28,
+              29,
+              30,
+              31,
+              32
+            ],
+            "discarded_imu_ordinals": [
+              30
+            ]
+          },
+          "packet_after_sync": {
+            "adc_ordinals": [
+              33,
+              34,
+              35,
+              36,
+              37
+            ],
+            "adc_labels": [
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync",
+              "during_sync"
+            ],
+            "imu_ordinal": 35,
+            "imu_label": "during_sync",
+            "imu_minus_last_adc_callback_intervals": -2,
+            "emitted_at_ordinal": 40
+          },
+          "state_after_iteration": {
+            "ordinal": 40,
+            "mod5": 0,
+            "adc_ordinals": [
+              38,
+              39,
+              40
+            ],
+            "imu_ordinals": [
+              40
+            ]
+          }
+        }
+      ],
+      "packets": 14,
+      "skew_histogram_callback_intervals": {
+        "-2": 14
+      },
+      "first_packet": {
+        "adc_ordinals": [
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "adc_labels": [
+          "during_sync",
+          "during_sync",
+          "during_sync",
+          "during_sync",
+          "during_sync"
+        ],
+        "imu_ordinal": 5,
+        "imu_label": "during_sync",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 10
+      },
+      "last_packet": {
+        "adc_ordinals": [
+          83,
+          84,
+          85,
+          86,
+          87
+        ],
+        "adc_labels": [
+          "after_success",
+          "after_success",
+          "after_success",
+          "after_success",
+          "after_success"
+        ],
+        "imu_ordinal": 85,
+        "imu_label": "after_success",
+        "imu_minus_last_adc_callback_intervals": -2,
+        "emitted_at_ordinal": 87
+      },
+      "end": {
+        "ordinal": 90,
+        "mod5": 0,
+        "adc_ordinals": [
+          88,
+          89,
+          90
+        ],
+        "imu_ordinals": [
+          90
+        ]
+      },
+      "accounting": {
+        "adc": {
+          "produced": 90,
+          "output": 70,
+          "flush_discarded": 17,
+          "overflow_dropped": 0,
+          "remaining": 3
+        },
+        "imu": {
+          "produced": 18,
+          "output": 14,
+          "flush_discarded": 3,
+          "overflow_dropped": 0,
+          "remaining": 1
+        }
+      }
+    }
+  ],
+  "eight_failed_retries_without_success": {
+    "write_callbacks_per_attempt": 2,
+    "sync_callbacks_per_attempt": 4,
+    "injected_failures": 8,
+    "final_success": false,
+    "dirty_at_end": true,
+    "packets_during_dirty_iterations": 0,
+    "iterations": [
+      {
+        "attempt": 1,
+        "write_readback_success": false,
+        "dirty_after_write": true,
+        "flush": {
+          "before": {
+            "ordinal": 2,
+            "mod5": 2,
+            "adc_ordinals": [
+              1,
+              2
+            ],
+            "imu_ordinals": []
+          },
+          "after": {
+            "ordinal": 2,
+            "mod5": 2,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          },
+          "window": null,
+          "injected_callbacks": 0,
+          "phase_reset": false,
+          "discarded_adc_ordinals": [
+            1,
+            2
+          ],
+          "discarded_imu_ordinals": []
+        },
+        "packet_after_sync": null,
+        "state_after_iteration": {
+          "ordinal": 6,
+          "mod5": 1,
+          "adc_ordinals": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "imu_ordinals": [
+            5
+          ]
+        }
+      },
+      {
+        "attempt": 2,
+        "write_readback_success": false,
+        "dirty_after_write": true,
+        "flush": {
+          "before": {
+            "ordinal": 8,
+            "mod5": 3,
+            "adc_ordinals": [
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "imu_ordinals": [
+              5
+            ]
+          },
+          "after": {
+            "ordinal": 8,
+            "mod5": 3,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          },
+          "window": null,
+          "injected_callbacks": 0,
+          "phase_reset": false,
+          "discarded_adc_ordinals": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "discarded_imu_ordinals": [
+            5
+          ]
+        },
+        "packet_after_sync": null,
+        "state_after_iteration": {
+          "ordinal": 12,
+          "mod5": 2,
+          "adc_ordinals": [
+            9,
+            10,
+            11,
+            12
+          ],
+          "imu_ordinals": [
+            10
+          ]
+        }
+      },
+      {
+        "attempt": 3,
+        "write_readback_success": false,
+        "dirty_after_write": true,
+        "flush": {
+          "before": {
+            "ordinal": 14,
+            "mod5": 4,
+            "adc_ordinals": [
+              9,
+              10,
+              11,
+              12,
+              13,
+              14
+            ],
+            "imu_ordinals": [
+              10
+            ]
+          },
+          "after": {
+            "ordinal": 14,
+            "mod5": 4,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          },
+          "window": null,
+          "injected_callbacks": 0,
+          "phase_reset": false,
+          "discarded_adc_ordinals": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "discarded_imu_ordinals": [
+            10
+          ]
+        },
+        "packet_after_sync": null,
+        "state_after_iteration": {
+          "ordinal": 18,
+          "mod5": 3,
+          "adc_ordinals": [
+            15,
+            16,
+            17,
+            18
+          ],
+          "imu_ordinals": [
+            15
+          ]
+        }
+      },
+      {
+        "attempt": 4,
+        "write_readback_success": false,
+        "dirty_after_write": true,
+        "flush": {
+          "before": {
+            "ordinal": 20,
+            "mod5": 0,
+            "adc_ordinals": [
+              15,
+              16,
+              17,
+              18,
+              19,
+              20
+            ],
+            "imu_ordinals": [
+              15,
+              20
+            ]
+          },
+          "after": {
+            "ordinal": 20,
+            "mod5": 0,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          },
+          "window": null,
+          "injected_callbacks": 0,
+          "phase_reset": false,
+          "discarded_adc_ordinals": [
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "discarded_imu_ordinals": [
+            15,
+            20
+          ]
+        },
+        "packet_after_sync": null,
+        "state_after_iteration": {
+          "ordinal": 24,
+          "mod5": 4,
+          "adc_ordinals": [
+            21,
+            22,
+            23,
+            24
+          ],
+          "imu_ordinals": []
+        }
+      },
+      {
+        "attempt": 5,
+        "write_readback_success": false,
+        "dirty_after_write": true,
+        "flush": {
+          "before": {
+            "ordinal": 26,
+            "mod5": 1,
+            "adc_ordinals": [
+              21,
+              22,
+              23,
+              24,
+              25,
+              26
+            ],
+            "imu_ordinals": [
+              25
+            ]
+          },
+          "after": {
+            "ordinal": 26,
+            "mod5": 1,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          },
+          "window": null,
+          "injected_callbacks": 0,
+          "phase_reset": false,
+          "discarded_adc_ordinals": [
+            21,
+            22,
+            23,
+            24,
+            25,
+            26
+          ],
+          "discarded_imu_ordinals": [
+            25
+          ]
+        },
+        "packet_after_sync": null,
+        "state_after_iteration": {
+          "ordinal": 30,
+          "mod5": 0,
+          "adc_ordinals": [
+            27,
+            28,
+            29,
+            30
+          ],
+          "imu_ordinals": [
+            30
+          ]
+        }
+      },
+      {
+        "attempt": 6,
+        "write_readback_success": false,
+        "dirty_after_write": true,
+        "flush": {
+          "before": {
+            "ordinal": 32,
+            "mod5": 2,
+            "adc_ordinals": [
+              27,
+              28,
+              29,
+              30,
+              31,
+              32
+            ],
+            "imu_ordinals": [
+              30
+            ]
+          },
+          "after": {
+            "ordinal": 32,
+            "mod5": 2,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          },
+          "window": null,
+          "injected_callbacks": 0,
+          "phase_reset": false,
+          "discarded_adc_ordinals": [
+            27,
+            28,
+            29,
+            30,
+            31,
+            32
+          ],
+          "discarded_imu_ordinals": [
+            30
+          ]
+        },
+        "packet_after_sync": null,
+        "state_after_iteration": {
+          "ordinal": 36,
+          "mod5": 1,
+          "adc_ordinals": [
+            33,
+            34,
+            35,
+            36
+          ],
+          "imu_ordinals": [
+            35
+          ]
+        }
+      },
+      {
+        "attempt": 7,
+        "write_readback_success": false,
+        "dirty_after_write": true,
+        "flush": {
+          "before": {
+            "ordinal": 38,
+            "mod5": 3,
+            "adc_ordinals": [
+              33,
+              34,
+              35,
+              36,
+              37,
+              38
+            ],
+            "imu_ordinals": [
+              35
+            ]
+          },
+          "after": {
+            "ordinal": 38,
+            "mod5": 3,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          },
+          "window": null,
+          "injected_callbacks": 0,
+          "phase_reset": false,
+          "discarded_adc_ordinals": [
+            33,
+            34,
+            35,
+            36,
+            37,
+            38
+          ],
+          "discarded_imu_ordinals": [
+            35
+          ]
+        },
+        "packet_after_sync": null,
+        "state_after_iteration": {
+          "ordinal": 42,
+          "mod5": 2,
+          "adc_ordinals": [
+            39,
+            40,
+            41,
+            42
+          ],
+          "imu_ordinals": [
+            40
+          ]
+        }
+      },
+      {
+        "attempt": 8,
+        "write_readback_success": false,
+        "dirty_after_write": true,
+        "flush": {
+          "before": {
+            "ordinal": 44,
+            "mod5": 4,
+            "adc_ordinals": [
+              39,
+              40,
+              41,
+              42,
+              43,
+              44
+            ],
+            "imu_ordinals": [
+              40
+            ]
+          },
+          "after": {
+            "ordinal": 44,
+            "mod5": 4,
+            "adc_ordinals": [],
+            "imu_ordinals": []
+          },
+          "window": null,
+          "injected_callbacks": 0,
+          "phase_reset": false,
+          "discarded_adc_ordinals": [
+            39,
+            40,
+            41,
+            42,
+            43,
+            44
+          ],
+          "discarded_imu_ordinals": [
+            40
+          ]
+        },
+        "packet_after_sync": null,
+        "state_after_iteration": {
+          "ordinal": 48,
+          "mod5": 3,
+          "adc_ordinals": [
+            45,
+            46,
+            47,
+            48
+          ],
+          "imu_ordinals": [
+            45
+          ]
+        }
+      }
+    ],
+    "packets": 0,
+    "skew_histogram_callback_intervals": {},
+    "first_packet": null,
+    "last_packet": null,
+    "end": {
+      "ordinal": 48,
+      "mod5": 3,
+      "adc_ordinals": [
+        45,
+        46,
+        47,
+        48
+      ],
+      "imu_ordinals": [
+        45
+      ]
+    },
+    "accounting": {
+      "adc": {
+        "produced": 48,
+        "output": 0,
+        "flush_discarded": 44,
+        "overflow_dropped": 0,
+        "remaining": 4
+      },
+      "imu": {
+        "produced": 9,
+        "output": 0,
+        "flush_discarded": 8,
+        "overflow_dropped": 0,
+        "remaining": 1
+      }
+    }
+  },
+  "evidence": {
+    "mcu_sha256": "1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563",
+    "mcu_bytes": 140828,
+    "thumb_operand_checks": [
+      {
+        "address": "0x80268e0",
+        "word": "0x54e2",
+        "operation": "strb register",
+        "operands": {
+          "rt": 2,
+          "rn": 4,
+          "rm": 3
+        }
+      },
+      {
+        "address": "0x8023478",
+        "word": "0x54a3",
+        "operation": "strb register",
+        "operands": {
+          "rt": 3,
+          "rn": 4,
+          "rm": 2
+        }
+      },
+      {
+        "address": "0x8023486",
+        "word": "0x54a3",
+        "operation": "strb register",
+        "operands": {
+          "rt": 3,
+          "rn": 4,
+          "rm": 2
+        }
+      }
+    ],
+    "dirty_block_assembly": [
+      "0801f23a movs r4,#0xc5",
+      "0801f23c lsls r4,r4,#0x5",
+      "0801f23e ldrh r3,[r7,r4]",
+      "0801f240 cmp r3,#0x0",
+      "0801f242 beq 0x0801f2b0",
+      "0801f244 ldr r0,[0x0801f518] [0801f518=802ef89] [0802ef89=6d61735b]",
+      "0801f246 bl 0x0801c8f8",
+      "0801f24a ldrb r3,[r7,r4]",
+      "0801f24c cmp r3,#0x0",
+      "0801f24e beq 0x0801f26c",
+      "0801f250 movs r3,#0xcf",
+      "0801f252 add r2,sp,#0x20",
+      "0801f254 lsls r3,r3,#0x5",
+      "0801f256 adds r3,r3,r2",
+      "0801f258 movs r0,r3",
+      "0801f25a bl 0x0801d940",
+      "0801f25e cmp r0,#0x0",
+      "0801f260 beq 0x0801f26c",
+      "0801f262 movs r3,#0x0",
+      "0801f264 ldr r0,[0x0801f51c] [0801f51c=802efad] [0802efad=6d61735b]",
+      "0801f266 strb r3,[r7,r4]",
+      "0801f268 bl 0x0801c8f8",
+      "0801f26c ldr r4,[0x0801f520] [0801f520=18a1]",
+      "0801f26e ldrb r3,[r7,r4]",
+      "0801f270 cmp r3,#0x0",
+      "0801f272 beq 0x0801f28e",
+      "0801f274 ldr r3,[0x0801f500] [0801f500=1aa8]",
+      "0801f276 add r2,sp,#0x20",
+      "0801f278 adds r3,r3,r2",
+      "0801f27a movs r0,r3",
+      "0801f27c bl 0x0801d940",
+      "0801f280 cmp r0,#0x0",
+      "0801f282 beq 0x0801f28e",
+      "0801f284 movs r3,#0x0",
+      "0801f286 ldr r0,[0x0801f524] [0801f524=802efc6] [0802efc6=6d61735b]",
+      "0801f288 strb r3,[r7,r4]",
+      "0801f28a bl 0x0801c8f8",
+      "0801f28e ldr r3,[0x0801f528] [0801f528=e04]",
+      "0801f290 add r2,sp,#0x20",
+      "0801f292 adds r3,r3,r2",
+      "0801f294 movs r0,r3",
+      "0801f296 bl 0x08026722",
+      "0801f29a ldr r3,[0x0801f52c] [0801f52c=802efe0] [0802efe0=6d61735b]",
+      "0801f29c movs r1,r0",
+      "0801f29e movs r0,r3 [0802efe0=6d61735b]",
+      "0801f2a0 bl 0x0801c8f8",
+      "0801f2a4 ldr r3,[0x0801f528] [0801f528=e04]",
+      "0801f2a6 add r2,sp,#0x20",
+      "0801f2a8 adds r3,r3,r2",
+      "0801f2aa movs r0,r3",
+      "0801f2ac bl 0x08026810"
+    ],
+    "source_files": [
+      {
+        "relative_to_analysis": "sensor-mcu/frontend/08026722.txt",
+        "sha256": "efb54b0b22249ab92e24b36810605c2c62b2d3cb353232ae32135a702cd3fe62"
+      },
+      {
+        "relative_to_analysis": "sensor-mcu/frontend/080268c8.txt",
+        "sha256": "c16a0e900100012378325f6caed44b6e36643b7f6848d3765e784750991a9444"
+      },
+      {
+        "relative_to_analysis": "sensor-mcu/frontend/08026810.txt",
+        "sha256": "ab5d452c708aea8ba587f859699e7a42d7e36dbcf6cdf63753fdcc97eb37f6e1"
+      },
+      {
+        "relative_to_analysis": "sensor-mcu/frontend/080233f4.txt",
+        "sha256": "742da7e61f562a90265df3bae7e9f3640c0aa31a8242e4e3c777c8512602b357"
+      },
+      {
+        "relative_to_analysis": "sensor-mcu/frontend/0801f0d0.txt",
+        "sha256": "aaa2e9969d0f3d8f07227f585865c98627432d9e66f6c60d872ef8f54acd873c"
+      },
+      {
+        "relative_to_analysis": "sensor-mcu/frontend/0801d940.txt",
+        "sha256": "63063d16fc0c955a1bc57f3cf57fcd8dae10a20111b427d2d6fa8c97b022f31c"
+      },
+      {
+        "relative_to_analysis": "sensor-mcu/frontend/0801c388.txt",
+        "sha256": "1bec6a79388638f5255442f6533692ebd45b0a736c266ab0697f541b22155895"
+      },
+      {
+        "relative_to_analysis": "sensor-mcu/frontend/0801c44c.txt",
+        "sha256": "4896e4067514828b5525bd90a9bb68e4ea4011e0c90c202a8604cc2595505d96"
+      },
+      {
+        "relative_to_analysis": "sensor-mcu/SAMPLE_FRESHNESS_ZH.txt",
+        "sha256": "e876ad7f9a3e719a78d775c153107a14bcdb04756a1da680adb4273d30f39c6d"
+      },
+      {
+        "relative_to_analysis": "sensor-mcu/FRONTEND_DSP_ZH.txt",
+        "sha256": "c6f18c7a8fa5b04241da6e6e5f1053a3ca6ca84ab08dc6ef4ccff674d0b8a5a8"
+      },
+      {
+        "relative_to_analysis": "signal-host/GAIN_METADATA_ZH.txt",
+        "sha256": "efb5b8169d1d2c27b2c41d1b41f97f158fbd7ebc1ab81934ba72f2fc5a4931a6"
+      }
+    ]
+  }
+}

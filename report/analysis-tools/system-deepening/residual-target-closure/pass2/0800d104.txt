@@ -1,0 +1,133 @@
+TARGET 0800d104 function=0800d104
+REF_TO 0800d2be UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800d104, 0800d1b1]]
+
+uint FUN_0800d104(int *param_1,int param_2,int param_3)
+
+{
+  int iVar1;
+  uint uVar2;
+  int iVar3;
+  uint *puVar4;
+  uint uVar5;
+  uint local_1c;
+  
+  iVar1 = FUN_080099ec();
+  uVar5 = (param_3 + param_2) - iVar1;
+  iVar1 = FUN_080099ec();
+  local_1c = uVar5 * ((DAT_20000250 & 0x7ffffff) >> 0xf);
+  while( true ) {
+    do {
+      uVar2 = *(uint *)(*param_1 + 8) & 0x80;
+      if ((*(uint *)(*param_1 + 8) & 0x80) == 0) {
+        return uVar2;
+      }
+    } while (param_2 == -1);
+    iVar3 = FUN_080099ec(uVar2);
+    if (uVar5 <= (uint)(iVar3 - iVar1)) break;
+    uVar2 = local_1c;
+    if (local_1c != 0) {
+      uVar2 = uVar5;
+    }
+    local_1c = local_1c - 1;
+    uVar5 = uVar2;
+  }
+  puVar4 = (uint *)*param_1;
+  puVar4[1] = puVar4[1] & 0xffffff1f;
+  if ((param_1[1] == 0x104) && ((param_1[2] == 0x8000 || (param_1[2] == 0x400)))) {
+    *puVar4 = *puVar4 & 0xffffffbf;
+  }
+  if (param_1[10] == 0x2000) {
+    *puVar4 = *puVar4 & 0xffffdfff;
+    *puVar4 = *puVar4 | 0x2000;
+  }
+  *(undefined1 *)((int)param_1 + 0x5d) = 1;
+  *(undefined1 *)(param_1 + 0x17) = 0;
+  return 3;
+}
+
+
+INSN 0800d104 f0b5 push {r4,r5,r6,r7,lr}
+INSN 0800d106 0e00 movs r6,r1
+INSN 0800d108 85b0 sub sp,#0x14
+INSN 0800d10a 1500 movs r5,r2
+INSN 0800d10c 0400 movs r4,r0
+INSN 0800d10e fcf76dfc bl 0x080099ec REF[UNCONDITIONAL_CALL:080099ec]
+INSN 0800d112 ad19 adds r5,r5,r6
+INSN 0800d114 2d1a subs r5,r5,r0
+INSN 0800d116 fcf769fc bl 0x080099ec REF[UNCONDITIONAL_CALL:080099ec]
+INSN 0800d11a 8027 movs r7,#0x80
+INSN 0800d11c 254b ldr r3,[0x0800d1b4] REF[READ:0800d1b4=20000250]
+INSN 0800d11e 0190 str r0,[sp,#0x4] REF[WRITE:Stack[-0x24]]
+INSN 0800d120 1b68 ldr r3,[r3,#0x0] REF[READ:20000250]
+INSN 0800d122 5b01 lsls r3,r3,#0x5
+INSN 0800d124 1b0d lsrs r3,r3,#0x14
+INSN 0800d126 6b43 muls r3,r5
+INSN 0800d128 0393 str r3,[sp,#0xc] REF[WRITE:Stack[-0x1c]]
+INSN 0800d12a 2268 ldr r2,[r4,#0x0]
+INSN 0800d12c 9368 ldr r3,[r2,#0x8]
+INSN 0800d12e 1800 movs r0,r3
+INSN 0800d130 3840 ands r0,r7
+INSN 0800d132 3b42 tst r3,r7
+INSN 0800d134 32d0 beq 0x0800d19c REF[CONDITIONAL_JUMP:0800d19c]
+INSN 0800d136 731c adds r3,r6,#0x1
+INSN 0800d138 f8d0 beq 0x0800d12c REF[CONDITIONAL_JUMP:0800d12c]
+INSN 0800d13a fcf757fc bl 0x080099ec REF[UNCONDITIONAL_CALL:080099ec]
+INSN 0800d13e 019b ldr r3,[sp,#0x4] REF[READ:Stack[-0x24]]
+INSN 0800d140 c01a subs r0,r0,r3
+INSN 0800d142 a842 cmp r0,r5
+INSN 0800d144 2cd3 bcc 0x0800d1a0 REF[CONDITIONAL_JUMP:0800d1a0]
+INSN 0800d146 e021 movs r1,#0xe0
+INSN 0800d148 2368 ldr r3,[r4,#0x0]
+INSN 0800d14a 5a68 ldr r2,[r3,#0x4]
+INSN 0800d14c 8a43 bics r2,r1
+INSN 0800d14e 5a60 str r2,[r3,#0x4]
+INSN 0800d150 8222 movs r2,#0x82
+INSN 0800d152 6168 ldr r1,[r4,#0x4]
+INSN 0800d154 5200 lsls r2,r2,#0x1
+INSN 0800d156 9142 cmp r1,r2
+INSN 0800d158 0cd1 bne 0x0800d174 REF[CONDITIONAL_JUMP:0800d174]
+INSN 0800d15a 8021 movs r1,#0x80
+INSN 0800d15c a268 ldr r2,[r4,#0x8]
+INSN 0800d15e 0902 lsls r1,r1,#0x8
+INSN 0800d160 8a42 cmp r2,r1
+INSN 0800d162 03d0 beq 0x0800d16c REF[CONDITIONAL_JUMP:0800d16c]
+INSN 0800d164 8021 movs r1,#0x80
+INSN 0800d166 c900 lsls r1,r1,#0x3
+INSN 0800d168 8a42 cmp r2,r1
+INSN 0800d16a 03d1 bne 0x0800d174 REF[CONDITIONAL_JUMP:0800d174]
+INSN 0800d16c 4021 movs r1,#0x40
+INSN 0800d16e 1a68 ldr r2,[r3,#0x0]
+INSN 0800d170 8a43 bics r2,r1
+INSN 0800d172 1a60 str r2,[r3,#0x0]
+INSN 0800d174 8021 movs r1,#0x80
+INSN 0800d176 a26a ldr r2,[r4,#0x28]
+INSN 0800d178 8901 lsls r1,r1,#0x6
+INSN 0800d17a 8a42 cmp r2,r1
+INSN 0800d17c 06d1 bne 0x0800d18c REF[CONDITIONAL_JUMP:0800d18c]
+INSN 0800d17e 1968 ldr r1,[r3,#0x0]
+INSN 0800d180 0d48 ldr r0,[0x0800d1b8] REF[READ:0800d1b8=ffffdfff]
+INSN 0800d182 0140 ands r1,r0
+INSN 0800d184 1960 str r1,[r3,#0x0]
+INSN 0800d186 1968 ldr r1,[r3,#0x0]
+INSN 0800d188 0a43 orrs r2,r1
+INSN 0800d18a 1a60 str r2,[r3,#0x0]
+INSN 0800d18c 2300 movs r3,r4
+INSN 0800d18e 0122 movs r2,#0x1
+INSN 0800d190 5d33 adds r3,#0x5d
+INSN 0800d192 1a70 strb r2,[r3,#0x0]
+INSN 0800d194 0023 movs r3,#0x0
+INSN 0800d196 0320 movs r0,#0x3
+INSN 0800d198 5c34 adds r4,#0x5c
+INSN 0800d19a 2370 strb r3,[r4,#0x0]
+INSN 0800d19c 05b0 add sp,#0x14
+INSN 0800d19e f0bd pop {r4,r5,r6,r7,pc}
+INSN 0800d1a0 039b ldr r3,[sp,#0xc] REF[READ:Stack[-0x1c]]
+INSN 0800d1a2 002b cmp r3,#0x0
+INSN 0800d1a4 00d0 beq 0x0800d1a8 REF[CONDITIONAL_JUMP:0800d1a8]
+INSN 0800d1a6 2b00 movs r3,r5
+INSN 0800d1a8 039a ldr r2,[sp,#0xc] REF[READ:Stack[-0x1c]]
+INSN 0800d1aa 1d00 movs r5,r3
+INSN 0800d1ac 013a subs r2,#0x1
+INSN 0800d1ae 0392 str r2,[sp,#0xc] REF[WRITE:Stack[-0x1c]]
+INSN 0800d1b0 bbe7 b 0x0800d12a REF[UNCONDITIONAL_JUMP:0800d12a]

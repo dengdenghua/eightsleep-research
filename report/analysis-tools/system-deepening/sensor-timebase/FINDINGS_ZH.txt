@@ -1,0 +1,43 @@
+USB 传感固件时基：500/8 的名义单位与实测边界
+2026-11-08；补充 sensor-diff 的时基缺口，仅分析 USB 5.5.34.0，不执行固件。
+
+输入 SHA256=1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563。
+完整BBIN以08010000映射，128字节头已包括在文件偏移里。
+复用只读 Ghidra sensor 工程；本轮321条导出指令记录/686字节、29处flash literal、22个BL目标与原件全部相符，包含重复范围，不当作全程序覆盖数。
+
+1. RAM tick的写入已找到
+080119ec读取2000121c；080119d4向它加20000258处的一个无符号字节。
+原BBIN偏移188的向量值为080114a3；去Thumb低位后是080114a2，即第15号向量handler。
+该handler只调用080119d4再SEV返回。按ARM核心向量/寄存器定义，这是SysTick链。
+所见直接引用中，写tick的是上述增量函数；正常reset另清零RAM20000594..2000b344，覆盖该tick。未识别的间接写入不作全称排除。
+
+2. 默认增量有原字节来源，不能直接读未初始化RAM当常量
+Reset从Flash08032288把.data复制到RAM20000200..20000594，原指令范围见usb-pass4/08029ad4_08029b12.txt。
+据该复制映射，tick_step RAM20000258来自文件偏移140000，原字节01。
+时钟频率变量RAM20000250来自偏移139992，LE32=16000000；初始优先级字段RAM2000025c为4。
+这只是初始值，不证明后续没有改频，也不保证把初始优先级4直接传给初始化就会成功。RAW_INIT_FACTS.json逐项记录偏移/字节。
+
+3. 配置公式与“毫秒”的条件
+0801195c先检tick_step非零；在08011970、0801197a两次调用无符号整数除法helper08010174：
+  q = floor(1000 / tick_step)
+  reload_plus_one = floor(clock_frequency_variable / q)
+然后调用0801244c；后者检查reload_plus_one-1在24位范围内，写E000E014=reload_plus_one-1、E000E018=0、E000E010=7。
+ARM官方CMSIS参考把这些地址对应SysTick LOAD/VAL/CTRL；CTRL=7使能内核时钟源、计数和中断。
+参考仅用于硬件寄存器语义，不把公开CMSIS版本当作原固件源码；来源和SHA见reference/PROVENANCE.json。
+
+当tick_step=1、频率变量与实际内核时钟一致、配置成功且SysTick中断正常被处理时：
+每floor(clock/1000)个核心周期发生一次tick，计数加1，因此是名义毫秒计数。精确1ms还要求频率可被1000整除。
+初始16MHz满足整除，生成reload=15999。若运行时改频但同步更新变量并重新配置，仍可保持名义单位；非整除时存在取整误差。
+080119f8修改tick_step后调用0801195c；失败只恢复旧step字节，不保证回滚SysTick寄存器。0801197e先调用0801244c，08011986才检查优先级小于4：若寄存器写入成功而优先级失败，可能留下新的reload与恢复的旧step。没有据此证明实机走过此路径，也没有把错误输入/分频切换称为安全保时回滚。本轮名义毫秒推导以初始化成功和默认step=1为条件。
+频率变量另有已识别写入点08014cf0、08014e64、0801527e；对应周边存在重新调用0801195c的引用。本轮没有逐分支恢复完整RCC/PLL切换流程。
+
+4. 对前一轮结论的修正
+USB的发送buffer门限500可以在上述条件下解释为名义500ms，USB缓存窗口8同理为名义8ms。
+但实际墙钟等待仍可能更长：中断延后/丢合并、关中断区、tick停止、实际时钟与变量不一致，都不能由计数门限排除。
+因此它不是“buffer调用实际必在500ms内返回”的证明，也不是实机测得的截止时延。
+这里校核的是USB软件计时，未测ADC CLKIN、DRDY或500Hz采样间隔；0x3c中的frequency=500仍不能代替实际采样频率测量。
+nonUSB的独立时基尚未在本补充核对，不用USB结果无条件覆盖两版。
+
+证据：usb-pass1..5原指令/伪代码/引用；RAW_INIT_FACTS.json；BYTE_VALIDATION.json；EVIDENCE_MAP.json。
+复核：python3 scripts/verify_bytes.py --research-root /path/to/full-research；只读原BBIN，依赖同增量内sensor-diff/scripts/verify_bytes.py。
+停止条件：已补默认USB tick的向量、增量、初始化字节与SysTick公式；RCC物理时钟、停tick和实际中断时延仍需进一步代码或实测。

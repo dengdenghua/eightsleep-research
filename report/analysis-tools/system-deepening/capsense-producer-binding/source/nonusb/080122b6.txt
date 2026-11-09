@@ -1,0 +1,44 @@
+TARGET 080122b6 function=080122b6
+REF_TO 08015508 UNCONDITIONAL_CALL owner=080152fe
+REF_TO 08015518 UNCONDITIONAL_CALL owner=080152fe
+REF_TO 0801554e UNCONDITIONAL_CALL owner=080152fe
+REF_TO 0801555e UNCONDITIONAL_CALL owner=080152fe
+REF_TO 0801b45a UNCONDITIONAL_CALL owner=0801b42c
+REF_TO 0801b478 UNCONDITIONAL_CALL owner=0801b42c
+REF_TO 0801b486 UNCONDITIONAL_CALL owner=0801b42c
+REF_TO 0801b494 UNCONDITIONAL_CALL owner=0801b42c
+REF_TO 0801b4a2 UNCONDITIONAL_CALL owner=0801b42c
+REF_TO 0801c74c UNCONDITIONAL_CALL owner=0801c730
+REF_TO 0801c766 UNCONDITIONAL_CALL owner=0801c730
+FUNCTION_BODY [[080122b6, 080122cf]]
+
+undefined4 FUN_080122b6(undefined1 *param_1,uint param_2,undefined4 param_3)
+
+{
+  undefined4 uVar1;
+  
+  uVar1 = 0;
+  if (3 < param_2) {
+    *param_1 = (char)((uint)param_3 >> 0x18);
+    param_1[1] = (char)((uint)param_3 >> 0x10);
+    param_1[2] = (char)((uint)param_3 >> 8);
+    param_1[3] = (char)param_3;
+    uVar1 = 4;
+  }
+  return uVar1;
+}
+
+
+INSN 080122b6 0300 movs r3,r0
+INSN 080122b8 0020 movs r0,#0x0
+INSN 080122ba 0329 cmp r1,#0x3
+INSN 080122bc 07d9 bls 0x080122ce REF[CONDITIONAL_JUMP:080122ce]
+INSN 080122be 110e lsrs r1,r2,#0x18
+INSN 080122c0 1970 strb r1,[r3,#0x0]
+INSN 080122c2 110c lsrs r1,r2,#0x10
+INSN 080122c4 5970 strb r1,[r3,#0x1]
+INSN 080122c6 110a lsrs r1,r2,#0x8
+INSN 080122c8 9970 strb r1,[r3,#0x2]
+INSN 080122ca da70 strb r2,[r3,#0x3]
+INSN 080122cc 0430 adds r0,#0x4
+INSN 080122ce 7047 bx lr

@@ -1,0 +1,99 @@
+TARGET 0800e250 function=0800e250
+REF_TO 0800e610 UNCONDITIONAL_CALL
+REF_TO 0800e420 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800e250, 0800e2ab]]
+
+void FUN_0800e250(int *param_1)
+
+{
+  bool bVar1;
+  uint uVar2;
+  
+  uVar2 = 0;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    uVar2 = isIRQinterruptsEnabled();
+  }
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts(1);
+  }
+  *(uint *)*param_1 = *(uint *)*param_1 & 0xfffffedf;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts((uVar2 & 1) == 1);
+  }
+  uVar2 = 0;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    uVar2 = isIRQinterruptsEnabled();
+  }
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts(1);
+  }
+  *(uint *)(*param_1 + 8) = *(uint *)(*param_1 + 8) & 0xeffffffe;
+  bVar1 = (bool)isCurrentModePrivileged();
+  if (bVar1) {
+    enableIRQinterrupts((uVar2 & 1) == 1);
+  }
+  if (param_1[0x1b] == 1) {
+    uVar2 = 0;
+    bVar1 = (bool)isCurrentModePrivileged();
+    if (bVar1) {
+      uVar2 = isIRQinterruptsEnabled();
+    }
+    bVar1 = (bool)isCurrentModePrivileged();
+    if (bVar1) {
+      enableIRQinterrupts(1);
+    }
+    *(uint *)*param_1 = *(uint *)*param_1 & 0xffffffef;
+    bVar1 = (bool)isCurrentModePrivileged();
+    if (bVar1) {
+      enableIRQinterrupts((uVar2 & 1) == 1);
+    }
+  }
+  param_1[0x23] = 0x20;
+  param_1[0x1b] = 0;
+  param_1[0x1d] = 0;
+  return;
+}
+
+
+INSN 0800e250 30b5 push {r4,r5,lr}
+INSN 0800e252 eff31084 mrs r4,primask
+INSN 0800e256 0122 movs r2,#0x1
+INSN 0800e258 82f31088 msr primask,r2
+INSN 0800e25c 0168 ldr r1,[r0,#0x0]
+INSN 0800e25e 134d ldr r5,[0x0800e2ac] REF[READ:0800e2ac=fffffedf]
+INSN 0800e260 0b68 ldr r3,[r1,#0x0]
+INSN 0800e262 2b40 ands r3,r5
+INSN 0800e264 0b60 str r3,[r1,#0x0]
+INSN 0800e266 84f31088 msr primask,r4
+INSN 0800e26a eff31081 mrs r1,primask
+INSN 0800e26e 82f31088 msr primask,r2
+INSN 0800e272 0268 ldr r2,[r0,#0x0]
+INSN 0800e274 0e4c ldr r4,[0x0800e2b0] REF[READ:0800e2b0=effffffe]
+INSN 0800e276 9368 ldr r3,[r2,#0x8]
+INSN 0800e278 2340 ands r3,r4
+INSN 0800e27a 9360 str r3,[r2,#0x8]
+INSN 0800e27c 81f31088 msr primask,r1
+INSN 0800e280 c36e ldr r3,[r0,#0x6c]
+INSN 0800e282 012b cmp r3,#0x1
+INSN 0800e284 0ad1 bne 0x0800e29c REF[CONDITIONAL_JUMP:0800e29c]
+INSN 0800e286 eff31081 mrs r1,primask
+INSN 0800e28a 83f31088 msr primask,r3
+INSN 0800e28e 1024 movs r4,#0x10
+INSN 0800e290 0268 ldr r2,[r0,#0x0]
+INSN 0800e292 1368 ldr r3,[r2,#0x0]
+INSN 0800e294 a343 bics r3,r4
+INSN 0800e296 1360 str r3,[r2,#0x0]
+INSN 0800e298 81f31088 msr primask,r1
+INSN 0800e29c 0300 movs r3,r0
+INSN 0800e29e 2022 movs r2,#0x20
+INSN 0800e2a0 8c33 adds r3,#0x8c
+INSN 0800e2a2 1a60 str r2,[r3,#0x0]
+INSN 0800e2a4 0023 movs r3,#0x0
+INSN 0800e2a6 c366 str r3,[r0,#0x6c]
+INSN 0800e2a8 4367 str r3,[r0,#0x74]
+INSN 0800e2aa 30bd pop {r4,r5,pc}

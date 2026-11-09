@@ -1,0 +1,61 @@
+FUNCTION 000369f8 BODY [[000369f8, 00036a41]]
+
+undefined4
+FUN_000369f8(undefined4 param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4,
+            undefined4 param_5)
+
+{
+  undefined4 *puVar1;
+  undefined4 *puVar2;
+  undefined4 uVar3;
+  undefined4 uStack_28;
+  
+  puVar1 = DAT_00036a44;
+  uStack_28 = param_4;
+  puVar2 = (undefined4 *)FUN_00030c58(*DAT_00036a44,&uStack_28);
+  if (puVar2 == (undefined4 *)0x0) {
+    uVar3 = 4;
+  }
+  else {
+    FUN_000264be(puVar2,0x1c);
+    *(undefined1 *)(puVar2 + 1) = 0;
+    *puVar2 = param_1;
+    puVar2[4] = param_2;
+    puVar2[5] = param_4;
+    puVar2[2] = param_5;
+    puVar2[3] = param_3;
+    FUN_00030c9a(*puVar1,&uStack_28);
+    FUN_000351d8();
+    uVar3 = 0;
+  }
+  return uVar3;
+}
+
+
+INSN 000369f8 2de9f84f push {r3,r4,r5,r6,r7,r8,r9,r10,r11,lr}
+INSN 000369fc 114d ldr r5,[0x00036a44] REF[READ:00036a44=36f88]
+INSN 000369fe 8846 mov r8,r1
+INSN 00036a00 8146 mov r9,r0
+INSN 00036a02 1e46 mov r6,r3
+INSN 00036a04 1746 mov r7,r2
+INSN 00036a06 6946 mov r1,sp
+INSN 00036a08 ddf828a0 ldr.w r10,[sp,#0x28] REF[READ:Stack[0x0]]
+INSN 00036a0c 2868 ldr r0,[r5,#0x0] REF[READ:00036f88=200055dc] REF[PARAM:200055dc]
+INSN 00036a0e faf723f9 bl 0x00030c58 REF[UNCONDITIONAL_CALL:00030c58]
+INSN 00036a12 0400 movs r4,r0
+INSN 00036a14 13d0 beq 0x00036a3e REF[CONDITIONAL_JUMP:00036a3e]
+INSN 00036a16 1c21 movs r1,#0x1c
+INSN 00036a18 eff751fd bl 0x000264be REF[UNCONDITIONAL_CALL:000264be]
+INSN 00036a1c 0020 movs r0,#0x0
+INSN 00036a1e 2071 strb r0,[r4,#0x4]
+INSN 00036a20 c4f80090 str.w r9,[r4,#0x0]
+INSN 00036a24 c4e90486 strd r8,r6,[r4,#0x10]
+INSN 00036a28 c4e902a7 strd r10,r7,[r4,#0x8]
+INSN 00036a2c 6946 mov r1,sp
+INSN 00036a2e 2868 ldr r0,[r5,#0x0] REF[READ:00036f88=200055dc] REF[PARAM:200055dc]
+INSN 00036a30 faf733f9 bl 0x00030c9a REF[UNCONDITIONAL_CALL:00030c9a]
+INSN 00036a34 fef7d0fb bl 0x000351d8 REF[UNCONDITIONAL_CALL:000351d8]
+INSN 00036a38 0020 movs r0,#0x0
+INSN 00036a3a bde8f88f pop.w {r3,r4,r5,r6,r7,r8,r9,r10,r11,pc}
+INSN 00036a3e 0420 movs r0,#0x4
+INSN 00036a40 fbe7 b 0x00036a3a REF[UNCONDITIONAL_JUMP:00036a3a]

@@ -1,0 +1,38 @@
+TARGET 0801076c function=0801076c
+FUNCTION_BODY [[0801076c, 08010791]]
+
+void analyst_normal_entry_0801076c(undefined4 param_1,undefined4 *param_2,undefined4 *param_3)
+
+{
+  undefined4 uVar1;
+  
+  uVar1 = param_2[1];
+  *param_3 = *param_2;
+  param_3[1] = uVar1;
+  if ((*(char *)((int)param_3 + 5) != '\0') && ((DAT_200020b0 - 4U < 2 || (DAT_200020b0 == 1)))) {
+    *(undefined1 *)((int)param_3 + 5) = 0;
+    *(undefined1 *)((int)param_3 + 6) = 1;
+  }
+  return;
+}
+
+
+INSN 0801076c 1300 movs r3,r2
+INSN 0801076e 10b5 push {r4,lr}
+INSN 08010770 11c9 ldmia r1!,{r0,r4}
+INSN 08010772 11c3 stmia r3!,{r0,r4}
+INSN 08010774 5379 ldrb r3,[r2,#0x5]
+INSN 08010776 002b cmp r3,#0x0
+INSN 08010778 0ad0 beq 0x08010790 REF[CONDITIONAL_JUMP:08010790]
+INSN 0801077a 064b ldr r3,[0x08010794] REF[READ:08010794=200020a4]
+INSN 0801077c db68 ldr r3,[r3,#0xc] REF[READ:200020b0]
+INSN 0801077e 191f subs r1,r3,#0x4
+INSN 08010780 0129 cmp r1,#0x1
+INSN 08010782 01d9 bls 0x08010788 REF[CONDITIONAL_JUMP:08010788]
+INSN 08010784 012b cmp r3,#0x1
+INSN 08010786 03d1 bne 0x08010790 REF[CONDITIONAL_JUMP:08010790]
+INSN 08010788 0023 movs r3,#0x0
+INSN 0801078a 5371 strb r3,[r2,#0x5]
+INSN 0801078c 0133 adds r3,#0x1
+INSN 0801078e 9371 strb r3,[r2,#0x6]
+INSN 08010790 10bd pop {r4,pc}

@@ -1,0 +1,178 @@
+{
+  "i2c": {
+    "bus_bindings": [
+      {
+        "bus": "2000ac00",
+        "hal": "20000b50",
+        "peripheral": "40005400",
+        "irq": 23,
+        "rx_dma_handle": "200009e8",
+        "rx_dma": "DMA1_CH3",
+        "tx_dma_handle": "20000988",
+        "tx_dma": "DMA1_CH4",
+        "complete": "08018ab4",
+        "error": "0801c64c"
+      },
+      {
+        "bus": "2000ad6c",
+        "hal": "20000acc",
+        "peripheral": "40005800",
+        "irq": 24,
+        "rx_dma_handle": "20000928",
+        "rx_dma": "DMA2_CH4",
+        "tx_dma_handle": "200008c8",
+        "tx_dma": "DMA2_CH5",
+        "complete": "08018d8c",
+        "error": "0801c660"
+      },
+      {
+        "bus": "2000aed8",
+        "hal": "20000a48",
+        "peripheral": "40008800",
+        "irq": 24,
+        "rx_dma_handle": "20000868",
+        "rx_dma": "DMA1_CH5",
+        "tx_dma_handle": "20000808",
+        "tx_dma": "DMA1_CH6",
+        "complete": "08018a98",
+        "error": "0801c674"
+      }
+    ],
+    "start_hal_to_wrapper": {
+      "0": "1, accepted",
+      "nonzero": "0801963c reset then 0, not accepted"
+    },
+    "normal": [
+      "08013988/13ac0 DMA start",
+      "08012990 DMA IRQ",
+      "0801310c/1315c DMA completion",
+      "08013320 I2C events",
+      "0801301c normal STOP",
+      "installed bus completion→bus+20=1",
+      "0801c688 main request callback"
+    ],
+    "error": [
+      "08013c7a BERR/ARLO/OVR with ERRIE, or 08013320 NACK, or 080130f4 DMA error",
+      "08012f2c cleanup and optional asynchronous DMA abort",
+      "08012f0c/08012ee4 error callback",
+      "0801c598 writes bus+20=2; optional recovery when timer age>=10000",
+      "0801c688 skips sensor callback"
+    ],
+    "error_masks": {
+      "hardware_ISR_100": "HAL1 BERR",
+      "hardware_ISR_200": "HAL2 ARLO",
+      "hardware_ISR_400": "HAL8 OVR",
+      "transaction_NACK_10": "HAL4",
+      "DMA_error": "HAL16"
+    },
+    "boundary": "DMA completion, I2C completion and sensor callback are distinct; hardware event timing and all HAL modes are not simulated."
+  },
+  "spi": {
+    "wrappers": {
+      "0801a134": {
+        "handle": "20000c74",
+        "base": "40003800",
+        "name": "SPI2"
+      },
+      "0801a164": {
+        "handle": "20000d00",
+        "base": "40013000",
+        "name": "SPI1"
+      },
+      "0801a194": {
+        "handle": "20000be8",
+        "base": "40003c00",
+        "name": "SPI3"
+      }
+    },
+    "transfer": "080158d4",
+    "timeout_argument_ticks": 2,
+    "hal_to_wrapper": {
+      "0": 0,
+      "nonzero": 1,
+      "not_initialized": 1
+    },
+    "end_checks": [
+      "TX_FIFO_level==0",
+      "BSY==0",
+      "RX_FIFO_level==0"
+    ],
+    "meaning": "SPI wrapper 0 means success; inverse polarity to I2C start wrapper."
+  },
+  "drdy": {
+    "adc_legacy": [
+      "PD2 low",
+      "PB0 low"
+    ],
+    "adc_new": [
+      "PD11 low",
+      "PE2 low"
+    ],
+    "imu": [
+      "PE8 high",
+      "PE9 high",
+      "PC10 high",
+      "PC11 high"
+    ],
+    "sensor_update_gates": [
+      "GPIO gate",
+      "successful SPI operation",
+      "register ready bits"
+    ],
+    "physical_wiring_verified": false
+  },
+  "boards": {
+    "table": "0802fbc8",
+    "records": 14,
+    "selection": "all threshold<=hwrev in file order",
+    "model": "Only six SPI device descriptors; not all SKU or mode gates.",
+    "production_info": "0807f804 outside supplied BBIN file-backed range"
+  },
+  "internal_adc": {
+    "hal": "2000075c",
+    "peripheral": "40012400",
+    "dma_handle": "200006fc",
+    "dma_peripheral": "4002041c DMA2_CH2",
+    "irq": 11,
+    "chain": [
+      "080120bc",
+      "DMA2_CH2 TC→08012990",
+      "08011a64",
+      "ADC+64→080223a0",
+      "200026e8 completion_count++"
+    ],
+    "error_chain": [
+      "DMA TE→08011aea",
+      "ADC state|=0x40/error|=4",
+      "ADC+70 error callback"
+    ],
+    "boundary": "Separate internal thermal ADC; not external ADS SPI freshness."
+  },
+  "spi_msp": {
+    "default": "080112c0",
+    "selected_A00_A10_A30": "08019944 via each handle+84",
+    "selected_A05_A33_and_later_USB": "08019a20 via each handle+84",
+    "pins_19944": {
+      "SPI1": "PB3/4/5",
+      "SPI2": "PD1/3/4"
+    },
+    "pins_19a20": {
+      "SPI1": "PE13/14/15",
+      "SPI2": "PD1/3/4",
+      "SPI3": "PB3/4/5"
+    },
+    "physical_board_verified": false
+  },
+  "timebase": {
+    "gettick": "080119ec reads2000121c",
+    "systick": "vector15→080114a2→080119d4 adds20000258",
+    "requested_step": 1,
+    "nominal_config": "SysTick reload based on SystemCoreClock/(1000/step), successful init; actual timing not measured"
+  },
+  "excluded": [
+    "shared-log formatting/reentrancy analysis",
+    "malformed protocol input",
+    "memory corruption or exploit development",
+    "hardware/account/API access"
+  ]
+}

@@ -1,0 +1,52 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+官方中国 App 原生入口边界：libjutils
+日期：2026-11-07；只做静态读取、反汇编与常量解码。未加载/执行目标库，未请求动态库或用户/设备 API。
+
+结论
+本轮把 JNAction 的 Java/Smali 调用者、libjutils 的本地映射和条件下载链对齐。直接调用传递极光 SDK 的 appKey、uid、模式与配置字符串，尚无证据将该入口连接到 Pod 压电波形、分期或温控目标生成。此结论限定已恢复入口；没有用库名或未命中关键词来证明整个库不含其他算法。
+
+样本与范围
+官方中国 APK7.63.5 SHA256：8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+原始 APK 内 lib/arm64-v8a/libjutils.so，1524368字节，ELF64 little-endian AArch64；SHA256 6feae144b1848ff429b2a7df3ecd7b4aedd781a8859290fd09a662749ac69308。
+jutils.version 独立段给出 v=1.4.4、p=aarch64-linux-android；这只是 SDK 库版本，不能当作 Pod 固件/分期模型版本。
+完整性与证据：core-entry-boundary/SOURCE_LEDGER.json、NATIVE_STATIC_AUDIT.json。当前 APK 索引462a22f663ae482ea93bab3130b96eaf。所有关键调用判断有编译后 Smali，JADX只作对照。
+
+N1 实际生产者/消费者
+JNAction声明 i(String,long,int)、s(String,long,int,String)、v()String、r(String)byte[]、a/w(String,String)boolean、d(String)boolean。
+当前全索引 Smali 精确直接引用检索返回3处，has_more=false：en调用 i、s、v。load/loadPath另经反射，不能把3处表述成全部反射/原生调用。
+- SDK登录处理dt.e()调用en.a()；加载成功后的en.g()取得bx.h()，后者读取名为appKey的SDK字段。bx.e()取得SDK uid；与上次uid比较避免重复初始化。i收到appKey、uid和由bg.b()选择的1/2模式值。
+- fd.b(int,JSONObject)提取s_c，连同appKey、SDK uid和code传给en，再转给native s。未把通用JSON字符串内容臆断成传感数据；配置的全部后端语义尚未恢复。
+- v经en.d()提供给SDK版本/下载报告。它在本样本映射到返回版本字符串的入口，原生常量1.4.4与版本段相符。
+这些直接参数源与先前已恢复的piezo样本流、Trends阶段DTO、温度请求链不同；未发现把它们连起来的生产者/消费者证据。
+依据：jni-declarations、jni-direct-references、sdk-appkey、sdk-uid、sdk-init、sdk-config-source/forward、sdk-version、sdk-login等canonical查询。
+
+N2 本地加载与动态替换边界
+en.a()按em.c()选择加载方式；SharedPreferences布尔读取默认false，不能由默认值认定某个实机永远不开动态加载。
+本地路径为JNAction.load()→System.loadLibrary("jutils")；动态路径为JNAction.loadPath(path)→System.load(path)。这里只记录目标代码，分析过程没有调用这些入口。
+ei检查本地候选文件和缓存摘要；缺失/不匹配则安排下载worker。eh静态代码获取压缩数据、验证摘要、解压、检查7f454c46 ELF魔数，写文件后再校验。ej仅在load标志为true时调用路径加载；指定的失败分支在此标志为true时回退本地库。没有将校验代码视作设备上实际下载成功的证据。
+因此APK的原生库并不覆盖未来/实机已替换的所有原生内容。没有下载这条SDK地址上的运行时文件，也没有发现其为Eight Sleep生理模型的证据。
+依据：sdk-load-choice/static-load/path-load/reflection、loader-enabled/local/worker/hash-unpack/download。
+
+N3 从原ELF恢复JNI映射
+原ELF仅导出JNI_OnLoad，不能靠Java_*导出名追方法。其52个.init_array入口中的已验证直线常量处理，调用逐字节XOR例程。inspect_native.py从文件偏移提取操作数、确认例程机器码和原始指令，静态还原3592个数据块；不执行/仿真目标指令，不改原库。
+JNI_OnLoad先尝试5个类名，包含cn/jiguang/internal/JNAction和其他SDK兼容名。恢复的候选方法表如下（地址均为ELF虚拟地址，不是实机ASLR地址）：
+  i  (String,long,int)void                 0xadc44
+  s  (String,long,int,String)void          0xa0e7c
+  v  ()String                             0xadcc4
+  gs (String)String                       0xa4f78
+  r  (String)byte[]                       0xa4f58
+  w  (String,String)boolean               0xa4f68
+  a  (String,String)boolean               0xa4f68
+  d  (String)boolean                      0xa4f70
+其中gs不在本APK的JNAction声明中。前两个入口先进入表，后六个经静态方法查询成功才加入注册集合，不能把8个候选当作本APK必定注册8个方法。
+对应JNI表偏移为FindClass 0x30、GetStaticMethodID 0x388、RegisterNatives 0x6b8；64位指针对应规范索引6、113、215。名称、签名、相对重定位与JNI_OnLoad寄存器/内存写入一起支持该映射。
+a/w所指0xa4f68、d所指0xa4f70机器码均为 mov w0,wzr; ret，因此这三个本样本入口返回false。这不是对运行时替换库的承诺。i/s/r/gs的完整内部语义没有在本报告恢复。
+原始反汇编、局部摘录、常量解码账本和所有原始区间哈希都保留。JNI标准依据：
+https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#getstaticmethodid
+https://docs.oracle.com/en/java/javase/21/docs/specs/jni/functions.html#registernatives
+
+对原任务的影响
+已把剩余可疑native入口推进到实际SDK输入与本地函数地址，但没有新取得Pod6生产生理特征、分期权重或云温控策略。Pod5/Pod6共用MT8365仍按用户确认保留；本APK的arm64库不是Pod主控固件，不能用它作硬件代际证据。
+继续需要的是有Pod6部署/版本绑定的处理实现、模型与通道标定。官方论文/专利有界补查见sleep-pipeline/MODEL_SOURCE_FOLLOWUP_ZH.txt。

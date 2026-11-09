@@ -1,0 +1,106 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+char FUN_08021d58(int param_1,uint param_2,undefined4 param_3,undefined4 param_4)
+
+{
+  char cVar1;
+  int iVar2;
+  undefined4 uVar3;
+  undefined4 uVar4;
+  undefined4 uVar5;
+  undefined4 uVar6;
+  undefined4 *puVar7;
+  
+  cVar1 = *(char *)(param_1 + 0x5c);
+  if (cVar1 != '\0') {
+    if (param_2 < 10) {
+      iVar2 = FUN_0801053c(param_3,0);
+      if ((iVar2 == 0) && (iVar2 = FUN_0801053c(param_4,0), iVar2 == 0)) {
+        puVar7 = (undefined4 *)(param_1 + param_2 * 8);
+        *puVar7 = param_3;
+        puVar7[1] = param_4;
+        uVar3 = FUN_08016f60(param_3,100);
+        uVar4 = FUN_08016f6e(param_3,100);
+        uVar5 = FUN_08016f60(param_4,100);
+        uVar6 = FUN_08016f6e(param_4,100);
+        FUN_08017634("[tolerance_bins] bin %u: arrival=%s%u.%02u kPa, departure=%s%u.%02u kPa",
+                     param_2,"",uVar3,uVar4,"",uVar5,uVar6);
+        return cVar1;
+      }
+      FUN_08017634("[tolerance_bins] negative tolerances not allowed");
+    }
+    else {
+      FUN_08017634("[tolerance_bins] invalid bin_index %u (must be 0-9)");
+    }
+  }
+  return '\0';
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08021d58 f0b5 push {r4,r5,r6,r7,lr}
+08021d5a 1d1c adds r5,r3,#0x0
+08021d5c 0300 movs r3,r0
+08021d5e 87b0 sub sp,#0x1c
+08021d60 0490 str r0,[sp,#0x10]
+08021d62 5c33 adds r3,#0x5c
+08021d64 1f78 ldrb r7,[r3,#0x0]
+08021d66 0c00 movs r4,r1
+08021d68 161c adds r6,r2,#0x0
+08021d6a 002f cmp r7,#0x0
+08021d6c 03d1 bne 0x08021d76
+08021d6e 0027 movs r7,#0x0
+08021d70 3800 movs r0,r7
+08021d72 07b0 add sp,#0x1c
+08021d74 f0bd pop {r4,r5,r6,r7,pc}
+08021d76 0929 cmp r1,#0x9
+08021d78 03d9 bls 0x08021d82
+08021d7a 1c48 ldr r0,[0x08021dec]
+08021d7c f5f75afc bl 0x08017634
+08021d80 f5e7 b 0x08021d6e
+08021d82 0021 movs r1,#0x0
+08021d84 101c adds r0,r2,#0x0
+08021d86 eef7d9fb bl 0x0801053c
+08021d8a 0028 cmp r0,#0x0
+08021d8c 05d1 bne 0x08021d9a
+08021d8e 0021 movs r1,#0x0
+08021d90 281c adds r0,r5,#0x0
+08021d92 eef7d3fb bl 0x0801053c
+08021d96 0028 cmp r0,#0x0
+08021d98 03d0 beq 0x08021da2
+08021d9a 1548 ldr r0,[0x08021df0]
+08021d9c f5f74afc bl 0x08017634
+08021da0 e5e7 b 0x08021d6e
+08021da2 049a ldr r2,[sp,#0x10]
+08021da4 e300 lsls r3,r4,#0x3
+08021da6 d318 adds r3,r2,r3
+08021da8 1e60 str r6,[r3,#0x0]
+08021daa 5d60 str r5,[r3,#0x4]
+08021dac 6421 movs r1,#0x64
+08021dae 301c adds r0,r6,#0x0
+08021db0 f5f7d6f8 bl 0x08016f60
+08021db4 6421 movs r1,#0x64
+08021db6 0490 str r0,[sp,#0x10]
+08021db8 301c adds r0,r6,#0x0
+08021dba f5f7d8f8 bl 0x08016f6e
+08021dbe 6421 movs r1,#0x64
+08021dc0 0590 str r0,[sp,#0x14]
+08021dc2 281c adds r0,r5,#0x0
+08021dc4 f5f7ccf8 bl 0x08016f60
+08021dc8 6421 movs r1,#0x64
+08021dca 0600 movs r6,r0
+08021dcc 281c adds r0,r5,#0x0
+08021dce f5f7cef8 bl 0x08016f6e
+08021dd2 059b ldr r3,[sp,#0x14]
+08021dd4 074a ldr r2,[0x08021df4]
+08021dd6 084d ldr r5,[0x08021df8]
+08021dd8 0390 str r0,[sp,#0xc]
+08021dda 0093 str r3,[sp,#0x0]
+08021ddc 2100 movs r1,r4
+08021dde 2800 movs r0,r5
+08021de0 049b ldr r3,[sp,#0x10]
+08021de2 0296 str r6,[sp,#0x8]
+08021de4 0192 str r2,[sp,#0x4]
+08021de6 f5f725fc bl 0x08017634
+08021dea c1e7 b 0x08021d70

@@ -1,0 +1,15 @@
+namespace Eight.PulseAudio;
+
+public enum pa_sink_flags_t : uint
+{
+	PA_SINK_NOFLAGS = 0u,
+	PA_SINK_HW_VOLUME_CTRL = 1u,
+	PA_SINK_LATENCY = 2u,
+	PA_SINK_HARDWARE = 4u,
+	PA_SINK_NETWORK = 8u,
+	PA_SINK_HW_MUTE_CTRL = 0x10u,
+	PA_SINK_DECIBEL_VOLUME = 0x20u,
+	PA_SINK_FLAT_VOLUME = 0x40u,
+	PA_SINK_DYNAMIC_LATENCY = 0x80u,
+	PA_SINK_SET_FORMATS = 0x100u
+}

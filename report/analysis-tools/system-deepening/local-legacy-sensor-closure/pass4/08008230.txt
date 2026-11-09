@@ -1,0 +1,54 @@
+TARGET 08008230 function=08008230
+REF_TO 0800aa16 UNCONDITIONAL_CALL owner=0800a860
+REF_TO 0800a180 UNCONDITIONAL_CALL owner=0800a14c
+FUNCTION_BODY [[08008230, 0800826b]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_08008230(byte *param_1)
+
+{
+  byte bVar1;
+  int iVar2;
+  int iVar3;
+  
+  bVar1 = *param_1;
+  iVar2 = (bVar1 & 3) << 3;
+  iVar3 = (uint)(bVar1 >> 2) * 4;
+  *(uint *)(iVar3 + -0x1fff1c00) =
+       ((param_1[1] & 3) << 6) << iVar2 | *(uint *)(iVar3 + -0x1fff1c00) & ~(0xff << iVar2);
+  _DAT_e000e100 = 1 << (bVar1 & 0x1f);
+  return;
+}
+
+
+INSN 08008230 f0b5 push {r4,r5,r6,r7,lr}
+INSN 08008232 ff27 movs r7,#0xff
+INSN 08008234 0321 movs r1,#0x3
+INSN 08008236 3e00 movs r6,r7
+INSN 08008238 0478 ldrb r4,[r0,#0x0]
+INSN 0800823a c025 movs r5,#0xc0
+INSN 0800823c 2140 ands r1,r4
+INSN 0800823e c900 lsls r1,r1,#0x3
+INSN 08008240 8e40 lsls r6,r1
+INSN 08008242 a208 lsrs r2,r4,#0x2
+INSN 08008244 094b ldr r3,[0x0800826c] REF[READ:0800826c=e000e100]
+INSN 08008246 9200 lsls r2,r2,#0x2
+INSN 08008248 ad00 lsls r5,r5,#0x2
+INSN 0800824a d218 adds r2,r2,r3
+INSN 0800824c 5359 ldr r3,[r2,r5]
+INSN 0800824e b343 bics r3,r6
+INSN 08008250 1e00 movs r6,r3
+INSN 08008252 4378 ldrb r3,[r0,#0x1]
+INSN 08008254 9b01 lsls r3,r3,#0x6
+INSN 08008256 3b40 ands r3,r7
+INSN 08008258 8b40 lsls r3,r1
+INSN 0800825a 3343 orrs r3,r6
+INSN 0800825c 5351 str r3,[r2,r5]
+INSN 0800825e 1f23 movs r3,#0x1f
+INSN 08008260 1c40 ands r4,r3
+INSN 08008262 1e3b subs r3,#0x1e
+INSN 08008264 a340 lsls r3,r4
+INSN 08008266 014a ldr r2,[0x0800826c] REF[READ:0800826c=e000e100]
+INSN 08008268 1360 str r3,[r2,#0x0] REF[WRITE:e000e100]
+INSN 0800826a f0bd pop {r4,r5,r6,r7,pc}

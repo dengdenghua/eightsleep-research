@@ -1,0 +1,15 @@
+气囊R12跨侧配置更新：保存锁与整记录替换（2026-11-08）
+范围：官方MTK内托管气囊主控的既有C#/IL复核；无设备、账号、串口、原厂程序集执行。不是MCU Fault生产者。
+
+新结果：saveGate仅保护Save中的序列化/写盘；调用者的get Configuration、record Clone、改单侧字段、替换Configuration没有被同一锁包住。
+FirmnessReadyState.SaveTargetFirmness的IL_0006读配置、IL_004b/005a Clone、IL_0052/0061改单侧字段、IL_006e更新整个记录；PodConifgurationManager.UpdateConfiguration IL_0002先set、IL_0008再Save，Save IL_0006才Wait，IL_000c读取当前全局Configuration。
+既有证据已确认manager为单例、每侧Ready锁互不共享。以上不代表全部实际请求一定并行，只给可发生的有限先后次序条件。
+
+选定见证：两侧都从{L:0,R:0}读取；左侧克隆/设L1→替换→成功保存；右侧随后用较早快照克隆/设R1→替换→成功保存。最终RAM及磁盘为{L:0,R:1}。两个保存均成功，也不证明两个逻辑字段更新都保留。
+这可以在不发生磁盘异常、不重叠文件写的顺序下出现，因此.tmp+Flush+Move的持久化策略本身不保证read-modify-write无丢失。
+20个三步/侧的交错（读、克隆替换、成功序列化保存），12个丢一侧更新，8个同时保留；数字是指定状态空间计数，绝不是60%现场概率。保存被抽象成一个原子成功步骤，未包括保存过程中的再次赋值、序列化交错、文件错误或内存模型证明。
+
+该结果仅解释保存的配置。SendFirmnessCommand在SaveTargetFirmness后继续下游发送，真实气囊可能接受过与最终R12不同的目标；不能由模型推定实际串口发送、压力、阀泵效果或实机重连结果。
+同进程重连读manager内存，进程重启读磁盘；这两条既有路径可受最终保存快照影响，未构成现场复现。
+
+原始DLL身份和bundle对应沿用source/SOURCE_LEDGER.json及VERIFICATION.json；本轮复制的完整C#/IL与原文件哈希见MANIFEST。模型run_cases.py可复跑；没有修补或执行原厂程序。

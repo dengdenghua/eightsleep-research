@@ -1,0 +1,91 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+原生闹钟与温控交互：限定静态审计
+日期：2026-11-07
+根目录 R=${RESEARCH_ROOT}
+对象：R/mediatek/rootfs-selected/opt/eight/bin/frankenfirmware
+SHA256=84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375
+配套：同包 DAC shipped JS、Capybara/Eight.DAC DLL 的既有 ILSpy 反编译结果。
+本报告所有地址为 Ghidra imageBase 0x00100000；C 文件是静态伪代码，不是原厂源码。
+本轮未执行固件、未连接设备/账户/云 API。SignalHost 用 -noanalysis -readOnly，已退出。
+主控 MT8365 为用户确认 Pod5/Pod6 共用条件；本报告不借芯片或共享包绑定具体国行 SKU。
+
+结论
+
+已闭合的原生 alarm.cbr→六个 alarm task→触发/结束回调，是振动控制链：三类 Sensor、Pillow、UsbSensor 的回调最终发送 opcode 0x2c。启动、到期、ALARM_CLEAR 的这些回调没有读写 Thermostat 目标、启停或“原目标快照”。因此不能把原生 ALARM_CLEAR 解释为“关掉加热”，也不能据这条链称固件实现了一个本地温度唤醒曲线。
+
+但“停止闹钟会影响温控”有明确正向证据：已注册的 BLE DismissAlarmCharacteristic 在 alarmL/R/S 设置后，依次发送对应侧 Heat="0" 和 Level="0"；solo 两侧均发。Heat=0 关闭该侧控制并取消计时，Level=0 经本包 FrozenTempLevels 映射为内部 27℃目标（不是0℃），本身不会重新开启控制。未连接外围设备时 level setter 拒绝并保持关闭，不能保证每次都写入27℃。这些是逐条请求，不是原子事务；传输异常可中断后续步骤，且调用封装没有检查返回的 responseCode。
+
+BLE Dismiss、主机硬件按钮的 DismissAlarm、原生 TTC dismiss、BLE Snooze 是不同入口，不能互换推论。已审链里没有“闹钟结束后恢复先前温控目标/启用状态”的快照与恢复实现。后续外部 heat/level 命令仍可以改写同一 Thermostat；服务器收到 dismiss 通知后会怎样响应，包内没有展示。
+
+一、真实注册、持久化和数据结构 [A01–A03]
+
+DAC utils.js 把 alarmL/R/S 映射为编号 5/6/17，ALARM_CLEAR=16。原生 setup 00185920 注册 5→00186d60，6→00187010，17→00186874，16→001852d4→00185024。不是仅凭字符串猜入口。
+
+setup 还调用 00185510 读 alarm.cbr，再由 0019e1f0 应用左右设置。读取上限0x400字节，缺失/读取/解析失败走空设置；保存经00184310→0019a480→0019a2d0。配套 BLE 明确从 /persistent/alarm.cbr 读取同格式；本轮没有读取任何用户实时闹钟文件。
+
+每侧设置为48字节（含C++ string）：
+  +0x00 tt : u32，Unix触发秒
+  +0x04 du : u32，持续秒
+  +0x08 pl : u8，振动功率字段
+  +0x0c di : u32，抑制/忽略截止秒（名称按行为解释，不把缩写臆解为原厂全称）
+  +0x10 pi : std::string，模式
+CBOR序列化确实输出tt/du/pl/di/pi；解析时tt/du/pl/pi必需，di缺失默认0。左右外层映射为left/right。没有温度目标、温控开关、旧目标备份字段。
+
+二、触发与结束回调：已经排除这条特定链的温控副作用 [A04–A06]
+
+初始化0017a7b0把左右三类工厂注入全局alarm对象005e3308：
+  Sensor工厂vtable0058da58+0x10→00199cd0；side回调0058da30+0x10→00190060→00204750。
+  Pillow工厂vtable0058daa8+0x10→00199b60；side回调0058da80+0x10→00190050→0021d880。
+  UsbSensor工厂vtable0058daf8+0x10→001999f0；side回调0058dad0+0x10→00190040→00278270。
+每类左右各一task。工厂保存的side对象指向实际Sensor/Pillow/UsbSensor实例，不是Thermostat。左右setter 0019d830/0019dd00重建对应三项task。
+
+0018a510逐轮调用六个0019a6d0 task tick。工厂安装的clock是thunk00252b10，经0018eab0间接调用；00252b10=system_clock::now()/1e9。tick的有效条件是now>=tt、now>=di且(tt+du-now)>0：
+  - 有效且本task尚未触发这个tt时，回调(power,pattern,remaining_seconds)。
+  - 不满足条件时，若还未发stop，回调(power,pattern,0)，并记已stop。
+  - 触发去重用tt，stop去重另有标志；重建task将这些状态清零。
+三端点都把功率、模式和持续时长编入0x2c；设备能力/连接检查可阻止发送。持续时长0是这里的结束命令，不是Thermostat关闭。00190040/50是尾调用，伪代码漏写参数；汇编保留x1–x3，可确认调用者的power/pattern/duration传给端点。
+
+这一结论有对象构造、vtable、callee和实际opcode互证；不是“没搜到heat字符串”的负面结论。仍仅限已注册的alarm设置和这六个task，不宣布整个二进制或后端没有其他温度唤醒能力。
+
+三、ALARM_CLEAR、TTC dismiss与延后 [A07–A10]
+
+ALARM_CLEAR16调用00185024，左右设置先经00182ec0：只有now位于[tt,tt+du)时，把di设成tt+du，其他字段保留；不在窗内则保留既有di。随后应用左右setter并保存alarm.cbr。task下一轮进入stop分支；该函数不调用Thermostat，也不删除未来所有闹钟。
+
+每侧alarmL/R设置还有一个明确覆盖规则：新tt与当前tt相同且当前di!=0时返回0，不重新应用（00186d60/00187010）。因此普通重复下发同tt不能解除已忽略状态；不同tt可进入替换路径。这里不把复杂solo比较外推成完全相同规则。
+
+主机GPIO短按：ButtonService把配对按钮Up且间隔<4秒映射为名为Snooze的事件，但调用的是dac.DismissAlarm()。Eight.DAC发送type=dismissAlarm→DAC capybaraLoop→clearAlarm→ALARM_CLEAR16。此条路径没有附加heat/level，也没有延后分钟数；不能因为枚举名叫Snooze就说它重新安排闹钟。
+
+USB侧TTC的handleVibrationAlarm（0027b5b0）另行清空选定左/右/solo的内存alarm设置并运行相关stop回调，记录dismiss时间/通知；posture模式存在不允许dismiss的分支。已审该函数没有heat/level写入；本函数也没有调用alarm.cbr保存函数，不能把其重启后的持久效果与ALARM_CLEAR等同。DAC processAlarmDismiss把通知交给远端dismissNotification；这不是在本地执行BLE Dismiss的证据。TTC温度up/down则走独立00277cb0→001dc260，修改当前已开启且外围在线的温控目标；二者应分开。
+
+BLE Snooze已在BleWorker注册：读取/persistent/alarm.cbr，保留pl/pi，设du=600、tt=当前Unix秒+Minutes，按侧调用alarmL/R/S（solo使用left数据）；允许的实际条件为1..10分钟。音频正在以alarm来源播放时还发TimedPauseRequest。此实现没有heat/level调用，没有保存或恢复旧温度。
+
+延后还有一个应保留的静态条件边界：00182d60对orbit、orbit_5erm、orbit_4erm、posture4四种pi，在|tt-now|<121秒时把tt改为now。因此若BLE Snooze携带这四种模式且延后1或2分钟、请求及时处理，原生检查可能把它折回立即触发。此为两段代码组合的条件推演，不是设备实测；其他模式、较长延后不由此条件推出同样结果。它不构成温度恢复机制。
+
+四、明确的温控副作用与来源覆盖 [A11–A13]
+
+BLE DismissAlarmCharacteristic.cs的顺序：
+  right：alarmR({pl:0,du:600,tt:0,pi:"double"}) → rightHeat("0") → rightLevel("0")
+  left ：alarmL(同上) → leftHeat("0") → leftLevel("0")
+  solo ：alarmS(同上) → leftHeat("0") → leftLevel("0") → rightHeat("0") → rightLevel("0")
+它还对正在播放的alarm来源音频发SlowFade StopRequest。BleWorker实际把该特征放入GATT列表；Eight.DAC.CallFunction发送type=callFunction并等待回复，DAC FunctionCall分支复用onFuncRequest，再经编号映射进Frank。
+
+Heat命令进入001dcbc4→001db1a0，关闭时清该侧expiry并置enabled=0、dirty=1。Level进入001dccf0→001db550，换算为℃后直接写同一目标字段左+0x120/右+0x130，并置dirty；没有“因来自闹钟而临时覆盖”的来源字段。每次heat/level回调均调用001dc6c0保存heat/state1.dat，后续通过既有Thermostat→Frozen cmd0x40链送出。level0→27℃见0018e8c0与FrozenTempLevels常量；这一数值是内部控制目标，不是床面温度实测。
+
+来源/顺序只能在已见链上作如下判断：
+  1) 已接受的cloud FunctionCall、BLE FunctionCall使用同一heat/level回调；注册表没有按“闹钟/用户/云”分开的温控目标槽或source priority参数。
+  2) 原生alarm task启动/到期/clear没有在这个槽里保存旧值、覆盖目标或恢复目标。
+  3) BLE Dismiss明确写off与level0，后续另一个成功level请求可改同一目标；level本身不重新开heat，另一个成功非零heat请求才可开启/续期。不能把几条await请求称不可打断的事务。
+  4) 外围断开、计时到期有关闭分支；tapAdjust有启用/在线门控。这些是已见执行约束，不是一个完整的全局优先级算法。
+  5) 本地TemperatureScheduler也有state回调，但现版now_calendar是stub、设置可达性有边界（LOCAL_BACKUP_ZH.txt）。这不影响本报告已证明用Unix clock单独tick的alarm。不能由scheduler的stub推导所有alarm都不工作。
+  6) 未观察到alarm结束后对前一个target/heat状态的自动恢复。heat/state1.dat是当前状态持久化，不等于每次alarm前的栈式快照；BLE Dismiss写入后也会通过普通保存路径更新它。
+
+五、覆盖范围、限制与复核入口
+
+本次正向覆盖：IPC注册→alarm.cbr解析/保存→六任务构造→clock/tick→三个实际设备发送端点；ALARM_CLEAR；USB TTC dismiss与独立温度gesture；已注册BLE Dismiss/Snooze；GPIO Dismiss；heat/level setter与已见callers。主结论是入口差异与“BLE Dismiss确有温控副作用”，不是全应用/全云行为不存在的证明。
+未执行完整固件/模型、未在实物验证触发时刻、振动、温度、水泵或断网表现；未追后端收到dismiss后的策略，也没有把官方“温度闹钟”宣传代替代码证据。shared image里的代码可达路径不能单独证明某个SKU启用了全部外围类型。
+
+机器可审来源ledger：analysis/signal-host/alarm/source-ledger.json（A01–A13，逐文件SHA256及行范围）。
+新增原生导出：alarm/、alarm/flow/、alarm/callbacks/、alarm/endpoints/；对应export*.log记录只读headless。
+可复跑只读常量提取：python3 analysis/signal-host/alarm/extract_static_tables.py；核验固定SHA后输出六个vtable目标、CBOR键与四个immediate模式。该脚本只读ELF，不加载执行目标代码。

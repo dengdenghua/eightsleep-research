@@ -1,0 +1,54 @@
+TARGET 080187d8 function=080187d8
+REF_TO 0801cdbc UNCONDITIONAL_CALL
+REF_TO 0801d56a UNCONDITIONAL_CALL
+FUNCTION_BODY [[080187d8, 08018815]]
+
+void FUN_080187d8(int param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4)
+
+{
+  int iVar1;
+  uint uVar2;
+  
+  iVar1 = 0;
+  do {
+    uVar2 = *(uint *)(param_1 + 0x1884 + iVar1 * 4);
+    FUN_08012754("[reset%s] imu%u soft resets: %u",param_2,iVar1,uVar2,param_4);
+    if (0x19 < uVar2) {
+      FUN_08012754("[reset%s] no more imu%u soft resets",param_2,iVar1);
+      *(undefined1 *)(param_1 + 0x19e8 + iVar1 * 0xa8) = 1;
+    }
+    iVar1 = iVar1 + 1;
+  } while (iVar1 != 4);
+  return;
+}
+
+
+INSN 080187d8 f8b5 push {r3,r4,r5,r6,r7,lr}
+INSN 080187da 0500 movs r5,r0
+INSN 080187dc 0e00 movs r6,r1
+INSN 080187de 0024 movs r4,#0x0
+INSN 080187e0 0d4b ldr r3,[0x08018818] REF[READ:08018818=1884]
+INSN 080187e2 a200 lsls r2,r4,#0x2
+INSN 080187e4 eb18 adds r3,r5,r3
+INSN 080187e6 9f58 ldr r7,[r3,r2]
+INSN 080187e8 3100 movs r1,r6
+INSN 080187ea 3b00 movs r3,r7
+INSN 080187ec 2200 movs r2,r4
+INSN 080187ee 0b48 ldr r0,[0x0801881c] REF[READ:0801881c=8025fd5] REF[PARAM:08025fd5=7365725b]
+INSN 080187f0 f9f7b0ff bl 0x08012754 REF[UNCONDITIONAL_CALL:08012754]
+INSN 080187f4 192f cmp r7,#0x19
+INSN 080187f6 0ad9 bls 0x0801880e REF[CONDITIONAL_JUMP:0801880e]
+INSN 080187f8 2200 movs r2,r4
+INSN 080187fa 3100 movs r1,r6
+INSN 080187fc 0848 ldr r0,[0x08018820] REF[READ:08018820=8025ff5] REF[PARAM:08025ff5=7365725b]
+INSN 080187fe f9f7a9ff bl 0x08012754 REF[UNCONDITIONAL_CALL:08012754]
+INSN 08018802 a822 movs r2,#0xa8
+INSN 08018804 0121 movs r1,#0x1
+INSN 08018806 6243 muls r2,r4
+INSN 08018808 064b ldr r3,[0x08018824] REF[READ:08018824=19e8]
+INSN 0801880a eb18 adds r3,r5,r3
+INSN 0801880c 9954 strb r1,[r3,r2]
+INSN 0801880e 0134 adds r4,#0x1
+INSN 08018810 042c cmp r4,#0x4
+INSN 08018812 e5d1 bne 0x080187e0 REF[CONDITIONAL_JUMP:080187e0]
+INSN 08018814 f8bd pop {r3,r4,r5,r6,r7,pc}

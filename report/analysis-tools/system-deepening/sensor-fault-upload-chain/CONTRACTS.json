@@ -1,0 +1,95 @@
+{
+  "date": "2026-11-08",
+  "scope": "Bounded normal MCU fault/recovery -> 0x3c payload -> Frank payload boundary -> prepublish queue. Synthetic model only.",
+  "note": "Every contract below was established by a PRIOR read-only code audit. This directory adds no new firmware-byte evidence; it joins existing layers and adds a per-row provenance ledger. Source hashes are in SOURCE_MANIFEST.json.",
+  "contracts": [
+    {
+      "id": "MCU-01",
+      "layer": "mcu",
+      "statement": "0801d7dc does not write the destination on DRDY false, SPI/mode/receive-CRC failure or ready mask 0; on CRC+ready it overwrites only ready channels and then backs up 32B; age<8 short-circuits by copying the object backup to the destination.",
+      "source": "system-deepening/local-sensor-recovery-followup/FINDINGS_ZH.txt sections 3",
+      "modeled_as": "TracedSampling.adc_read event outcomes ok/crc_fail/no_drdy/no_ready/backup/partial_ready"
+    },
+    {
+      "id": "MCU-02",
+      "layer": "mcu",
+      "statement": "080233f4 copies the then-current into the ADC queue and every fifth row also stores 48B IMU; it does not check this read's DRDY/CRC or a success sequence number, and has no sampling-active guard.",
+      "source": "system-deepening/local-sensor-recovery-followup/FINDINGS_ZH.txt sections 3-4",
+      "modeled_as": "TracedSampling.snapshot copies current unconditionally when active; provenance ledger retained per channel"
+    },
+    {
+      "id": "MCU-03",
+      "layer": "mcu",
+      "statement": "main 0x3c send looks only at mode and queue counts (ADC>=5, IMU>=1), not at sampling active; therefore a batch that was already complete before stop can still be consumed afterwards, and sub-threshold residue does not disappear on stop.",
+      "source": "system-deepening/local-sensor-recovery-followup/FINDINGS_ZH.txt section 4",
+      "modeled_as": "TracedSampling.take_normal_batch has no active check; scenario stop_with_residual_batch"
+    },
+    {
+      "id": "MCU-04",
+      "layer": "mcu",
+      "statement": "0x29 stop sets active=0 and calls the timer setter(0,0,0) without clearing current, IMU values, software queues or diagnostic counters. 0x28 start pops both software queues, resets phase, sets active=1 and syncs/drains, but does NOT reset shared current or IMU.",
+      "source": "system-deepening/local-sensor-recovery-followup/FINDINGS_ZH.txt section 4 (080211b6 / 08026722 / 080268c8 / 08026810)",
+      "modeled_as": "TracedSampling.stop/start with queues_unchanged and current_unchanged assertions"
+    },
+    {
+      "id": "MCU-05",
+      "layer": "mcu",
+      "statement": "08027008 whole-device reinit saves active, stops the setter, clears per-device objects (including ADC backup and IMU object) but NOT the whole SamplingState/current region; it calls start (and its queue clear) only if the saved active was non-zero.",
+      "source": "system-deepening/local-sensor-recovery-followup/FINDINGS_ZH.txt section 4 (08027008 / 0801dab8 / 080219d0)",
+      "modeled_as": "TracedSampling.reinitialize with prior_active branch; scenarios reinit_while_active / reinit_while_stopped"
+    },
+    {
+      "id": "MCU-06",
+      "layer": "mcu",
+      "statement": "The 0x3c / 0x39 payloads do not carry a per-read CRC/ready sequence, a freshness flag or a source id; main 0x39 reads caches when the device is enabled without a per-segment freshness or CRC-valid bit.",
+      "source": "system-deepening/local-sensor-recovery-followup/FINDINGS_ZH.txt sections 3, 6 (0x3c / 0x39)",
+      "modeled_as": "freshness_marker_in_payload=False and crc_marker_in_payload=False on every emitted packet"
+    },
+    {
+      "id": "HOST-01",
+      "layer": "frank_payload",
+      "statement": "0027e7b0 computes N=floor((payload_len-8-48)/64) without requiring a 64-byte remainder; reads BE32 tick, BE16 flags, BE16 frequency; 376 bytes yields 5 ADC rows and a 48B IMU block.",
+      "source": "system-deepening/host-payload-boundaries/FINDINGS_ZH.txt section 2",
+      "modeled_as": "FrankDecoder.decode with PAYLOAD_LEN=376"
+    },
+    {
+      "id": "HOST-02",
+      "layer": "frank_payload",
+      "statement": "frequency=0 writes the header fields into the coroutine-local object and marks them present, then logs and exits without entering the per-row mapper/count update. frequency>0 uses integer step 1000/frequency and calls mapper 0021a5c0 with check/update=1 and tick=header_tick+row_index*step; owner+0x3c80 increments per decoded row. No upper bound or equality with configured 500 is checked.",
+      "source": "system-deepening/host-payload-boundaries/FINDINGS_ZH.txt section 3",
+      "modeled_as": "FrankDecoder early_exit / row_ticks / mapper_rows / count_0x3c80; scenario frequency_zero_at_host"
+    },
+    {
+      "id": "HOST-03",
+      "layer": "frank_payload",
+      "statement": "Each decoded ADC row first copies the 0x7fffffff sentinel template and only writes the enabled groups; disabled fields are NOT the previous row's values. This branch does not inspect sample freshness.",
+      "source": "system-deepening/host-payload-boundaries/FINDINGS_ZH.txt section 3",
+      "modeled_as": "sentinel_template_applied=True, freshness_checked=False on every decode"
+    },
+    {
+      "id": "QUEUE-01",
+      "layer": "prepublish_queue",
+      "statement": "The raw-data JS queue is a ring with N=17, capacity 16; the full check occurs BEFORE subject/body copy, so a rejected new message never overwrites the old head. On enqueue failure the raw submitter logs, frees the temporary copy and advances its own logger counter with no local retry.",
+      "source": "prepublish-queue/code-audit/FINDINGS_ZH.txt sections 2, 4 (001f49b0 / 001e9390)",
+      "modeled_as": "PrepublishQueue.enqueue with capacity 16; scenario queue_full_during_recovery"
+    },
+    {
+      "id": "QUEUE-02",
+      "layer": "prepublish_queue",
+      "statement": "core is handled first; js_Publish==0 frees the head and rotates the round-robin start; non-zero keeps the head, clears the connection, waits about 1s and re-scans. Worker running flag 0 returns immediately with no queue drain; 00189bb0 shows no per-item free or index reset.",
+      "source": "prepublish-queue/code-audit/FINDINGS_ZH.txt sections 5-6 (001afe00 / 00189bb0)",
+      "modeled_as": "PrepublishQueue.publish_once; publish_returns fixtures; retry_after cycle"
+    },
+    {
+      "id": "LAYER-01",
+      "layer": "layering",
+      "statement": "Encoding -> Frank prepublish queue -> NATS raw_mem discard-old -> uploader/cloud are distinct stages; the prepublish 'reject new when full' is not the same as NATS discard-old, and logger sequence numbers are not sample/NATS/uploader sequence numbers.",
+      "source": "prepublish-queue/code-audit/FINDINGS_ZH.txt section 7; integrated-capture-model/FINDINGS_ZH.txt section 4",
+      "modeled_as": "This model stops at the prepublish queue; RESULTS.json scope_limits lists the omitted stages"
+    }
+  ],
+  "assertions_total": 126,
+  "assertions_failed": 0,
+  "cases_total": 14,
+  "packets_total": 53
+}

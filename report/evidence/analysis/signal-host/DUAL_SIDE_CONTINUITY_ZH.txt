@@ -1,0 +1,138 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+双侧 Stealth loader：缺槽、时标、覆盖与已消费水位
+2026-11-07；静态分析及独立控制流算例；未运行原固件、未连接设备。
+
+对象：mediatek/rootfs-selected/opt/eight/bin/frankenfirmware
+SHA256 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+核心函数 0x001FFA70 loadDoubleSideIntoBuffer，已有完整C/汇编：timing/001ffa70.{c,asm.txt}。
+本文补充 TIMING_CONTINUITY_ZH.txt 的双侧缺口。路径相对 analysis/signal-host；VA为上述映像的Ghidra地址。
+这是共享MT8365程序的代码行为，不按主控芯片或board revision绑定Pod代际/地区SKU。
+
+结论
+
+双侧不是逐点选择“哪一侧有数据就用哪一侧时标”。它先按队列桶数选主侧P，再从P最早秒桶K找次侧Q的同K桶。配对成功后，两侧同步遍历相同数组下标i，但所有输出epoch和输出槽号都只取P[i]；Q[i]的epoch/relative不参与判断。
+因此缺槽有不对称后果：Q缺槽而P正常，通常继续输出且Q该位置为sentinel；P在已有非零epoch数据之后遇默认缺槽，则可提前结束，随后删除双方整个K桶，连Q已有后续数据也不再处理。主侧由桶数决定，不按波形质量决定。
+P前导缺槽还会把Q的不同位置反复写到输出槽0，产生覆盖；“缺样位置保持sentinel、其余样本全部保留”不是这条双侧代码的通用保证。
+上述是可达静态边界，不是实机丢样率、整夜影响或云端睡眠算法性能的测量。
+
+一、队列选择与秒桶配对
+
+两侧启用时：
+  P = 1 if right_bucket_count > left_bucket_count else 0；Q=1-P。
+  K = P队列的最早秒键。
+  如果Q无K桶，转0x001FEE40单侧loader；不把Q的前后相邻秒强行配上。
+  如果Q有K桶，进入双侧循环。
+桶数是map节点数，不是有效sample数；桶数相等选side0。没有按全局最小秒键或按有效槽数量选择P。
+证据：001FFAB4..001FFAE0比较桶数；001FFB18..001FFB60读取P最早K并搜索Q；00200914..00200918转单侧；timing/001ffa70.c:131..190、621。
+
+第二次lower_bound后的0x001E8E60看起来是operator[]插入helper，但双侧分支此前已经找到同K节点；正常一致的树、且此间无修改时不会靠该helper制造空次侧桶。缺K时会先fallback。
+新导出dual-side/001e8e60.c:11..20表明helper本身是分配节点并把62000-byte记录区清零；这与正常新采样桶的sentinel初始化不同，不能把两者混为“正常缺侧补样”。
+
+配对成功只保证两个容器的桶键相同，未检查每个位置都有真实采样。正常tryEnqueue把sample自身epoch用作桶键，因此有效已入队sample的epoch通常等于K；未填位置却仍是epoch=0、relative=0的默认record。
+默认record来自原ELF VA0046BE48；500槽初始化/节点复制见timing/default-samples.json、timing/001fdec0.asm.txt 001FE10C..001FE18C及timing/bucket/001fdcc0.c。
+
+二、逐槽循环：P提供时间，Q只提供同下标的数据
+
+RB节点+0x20是桶键，+0x24起是第0个124-byte record。
+  x19 = P_node+0x24，指向P[i]；
+  x28 = Q_node+0x4C = Q[i]+0x28，直接指向其ADC8；
+  两指针每轮均加0x7C；i从0到499。
+证据：001FFBE0..001FFBE4、001FFC20、002003F8..00200408。
+
+取时标：
+  buzzer：001FFCB4 ldr w25,[x19,#4]取P.relative；001FFCBC ldr w4,[x19]取P.epoch。
+  IMU：002005D0 ldp w1,w7,[x19]。
+  extADC/multi：001FFF9C与00200558 ldp w12,w25,[x19]。
+Q指针x28的读范围是非负偏移0..0x52，覆盖counts/IMU/flags；没有读取其epoch所在-0x28或relative所在-0x24，也没有左右逐sample时间比较。
+该负面结论来自全函数实际内存操作/数据流复核，不是关键词搜索；另由独立agent只读复核。
+
+输出寻址：
+  buzzer两侧、兼容extADC、multi两侧均用j=floor((P.relative%1000)/2)；
+  IMU仅当遍历下标i%5==0才处理，输出j=floor((P.relative%1000)/10)。
+  取IMU的条件是数组下标模5，不是重新检测Q的时间戳或DRDY。
+证据：001FFF1C..001FFF6C，001FFF70..001FFF88；002000A0..002000C0；002003AC..002003F0；00200738..0020079C。
+主机没有在这里按相关性/峰值调整左右时差，也不在遇到P空槽时转而读取Q时标。
+
+三、epoch门控与停止方式
+
+每类输出buffer都有epoch、状态字段与计数，门控可概括为：
+  若state==0且buffer.epoch==P.epoch：计数++并写；
+  否则若buffer.epoch==0：state=0，buffer.epoch=P.epoch，计数++并写；
+  否则：本类型early-break。
+这里比较的是P.epoch与目标buffer.epoch；不是P与Q之间比较，也不是对ADC sentinel检测。
+证据：buzzer 001FFD78..001FFDA8；IMU 0020063C..0020066C；extADC 00200070..0020009C；multi 002001D0..00200204。
+
+early-break不是所有类型同时在同一条指令停止：
+  buzzer失败置stop bit1。若i%5==0，仍走当前槽IMU；否则all-types关闭时立即退出，开启时继续兼容通道。
+  IMU失败：all-types关闭时退出；开启时置stop bit2并继续兼容通道。
+  extADC失败置stop bit4，仍尝试multi。
+  multi失败直接退出；multi成功后如stop非零也退出。
+  所有这些退出都进入同一个两桶删除尾部，不会保存“剩余未处理位置”供下次继续。
+证据：00200504..002005C4；002008D0..00200910；0020088C..002008CC；0020085C..00200888；002003F4、002007A8均转00200410。
+all-types是sync+0xA8。它改变是否附带extADC/multi，不消除主侧时标依赖；具体产品是否进入某mode须另用实机/部署证据确认。
+
+四、缺槽情形及覆盖
+
+下表前提：双方存在同K桶，K!=0；该轮输出buffer初始epoch=0；“缺槽”指从未被入队覆盖的默认record，不是任何数值为sentinel的record。
+
+P当前槽             Q当前槽          结果
+有效且epoch=K       默认缺槽         用P时标继续；Q该位置写sentinel，不触发Q独立epoch门控。
+中间默认缺槽        有效              P.epoch=0与已设K的buffer冲突，early-break；Q的本槽/尾部不能救回双侧循环。
+中间默认缺槽        默认缺槽          同上；原因仍是P时标，不是统计双方都缺样。
+前导默认缺槽        有效或默认        buffer.epoch仍0，允许写；P.relative=0导致反复写输出槽0。
+带有效K/relative    counts为sentinel  epoch门控仍允许；不会仅凭sentinel触发同样的early-break。
+
+“中间”表示该类型buffer已经接受过非零K；IMU仅每五槽处理一次，其状态可落后于buzzer，见下一节。
+末尾缺槽也可触发删除，但若后面没有有效record，就没有额外的后续有效数据可损失。
+
+前导覆盖的具体算例：P的slot0..5未填，slot6..499有效；Q全500槽有效。前6次遍历都将Q[0]..Q[5]写到输出slot0，最终Q[5]覆盖其前5次写入；Q的output slots1..5仍为sentinel。随后P有效时标驱动slots6..499正常写入。
+此时buzzer接受计数可达500，但只写了495个不同索引；计数不是有效读数数，也不是不同输出槽数量。P与Q各自的所有输入都不一定完整保留。
+若双方都有相同前导缺槽，重复写的也是sentinel，仍可出现“计数500、不同写入索引495”，但没有因此生成有效前导数据。
+证据：P时标读取、模运算与重复str路径如第二节；计数增量001FFDA0、00200494。独立算例primary_leading_6_holes/both_leading_6_holes。
+
+相同左侧缺口的后果还可随桶数变化：左右各3桶时P=左，左slot1缺失可在i=1截断；右侧4桶时P=右，同样左缺槽成为Q缺槽，右正常则循环能到499。不是质量自适应策略，只是队列选择产生的差异。
+
+五、IMU可与buzzer获得不同epoch：一个具体边界
+
+P缺slot0和slot5，slot1..4有效K；Q全有效；输出buffer初始epoch0：
+  i=0：buzzer/IMU都允许epoch0，分别写slot0；
+  i=1..4：buzzer被设置为K并正常写，IMU尚未再次处理；
+  i=5：buzzer遇P.epoch0而early-break，但仍进入IMU。IMU此前epoch仍0，接受这次epoch0，并把Q[5]覆盖写入IMU槽0；之后退出并删除两桶。
+结果可为buzzer.epoch=K而IMU.epoch=0；IMU接受计数为2，但两次都写同一个输出槽0。all-types开启/关闭均保留这个已恢复的控制流可能性。
+CBOR encoder 001F10B0直接把IMU buffer+0x258C编码为ts，没有先要求非零；调用者先loader再编码buzzer和IMU。所以在该静态路径且编码成功的前提下，可得到不同ts、包括IMU ts=0的本地CBOR对象。
+证据：timing/001ffa70.asm.txt 00200530..002005D0、0020063C..0020066C、002007A0..002007AC；pass3/001f10b0.c:40..43；pass2/00200960.c:139..151。
+这不等于已经观察到上传1970数据，更不证明云端接受该对象；未测实机概率/后处理。算例primary_holes_0_and_5只生成本地计算结果。
+
+六、错秒、索引错位与跨秒复制点
+
+正常入队满足：bucket key=sample.epoch；array index=floor((sample.relative%1000)/2)。因此“一个普通有效record放在i但其relative指向另一个j”不是正常enqueue能制造的状态，本报告不以任意破坏内存状态宣称可达bug。
+
+1. 左右映射出的epoch不同：若P最早K在Q不存在，fallback单侧；不会搜索K±1来修正错秒。若两侧都有同K桶，就按标签配对，即使标签相同的波形实际来自不同物理时刻，也不在此层识别。
+2. 一侧相同物理事件被标到晚一个2ms槽：每侧按自己的入队索引放置，loader只将相同数组下标拼在一起。主侧完整时次侧延后一槽表现为次侧前导sentinel、随后配对了不同物理事件，代码不纠偏；若错位造成主侧中间未填槽，还会叠加上述截断。
+3. 先前跨秒补点缺陷：错放副本已被赋予下个秒桶的epoch和slot499；若它在Q且随后未被真正slot499覆盖，P完整时双侧loader会照常使用该值，读取Q时标的纠错步骤并不存在。若在P，它也有与该桶匹配的非零epoch，不能指望本节epoch门控识别其原本应归前一秒的事实。
+4. 同侧同K同slot的新record在入队阶段整条覆盖旧record；若真实样本在flush前到达相同位置，可能覆盖错放副本。若已消费到水位K后才到达，则不能靠普通迟到补写恢复。
+证据：timing/001fdec0.asm.txt 001FDFCC..001FE048；TIMING_CONTINUITY_ZH.txt第4节；独立算例secondary_labels_shifted_one_slot、secondary_cross_second_copy_survives_if_not_overwritten。
+
+七、删除、水位与未配对旧桶
+
+循环完成或任何early-break后，00200418与00200424分别调用001DDC80对P/Q删除同一个K键。新导出的helper通过RB tree erase/free(0xF258)删除完整节点并减少桶数；不按最后访问i分割桶。
+随后sync+0xAC水位取max(原水位,K)，+0xB0设为有效。它描述loader已消费秒桶，不是所有有效样本均输出，更不是云端ACK。
+证据：timing/001ffa70.asm.txt 00200410..0020043C、002007B0..002007C4；dual-side/001ddc80.c:55..66及asm。
+
+tryEnqueue对epoch<=水位的后来输入通常直接跳过并返回true；双侧early-break即使只处理前1槽，也把K推进到水位。故之后到达K的缺失位置/已有尾部补发不会重建该K桶；超过30秒且累计500次的重建机制是另一条特殊路径，不能当成逐槽补救。
+证据：timing/001fdec0.asm.txt 001FDF1C..001FDF54；现有TIMING_CONTINUITY_ZH.txt第6节。
+
+因为P按桶数而非两侧全局最老键选择，Q可以还有比K旧的桶。例如P键[K,K+1,K+2]、Q键[K-1,K]时配对K并推进水位，Q的K-1节点仍保留。水位门控作用于以后入队，不会在本尾部自动删除该旧节点；下一次loader可继续选到它。故水位不保证未来输出单调，也不能将其描述为“队列里再没有更早秒”。
+helper仅删除等K键；loader入口未用已消费水位过滤已经存在的节点。选择算例secondary_older_bucket_retained_below_new_watermark只证明选择与留存，不模拟网络发送先后。
+
+八、独立检查与证据边界
+
+dual-side/continuity_cases.py直接读取并校验原ELF SHA、PT_LOAD映射和默认124-byte记录；按AArch64机器码位域独立核对10处关键add/ldr/ldp/cbnz操作数（主/次指针、P时间读取、early-break与步长）。这些检查没有执行ELF指令。
+随后用人工归一化的控制流模型计算12个配对算例及2个队列选择算例，输出dual-side/continuity-cases.json。包括两侧/单侧中间缺槽、主侧前导缺槽、主次选择翻转、有效时标sentinel、IMU epoch0边界、错位标签与错放副本。
+模型每类仅保留一个代表性分量及输入来源标签；不模拟真实幅值、flags/gain、全部数组宽度、异步调度或CBOR/NATS。它能使静态结论可复算，但不是“原固件运行测试全通过”，也不独立证明真实设备触发频率。
+运行：python3 analysis/signal-host/dual-side/continuity_cases.py
+本次结果：10 instruction checks，12 paired cases，2 selection-only cases。
+
+新增Ghidra导出仅001DDC80与001E8E60两个小helper，-noanalysis -readOnly；项目未保存修改。未改主报告/manifest，未执行原固件或访问设备/账户。完整双侧函数复用既有汇编，关键时标/缺槽判断由另一agent独立复核。

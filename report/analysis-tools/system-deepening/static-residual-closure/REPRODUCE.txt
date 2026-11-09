@@ -1,0 +1,100 @@
+nonUSB 静态残余四项收口 · 复跑说明
+2026-11-08
+
+一、不需要 Ghidra 的复核（推荐先跑）
+
+  cd report/analysis-tools/system-deepening/static-residual-closure
+  python3 scripts/verify_residual_bytes.py     # 5269 项字节核验
+  python3 model/residual_models.py            # 60 断言 / 256 组 BRR 用例
+  python3 scripts/write_source_manifest.py   # 41 项输入 SHA256 清单
+
+前提只有本目录 pass1 / pass2 的导出文本，以及冻结归档里的原件：
+
+  materials/eightsleep-full-evidence-20261107/firmware/mtk/rootfs/files/opt/eight/lib/subsystem_updates/
+    firmware-sensor-g0.bbin   132896B   SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+
+verify_residual_bytes.py：
+  · 校验 BBIN 尺寸与 SHA256；
+  · 把 34 个导出文件里 3448 条已解码 INSN 的机器码逐条对回原件；
+  · 把 1606 条 REF 注解里的 flash literal 按 u32 对回原件；
+  · 核验 14 行 hwrev 分派表（阈值 / pad / callee）与 14 个 4B 版本字符串、
+    0801d8cc 的 `0e 2d` 循环上界；
+  · 逐字节核验 5 张 8B 通道重排表、2 张外设地址表、掩码表、尾部数组、
+    0x0802420c 的 16 项 u16 除数表；
+  · 全镜像扫描 9 组小端指针引用，要求命中集完全一致；
+  · 57 条关键指令锚点（0x18c 三处构造、0x1a0/0x1a4 读写、
+    USART BRR 两条路径、两处 counter-example 移位）；
+  · 14 个 flash literal 锚点；
+  · 10 条原始 Thumb-1 半字：K87 / K90 setter 在工程里没有函数体，
+    用脚本内置的最小解码器直接从冻结镜像解出助记符；
+  · 8 项负向核验：常见波特率常量在镜像里必须 0 命中。
+  输出 BYTE_VALIDATION.json 与 RESIDUAL_TABLES.json。
+
+residual_models.py 只读 RESIDUAL_TABLES.json 与 pass2 的 14 个 setter 导出：
+  · 验证 5 张通道表都是 0..7 排列、只有 3 种、算出逆置换；
+  · 从 setter 指令自动提取配置对象槽位台账（含 adds rN,#0xfc 的偏移累加），
+    输出 CONFIG_SLOTS.json；
+  · 重放 14 行累加分派，求 +0x1a4 的最终表指针、K90 对 +0x18c 的影响，
+    并枚举 sku / devicesn 的条件分支；
+  · 按两条 BRR 公式枚举 2 时钟 × 8 波特率 × 16 表索引 = 256 组，
+    含范围检查、bit3 清零性质与反事实。
+  输出 MODEL_RESULTS.json。
+
+三个脚本都只把 BBIN 当数据读，不执行固件、不联网、不访问设备或账号。
+跑完应分别看到 status PASS / 0 failures。
+
+二、需要 Ghidra 才能重做的事：重新导出
+
+工具与工程（都在分析机上，不属于交付包）：
+
+  analyzeHeadless  /opt/homebrew/Cellar/ghidra/12.1.4/libexec/support/analyzeHeadless
+  JAVA_HOME        /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+  工程目录          /Users/dangbei/Downloads/eightsleep-firmware-research-20261107/analysis/account-readonly/k60-binding/nonusb-flow/ghidra
+  工程文件          NonUsbSensor.gpr        程序名 firmware-sensor-g0.bbin
+  脚本目录          report/analysis-tools/system-deepening/sensor-nonusb-dispatch/scripts
+  脚本              ExportSensorDiff.java
+
+不导出 JAVA_HOME 会报 `Unable to locate a Java Runtime` + `no TTY detected`。
+命令模板与三轮目标清单见 EXPORT_COMMANDS.json。
+
+  export JAVA_HOME="/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home"
+  export PATH="$JAVA_HOME/bin:$PATH"
+  "$HEADLESS" "$GHIDRA_PROJECT_DIR" NonUsbSensor \
+      -process firmware-sensor-g0.bbin -readOnly -noanalysis \
+      -scriptPath "$SCRIPT_DIR" -postScript ExportSensorDiff.java \
+      "$OUT_DIR" <targets...>
+
+-readOnly 保证不写回工程；-noanalysis 保证不触发自动分析；
+`start:end` 范围目标只 dump 已解码指令，绝不反汇编或改动工程。
+脚本内有 SHA256 守门，镜像不对会直接抛异常。
+
+三、产物对照
+
+  pass1/*.txt                     只读导出：主分派、消费者候选、USART 函数与范围
+  pass2/*.txt                     只读导出：14 个 setter + 范围 + 0x18c 写函数
+  scripts/verify_residual_bytes.py  字节/指令/literal/引用核验
+  model/residual_models.py        表语义、槽位台账、累加分派、BRR 模型
+  scripts/write_source_manifest.py 输入 SHA256 清单
+  RESIDUAL_TABLES.json            表结构、引用点、槽位定义、BRR 公式与边界
+  CONFIG_SLOTS.json               14 行 setter 槽位台账 + 消费者语义
+  BYTE_VALIDATION.json            5269 项核验明细
+  MODEL_RESULTS.json              60 断言 + 256 组 BRR 取值
+  SOURCE_MANIFEST.json            41 项输入 SHA256
+  FINDINGS_ZH.txt                 中文结论
+  COVERAGE_RESIDUAL.json          本轮闭合项与残余边界
+  EXPORT_COMMANDS.json            导出命令参数
+  REPRODUCE.txt                   本文件
+
+四、复跑时的已知坑
+
+  · 0xc6 这个立即数有三种移位：`<<1 = 0x18c`、`<<2 = 0x318`、
+    `<<5 = 0x18c0`。只有 `<<1` 是本轮讨论的 byte 状态位；
+    不要把所有 `movs rN,#0xc6` 都算成同一个槽位。
+  · setter 常在写入前 `adds rN,#0xfc`，槽位台账必须累加这个增量，
+    否则 `[r4,#0x18]` 会被误记成 +0x18（实际 +0x114）。
+  · K87 / K90 setter 在工程里没有已解码函数体，`TARGET ... function=none`
+    是正常结果，用原始 Thumb 半字解码，不要改动工程去反汇编它们。
+  · 字符串表 idx4/5 是 K10/K05，分派表阈值行 4/5 是 0x0A05/0x0A10
+    （K05/K10），顺序互换，不能按位置硬配。
+  · 8 个常见波特率在镜像里全都找不到 4B 常量；任何具体 BRR 数值都必须
+    标明是参数化模型输出，不能写成「固件固定使用 115200」。

@@ -1,0 +1,643 @@
+{
+  "schema": "eightsleep.nonusb.state-machine-switch.state-machine.v1",
+  "date": "2026-11-09",
+  "round": 12,
+  "queue_object": {
+    "base": "0x2000240c",
+    "fields": [
+      {
+        "offset": "0x00",
+        "role": "frame state, 0..4"
+      },
+      {
+        "offset": "0x04",
+        "role": "transport read callback"
+      },
+      {
+        "offset": "0x08",
+        "size": 64,
+        "role": "byte buffer"
+      },
+      {
+        "offset": "0x48",
+        "role": "filled byte count / head"
+      },
+      {
+        "offset": "0x4c",
+        "role": "consumed byte index / tail"
+      },
+      {
+        "offset": "0x50",
+        "role": "escape flag"
+      }
+    ],
+    "refill": "callback(buffer+8, 0x40); head=return; tail=0",
+    "rows": [
+      {
+        "addr": "08016fe6",
+        "halfword": "7368",
+        "bytes": "7368",
+        "asm": "ldr r3,[r6,#0x4]",
+        "width": 2,
+        "kind": "decoded"
+      },
+      {
+        "addr": "08016fe8",
+        "halfword": "4021",
+        "bytes": "4021",
+        "asm": "movs r1,#0x40",
+        "width": 2,
+        "kind": "decoded"
+      },
+      {
+        "addr": "08016fea",
+        "halfword": "b348",
+        "bytes": "b348",
+        "asm": "ldr r0,[0x080172b8]",
+        "width": 2,
+        "kind": "decoded",
+        "literal_value": "0x20002414"
+      },
+      {
+        "addr": "08016fec",
+        "halfword": "9847",
+        "bytes": "9847",
+        "asm": "blx r3",
+        "width": 2,
+        "kind": "decoded"
+      },
+      {
+        "addr": "08016fee",
+        "halfword": "0023",
+        "bytes": "0023",
+        "asm": "movs r3,#0x0",
+        "width": 2,
+        "kind": "decoded"
+      },
+      {
+        "addr": "08016ff0",
+        "halfword": "0400",
+        "bytes": "0400",
+        "asm": "movs r4,r0",
+        "width": 2,
+        "kind": "decoded"
+      },
+      {
+        "addr": "08016ff2",
+        "halfword": "b064",
+        "bytes": "b064",
+        "asm": "str r0,[r6,#0x48]",
+        "width": 2,
+        "kind": "decoded"
+      },
+      {
+        "addr": "08016ff4",
+        "halfword": "f364",
+        "bytes": "f364",
+        "asm": "str r3,[r6,#0x4c]",
+        "width": 2,
+        "kind": "decoded"
+      }
+    ]
+  },
+  "states": [
+    {
+      "state": 0,
+      "target": "0x08016e50",
+      "role": "reset-on-frame-delimiter",
+      "extent_bytes": 32,
+      "prefix_rows": 16,
+      "cold_tail_rows": 0,
+      "stop_reason": "unconditional_branch"
+    },
+    {
+      "state": 1,
+      "target": "0x08016e70",
+      "role": "build-byte-lane-mask",
+      "extent_bytes": 44,
+      "prefix_rows": 22,
+      "cold_tail_rows": 0,
+      "stop_reason": "unconditional_branch"
+    },
+    {
+      "state": 2,
+      "target": "0x08016e9c",
+      "role": "copy-payload-bytes",
+      "extent_bytes": 44,
+      "prefix_rows": 20,
+      "cold_tail_rows": 2,
+      "stop_reason": "unconditional_branch"
+    },
+    {
+      "state": 3,
+      "target": "0x08016ec8",
+      "role": "capture-trailer-high-byte",
+      "extent_bytes": 12,
+      "prefix_rows": 6,
+      "cold_tail_rows": 0,
+      "stop_reason": "unconditional_branch"
+    },
+    {
+      "state": 4,
+      "target": "0x08016ed4",
+      "role": "combine-trailer-and-compare",
+      "extent_bytes": null,
+      "prefix_rows": 24,
+      "cold_tail_rows": 0,
+      "stop_reason": "unconditional_branch"
+    }
+  ],
+  "globals": [
+    {
+      "address": "0x2000a4a0",
+      "role": "payload buffer pointer",
+      "reached_by_states": [
+        2,
+        4
+      ]
+    },
+    {
+      "address": "0x2000a4a4",
+      "role": "payload copy limit",
+      "reached_by_states": [
+        2
+      ]
+    },
+    {
+      "address": "0x2000a4a8",
+      "role": "payload copy index",
+      "reached_by_states": [
+        0,
+        2,
+        4
+      ]
+    },
+    {
+      "address": "0x2000a4ac",
+      "role": "pointer to lane mask / completion value",
+      "reached_by_states": [
+        0,
+        1,
+        2
+      ]
+    },
+    {
+      "address": "0x2000a4b0",
+      "role": "16-bit trailer accumulator",
+      "reached_by_states": [
+        0,
+        3,
+        4
+      ]
+    },
+    {
+      "address": "0x2000a4b4",
+      "role": "lane count",
+      "reached_by_states": [
+        1
+      ]
+    },
+    {
+      "address": "0x2000a4b8",
+      "role": "lane index",
+      "reached_by_states": [
+        0,
+        1
+      ]
+    },
+    {
+      "address": "0x2000a4bc",
+      "role": "lane mask accumulator",
+      "reached_by_states": [
+        0,
+        1
+      ]
+    },
+    {
+      "address": "0x2000070c",
+      "role": "sink/writer object passed to 0800a578",
+      "reached_by_states": [
+        4
+      ]
+    },
+    {
+      "address": "0x2000230c",
+      "role": "status byte, bit 7 gate and low 7-bit code",
+      "reached_by_states": [
+        4
+      ]
+    }
+  ],
+  "frame_format": {
+    "delimiter": "0x7e",
+    "escape": "0x7d",
+    "escape_xor": "0x20",
+    "family": "PPP/HDLC-style asynchronous byte framing",
+    "evidence": [
+      {
+        "address": "08016e38",
+        "instruction": "ldrb r2,[r1,#0x0]",
+        "role": "escape flag"
+      },
+      {
+        "address": "08016e3e",
+        "instruction": "cmp r2,#0x0",
+        "role": "plain byte when flag is clear"
+      },
+      {
+        "address": "08016e46",
+        "instruction": "movs r2,#0x0",
+        "role": "clear escape flag"
+      },
+      {
+        "address": "08016e48",
+        "instruction": "strb r2,[r1,#0x0]",
+        "role": "clear escape flag in queue object"
+      },
+      {
+        "address": "08016e4a",
+        "instruction": "movs r1,#0x20",
+        "role": "escape XOR constant"
+      },
+      {
+        "address": "08016e4c",
+        "instruction": "eors r3,r1",
+        "role": "unescape byte"
+      },
+      {
+        "address": "08016f28",
+        "instruction": "cmp r3,#0x7d",
+        "role": "escape delimiter"
+      },
+      {
+        "address": "08016f2c",
+        "instruction": "subs r3,#0x7c",
+        "role": "0x7d becomes the escape marker value 1"
+      },
+      {
+        "address": "08016fc8",
+        "instruction": "cmp r3,#0x7e",
+        "role": "frame delimiter"
+      },
+      {
+        "address": "08016fcc",
+        "instruction": "strb r2,[r6,#0x0]",
+        "role": "frame delimiter resets state 0"
+      }
+    ],
+    "state_limit": "values above 4 are ignored and the byte is dropped"
+  },
+  "state_semantics": [
+    {
+      "state": 0,
+      "meaning": "wait for 0x7e delimiter, reset accumulators, enter state 1"
+    },
+    {
+      "state": 1,
+      "meaning": "construct a 32-bit mask with 0x01 in successive byte lanes"
+    },
+    {
+      "state": 2,
+      "meaning": "copy payload bytes into buffer up to limit; a BCS cold tail stores the final index"
+    },
+    {
+      "state": 3,
+      "meaning": "capture first trailer byte as the high half"
+    },
+    {
+      "state": 4,
+      "meaning": "combine second trailer byte, call the sink helper, compare"
+    }
+  ],
+  "cold_paths": [
+    {
+      "pair": "08016e02->08015f08",
+      "condition": "08015f02 [r4]==0",
+      "value": "0xbf800000",
+      "role": "default -1.0f for serialized word"
+    },
+    {
+      "pair": "08016e08->08015f28",
+      "condition": "08015f22 [r2+0x1c]==0",
+      "value": "0xff7fffff",
+      "role": "default bit-23-clear mask"
+    },
+    {
+      "pair": "08016e0e->08015f46",
+      "condition": "08015f40 [sp+0x2c]==0",
+      "value": "0xff7fffff",
+      "role": "default bit-23-clear mask"
+    },
+    {
+      "pair": "08016e14->08015f64",
+      "condition": "08015f5e [sp+0x2c]==0",
+      "value": "0xff7fffff",
+      "role": "default bit-23-clear mask"
+    }
+  ],
+  "open_items": [
+    "The exact comparison semantics of 0800a578 are not resolved; it streams words to a sink object and returns the last word.",
+    "The downstream consumers of the lane mask and the status byte low 7-bit code are not resolved.",
+    "State 2 has two control-flow entries: the linear path and the BCS cold tail at 08016ec4."
+  ],
+  "assertions": [
+    {
+      "label": "state2_tail_rows",
+      "got": 2,
+      "want": 2,
+      "ok": true
+    },
+    {
+      "label": "state2_tail_stop",
+      "got": "unconditional_branch",
+      "want": "unconditional_branch",
+      "ok": true
+    },
+    {
+      "label": "state2_tail_store",
+      "got": "str r0,[r6,r2]",
+      "want": "str r0,[r6,r2]",
+      "ok": true
+    },
+    {
+      "label": "state0_guard",
+      "got": "cmp r2,#0x1",
+      "want": "cmp r2,#0x1",
+      "ok": true
+    },
+    {
+      "label": "state0_guard_branch",
+      "got": "bne 0x08016e22",
+      "want": "bne 0x08016e22",
+      "ok": true
+    },
+    {
+      "label": "state0_writes_state",
+      "got": "strb r2,[r6,#0x0]",
+      "want": "strb r2,[r6,#0x0]",
+      "ok": true
+    },
+    {
+      "label": "state1_builds_byte_lane",
+      "got": "lsls r1,r1,#0x3",
+      "want": "lsls r1,r1,#0x3",
+      "ok": true
+    },
+    {
+      "label": "state1_sets_lane",
+      "got": "lsls r3,r1",
+      "want": "lsls r3,r1",
+      "ok": true
+    },
+    {
+      "label": "state1_writes_mask",
+      "got": "str r1,[r3,#0x0]",
+      "want": "str r1,[r3,#0x0]",
+      "ok": true
+    },
+    {
+      "label": "state2_copies_byte",
+      "got": "strb r3,[r4,r1]",
+      "want": "strb r3,[r4,r1]",
+      "ok": true
+    },
+    {
+      "label": "state2_sets_state3",
+      "got": "strb r3,[r6,#0x0]",
+      "want": "strb r3,[r6,#0x0]",
+      "ok": true
+    },
+    {
+      "label": "state3_shifts_high_byte",
+      "got": "lsls r3,r3,#0x8",
+      "want": "lsls r3,r3,#0x8",
+      "ok": true
+    },
+    {
+      "label": "state3_stores_halfword",
+      "got": "strh r3,[r6,r2]",
+      "want": "strh r3,[r6,r2]",
+      "ok": true
+    },
+    {
+      "label": "state4_sink_argument",
+      "got": "ldr r0,[pc,#0xd8]",
+      "want": "ldr r0,[pc,#0xd8]",
+      "ok": true
+    },
+    {
+      "label": "state4_sink_target",
+      "got": "0x2000070c",
+      "want": "0x2000070c",
+      "ok": true
+    },
+    {
+      "label": "state4_helper_call",
+      "got": "bl 0x0800a578",
+      "want": "bl 0x0800a578",
+      "ok": true
+    },
+    {
+      "label": "state_writes",
+      "got": [
+        "strb r2,[r6,#0x0]",
+        "strb r3,[r6,#0x0]",
+        "strb r3,[r6,#0x0]",
+        "strb r2,[r6,#0x0]",
+        "strb r2,[r6,#0x0]"
+      ],
+      "want": [
+        "strb r2,[r6,#0x0]",
+        "strb r3,[r6,#0x0]",
+        "strb r3,[r6,#0x0]",
+        "strb r2,[r6,#0x0]",
+        "strb r2,[r6,#0x0]"
+      ],
+      "ok": true
+    },
+    {
+      "label": "global_field_count",
+      "got": 10,
+      "want": 10,
+      "ok": true
+    },
+    {
+      "label": "global_field_set",
+      "got": [
+        "0x2000070c",
+        "0x2000230c",
+        "0x2000a4a0",
+        "0x2000a4a4",
+        "0x2000a4a8",
+        "0x2000a4ac",
+        "0x2000a4b0",
+        "0x2000a4b4",
+        "0x2000a4b8",
+        "0x2000a4bc"
+      ],
+      "want": [
+        "0x2000070c",
+        "0x2000230c",
+        "0x2000a4a0",
+        "0x2000a4a4",
+        "0x2000a4a8",
+        "0x2000a4ac",
+        "0x2000a4b0",
+        "0x2000a4b4",
+        "0x2000a4b8",
+        "0x2000a4bc"
+      ],
+      "ok": true
+    },
+    {
+      "label": "a4a8_zeroed_by_state0",
+      "got": true,
+      "want": true,
+      "ok": true
+    },
+    {
+      "label": "a4b0_zeroed_by_state0",
+      "got": true,
+      "want": true,
+      "ok": true
+    },
+    {
+      "label": "a4b8_zeroed_by_state0",
+      "got": true,
+      "want": true,
+      "ok": true
+    },
+    {
+      "label": "a4bc_zeroed_by_state0",
+      "got": true,
+      "want": true,
+      "ok": true
+    },
+    {
+      "label": "a4ac_pointer_zeroed_by_state0",
+      "got": true,
+      "want": true,
+      "ok": true
+    },
+    {
+      "label": "frame_08016e38",
+      "got": "ldrb r2,[r1,#0x0]",
+      "want": "ldrb r2,[r1,#0x0]",
+      "ok": true
+    },
+    {
+      "label": "frame_08016e3e",
+      "got": "cmp r2,#0x0",
+      "want": "cmp r2,#0x0",
+      "ok": true
+    },
+    {
+      "label": "frame_08016e46",
+      "got": "movs r2,#0x0",
+      "want": "movs r2,#0x0",
+      "ok": true
+    },
+    {
+      "label": "frame_08016e48",
+      "got": "strb r2,[r1,#0x0]",
+      "want": "strb r2,[r1,#0x0]",
+      "ok": true
+    },
+    {
+      "label": "frame_08016e4a",
+      "got": "movs r1,#0x20",
+      "want": "movs r1,#0x20",
+      "ok": true
+    },
+    {
+      "label": "frame_08016e4c",
+      "got": "eors r3,r1",
+      "want": "eors r3,r1",
+      "ok": true
+    },
+    {
+      "label": "frame_08016f28",
+      "got": "cmp r3,#0x7d",
+      "want": "cmp r3,#0x7d",
+      "ok": true
+    },
+    {
+      "label": "frame_08016f2c",
+      "got": "subs r3,#0x7c",
+      "want": "subs r3,#0x7c",
+      "ok": true
+    },
+    {
+      "label": "frame_08016fc8",
+      "got": "cmp r3,#0x7e",
+      "want": "cmp r3,#0x7e",
+      "ok": true
+    },
+    {
+      "label": "frame_08016fcc",
+      "got": "strb r2,[r6,#0x0]",
+      "want": "strb r2,[r6,#0x0]",
+      "ok": true
+    },
+    {
+      "label": "queue_callback_load",
+      "got": "ldr r3,[r6,#0x4]",
+      "want": "ldr r3,[r6,#0x4]",
+      "ok": true
+    },
+    {
+      "label": "queue_buffer_argument",
+      "got": "movs r1,#0x40",
+      "want": "movs r1,#0x40",
+      "ok": true
+    },
+    {
+      "label": "queue_buffer_pointer",
+      "got": "ldr r0,[0x080172b8]",
+      "want": "ldr r0,[0x080172b8]",
+      "ok": true
+    },
+    {
+      "label": "queue_buffer_pointer_value",
+      "got": "0x20002414",
+      "want": "0x20002414",
+      "ok": true
+    },
+    {
+      "label": "queue_indirect_call",
+      "got": "blx r3",
+      "want": "blx r3",
+      "ok": true
+    },
+    {
+      "label": "queue_head_store",
+      "got": "str r0,[r6,#0x48]",
+      "want": "str r0,[r6,#0x48]",
+      "ok": true
+    },
+    {
+      "label": "queue_tail_reset",
+      "got": "str r3,[r6,#0x4c]",
+      "want": "str r3,[r6,#0x4c]",
+      "ok": true
+    },
+    {
+      "label": "queue_head_offset",
+      "got": 536880212,
+      "want": 536880212,
+      "ok": true
+    },
+    {
+      "label": "queue_tail_offset",
+      "got": 536880216,
+      "want": 536880216,
+      "ok": true
+    },
+    {
+      "label": "queue_buffer_offset",
+      "got": 536880148,
+      "want": 536880148,
+      "ok": true
+    }
+  ]
+}

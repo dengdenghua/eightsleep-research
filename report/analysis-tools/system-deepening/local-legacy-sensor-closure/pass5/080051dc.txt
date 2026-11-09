@@ -1,0 +1,68 @@
+TARGET 080051dc function=080051dc
+REF_TO 08005182 UNCONDITIONAL_CALL owner=08005180
+FUNCTION_BODY [[080051dc, 08005229]]
+
+bool FUN_080051dc(uint param_1,uint param_2)
+
+{
+  uint uVar1;
+  uint uVar2;
+  uint uVar3;
+  bool bVar4;
+  
+  uVar3 = param_1 & 0x7fffff;
+  uVar1 = (param_1 & 0x7fffffff) >> 0x17;
+  uVar2 = (param_2 & 0x7fffffff) >> 0x17;
+  if ((((uVar1 != 0xff) || (bVar4 = true, uVar3 == 0)) &&
+      ((uVar2 != 0xff || (bVar4 = true, (param_2 & 0x7fffff) == 0)))) &&
+     ((bVar4 = true, uVar1 == uVar2 && (uVar3 == (param_2 & 0x7fffff))))) {
+    if (-((int)param_1 >> 0x1f) == -((int)param_2 >> 0x1f)) {
+      bVar4 = false;
+    }
+    else if (uVar1 == 0) {
+      bVar4 = uVar3 != 0;
+    }
+  }
+  return bVar4;
+}
+
+
+INSN 080051dc 70b5 push {r4,r5,r6,lr}
+INSN 080051de 4200 lsls r2,r0,#0x1
+INSN 080051e0 4e02 lsls r6,r1,#0x9
+INSN 080051e2 4c00 lsls r4,r1,#0x1
+INSN 080051e4 4502 lsls r5,r0,#0x9
+INSN 080051e6 6d0a lsrs r5,r5,#0x9
+INSN 080051e8 120e lsrs r2,r2,#0x18
+INSN 080051ea c30f lsrs r3,r0,#0x1f
+INSN 080051ec 760a lsrs r6,r6,#0x9
+INSN 080051ee 240e lsrs r4,r4,#0x18
+INSN 080051f0 c90f lsrs r1,r1,#0x1f
+INSN 080051f2 ff2a cmp r2,#0xff
+INSN 080051f4 0fd0 beq 0x08005216 REF[CONDITIONAL_JUMP:08005216]
+INSN 080051f6 ff2c cmp r4,#0xff
+INSN 080051f8 11d0 beq 0x0800521e REF[CONDITIONAL_JUMP:0800521e]
+INSN 080051fa 0120 movs r0,#0x1
+INSN 080051fc a242 cmp r2,r4
+INSN 080051fe 00d0 beq 0x08005202 REF[CONDITIONAL_JUMP:08005202]
+INSN 08005200 70bd pop {r4,r5,r6,pc}
+INSN 08005202 b542 cmp r5,r6
+INSN 08005204 fcd1 bne 0x08005200 REF[CONDITIONAL_JUMP:08005200]
+INSN 08005206 8b42 cmp r3,r1
+INSN 08005208 0dd0 beq 0x08005226 REF[CONDITIONAL_JUMP:08005226]
+INSN 0800520a 002a cmp r2,#0x0
+INSN 0800520c f8d1 bne 0x08005200 REF[CONDITIONAL_JUMP:08005200]
+INSN 0800520e 2800 movs r0,r5
+INSN 08005210 451e subs r5,r0,#0x1
+INSN 08005212 a841 sbcs r0,r5
+INSN 08005214 f4e7 b 0x08005200 REF[UNCONDITIONAL_JUMP:08005200]
+INSN 08005216 0120 movs r0,#0x1
+INSN 08005218 002d cmp r5,#0x0
+INSN 0800521a f1d1 bne 0x08005200 REF[CONDITIONAL_JUMP:08005200]
+INSN 0800521c ebe7 b 0x080051f6 REF[UNCONDITIONAL_JUMP:080051f6]
+INSN 0800521e 0120 movs r0,#0x1
+INSN 08005220 002e cmp r6,#0x0
+INSN 08005222 edd1 bne 0x08005200 REF[CONDITIONAL_JUMP:08005200]
+INSN 08005224 e9e7 b 0x080051fa REF[UNCONDITIONAL_JUMP:080051fa]
+INSN 08005226 0020 movs r0,#0x0
+INSN 08005228 eae7 b 0x08005200 REF[UNCONDITIONAL_JUMP:08005200]

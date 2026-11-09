@@ -1,0 +1,28 @@
+TARGET 080089cc function=FUN_080089cc
+BODY [[080089cc, 080089df]]
+
+int FUN_080089cc(int *param_1)
+
+{
+  int iVar1;
+  
+  if ((char)param_1[2] == '\0') {
+    iVar1 = param_1[1];
+  }
+  else {
+    iVar1 = *DAT_080089e0;
+  }
+  return iVar1 - *param_1;
+}
+
+
+INSN 080089cc 037a ldrb r3,[r0,#0x8]
+INSN 080089ce 002b cmp r3,#0x0
+INSN 080089d0 04d0 beq 0x080089dc REF CONDITIONAL_JUMP=080089dc
+INSN 080089d2 034b ldr r3,[0x080089e0] REF READ=080089e0 WORD=200001f8
+INSN 080089d4 1b68 ldr r3,[r3,#0x0] REF READ=200001f8
+INSN 080089d6 0068 ldr r0,[r0,#0x0]
+INSN 080089d8 181a subs r0,r3,r0
+INSN 080089da 7047 bx lr
+INSN 080089dc 4368 ldr r3,[r0,#0x4]
+INSN 080089de fae7 b 0x080089d6 REF UNCONDITIONAL_JUMP=080089d6

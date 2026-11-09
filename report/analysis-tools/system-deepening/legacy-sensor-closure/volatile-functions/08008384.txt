@@ -1,0 +1,46 @@
+FUNCTION 08008384 FUN_08008384 BODY [[08008384, 080083bb]]
+INCOMING 0800c48a UNCONDITIONAL_CALL
+INCOMING 0800afe6 UNCONDITIONAL_CALL
+INCOMING 0800b182 UNCONDITIONAL_CALL
+
+void FUN_08008384(uint *param_1,uint *param_2)
+
+{
+  *param_1 = param_2[2] | param_2[8] | param_2[4] | param_2[5] | param_2[6] | param_2[7] |
+             param_2[9] | param_2[10] | *param_1 & 0xffff800f;
+  param_1[1] = param_2[3];
+  param_1[2] = *param_2;
+  param_1[3] = param_2[1];
+  return;
+}
+
+
+ASSEMBLY
+08008384 ldr r2,[r0,#0x0] BYTES 0268
+08008386 ldr r3,[0x080083bc] BYTES 0d4b REF READ=080083bc WORD=ffff800f
+08008388 push {r4,lr} BYTES 10b5
+0800838a ands r2,r3 BYTES 1a40
+0800838c ldr r4,[r1,#0x20] BYTES 0c6a
+0800838e ldr r3,[r1,#0x8] BYTES 8b68
+08008390 orrs r3,r4 BYTES 2343
+08008392 ldr r4,[r1,#0x10] BYTES 0c69
+08008394 orrs r3,r4 BYTES 2343
+08008396 ldr r4,[r1,#0x14] BYTES 4c69
+08008398 orrs r3,r4 BYTES 2343
+0800839a ldr r4,[r1,#0x18] BYTES 8c69
+0800839c orrs r3,r4 BYTES 2343
+0800839e ldr r4,[r1,#0x1c] BYTES cc69
+080083a0 orrs r3,r4 BYTES 2343
+080083a2 ldr r4,[r1,#0x24] BYTES 4c6a
+080083a4 orrs r3,r4 BYTES 2343
+080083a6 ldr r4,[r1,#0x28] BYTES 8c6a
+080083a8 orrs r3,r4 BYTES 2343
+080083aa orrs r3,r2 BYTES 1343
+080083ac str r3,[r0,#0x0] BYTES 0360
+080083ae ldr r3,[r1,#0xc] BYTES cb68
+080083b0 str r3,[r0,#0x4] BYTES 4360
+080083b2 ldr r3,[r1,#0x0] BYTES 0b68
+080083b4 str r3,[r0,#0x8] BYTES 8360
+080083b6 ldr r3,[r1,#0x4] BYTES 4b68
+080083b8 str r3,[r0,#0xc] BYTES c360
+080083ba pop {r4,pc} BYTES 10bd

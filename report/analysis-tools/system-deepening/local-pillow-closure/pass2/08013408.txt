@@ -1,0 +1,106 @@
+TARGET 08013408 function=08013408
+REF_TO 0801620c UNCONDITIONAL_CALL owner=08014298
+FUNCTION_BODY [[08013408, 0801348f]]
+
+uint FUN_08013408(undefined4 *param_1)
+
+{
+  uint uVar1;
+  int iVar2;
+  uint uVar3;
+  undefined4 uVar4;
+  undefined4 uVar5;
+  undefined8 uVar6;
+  undefined8 uVar7;
+  undefined8 uVar8;
+  undefined4 local_1a4;
+  undefined4 local_198 [97];
+  
+  uVar1 = FUN_08010bd2(param_1 + 0x54,local_198,0x60);
+  uVar3 = 0;
+  if (0x13 < uVar1) {
+    uVar5 = 0xc9742400;
+    local_1a4 = 0x49742400;
+    do {
+      uVar4 = local_198[uVar3];
+      iVar2 = FUN_08008560(uVar4,local_1a4);
+      if (iVar2 != 0) {
+        local_1a4 = uVar4;
+      }
+      iVar2 = FUN_08008588(uVar4,uVar5);
+      if (iVar2 != 0) {
+        uVar5 = uVar4;
+      }
+      uVar3 = uVar3 + 1;
+    } while (uVar1 != uVar3);
+    uVar3 = FUN_0801bc08(uVar5,local_1a4);
+    uVar6 = FUN_080191f4();
+    uVar7 = FUN_080191f4(local_1a4);
+    uVar8 = FUN_080191f4(uVar5);
+    FUN_08012290("[lis%s] pk-pk: %.02f max: %.02f min: %.02f samples: %u",*param_1,(int)uVar6,
+                 (int)((ulonglong)uVar6 >> 0x20),uVar8,uVar7,uVar1);
+  }
+  return uVar3;
+}
+
+
+INSN 08013408 f0b5 push {r4,r5,r6,r7,lr}
+INSN 0801340a ebb0 sub sp,#0x1ac
+INSN 0801340c 0990 str r0,[sp,#0x24] REF[WRITE:Stack[-0x19c]]
+INSN 0801340e 0aae add r6,sp,#0x28
+INSN 08013410 5130 adds r0,#0x51
+INSN 08013412 6022 movs r2,#0x60
+INSN 08013414 3100 movs r1,r6
+INSN 08013416 ff30 adds r0,#0xff
+INSN 08013418 fdf7dbfb bl 0x08010bd2 REF[UNCONDITIONAL_CALL:08010bd2]
+INSN 0801341c 0024 movs r4,#0x0
+INSN 0801341e 0890 str r0,[sp,#0x20] REF[WRITE:Stack[-0x1a0]]
+INSN 08013420 1328 cmp r0,#0x13
+INSN 08013422 32d9 bls 0x0801348a REF[CONDITIONAL_JUMP:0801348a]
+INSN 08013424 1a4b ldr r3,[0x08013490] REF[READ:08013490=49742400]
+INSN 08013426 1b4f ldr r7,[0x08013494] REF[READ:08013494=c9742400]
+INSN 08013428 0793 str r3,[sp,#0x1c] REF[WRITE:Stack[-0x1a4]]
+INSN 0801342a a300 lsls r3,r4,#0x2
+INSN 0801342c f558 ldr r5,[r6,r3] REF[DATA:Stack[-0x198]]
+INSN 0801342e 0799 ldr r1,[sp,#0x1c] REF[READ:Stack[-0x1a4]]
+INSN 08013430 281c adds r0,r5,#0x0
+INSN 08013432 f5f795f8 bl 0x08008560 REF[UNCONDITIONAL_CALL:08008560]
+INSN 08013436 0028 cmp r0,#0x0
+INSN 08013438 00d0 beq 0x0801343c REF[CONDITIONAL_JUMP:0801343c]
+INSN 0801343a 0795 str r5,[sp,#0x1c] REF[WRITE:Stack[-0x1a4]]
+INSN 0801343c 391c adds r1,r7,#0x0
+INSN 0801343e 281c adds r0,r5,#0x0
+INSN 08013440 f5f7a2f8 bl 0x08008588 REF[UNCONDITIONAL_CALL:08008588]
+INSN 08013444 0028 cmp r0,#0x0
+INSN 08013446 00d0 beq 0x0801344a REF[CONDITIONAL_JUMP:0801344a]
+INSN 08013448 2f1c adds r7,r5,#0x0
+INSN 0801344a 089b ldr r3,[sp,#0x20] REF[READ:Stack[-0x1a0]]
+INSN 0801344c 0134 adds r4,#0x1
+INSN 0801344e a342 cmp r3,r4
+INSN 08013450 ebd1 bne 0x0801342a REF[CONDITIONAL_JUMP:0801342a]
+INSN 08013452 0799 ldr r1,[sp,#0x1c] REF[READ:Stack[-0x1a4]]
+INSN 08013454 381c adds r0,r7,#0x0
+INSN 08013456 08f0d7fb bl 0x0801bc08 REF[UNCONDITIONAL_CALL:0801bc08]
+INSN 0801345a 041c adds r4,r0,#0x0
+INSN 0801345c 05f0cafe bl 0x080191f4 REF[UNCONDITIONAL_CALL:080191f4]
+INSN 08013460 089b ldr r3,[sp,#0x20] REF[READ:Stack[-0x1a0]]
+INSN 08013462 0500 movs r5,r0
+INSN 08013464 0798 ldr r0,[sp,#0x1c] REF[READ:Stack[-0x1a4]]
+INSN 08013466 0493 str r3,[sp,#0x10] REF[WRITE:Stack[-0x1b0]]
+INSN 08013468 0e00 movs r6,r1
+INSN 0801346a 05f0c3fe bl 0x080191f4 REF[UNCONDITIONAL_CALL:080191f4]
+INSN 0801346e 0290 str r0,[sp,#0x8] REF[WRITE:Stack[-0x1b8]]
+INSN 08013470 0391 str r1,[sp,#0xc] REF[WRITE:Stack[-0x1b4]]
+INSN 08013472 381c adds r0,r7,#0x0
+INSN 08013474 05f0befe bl 0x080191f4 REF[UNCONDITIONAL_CALL:080191f4]
+INSN 08013478 0090 str r0,[sp,#0x0] REF[WRITE:Stack[-0x1c0]]
+INSN 0801347a 0191 str r1,[sp,#0x4] REF[WRITE:Stack[-0x1bc]]
+INSN 0801347c 0999 ldr r1,[sp,#0x24] REF[READ:Stack[-0x19c]]
+INSN 0801347e 2a00 movs r2,r5
+INSN 08013480 3300 movs r3,r6
+INSN 08013482 0968 ldr r1,[r1,#0x0]
+INSN 08013484 0448 ldr r0,[0x08013498] REF[READ:08013498=801c6ab] REF[PARAM:0801c6ab=73696c5b]
+INSN 08013486 fef703ff bl 0x08012290 REF[UNCONDITIONAL_CALL:08012290]
+INSN 0801348a 201c adds r0,r4,#0x0
+INSN 0801348c 6bb0 add sp,#0x1ac
+INSN 0801348e f0bd pop {r4,r5,r6,r7,pc}

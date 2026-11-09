@@ -1,0 +1,48 @@
+TARGET 0002ff54 function=0002ff54
+FUNCTION_BODY [[0002ff54, 0002ff75] [0002ffc8, 0002ffcb]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+undefined4 analyst_selected_0002ff54(int param_1)
+
+{
+  byte *pbVar1;
+  undefined4 uVar2;
+  
+  pbVar1 = _DAT_0002ffcc;
+  if (param_1 != 0) {
+    return 1;
+  }
+  if (_DAT_0002ffcc[0xc] == 0) {
+    func_0x000300b4();
+  }
+  else {
+    _DAT_0002ffcc[0xc] = 0;
+  }
+  if (*pbVar1 < 8) {
+                    /* WARNING: Could not recover jumptable at 0x0002ff72. Too many branches */
+                    /* WARNING: Treating indirect jump as call */
+    uVar2 = (*(code *)(&UNK_0002ff76 + (uint)(byte)(&UNK_0002ff76)[*pbVar1] * 2))();
+    return uVar2;
+  }
+  return 0xf;
+}
+
+
+INSN 0002ff54 70b5 push {r4,r5,r6,lr}
+INSN 0002ff56 08b1 cbz r0,0x0002ff5c REF[CONDITIONAL_JUMP:0002ff5c]
+INSN 0002ff58 0120 movs r0,#0x1
+INSN 0002ff5a 70bd pop {r4,r5,r6,pc}
+INSN 0002ff5c 1b4c ldr r4,[0x0002ffcc] REF[READ:0002ffcc=20005760]
+INSN 0002ff5e 0025 movs r5,#0x0
+INSN 0002ff60 207b ldrb r0,[r4,#0xc]
+INSN 0002ff62 08b1 cbz r0,0x0002ff68 REF[CONDITIONAL_JUMP:0002ff68]
+INSN 0002ff64 2573 strb r5,[r4,#0xc]
+INSN 0002ff66 01e0 b 0x0002ff6c REF[UNCONDITIONAL_JUMP:0002ff6c]
+INSN 0002ff68 00f0a4f8 bl 0x000300b4 REF[UNCONDITIONAL_CALL:000300b4]
+INSN 0002ff6c 2078 ldrb r0,[r4,#0x0]
+INSN 0002ff6e 0828 cmp r0,#0x8
+INSN 0002ff70 2ad2 bcs 0x0002ffc8 REF[CONDITIONAL_JUMP:0002ffc8]
+INSN 0002ff72 dfe800f0 tbb [pc,r0]
+INSN 0002ffc8 0f20 movs r0,#0xf
+INSN 0002ffca 70bd pop {r4,r5,r6,pc}

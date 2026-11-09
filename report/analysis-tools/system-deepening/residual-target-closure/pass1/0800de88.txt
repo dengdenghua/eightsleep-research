@@ -1,0 +1,26 @@
+TARGET 0800de88 function=0800de88
+REF_TO 0800df02 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0800de88, 0800dea1]]
+
+void FUN_0800de88(int param_1,uint param_2,int param_3)
+
+{
+  *(uint *)(param_1 + 0x20) = *(uint *)(param_1 + 0x20) & ~(1 << (param_2 & 0x1f));
+  *(uint *)(param_1 + 0x20) = param_3 << (param_2 & 0x1f) | *(uint *)(param_1 + 0x20);
+  return;
+}
+
+
+INSN 0800de88 1f23 movs r3,#0x1f
+INSN 0800de8a 10b5 push {r4,lr}
+INSN 0800de8c 0124 movs r4,#0x1
+INSN 0800de8e 1940 ands r1,r3
+INSN 0800de90 8c40 lsls r4,r1
+INSN 0800de92 8a40 lsls r2,r1
+INSN 0800de94 036a ldr r3,[r0,#0x20]
+INSN 0800de96 a343 bics r3,r4
+INSN 0800de98 0362 str r3,[r0,#0x20]
+INSN 0800de9a 036a ldr r3,[r0,#0x20]
+INSN 0800de9c 1a43 orrs r2,r3
+INSN 0800de9e 0262 str r2,[r0,#0x20]
+INSN 0800dea0 10bd pop {r4,pc}

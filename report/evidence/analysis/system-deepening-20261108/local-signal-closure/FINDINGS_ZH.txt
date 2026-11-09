@@ -1,0 +1,118 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+本地信号处理补证：旧 Sensor 配置、0x35 字段、FDC 电容、温度处理
+日期：2026-11-08（Asia/Shanghai）
+范围：MTK 包中的 frankenfirmware 与 firmware-sensor-g0-usb.bbin；六件子固件的覆盖分别记录，不以一件代替全部。
+
+结论
+设备侧不仅做采集和转发。本轮把三个正常处理出口进一步接通：
+1. 原已知的 16 条均值、25 窗范围统计，实际进入 0x35 四个 words，与 LIS Z 轴及诊断位一起进入 Frank 的 raw.sens.lps；不能把 lps/pres 字段名解释为压力或生理分离结果。
+2. FDC 具有本地数值换算、CAPDAC 量程调整、有效值缓存及状态计时，正常主循环实际生成 0x33/0x44。后者分别到 raw.sens.capsense / raw.sens.capextended。它们不是主控生成的在床布尔值。
+3. NTC 读数在 MCU 内转温度、限定有效范围、保留最近 10 项、求有效项均值及加权组合；温度查询和扩展温度包会使用这些结果。这不是睡眠分期算法。
+
+两项必须更正的旧表述
+• capsense-producer-binding 的“在已枚举包装调用中未找到 0x33”是当时的有界阴性。0802572c 没有恢复成函数，使两个真实 BL 以及正常主循环调用遗漏。本轮已用原字节找到 08025746/08025754→080240e4，恢复 0802572c 并追到 0x33/0x44，不能再把它列为“同包无 producer”。旧目录保持不变。
+• host-legacy-sample-consumers 对 00202a50 的 read 命名需要更正：00202a64→002379a0 才是 read；00202a50→00237a60 是 write。两者都用 handle=1。以下以实际 libc 调用为准。
+
+一、证据方法和身份
+frankenfirmware：5,060,488 B；SHA-256 84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+G0 USB：140,828 B；SHA-256 1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563。
+输入相对路径见 INPUTS.json。Host 使用 Ghidra VA−0x100000，再由 ELF PT_LOAD 映射到文件；MCU file_offset=VA−0x08010000，128 B BBIN 头已包含在映射中，不能再加一次。
+全部为保留的 C/ASM 导出、原件字节和正常有限模型；未执行原厂程序、未访问设备/账号。REA MCP 当前不可用，使用已有 Ghidra CLI -readOnly -noanalysis。新定义与显式分支解码仅存在于只读会话，日志记录 Discarding changes。
+mcu-pass6.log 第一轮有 Java 编译错误，即使进程退出值为 0 也不算有效导出；修正 String.valueOf 后的 mcu-pass6-retry.log 才成功。没有把错误空结果当负面证据。
+
+二、旧 Sensor 选择与 handle=1 真正读路径
+0017a7b0→0024baa0 从配置路径/设备标签派生 hwrev；0023cf80 使用标签第三段。0024abe0 读取 machine.json，以 00248b00/0024e160 的字符串比较降序选第一个 key<=hwrev，找不到时取最小键。选择的是整段对象，不继承较旧段的 sensorPort。
+本包 A00 段有 /dev/ttyS2；I00/I21 没有 sensorPort。0024ecd0 默认空字符串，结果长度位于 DeviceInfo+0x30。00185920 仅在长度非零时初始化旧 Sensor(00205a20)，0018a510 以相同条件调用其 update。
+这已闭合“代码如何启用”，没有读取目标机器的真实 device-label，也不证明用户实机使用 A00 路线。
+00205a20 保存两个回调：00202a64 读、00202a50 写。00202a64→002379a0(handle1) 检查 handle 范围、fd>0 和 active 标志后才调用 read；EAGAIN(11) 返回 0，其他负返回记录日志后也返回 0，未激活同样返回 0。接收器 001d9e20/001d9e40 使用读回调；001d9f24 是发送侧。
+证据：source/config/machine.json；source/host/0017a7b0.txt、00185920.txt、0018a510.txt、00205a20.txt、00202a50.txt；pass1/00202a64.txt、002379a0.txt、00237a60.txt、0024baa0.txt、0024abe0.txt、0024ecd0.txt；pass2/0023cf80.txt、00248b00.txt、0024e160.txt、001d9e20.txt、001d9f24.txt。
+
+三、+0x10d8 兼容 16-bit 缓冲：已知处理的绑定补证
+此路线的核心数值结论已在 LOCAL_PHYSIOLOGY_AUDIT 第 3.1 节证明，不能包装为新发现的生理算法。
+旧 opcode0x30/0x32→0021a6f0 或 0021a7e0/0021a870→001e0004/001e7634→001ef574；每侧 1000 个 u16 槽，初始化 0xffff，以 relative_ms%1000 写入，跨秒触发 flush。sample+0xc/+0xe 是两个样本，+0x10/+0x12 是 gain。
+00200960 的 mask0x10 优先取 +0x10d8；普通 mode 由 001fd7f0 形成 type=piezo、freq=1000 和左右 gain/samples，1000 项由 001fd6d0 的已核 vtable→001f02b0 逐项写无符号整数；0xffff 不在这里变成 null。另一 mode 输出 type=piezo-sub、part 字段及每侧 2000 B 小端 byte string。mask2→raw.sens.sens，mask0x10→raw.sens.piezo。
+freq=1000 是这个编码器合同，不替代 Stealth 500 的合同。具体旧 MCU 原件与 0x30/32 的绑定由两份独立 legacy 分析继续补齐，不以 G0 主循环推定。
+
+四、16→25 范围统计如何进入 0x35
+4.1 原有公式与新的出口绑定
+原 TAP_SIGNAL_PROCESSING_ZH 第 3.3–3.4 节已描述均值/范围。本轮补齐所有字段、启动状态及正常包消费者。
+旧 LIS 分支在 SensorState+0x378d==0。采样快照定时器在 +0x1874 配为 2 tick；主循环取当前 80 B ADC record 快照，累计 10 次快照后调用 080253c8。定时器到期一次仅触发一次更新，不补发漏掉的周期，不能据常量推实际新样本率。
+080253c8 保存最近 16 份 80 B record；选择 record+0xc/+0x10/+0x2c/+0x30（ADC 槽0/1/8/9），signed32 求和后算术右移4。四个均值进入最近25窗；分别 max−min，再将前两项取大、后两项取大，得到 SensorState+0x377c/+0x3780。初始化 08027834 大块清零覆盖两个环、索引和结果，因此启动前段包含零并固定除16；不能当作只对16份新实测记录求均值。
+结果也供 0802988c 的敲击排除判断，属于原已知 TTC 链。
+
+4.2 0x35 记录四个 words
+主循环的 5 tick 定时器产生 28 B record，+0=tick；+4/+8 保持初始化零。
+record+0x18=第一组范围，+0x14=第二组范围。
+record+0x10=第一 LIS packed Z/status，+0xc=第二 LIS packed Z/status。
+packed=(uint32(roundf(float32(Z+32767.0)))&0xffff)+(status_byte<<16)。0802d1cc 是加法，不能把32767误写成倍率。
+LIS callback0801e1e8 由08024938安装；signed16轴值经0.25和配置 scale 换算写入对象+0xc0的Z；scale可选0.244/0.488/0.976/1.952。status的位分别来自读取0x27寄存器bit3、0802988c候选计数及0801ec10归并敲击。它不是 HRV/分期结果。主循环将status装入record后先清两个status字节，再入队；不能把这些位解释为队列成功后才清除。
+record 队列容量20；08025324在至少10条时组包。规范10条路径：body176 B=opcode35、version2、8个零字节、BE16 freq200、首record tick、10×4×BE32。四个wire words依次是record+c/+10/+14/+18。实现有首pop及每轮末pop；本轮合同只使用恰好10条正常批次，不从多余pop尝试推测现场丢失。
+
+4.3 Frank 输出
+旧 Sensor decoder0021c210/0021c2c0→001e7c64→001eeaf0→raw logger+0x10f8→001fce40。
+pres.left1=record+0x18（第一范围）；pres.right1=+0x14（第二范围）；pres.left2=+0x10（第一Z/status）；pres.right2=+0xc（第二Z/status）。
+四个区域各200项signed32小端byte string，未写槽0x7fffffff；稳定时间锚点下槽=(relative_ms%1000)/5。新缓冲adc字段初值1，与线上version2不是同一字段；四个温度metadata保持包中零值。出口raw.sens.lps。
+UsbSensor事件分派正常忽略34/35；旧Sensor是否启用仍受第二节配置条件控制。lps、pres、left/right是代码/schema命名，不能据此给数值追加压力单位、人体左右或当前实机部署。
+证据：mcu-pass2/080253c8.txt、mcu-pass1/08025324.txt、mcu-pass8/0801f0d0.txt、mcu-pass11/08027834.txt、mcu-pass5/0801e1e8.txt；source/host/0021c210.txt、0021c2c0.txt、001e7c64.txt、001eeaf0.txt、001fce40.txt。
+
+五、FDC：正常 producer→处理→0x33/44→主控出口
+5.1 可达入口与原先漏掉的函数
+FDC_BINDING_SCAN.json对原件半字对齐的Thumb BL逐条解码，找到08025746/08025754，不依赖旧Ghidra xref。新增0802572c函数体保留在mcu-pass6/8；主循环状态表及两个正常调用参数保留mcu-pass9/08020028_08020227.txt：state1传bank0，state3传bank1。聚合对象SensorState+0x2a0；内含两份FDC对象+4/+0x42c，done位与single-side标志控制逐侧推进。两个done满足时清done并返回完成值；不把伪代码的void当真实返回契约。
+08027834初始化聚合对象、状态码0、30,000 tick状态检查定时器和500 tick发送定时器。0802572c每次先推进测量，再检查30,000定时器；此分支更新cached status并写诊断日志；只有该分支未到期时才检查500发送定时器。因此包内status来自上一次周期检查，不是每个包重新算一遍，也没有证明每500 tick都有新测量。
+
+5.2 寄存器、补偿、有效缓存
+08023d28安装0801df84为I2C完成回调并初始化CAPDAC=4、有效缓存=-1、计时对象、映射表和驱动配置。0801df84依次合并高/低16位寄存器，signed32算术右移8得到signed24，乘2^-19后存四个float；这不是把普通ADC原始计数直接搬到capSense。
+080240e4正常完成测量时计算 corrected=float32(raw+CAPDAC*3.125)，并保留两bank原值/修正值。
+• corrected<0转成-1；普通非grace且有效时更新有效值缓存及时间戳。
+• grace有效时保留旧缓存；elapsed>4999后才结束grace，并在当前值有效时刷新缓存。
+• 正常非负值分支，raw<=−12.875时CAPDAC减1下限0；raw>12.875时普通加1、grace加3，上限31。另有定时检查CAPDAC>24时设回4并开启grace；这不是人体状态判决。
+• 08022694仅在cache age<5500时返回缓存，否则返回−1。5500是软件tick年龄阈值，不是实测频率。
+驱动disabled可返回本轮done；pending返回未完成；超过29tick的未完成测量有重置/结束分支。它们决定主循环推进，不代表产生了人体有效样本。
+
+5.3 状态到底检查什么
+相邻corrected变化以约1e-9的严格阈值比较。改变则重置locked相关计时；值不在[112.86,113.0]则重置railed计时；值>=3重置too-low计时；同bank通道值近似相等时维持converged计时，否则重置。均为本地传感读数状态。
+08022c2c在驱动enabled且全局tick>=2000时按1→4优先返回：
+1 railed：任一相关通道计时>60000；
+2 locked：任一>3000；
+3 converged：各相关bank计时全部>3000；
+4 too low：任一>60000；否则0 good。
+mode0检查1bank×3通道；mode1检查2bank×4通道，converged每bank只检查一个聚合计时。比较是严格大于，不是>=。实际状态更新仍受30,000tick外层定时器限制。
+
+5.4 两种正常包
+mode0用A27表；mode1再由hwrev/queen分支选J00或J01+映射。080226b4根据表映射bank/channel，从有效缓存读取；single-side时另一侧返回−1。
+0x33 body27B：opcode1 + tickBE32 + 两个statusBE16 + 6×[channel:u8,value:BE16]。value=int(float32(cached*100))取低16位。id0..5固定发送，−1变−100的16位图样0xff9c。
+0x44 body90B：opcode1 + tickBE32 + 两个statusBE16 + version=1:u8 +16×[channel:u8,floatbits:BE32]。id0..15固定发送，single-side的另一侧仍有8个−1.0项目。
+映射表原字节及选择条件见MCU_TABLES.json；没有板级电极连线，不能从逻辑通道编号恢复物理接点。
+
+5.5 主控消费与数据类型
+33 decoder0021abe0使用时间映射后生成秒级ts，按规范位置读取6个u16。旧整体路线001e0d20→001e4070→001ed7d4→+0x1120；USB每侧路线001e0ec0→001e61d0→001ed1d4，要求已enableA30Mode并使用每侧队列。00200960选择整体或每侧编码器→mask0x40→raw.sens.capsense。
+整体001f2970输出type=capSense、left{out=v0,cen=v1,in=v2,status}、right{out=v5,cen=v4,in=v3,status}；cen键由原ELF字符串0046b108核对，不将“中间项”自行翻成mid。001f2380确实按u16编码，因此−100图样在这里是65436，不自动转null。状态0/1/2/3映射good/railed/locked/converged，>=4映射unknown；MCU状态4的“too low”名称不会原样保留在此Host文本映射里。
+每侧模式001f2c20从有数据的左右队列各取队首一条；缺侧测量填0xff9c。两侧都有时取较小ts，差值>100仅记录日志，仍组合这两条，未做最近时间匹配或按差值丢弃。这是明确的正常数据组合规则。日志写“100ms”，但上述33 decoder已将mapper相对毫秒除1000；不能以日志字面覆盖该代码时间合同。
+44 decoder0021ad74由旧Sensor和UsbSensor接入，读version、status以及channel+32位值；channel<8放left，其余放right，按包顺序放vector。正常16项每侧8个，每项valid=1。001e13d0→001e56b0→001ec390→raw logger+0x11a0→001f5b80，输出type=capSense2、ts/version、left/right.values/status→mask0x1000→raw.sens.capextended。001d7620原指令写CBOR0xfa加BE32，确认这是float32而非整数编码。−1.0仍是有效项的float值；只有内部valid=0时编码器才写null。
+Host没有在这两条已闭合链上计算人在床布尔、睡眠阶段、HR或HRV。FDC状态含义也不能提升为生理信号质量标签。
+
+六、NTC与温度选择
+08027834初始化温度对象SensorState+0x1c0c。16份队列每份容量10、元素4B，索引起始空；存储预填−100。0802766c在队满时先pop一个再push新值，保留最近最多10项。
+0802769c读取DMA ADC缓存，普通mode用reference槽6，另一mode用槽10；普通mode下channel>7，以及channel2且hwrev<0x807返回−100。软件换算使用出厂Flash校准字：
+Vcal=float32(floor(cal_1fff75aa*3000/reference_count));
+Vadc=float32((Vcal/4095)*ADC[channel]);
+R=7150/(Vcal/Vadc−1);
+T=1/(ln(R/10000)/3380+1/298.15)−273.15。
+中间存在float/double转换，式子展示依赖与常量，不假装十进制重算逐位等同soft-float库。ADC原值、出厂校准和板级分压器没有实机测量。
+08028bf4读取队列时仅纳入2<=T<=60的值，求有效项均值，无有效项返回−100；它先pop再push每项完成轮转，不消耗窗口，也没有按读取时刻淘汰老项。故是最近10次写入窗口，不是已证明的固定10秒窗口。
+0802241c的两输入组合是W(a,b,r)=(max(a,b)+0.2*min(a,b)+0.1*r)/1.3。08028b3c先按−100缺值选择；三项全有效时先u=W(c,a,r)，再W(u,b,max(b,u))；它不是简单算术平均或中位数。reference为−100时先改用a。具体通道组由主循环硬件模式选择；保留软件槽号，不擅自命名皮肤/室温。
+主循环旧模式读取槽2/3/4及7/6/5形成两份融合结果；扩展模式直接对1..8 ADC通道分别入队。08028c88对0..7用上述窗口均值，对>=8读额外温度字段。
+08027790另由出厂两点校准字和ADC reference换算MCU温度；主循环仅在0<T<100且相对上次校准温度差>1时发起ADC重新校准。这是硬件采样校准，不是水温控制策略。
+正常命令0x2a与0x35可查询温度，常规有效值×100取signed16；温度无效使用协议哨兵。扩展single-side路径另生成0x3d body51B：两字节版本字段后12个BE32 float图样（辅助值、8个窗口结果及3个附加字段）。该包不含MCU采样tick，Host使用自己的时间来源；不能与有tick的0x33/44无声拼接。
+Host的0x3d路线进一步闭合为：0027e7b0→001e1070/001e64c0→001ecc14；要求enableA30Mode，按侧进入0x68B记录队列。001f0ae0每侧取队首一份，不按两侧时间差搜索；结果保留各侧有效标志，写raw logger+0x14e8/+0x1554，随后分别触发mask8和0x8000000。
+mask0x8000000→001f3940/001f3520→raw.x.sens.bedtemp，type=stealthTemps；每侧字段为version、vmidref、8项thermistors、humidity、ambient、mcu_temp。缺侧写null；8项thermistors再执行2..60范围检查，四个附加值若为负数清valid，最后无效项写CBOR null。这是Host上传前真实的有效性处理。
+mask8→001f4140/001f3d90→raw.sens.bedtemp，type=bedTemp，另将每侧前三项温度各×100截为signed16，然后以三项signed和除3形成兼容平均字段。这个分支只检查整侧可用，未套用stealthTemps的逐项2..60清valid；不能说两个输出主题用了完全相同的缺值规则。有限正常哨兵模型[-100,20,30]在stealthTemps首项为null，在兼容计算中参与形成−1666（百分之一单位的整数）。这是指定软件输入下的结果，不是声称已观察某台设备异常。
+注意001f5f10的type=bedTemp2/raw.sens.tempextended是另一个已编译的扩展温度编码器；不能仅因“extended”名称就把0x3d接到它。本轮已沿实际协程闭合0x3d的两个正确主题。
+证据：mcu-pass8/0802766c.txt、0802769c.txt、08028b3c.txt；mcu-pass10/0802241c.txt及浮点helper；mcu-pass11/08028bf4.txt、08028c88.txt、08027790.txt、08027834.txt、0801bca0.txt；主循环原字节和分支保留于mcu-pass8/11。
+
+七、模型与覆盖的含义
+MODEL_RESULTS.json：原有0x35/配置/u16合同的7个正常场景。FDC_TEMPERATURE_MODEL_RESULTS.json：11个正常有限场景，覆盖signed24换算、补偿/CAPDAC分支、cache年龄、status优先级、27/90B规范包到Host字段、10项筛选均值、NTC公式及加权选择、左右队首组合和51B温度包两种输出政策。
+输入均人工构造；没有native执行、实际硬件时序或个人传感数据；没有重跑旧的0x3c/异常包/共享日志分支。模型不把电容数值单位或范围升级为人体生理结论。
+最终逐字节核验统计、文件清单和各子固件剩余覆盖以 BYTE_VALIDATION.json、COVERAGE_RESIDUAL.json、SOURCE_MANIFEST.json 为准。六份BBIN按各自SHA区分；旧NXP选取样本不得代替MTK同名文件。

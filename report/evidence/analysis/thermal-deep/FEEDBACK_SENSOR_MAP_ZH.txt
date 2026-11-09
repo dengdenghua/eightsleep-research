@@ -1,0 +1,80 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Frozen 1.7.7：PID 反馈传感器、环境限幅与水温失效边界
+2026-11-07；仅分析官方 MTK 包中的静态代码，未执行/仿真固件，未连接实机。
+原样本：mediatek/rootfs-selected/opt/eight/lib/subsystem_updates/firmware-frozen.bbin
+SHA256：4d0522980c8a16d5659a5b188e4c58d12c51f9c2c923aa28f5cba0b252f613a6
+以下地址是完整 BBIN 在 0x0800A000 映射下的地址；函数名为分析命名。
+本文件补足 THERMAL_REPORT_ZH.txt 的反馈对象对应关系，不改变既有 PID 参数和保护层说明。
+
+1. 主反馈是左右水路测温；环境温度是后置限幅输入
+
+0801DC78 temp_sensor(collection,index) 返回 collection+0x10+index*0x1C。
+080116C8 在 080119C8..080119E6 顺次取得 index2、3、0、1，随后：
+  左 wrapper 08011B64：primary=collection[0]，aux=collection[3]；
+  右 wrapper 08011B9C：primary=collection[1]，aux=collection[3]。
+080128E8 将它们传给 thermostat 构造 0801E030，分别保存为 thermostat+0x38 和 +0x58。
+0801E408 从 +0x38 取测量值进入 pid_step；从 +0x58 取另一温度参与 PID 之后的输出限幅。
+这条初始化→对象字段→消费者链把原报告的“附加传感器”明确对应为 ambient，而不是第二个床面或水路反馈。
+
+NTC 硬件路径的温度集合（0801D458）：
+  index0/1：left/right water，由测温对象 +0x48/+0x58 的 barb 数字测温值更新；
+  index2：两侧 heatsink 中的最大值；
+  index3：ambient，由 NTC 对象 +0x10 更新，失效时可以回退到 SHT40；
+  index4/5：left/right heatsink；index6/7：left/right waterblock。
+barb 的有效标志分别在该对象 +0x4C/+0x5C；范围检查通过才刷新集合中的成功时间。
+上述是固件定义的测点对应关系，不包含水管进出口实物坐标，也不能将 water 或 waterblock 当成床表面温度。
+证据：readable-final/080116c8.txt、080128e8.txt、0801e030.txt、0801dc78.txt、0801d458.txt。
+
+2. 环境限幅的确切启用条件与单位
+
+080128FC 调用 0801FA80；后者读取硬件 revision 并返回 hwrev>0x05FF。
+该布尔值经构造保存到 thermostat+0x5C。因此本包 Pod6 分支（hwrev>0x07FF）也满足这一限幅开关；它并非 Cavia 或 pillow 专属开关。
+0801E0F8 在 +0x54 保存原始请求目标；0801E408 比较的是 abs(ambient-requested_target)，不是 abs(ambient-water)。
+在 ambient 有效且 +0x5C 非零时：
+  差值 <=4°C：输出 clamp[-0.8,+0.8]；
+  差值 >4°C：输出 clamp[-1.0,+0.8]。
+ambient 无效或开关为零时，这一层的范围为 [-1,+1]。
+数值是归一化 TEC 请求，+为热、−为冷；不是实测瓦数，也不是目标温度。
+它位于普通冷却 ceiling/anti-windup 之后，因此不能仅由 [-1,+0.8] 声称实际达到满额制冷。TEC 保护、状态机、步进和最终 PWM 上限仍独立生效。
+ambient 无效也不等于允许满功率：共享温度有效性保护还会检查该测点并可能切断输出；这里仅陈述局部 clamp 的分支。
+关键汇编：0801E50A..0801E550；0801E556..0801E55E 回退；0801E58E 选择 −0.8。
+证据：feedback/0801fa80.txt；readable-final/080128e8.txt、0801e030.txt、0801e0f8.txt、0801e408.txt、0801dc84.txt。
+
+3. “数值仍在缓存”与“可作为本次 PID 测量”不同
+
+0801DF24 temp_valid 要求 sensor+8 的成功标记非零，而且 age<5000ms。
+温度采集失败可以继续保留旧数值；0801D458 持续失败超过60000ms才显式清成功计时状态，但控制消费者在满5000ms时已经判无效。
+0801E408 先检查启用状态与周期，再更新目标/露点观察逻辑，随后读取主水温有效性。
+若主水温无效，0801E448 直接跳到函数返回：不调用 pid_step，不写本次 demand，不调用 tec_set_signed(0)。
+前面的 0801E2F0 更新 PID target 与露点观察标志，不会把 TEC 请求清零。
+因此，仅这一层的行为是暂停 PID 更新并保留此前 TEC 请求；不能把它描述为“5秒没水温就由 PID 自动关断”。
+单独的 enabled=0 路径 0801E0F8 确实调用 tec_set_signed(0)，说明关闭与本段无效读数分支不同。
+证据：feedback/0801df24.txt；readable-final/0801d458.txt、0801e408.txt、0801e2f0.txt、0801e0f8.txt。
+
+4. 保护层有替代测点条件，并非任一水温无效都返回 temp_invalid
+
+0801B328 为每侧 TEC 注册 0801C260 保护回调；0801CBC4 正常态在更新 PWM 之前调用它。
+0801C260 依次结合过流、既有 noflow 状态、共享测点、waterblock、水温、泵与 priming 等条件。
+0801DC84/0801DDD0/0801DE90 的打包返回值低字节表示无效，高字节表示超出允许范围；须分开解释。
+水温检查之后，若 waterblock 也无效，则返回 temp_invalid；有效但越界的水温另走 temp_out_of_range。
+在水温无效、waterblock 有效时，仍会按 waterblock 判断：
+  waterblock<11°C：返回7（too_cold）；
+  11°C<=waterblock<14°C：返回8（noflow_cold）；
+  waterblock>50°C：返回9（noflow_hot）；
+  14°C<=waterblock<=50°C：这一组水温/水块比较本身不强制返回故障。
+最后一种情况只有在其他保护均通过、无既有锁定且泵/priming 等允许时，0801C260 才可能返回0。不是只满足一个温度区间就允许输出。
+与第3节合起来，静态代码允许“主水温已过有效期，waterblock正常、其他保护正常，TEC仍保留先前请求”的状态；没有证明实机发生频率、持续时间、实际温升或危险程度。
+若周期检查实际执行且保护返回非零，0801CBC4 会将当前/斜坡 PWM 清零、关闭使能并进入保护态；不是异步即时动作，也不是清除全部目标字段。返回0只代表该检查允许继续，不保证最终输出非零。
+本节“水温无效”特指成功标志/age检查失败；有效但超范围的水温仍会进入另一条保护，不能将两种异常混同。
+证据：readable-final/0801b328.txt、0801c260.txt、0801dc84.txt、0801ddd0.txt、0801de90.txt、0801cbc4.txt。
+
+5. 可复核性与剩余边界
+
+feedback/evidence-ledger.json 保存本次结论、证据文件 SHA256 和关键文本/汇编锚点；原样本也重新计算 SHA256。
+另一分析者独立只读复核了第3/4节的早返回、waterblock替代条件、范围边界及PWM清零指令；静态结论相符，并补充了周期检查与未清全部target字段的限制。
+两个新增 helper 导出复用 thermal-refined 项目，使用 -noanalysis -readOnly；未保存项目改动。
+feedback-export.log 保留一次导出调用的部分失败：0801FA80 与 0801DF24 已成功导出，第三个候选 0801C8A0 不是已有函数入口而终止；本报告不使用该失败候选。
+不能由静态代码确定某台国行设备的实际 hardware revision、测点安装位置、故障分布或热传导参数；Pod5/Pod6共享 MT8365 的用户信息也不能代替热 MCU 板级 revision。
+云端如何结合睡眠阶段选择温控目标仍未恢复；本文仅涉及设备侧执行闭环。

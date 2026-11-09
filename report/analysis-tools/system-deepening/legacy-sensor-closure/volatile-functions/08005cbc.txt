@@ -1,0 +1,447 @@
+FUNCTION 08005cbc FUN_08005cbc BODY [[08005cbc, 08005d59] [08005d72, 08005e81] [08005eb2, 08005ee7] [08005efa, 08005f09]]
+INCOMING 0800d77a UNCONDITIONAL_CALL
+INCOMING 0800d792 UNCONDITIONAL_CALL
+INCOMING 0800d7ac UNCONDITIONAL_CALL
+INCOMING 0800d7c6 UNCONDITIONAL_CALL
+INCOMING 0800d7e0 UNCONDITIONAL_CALL
+INCOMING 0800d7fa UNCONDITIONAL_CALL
+INCOMING 08009620 UNCONDITIONAL_CALL
+INCOMING 080096de UNCONDITIONAL_CALL
+INCOMING 08009822 UNCONDITIONAL_CALL
+INCOMING 080089a8 UNCONDITIONAL_CALL
+INCOMING 0800a750 UNCONDITIONAL_CALL
+INCOMING 08008c7c UNCONDITIONAL_CALL
+INCOMING 08008caa UNCONDITIONAL_CALL
+INCOMING 0800b476 UNCONDITIONAL_CALL
+INCOMING 0800ba1a UNCONDITIONAL_CALL
+INCOMING 0800ba7e UNCONDITIONAL_CALL
+INCOMING 0800df7e UNCONDITIONAL_CALL
+INCOMING 0800df86 UNCONDITIONAL_CALL
+INCOMING 0800dfcc UNCONDITIONAL_CALL
+INCOMING 0800dfd4 UNCONDITIONAL_CALL
+
+/* WARNING: Control flow encountered bad instruction data */
+/* WARNING: Removing unreachable block (ram,0x08005d62) */
+/* WARNING: Removing unreachable block (ram,0x08005d5e) */
+/* WARNING: Removing unreachable block (ram,0x08005d6a) */
+
+uint FUN_08005cbc(uint param_1,uint param_2)
+
+{
+  uint uVar1;
+  uint uVar2;
+  int iVar3;
+  uint uVar4;
+  undefined1 *puVar5;
+  undefined1 *puVar6;
+  uint uVar7;
+  int local_2c;
+  
+  uVar1 = param_1 & 0x7fffff;
+  uVar4 = (param_1 & 0x7fffffff) >> 0x17;
+  puVar5 = (undefined1 *)-((int)param_1 >> 0x1f);
+  if (uVar4 == 0) {
+    if (uVar1 == 0) {
+      uVar7 = 4;
+      local_2c = 0;
+    }
+    else {
+      local_2c = FUN_080080ac(uVar1);
+      uVar1 = uVar1 << (local_2c - 5U & 0xff);
+      local_2c = -0x76 - local_2c;
+      uVar7 = 0;
+    }
+  }
+  else if (uVar4 == 0xff) {
+    if (uVar1 == 0) {
+      uVar7 = 8;
+      local_2c = 0xff;
+    }
+    else {
+      uVar7 = 0xc;
+      local_2c = 0xff;
+    }
+  }
+  else {
+    uVar1 = uVar1 << 3 | 0x4000000;
+    uVar7 = 0;
+    local_2c = uVar4 - 0x7f;
+  }
+  uVar4 = (param_2 & 0x7fffffff) >> 0x17;
+  if (uVar4 == 0) {
+    uVar2 = param_2 & 0x7fffff;
+    if (uVar2 == 0) {
+      uVar7 = uVar7 | 1;
+      uVar2 = 0;
+    }
+    else {
+      iVar3 = FUN_080080ac(uVar2);
+      uVar2 = uVar2 << (iVar3 - 5U & 0xff);
+      local_2c = (local_2c - iVar3) + -0x76;
+    }
+  }
+  else {
+    uVar2 = param_2 & 0x7fffff;
+    if (uVar4 == 0xff) {
+      local_2c = local_2c + 0xff;
+      if (uVar2 == 0) {
+        uVar7 = uVar7 | 2;
+      }
+      else {
+        uVar7 = uVar7 | 3;
+      }
+    }
+    else {
+      uVar2 = uVar2 << 3 | 0x4000000;
+      local_2c = local_2c + (uVar4 - 0x7f);
+    }
+  }
+  puVar6 = (undefined1 *)(param_2 >> 0x1f ^ (uint)puVar5);
+  switch(uVar7) {
+  default:
+    uVar4 = (uVar1 & 0xffff) * (uVar2 & 0xffff);
+    uVar7 = (uVar1 >> 0x10) * (uVar2 & 0xffff);
+    iVar3 = (uVar2 >> 0x10) * (uVar1 >> 0x10);
+    uVar1 = (uVar4 >> 0x10) + (uVar2 >> 0x10) * (uVar1 & 0xffff) + uVar7;
+    if (uVar1 <= uVar7 && uVar7 - uVar1 != 0) {
+      iVar3 = iVar3 + 0x10000;
+    }
+    uVar7 = uVar1 * 0x10000 + (uVar4 & 0xffff);
+    uVar4 = (uint)((uVar7 & 0x3ffffff) != 0);
+    uVar7 = uVar7 >> 0x1a;
+    uVar2 = ((uVar1 >> 0x10) + iVar3) * 0x40 | uVar7 | uVar4;
+    if ((int)(uVar2 << 4) < 0) {
+      uVar2 = uVar7 & 1 | uVar4 | uVar2 >> 1;
+      local_2c = local_2c + 1;
+    }
+    uVar1 = local_2c + 0x7f;
+    puVar5 = puVar6;
+    if ((int)uVar1 < 1) {
+      if ((int)(1 - uVar1) < 0x1c) {
+        uVar4 = uVar2 >> (1 - uVar1 & 0xff);
+        uVar1 = (uint)(uVar2 << (local_2c + 0x9eU & 0xff) != 0);
+        uVar7 = uVar1 | uVar4;
+        if ((uVar1 != 0 || (uVar4 & 7) != 0) && ((uVar1 | uVar4 & 0xf) != 4)) {
+          uVar7 = uVar7 + 4;
+        }
+        if ((int)(uVar7 << 5) < 0) {
+          uVar1 = 1;
+          uVar4 = 0;
+        }
+        else {
+          uVar4 = (uVar7 & 0x3ffffff) >> 3;
+          uVar1 = 0;
+        }
+      }
+      else {
+        uVar1 = 0;
+        uVar4 = 0;
+      }
+    }
+    else {
+      if (((uVar2 & 7) != 0) && ((uVar2 & 0xf) != 4)) {
+        uVar2 = uVar2 + 4;
+      }
+      if ((int)(uVar2 << 4) < 0) {
+        uVar2 = uVar2 & 0xf7ffffff;
+        uVar1 = local_2c + 0x80;
+      }
+      if ((int)uVar1 < 0xff) {
+        uVar4 = (uVar2 & 0x3ffffff) >> 3;
+        uVar1 = uVar1 & 0xff;
+      }
+      else {
+        uVar1 = 0xff;
+        uVar4 = 0;
+      }
+    }
+    break;
+  case 1:
+  case 2:
+                    /* WARNING: Bad instruction - Truncating control flow here */
+    halt_baddata();
+  case 3:
+  case 7:
+  case 0xb:
+    *puVar5 = (char)uVar2;
+    halt_baddata();
+  case 4:
+  case 5:
+  case 8:
+  case 10:
+    halt_baddata();
+  case 6:
+  case 9:
+    puVar5 = (undefined1 *)0x0;
+    uVar4 = 0x400000;
+    uVar1 = 0xff;
+    break;
+  case 0xc:
+  case 0xd:
+  case 0xe:
+                    /* WARNING: Bad instruction - Truncating control flow here */
+    halt_baddata();
+  case 0xf:
+    if (((uVar1 & 0x400000) == 0) || ((uVar2 & 0x400000) != 0)) {
+      uVar4 = uVar1 & 0x7fffff | 0x400000;
+      uVar1 = 0xff;
+    }
+    else {
+      uVar4 = uVar2 & 0x7fffff | 0x400000;
+      uVar1 = 0xff;
+      puVar5 = (undefined1 *)(param_2 >> 0x1f);
+    }
+  }
+  return uVar4 | uVar1 << 0x17 | (int)puVar5 << 0x1f;
+}
+
+
+ASSEMBLY
+08005cbc push {r4,r5,r6,r7,lr} BYTES f0b5
+08005cbe mov r6,r9 BYTES 4e46
+08005cc0 mov r7,r10 BYTES 5746
+08005cc2 mov r5,r8 BYTES 4546
+08005cc4 mov lr,r11 BYTES de46
+08005cc6 push {r5,r6,r7,lr} BYTES e0b5
+08005cc8 lsls r3,r0,#0x9 BYTES 4302
+08005cca lsrs r3,r3,#0x9 BYTES 5b0a
+08005ccc lsls r5,r0,#0x1 BYTES 4500
+08005cce sub sp,#0xc BYTES 83b0
+08005cd0 adds r7,r1,#0x0 BYTES 0f1c
+08005cd2 mov r9,r3 BYTES 9946
+08005cd4 lsrs r5,r5,#0x18 BYTES 2d0e
+08005cd6 lsrs r6,r0,#0x1f BYTES c60f
+08005cd8 cmp r5,#0x0 BYTES 002d
+08005cda beq 0x08005d8c BYTES 57d0 REF CONDITIONAL_JUMP=08005d8c
+08005cdc cmp r5,#0xff BYTES ff2d
+08005cde beq 0x08005d2a BYTES 24d0 REF CONDITIONAL_JUMP=08005d2a
+08005ce0 movs r0,#0x80 BYTES 8020
+08005ce2 lsls r3,r3,#0x3 BYTES db00
+08005ce4 lsls r0,r0,#0x13 BYTES c004
+08005ce6 orrs r0,r3 BYTES 1843
+08005ce8 movs r3,#0x0 BYTES 0023
+08005cea mov r9,r0 BYTES 8146
+08005cec mov r10,r3 BYTES 9a46
+08005cee mov r11,r3 BYTES 9b46
+08005cf0 subs r5,#0x7f BYTES 7f3d
+08005cf2 lsls r4,r7,#0x9 BYTES 7c02
+08005cf4 lsls r2,r7,#0x1 BYTES 7a00
+08005cf6 lsrs r3,r7,#0x1f BYTES fb0f
+08005cf8 lsrs r4,r4,#0x9 BYTES 640a
+08005cfa lsrs r2,r2,#0x18 BYTES 120e
+08005cfc mov r8,r3 BYTES 9846
+08005cfe beq 0x08005d48 BYTES 23d0 REF CONDITIONAL_JUMP=08005d48
+08005d00 cmp r2,#0xff BYTES ff2a
+08005d02 beq 0x08005d9c BYTES 4bd0 REF CONDITIONAL_JUMP=08005d9c
+08005d04 lsls r3,r4,#0x3 BYTES e300
+08005d06 movs r4,#0x80 BYTES 8024
+08005d08 movs r0,#0x0 BYTES 0020
+08005d0a lsls r4,r4,#0x13 BYTES e404
+08005d0c subs r2,#0x7f BYTES 7f3a
+08005d0e orrs r4,r3 BYTES 1c43
+08005d10 adds r5,r5,r2 BYTES ad18
+08005d12 adds r3,r5,#0x1 BYTES 6b1c
+08005d14 mov r7,r8 BYTES 4746
+08005d16 str r3,[sp,#0x4] BYTES 0193 REF WRITE=Stack[-0x2c]
+08005d18 mov r3,r10 BYTES 5346
+08005d1a eors r7,r6 BYTES 7740
+08005d1c movs r2,r7 BYTES 3a00
+08005d1e cmp r3,#0xf BYTES 0f2b
+08005d20 bhi 0x08005db4 BYTES 48d8 REF CONDITIONAL_JUMP=08005db4
+08005d22 ldr r1,[0x08005f18] BYTES 7d49 REF READ=08005f18 WORD=800e25c
+08005d24 lsls r3,r3,#0x2 BYTES 9b00
+08005d26 ldr r3,[r1,r3] BYTES cb58 REF READ=0800e25c WORD=8005db4 REF READ=0800e264 WORD=8005d5e REF READ=0800e268 WORD=8005e8c REF READ=0800e260 WORD=8005d5e
+08005d28 mov pc,r3 BYTES 9f46 REF COMPUTED_JUMP=08005db4 REF COMPUTED_JUMP=08005d5e REF COMPUTED_JUMP=08005e8c
+08005d2a cmp r3,#0x0 BYTES 002b
+08005d2c beq 0x08005d30 BYTES 00d0 REF CONDITIONAL_JUMP=08005d30
+08005d2e b 0x08005e3c BYTES 85e0 REF UNCONDITIONAL_JUMP=08005e3c
+08005d30 adds r3,#0x8 BYTES 0833
+08005d32 mov r10,r3 BYTES 9a46
+08005d34 subs r3,#0x6 BYTES 063b
+08005d36 mov r11,r3 BYTES 9b46
+08005d38 lsls r4,r7,#0x9 BYTES 7c02
+08005d3a lsls r2,r7,#0x1 BYTES 7a00
+08005d3c lsrs r3,r7,#0x1f BYTES fb0f
+08005d3e movs r5,#0xff BYTES ff25
+08005d40 lsrs r4,r4,#0x9 BYTES 640a
+08005d42 lsrs r2,r2,#0x18 BYTES 120e
+08005d44 mov r8,r3 BYTES 9846
+08005d46 bne 0x08005d00 BYTES dbd1 REF CONDITIONAL_JUMP=08005d00
+08005d48 cmp r4,#0x0 BYTES 002c
+08005d4a beq 0x08005d4e BYTES 00d0 REF CONDITIONAL_JUMP=08005d4e
+08005d4c b 0x08005e70 BYTES 90e0 REF UNCONDITIONAL_JUMP=08005e70
+08005d4e mov r2,r10 BYTES 5246
+08005d50 movs r3,#0x1 BYTES 0123
+08005d52 orrs r2,r3 BYTES 1a43
+08005d54 mov r10,r2 BYTES 9246
+08005d56 movs r0,#0x1 BYTES 0120
+08005d58 b 0x08005d12 BYTES dbe7 REF UNCONDITIONAL_JUMP=08005d12
+08005d72 lsls r0,r3,#0x9 BYTES 5802
+08005d74 lsls r2,r2,#0x17 BYTES d205
+08005d76 lsrs r0,r0,#0x9 BYTES 400a
+08005d78 lsls r7,r7,#0x1f BYTES ff07
+08005d7a orrs r0,r2 BYTES 1043
+08005d7c orrs r0,r7 BYTES 3843
+08005d7e add sp,#0xc BYTES 03b0
+08005d80 pop {r2,r3,r4,r5} BYTES 3cbc
+08005d82 mov r8,r2 BYTES 9046
+08005d84 mov r9,r3 BYTES 9946
+08005d86 mov r10,r4 BYTES a246
+08005d88 mov r11,r5 BYTES ab46
+08005d8a pop {r4,r5,r6,r7,pc} BYTES f0bd
+08005d8c cmp r3,#0x0 BYTES 002b
+08005d8e bne 0x08005e48 BYTES 5bd1 REF CONDITIONAL_JUMP=08005e48
+08005d90 movs r3,#0x4 BYTES 0423
+08005d92 mov r10,r3 BYTES 9a46
+08005d94 subs r3,#0x3 BYTES 033b
+08005d96 movs r5,#0x0 BYTES 0025
+08005d98 mov r11,r3 BYTES 9b46
+08005d9a b 0x08005cf2 BYTES aae7 REF UNCONDITIONAL_JUMP=08005cf2
+08005d9c adds r5,#0xff BYTES ff35
+08005d9e cmp r4,#0x0 BYTES 002c
+08005da0 bne 0x08005e64 BYTES 60d1 REF CONDITIONAL_JUMP=08005e64
+08005da2 mov r2,r10 BYTES 5246
+08005da4 movs r3,#0x2 BYTES 0223
+08005da6 orrs r2,r3 BYTES 1a43
+08005da8 mov r10,r2 BYTES 9246
+08005daa movs r0,#0x2 BYTES 0220
+08005dac b 0x08005d12 BYTES b1e7 REF UNCONDITIONAL_JUMP=08005d12
+08005dae movs r2,#0xff BYTES ff22
+08005db0 movs r3,#0x0 BYTES 0023
+08005db2 b 0x08005d72 BYTES dee7 REF UNCONDITIONAL_JUMP=08005d72
+08005db4 mov r3,r9 BYTES 4b46
+08005db6 lsrs r3,r3,#0x10 BYTES 1b0c
+08005db8 mov r12,r3 BYTES 9c46
+08005dba mov r3,r9 BYTES 4b46
+08005dbc lsls r6,r4,#0x10 BYTES 2604
+08005dbe lsrs r6,r6,#0x10 BYTES 360c
+08005dc0 lsls r0,r3,#0x10 BYTES 1804
+08005dc2 mov r1,r12 BYTES 6146
+08005dc4 movs r3,r6 BYTES 3300
+08005dc6 lsrs r2,r4,#0x10 BYTES 220c
+08005dc8 mov r4,r12 BYTES 6446
+08005dca lsrs r0,r0,#0x10 BYTES 000c
+08005dcc muls r3,r0 BYTES 4343
+08005dce muls r6,r1 BYTES 4e43
+08005dd0 muls r0,r2 BYTES 5043
+08005dd2 muls r4,r2 BYTES 5443
+08005dd4 adds r0,r0,r6 BYTES 8019
+08005dd6 lsrs r2,r3,#0x10 BYTES 1a0c
+08005dd8 adds r2,r2,r0 BYTES 1218
+08005dda cmp r6,r2 BYTES 9642
+08005ddc bls 0x08005de6 BYTES 03d9 REF CONDITIONAL_JUMP=08005de6
+08005dde movs r1,#0x80 BYTES 8021
+08005de0 lsls r1,r1,#0x9 BYTES 4902
+08005de2 mov r12,r1 BYTES 8c46
+08005de4 add r4,r12 BYTES 6444
+08005de6 lsls r3,r3,#0x10 BYTES 1b04
+08005de8 lsrs r3,r3,#0x10 BYTES 1b0c
+08005dea lsls r0,r2,#0x10 BYTES 1004
+08005dec adds r0,r0,r3 BYTES c018
+08005dee lsls r3,r0,#0x6 BYTES 8301
+08005df0 subs r6,r3,#0x1 BYTES 5e1e
+08005df2 sbcs r3,r6 BYTES b341
+08005df4 lsrs r0,r0,#0x1a BYTES 800e
+08005df6 orrs r0,r3 BYTES 1843
+08005df8 lsrs r3,r2,#0x10 BYTES 130c
+08005dfa adds r3,r3,r4 BYTES 1b19
+08005dfc lsls r3,r3,#0x6 BYTES 9b01
+08005dfe orrs r3,r0 BYTES 0343
+08005e00 movs r4,r3 BYTES 1c00
+08005e02 lsls r3,r4,#0x4 BYTES 2301
+08005e04 bpl 0x08005efa BYTES 79d5 REF CONDITIONAL_JUMP=08005efa
+08005e06 movs r3,#0x1 BYTES 0123
+08005e08 lsrs r2,r4,#0x1 BYTES 6208
+08005e0a ands r4,r3 BYTES 1c40
+08005e0c orrs r4,r2 BYTES 1443
+08005e0e ldr r2,[sp,#0x4] BYTES 019a REF READ=Stack[-0x2c]
+08005e10 adds r2,#0x7f BYTES 7f32
+08005e12 cmp r2,#0x0 BYTES 002a
+08005e14 ble 0x08005eb2 BYTES 4ddd REF CONDITIONAL_JUMP=08005eb2
+08005e16 lsls r3,r4,#0x1d BYTES 6307
+08005e18 beq 0x08005e24 BYTES 04d0 REF CONDITIONAL_JUMP=08005e24
+08005e1a movs r3,#0xf BYTES 0f23
+08005e1c ands r3,r4 BYTES 2340
+08005e1e cmp r3,#0x4 BYTES 042b
+08005e20 beq 0x08005e24 BYTES 00d0 REF CONDITIONAL_JUMP=08005e24
+08005e22 adds r4,#0x4 BYTES 0434
+08005e24 lsls r3,r4,#0x4 BYTES 2301
+08005e26 bpl 0x08005e30 BYTES 03d5 REF CONDITIONAL_JUMP=08005e30
+08005e28 ldr r3,[0x08005f1c] BYTES 3c4b REF READ=08005f1c WORD=f7ffffff
+08005e2a ldr r2,[sp,#0x4] BYTES 019a REF READ=Stack[-0x2c]
+08005e2c ands r4,r3 BYTES 1c40
+08005e2e adds r2,#0x80 BYTES 8032
+08005e30 cmp r2,#0xfe BYTES fe2a
+08005e32 bgt 0x08005dae BYTES bcdc REF CONDITIONAL_JUMP=08005dae
+08005e34 lsls r3,r4,#0x6 BYTES a301
+08005e36 lsrs r3,r3,#0x9 BYTES 5b0a
+08005e38 uxtb r2,r2 BYTES d2b2
+08005e3a b 0x08005d72 BYTES 9ae7 REF UNCONDITIONAL_JUMP=08005d72
+08005e3c movs r3,#0xc BYTES 0c23
+08005e3e mov r10,r3 BYTES 9a46
+08005e40 subs r3,#0x9 BYTES 093b
+08005e42 movs r5,#0xff BYTES ff25
+08005e44 mov r11,r3 BYTES 9b46
+08005e46 b 0x08005cf2 BYTES 54e7 REF UNCONDITIONAL_JUMP=08005cf2
+08005e48 movs r0,r3 BYTES 1800
+08005e4a bl 0x080080ac BYTES 02f02ff9 REF UNCONDITIONAL_CALL=080080ac
+08005e4e mov r2,r9 BYTES 4a46
+08005e50 subs r3,r0,#0x5 BYTES 431f
+08005e52 movs r5,#0x76 BYTES 7625
+08005e54 lsls r2,r3 BYTES 9a40
+08005e56 movs r3,#0x0 BYTES 0023
+08005e58 rsbs r5,r5 BYTES 6d42
+08005e5a mov r9,r2 BYTES 9146
+08005e5c subs r5,r5,r0 BYTES 2d1a
+08005e5e mov r10,r3 BYTES 9a46
+08005e60 mov r11,r3 BYTES 9b46
+08005e62 b 0x08005cf2 BYTES 46e7 REF UNCONDITIONAL_JUMP=08005cf2
+08005e64 mov r2,r10 BYTES 5246
+08005e66 movs r3,#0x3 BYTES 0323
+08005e68 orrs r2,r3 BYTES 1a43
+08005e6a mov r10,r2 BYTES 9246
+08005e6c movs r0,#0x3 BYTES 0320
+08005e6e b 0x08005d12 BYTES 50e7 REF UNCONDITIONAL_JUMP=08005d12
+08005e70 movs r0,r4 BYTES 2000
+08005e72 bl 0x080080ac BYTES 02f01bf9 REF UNCONDITIONAL_CALL=080080ac
+08005e76 subs r3,r0,#0x5 BYTES 431f
+08005e78 subs r5,r5,r0 BYTES 2d1a
+08005e7a lsls r4,r3 BYTES 9c40
+08005e7c subs r5,#0x76 BYTES 763d
+08005e7e movs r0,#0x0 BYTES 0020
+08005e80 b 0x08005d12 BYTES 47e7 REF UNCONDITIONAL_JUMP=08005d12
+08005eb2 movs r3,#0x1 BYTES 0123
+08005eb4 subs r2,r3,r2 BYTES 9a1a
+08005eb6 cmp r2,#0x1b BYTES 1b2a
+08005eb8 bgt 0x08005efe BYTES 21dc REF CONDITIONAL_JUMP=08005efe
+08005eba movs r3,r4 BYTES 2300
+08005ebc ldr r1,[sp,#0x4] BYTES 0199 REF READ=Stack[-0x2c]
+08005ebe lsrs r3,r2 BYTES d340
+08005ec0 adds r1,#0x9e BYTES 9e31
+08005ec2 lsls r4,r1 BYTES 8c40
+08005ec4 movs r2,r3 BYTES 1a00
+08005ec6 movs r3,r4 BYTES 2300
+08005ec8 subs r4,r3,#0x1 BYTES 5c1e
+08005eca sbcs r3,r4 BYTES a341
+08005ecc orrs r3,r2 BYTES 1343
+08005ece lsls r2,r3,#0x1d BYTES 5a07
+08005ed0 beq 0x08005edc BYTES 04d0 REF CONDITIONAL_JUMP=08005edc
+08005ed2 movs r2,#0xf BYTES 0f22
+08005ed4 ands r2,r3 BYTES 1a40
+08005ed6 cmp r2,#0x4 BYTES 042a
+08005ed8 beq 0x08005edc BYTES 00d0 REF CONDITIONAL_JUMP=08005edc
+08005eda adds r3,#0x4 BYTES 0433
+08005edc lsls r2,r3,#0x5 BYTES 5a01
+08005ede bmi 0x08005f04 BYTES 11d4 REF CONDITIONAL_JUMP=08005f04
+08005ee0 lsls r3,r3,#0x6 BYTES 9b01
+08005ee2 lsrs r3,r3,#0x9 BYTES 5b0a
+08005ee4 movs r2,#0x0 BYTES 0022
+08005ee6 b 0x08005d72 BYTES 44e7 REF UNCONDITIONAL_JUMP=08005d72
+08005efa str r5,[sp,#0x4] BYTES 0195 REF WRITE=Stack[-0x2c]
+08005efc b 0x08005e0e BYTES 87e7 REF UNCONDITIONAL_JUMP=08005e0e
+08005efe movs r2,#0x0 BYTES 0022
+08005f00 movs r3,#0x0 BYTES 0023
+08005f02 b 0x08005d72 BYTES 36e7 REF UNCONDITIONAL_JUMP=08005d72
+08005f04 movs r2,#0x1 BYTES 0122
+08005f06 movs r3,#0x0 BYTES 0023
+08005f08 b 0x08005d72 BYTES 33e7 REF UNCONDITIONAL_JUMP=08005d72

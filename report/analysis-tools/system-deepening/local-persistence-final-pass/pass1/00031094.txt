@@ -1,0 +1,58 @@
+FUNCTION 00031094 BODY [[00031094, 000310e3]]
+REF_TO 0003112a UNCONDITIONAL_CALL
+REF_TO 00031212 UNCONDITIONAL_CALL
+
+void FUN_00031094(int param_1,int param_2)
+
+{
+  undefined1 uVar1;
+  code *pcVar2;
+  undefined1 local_30 [4];
+  int local_2c;
+  
+  uVar1 = *(undefined1 *)(param_1 + 0x38);
+  if (*(char *)(param_1 + 0x2e) != '\0') {
+    software_interrupt(0x8b);
+    FUN_000264be(local_30,0x14);
+    software_interrupt(0x8c);
+    local_30[0] = 6;
+    if ((param_2 + 2 != 0) && (pcVar2 = *(code **)(param_1 + 0x48), pcVar2 != (code *)0x0)) {
+      local_2c = param_2 + 2;
+      (*pcVar2)(local_30,pcVar2,param_1 + 0x30,uVar1);
+    }
+  }
+  return;
+}
+
+
+INSN 00031094 2de9f041 push {r4,r5,r6,r7,r8,lr}
+INSN 00031098 0446 mov r4,r0
+INSN 0003109a 00f13a07 add.w r7,r0,#0x3a
+INSN 0003109e 00f13005 add.w r5,r0,#0x30
+INSN 000310a2 90f83860 ldrb.w r6,[r0,#0x38]
+INSN 000310a6 90f82e00 ldrb.w r0,[r0,#0x2e]
+INSN 000310aa 86b0 sub sp,#0x18
+INSN 000310ac 01f10208 add.w r8,r1,#0x2
+INSN 000310b0 0028 cmp r0,#0x0
+INSN 000310b2 14d0 beq 0x000310de REF[CONDITIONAL_JUMP:000310de]
+INSN 000310b4 8bdf svc 0x8b
+INSN 000310b6 1421 movs r1,#0x14
+INSN 000310b8 6846 mov r0,sp
+INSN 000310ba f5f700fa bl 0x000264be REF[UNCONDITIONAL_CALL:000264be]
+INSN 000310be 3346 mov r3,r6
+INSN 000310c0 2a46 mov r2,r5
+INSN 000310c2 3946 mov r1,r7
+INSN 000310c4 4046 mov r0,r8
+INSN 000310c6 8cdf svc 0x8c
+INSN 000310c8 0621 movs r1,#0x6
+INSN 000310ca 8df80010 strb.w r1,[sp,#0x0] REF[WRITE:Stack[-0x30]]
+INSN 000310ce 0190 str r0,[sp,#0x4] REF[WRITE:Stack[-0x2c]]
+INSN 000310d0 0028 cmp r0,#0x0
+INSN 000310d2 04d0 beq 0x000310de REF[CONDITIONAL_JUMP:000310de]
+INSN 000310d4 a16c ldr r1,[r4,#0x48]
+INSN 000310d6 0029 cmp r1,#0x0
+INSN 000310d8 01d0 beq 0x000310de REF[CONDITIONAL_JUMP:000310de]
+INSN 000310da 6846 mov r0,sp
+INSN 000310dc 8847 blx r1
+INSN 000310de 06b0 add sp,#0x18
+INSN 000310e0 bde8f081 pop.w {r4,r5,r6,r7,r8,pc}

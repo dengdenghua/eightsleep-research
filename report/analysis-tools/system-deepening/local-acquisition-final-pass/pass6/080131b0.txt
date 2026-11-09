@@ -1,0 +1,65 @@
+TARGET 080131b0 function=080131b0
+REF_TO 080132dc UNCONDITIONAL_CALL owner=none
+REF_TO 080133d8 UNCONDITIONAL_CALL owner=none
+FUNCTION_BODY [[080131b0, 080131f3]]
+
+void FUN_080131b0(int param_1)
+
+{
+  char cVar1;
+  code *pcVar2;
+  
+  *(undefined1 *)(param_1 + 0x42) = 0;
+  cVar1 = *(char *)(param_1 + 0x41);
+  *(char *)(param_1 + 0x41) = ' ';
+  if (cVar1 == '!') {
+    *(undefined4 *)(param_1 + 0x34) = 0;
+    *(undefined4 *)(param_1 + 0x30) = 0x11;
+    FUN_08012db4(param_1,1);
+    *(undefined1 *)(param_1 + 0x40) = 0;
+    pcVar2 = *(code **)(param_1 + 0x54);
+  }
+  else {
+    *(undefined4 *)(param_1 + 0x30) = 0x12;
+    *(undefined4 *)(param_1 + 0x34) = 0;
+    FUN_08012db4(param_1,2);
+    *(undefined1 *)(param_1 + 0x40) = 0;
+    pcVar2 = *(code **)(param_1 + 0x58);
+  }
+  (*pcVar2)(param_1);
+  return;
+}
+
+
+INSN 080131b0 0300 movs r3,r0
+INSN 080131b2 70b5 push {r4,r5,r6,lr}
+INSN 080131b4 0025 movs r5,#0x0
+INSN 080131b6 2022 movs r2,#0x20
+INSN 080131b8 0600 movs r6,r0
+INSN 080131ba 4233 adds r3,#0x42
+INSN 080131bc 1d70 strb r5,[r3,#0x0]
+INSN 080131be 013b subs r3,#0x1
+INSN 080131c0 1978 ldrb r1,[r3,#0x0]
+INSN 080131c2 0400 movs r4,r0
+INSN 080131c4 4036 adds r6,#0x40
+INSN 080131c6 1a70 strb r2,[r3,#0x0]
+INSN 080131c8 2129 cmp r1,#0x21
+INSN 080131ca 0ad1 bne 0x080131e2 REF[CONDITIONAL_JUMP:080131e2]
+INSN 080131cc 1123 movs r3,#0x11
+INSN 080131ce 4563 str r5,[r0,#0x34]
+INSN 080131d0 0363 str r3,[r0,#0x30]
+INSN 080131d2 2039 subs r1,#0x20
+INSN 080131d4 fff7eefd bl 0x08012db4 REF[UNCONDITIONAL_CALL:08012db4]
+INSN 080131d8 3570 strb r5,[r6,#0x0]
+INSN 080131da 636d ldr r3,[r4,#0x54]
+INSN 080131dc 2000 movs r0,r4
+INSN 080131de 9847 blx r3
+INSN 080131e0 70bd pop {r4,r5,r6,pc}
+INSN 080131e2 1223 movs r3,#0x12
+INSN 080131e4 0221 movs r1,#0x2
+INSN 080131e6 0363 str r3,[r0,#0x30]
+INSN 080131e8 4563 str r5,[r0,#0x34]
+INSN 080131ea fff7e3fd bl 0x08012db4 REF[UNCONDITIONAL_CALL:08012db4]
+INSN 080131ee 3570 strb r5,[r6,#0x0]
+INSN 080131f0 a36d ldr r3,[r4,#0x58]
+INSN 080131f2 f3e7 b 0x080131dc REF[UNCONDITIONAL_JUMP:080131dc]

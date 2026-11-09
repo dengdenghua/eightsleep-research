@@ -1,0 +1,112 @@
+旧传感 MCU 正常温控输出与振动报警：独立收尾
+日期：2026-11-08
+
+0. 范围与证据
+本轮只静态分析同一官方 MTK 固件包携带的两份历史 MCU 镜像：
+  39704 B firmware-sensor-legacy.bbin，版本 2.2.12；
+  42292 B firmware-sensor.bbin，版本 3.3.1。
+原件绝对路径、完整 SHA-256、表地址/文件偏移/原字节在 RAW_TABLES.json。
+复用 local-legacy-sensor-closure 与 legacy-sensor-closure 的冻结导出，副本在 sources，来源/哈希在 SOURCE_INDEX.json。
+额外缺失 callback/PWM 初始化函数用两个独立复制 Ghidra 工程导出到 new39704/new42292；没有改旧工程或执行厂商固件。
+新增结果不证明用户 Pod6 当前运行这些历史镜像，也不把旧传感板温控视为当前主控水路策略。
+
+1. 温控状态确实落到 GPIO 互斥选侧
+两版温控状态更新之后，每侧 state=1 且 powerLimit=0 会改成 state=2；这是零功率禁用保护。
+原字段在侧对象 +0x21/+0x22，39704 setter=08009070，42292=080090ac。
+main 在两侧 mode=1、state=1 时形成请求位 mask；0=都不请求，1=左，2=右，3=两侧。
+mask 0/1/2 走 39704 08009974 / 42292 08009c3c，选侧实现 08009040 / 0800907c：
+  0：两个输出都置低；1：先关闭 selector2，再打开 selector1；2：先关闭 selector1，再打开 selector2。
+mask3 注册 39704 080090f0 / 42292 0800911c callback，周期参数 15000 ms，回调在 selector1/2 间切换。
+这条最终选侧链没有按非零 powerLimit 百分比生成 PWM；不能把 powerLimit=50 直接解释为输出 GPIO 的 50% 占空比。
+初始选侧写1，但首次维持时间不能简化为15秒：39704 初始化 last=now−15000，下一次检查已到期；
+42292 的 080089f8 使用 last=now+global_counter*113−period，并递增 global_counter，含相位项。
+两版 due helper 只在到期时返回一次 true，把 last 设为 now−((now−last)%period)，不会按漏掉的周期次数重放多次切换。
+来源：sources/39704/pass7/080090f0.txt、sources/39704/configure/0800ba70.txt 约876–914行；
+sources/42292/final-functions/0800bedc.txt 912–950行、080089f8.txt、080089d0.txt；new42292/0800911c.txt。
+
+2. 四组板型选侧 pin 映射已解到最终寄存器
+两份原件的表内容一致，表地址不同；以下 pin 是 GPIO port 内位号，不是板上连接器脚号。
+  hwrev                 selector1             selector2
+  <0x100                port48000400 pin2      port48000400 pin1
+  0x100..0x2ff          port48000400 pin2      port48000400 pin6
+  0x300..0x4ff          port48000400 pin0      port48000400 pin1
+  >=0x500               port48000800 pin13     port48000800 pin15
+39704 映射函数08008fd8→0800901c→08008b6c；42292 为08009014→08009058→08008bf4。
+底层输出 level=0 向 port+0x28 写 mask；level非零向 port+0x18 写 mask。
+每项来源表地址、mask、pin_index 与原8字节记录在 RAW_TABLES.json power/raw_spans，可直接重新算。
+证实范围是固件中的数字端点；电路上的负载、极性后的实际加热功率仍需电路/实机验证。
+
+3. 振动输出的六路 PWM 硬件映射
+两版在 hwrev<0x500 / >=0x500 选择不同 PWM 配置表，最终映射相同：
+slot   <0x500: CCR地址 / port / pin       >=0x500: CCR地址 / port / pin
+0      40000434 / 48000800 / 6           40012c34 / 48000000 / 8
+1      40000438 / 48000800 / 7           40014034 / 48000400 / 14
+2      40014034 / 48000400 / 14          40014434 / 48000400 / 8
+3      40014038 / 48000400 / 15          40014834 / 48000400 / 9
+4      4000043c / 48000800 / 8           40014038 / 48000400 / 15
+5      40000440 / 48000800 / 9           40012c40 / 48000000 / 11
+左侧逻辑通道0/1/2→slot0/1/2，右侧→slot5/4/3，来自各自常量 context。
+PWM 初始化读取五字节记录(enabled,timer_index,channel,pin_index,alternate_function)，配置 GPIO 复用与定时器比较通道；
+把 48000000/(table_u16_a*table_u16_b) 保存为 period。以上各条为2400，再把对应 CCR 指针写入 slot+0xc。
+寄存器地址、alternate_function、两个 divisor 也保存在 RAW_TABLES.json，不把此静态常量当作实测频率。
+两组 enable pin：<0x500 为48000000/pin11 与48000400/pin13；>=0x500 为48000800/pin14 与48000400/pin2。
+39704 初始化第一路enable为高、第二路低；42292 仅在 hwrev<0x720 执行这对 enable GPIO 初始化。
+来源：new39704/080084c0.txt；sources/42292/final-functions/080084ec.txt；两版 main 初始化。
+
+4. 输入功率与 PWM duty 不是直接一一对应
+39704 08009394：power=0→duty0；非零→duty=float32(0.4*float32(power/100)+0.1)。
+42292 0800965c：hwrev<0x720 时 slot2/3 直接返回，其余同上；hwrev>=0x720 的非零曲线改为0.45*x+0.12。
+之后夹到0..1，CCR=uint16(uint32(double(float32(period*duty))+0.5))。
+以缓存period2400为例：旧曲线power100→CCR1200；新曲线power100→1368，power50→828；power0均为0。
+因此“100%命令”不代表引脚100%占空比。42292 旧板的两路跳过也是实际分支，不可画成无条件六路都能输出。
+未测马达机械强度、电压、驱动器转换，也未穷举所有功率字节/硬件故障状态。
+
+5. 39704：8槽 pattern + 双层渐强
+正常已解码 pattern0：0,1,空,空,1,0,空,空；pattern1：0,空,空,空,0,空,空,空。
+两个 context 的 nominal_step=500，初始化 count=500/50=10；main 对当前侧使用50ms到期检查。
+0800a238 每次先 count--：旧值非零时，按(10−新count)/10乘当前 rampPower，截整数并取低8位，送当前逻辑通道。
+旧值为0时 count重置10，关闭当前输出、step=(step+1)&7，返回1让 main 切换当前侧。
+这意味着一个完整槽是10次功率更新加1次边界调用，不是10次调用；inactive侧也等待这11次倒计数才返回切侧。
+命令开始会立即调用一次 a238，main定时器还有自身相位，因此不能把所有槽的真实起点简单固定成550ms。
+每次 step 回到0，计算当前渐强功率：
+  raw=uint8(trunc(float32(float32(elapsed_ms/300000)*maxPower)))
+  rampPower=uint8(max(10,min(maxPower,raw)))
+此处先转低8位再限幅，是原指令0800a30e的 uxtb；不能改写成全程单调递增到上限。
+例如纯模型 maxPower100、elapsed900000ms 时 raw=300&255=44；这是静态算例，非实机观察。
+0x2c 正常命令读 side、power、pattern、BE32 duration_s，duration=0 停止；未运行且power非零才启动，duration×1000。
+运行中的非零duration请求不在该分支重新初始化。总时长按 +0x20 的运行计时器检查，当前侧到时调用0800a350清状态。
+源：sources/39704/pass8/0800a238.txt、080094a0.txt、0800a350.txt；configure/0800b448.txt 181–220行；main1180–1193行。
+本节仅证实常量区中两个完整8槽模式与正常参数，不扩展未列出的pattern或全部异常输入。
+
+6. 42292：pattern→sequence→step + 按通道渐强
+表项不是39704那种8字节数组，而是带步骤时长与阶段持续门槛的指针结构。
+指针数组一部分在初始化RAM中：pattern0 array20000184，pattern1 array20000188；本轮按 Reset 数据拷贝映射回Flash，保留双地址证据。
+pattern0：1个sequence，最低持续600000ms，12个500ms步骤：通道0/空/1/空/2/空/1/空/0/空/2/空。
+pattern1：4个sequence，最低持续分别30000/60000/180000/330000ms：
+  seq0：通道0 125ms，空2500ms；
+  seq1：通道0 125，空750，通道1 125，空1625ms；
+  seq2：通道0/1/2各125ms，各后空750ms；
+  seq3：通道0/1/2各500ms，各后空500ms。
+08009774 总先 step=(step+1)%stepCount；只有回到step0且当前sequence计时达到门槛，才前进sequence。
+回到step0均关闭本侧输出并返回1让main换侧；sequence真的变化时才清零sequence计时。
+0x2c 起动清step/sequence为0后立即调用此函数，所以首次从step1开始，两种正常模式的step1均是停顿。
+main切侧时暂停旧侧的step计时，使用08008a50“重置并启动”另一侧step计时；不是保留之前已过时间继续计时。
+总时长与sequence计时仍各自运行，未因step换侧暂停，所以阶段门槛是elapsed条件，而不是马达累计震动时长。
+输出时先全六路清零再写选中一路；若step无通道标记，仅清本侧三路。正常表每步最多一个通道标记。
+080095e8 对逻辑通道0/1/2分别用120000/180000/240000ms作为渐强时长：
+  p=max(5,trunc(double(max(float32(.05),float32(float32(maxPower*min(1,elapsed/ramp_ms))/100)))*100))
+计算保持原float32中间舍入；最终main取低8位传PWM。它不是39704的每槽线性包络，也不是同一套8槽计数器。
+source：sources/42292/final-functions/080095c8.txt、080095e8.txt、08009774.txt、0800b884.txt 32–82行；main1275–1336行。
+
+7. 正常范围之外的静态边界
+42292 命令分支只把pattern>2改为0，但索引2对应常量字0x72616c61，并非本镜像有效Flash/RAM pattern指针。
+因此本报告只说恢复0/1两种完整正常表，不把索引2宣称为第三种有效模式；没有发送该值、模拟故障执行或进行利用。
+正常功能链已闭合到GPIO/PWM寄存器写入；不等于所有命令/故障组合、所有历史板型外围电路、电气行为都审完。
+真实通电时序、实机板号/镜像绑定、马达强度及最终负载仍需物理设备。未调用账号、API或设备。
+
+8. 校验与复现
+model/normal_contracts.py 包含33个有区分力的正常/边界契约：互斥选侧、零limit、15秒due与相位、板型禁用、两条PWM曲线、
+39704十一调用周期与低8位渐强、42292起始step1/阶段门槛/三通道渐强。MODEL_RESULTS.json 全通过。
+这些是对静态语义的分析者模型，不是原固件执行、设备测量或厂商算法质量测试。
+scripts/collect.py 可从已保留原件和旧导出重建表与来源清单；scripts/verify.py 核对每条保留机器码与原件字节。
+VALIDATION.json 记录核验计数，MANIFEST_SHA256.json 冻结新证据目录；旧证据保持未改。

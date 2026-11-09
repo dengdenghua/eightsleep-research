@@ -1,0 +1,59 @@
+FUNCTION 08026358 BODY [[08026358, 080263a7]]
+
+void FUN_08026358(undefined1 *param_1)
+
+{
+  if (param_1[0xc] == '\0') {
+    FUN_0801c8f8("alarm[%s] off",**(undefined4 **)(param_1 + 0x1c));
+    FUN_08026334(param_1);
+    *param_1 = 0;
+    *(undefined4 *)(param_1 + 4) = 0;
+    *(undefined4 *)(param_1 + 8) = 0;
+    param_1[0xd] = 0;
+    *(undefined2 *)(param_1 + 0xe) = 0;
+    *(undefined4 *)(param_1 + 0x10) = 0;
+    FUN_0801c72c(param_1 + 0x2c);
+    FUN_0801c72c(param_1 + 0x38);
+    FUN_0801c72c(param_1 + 0x44);
+    FUN_0801c72c(param_1 + 0x20);
+  }
+  else {
+    FUN_0801c8f8("alarm[%s] ignoring off due to haptic mode",**(undefined4 **)(param_1 + 0x1c));
+  }
+  return;
+}
+
+
+INSN 08026358 70b5 push {r4,r5,r6,lr}
+INSN 0802635a c369 ldr r3,[r0,#0x1c]
+INSN 0802635c 057b ldrb r5,[r0,#0xc]
+INSN 0802635e 0400 movs r4,r0
+INSN 08026360 1968 ldr r1,[r3,#0x0]
+INSN 08026362 002d cmp r5,#0x0
+INSN 08026364 03d0 beq 0x0802636e REF[CONDITIONAL_JUMP:0802636e]
+INSN 08026366 1048 ldr r0,[0x080263a8] REF[READ:080263a8=8030e4b] REF[PARAM:08030e4b=72616c61]
+INSN 08026368 f6f7c6fa bl 0x0801c8f8 REF[UNCONDITIONAL_CALL:0801c8f8]
+INSN 0802636c 70bd pop {r4,r5,r6,pc}
+INSN 0802636e 0f48 ldr r0,[0x080263ac] REF[READ:080263ac=8030e75] REF[PARAM:08030e75=72616c61]
+INSN 08026370 f6f7c2fa bl 0x0801c8f8 REF[UNCONDITIONAL_CALL:0801c8f8]
+INSN 08026374 2000 movs r0,r4
+INSN 08026376 fff7ddff bl 0x08026334 REF[UNCONDITIONAL_CALL:08026334]
+INSN 0802637a 2000 movs r0,r4
+INSN 0802637c 2570 strb r5,[r4,#0x0]
+INSN 0802637e 6560 str r5,[r4,#0x4]
+INSN 08026380 a560 str r5,[r4,#0x8]
+INSN 08026382 6573 strb r5,[r4,#0xd]
+INSN 08026384 e581 strh r5,[r4,#0xe]
+INSN 08026386 2561 str r5,[r4,#0x10]
+INSN 08026388 2c30 adds r0,#0x2c
+INSN 0802638a f6f7cff9 bl 0x0801c72c REF[UNCONDITIONAL_CALL:0801c72c]
+INSN 0802638e 2000 movs r0,r4
+INSN 08026390 3830 adds r0,#0x38
+INSN 08026392 f6f7cbf9 bl 0x0801c72c REF[UNCONDITIONAL_CALL:0801c72c]
+INSN 08026396 2000 movs r0,r4
+INSN 08026398 4430 adds r0,#0x44
+INSN 0802639a f6f7c7f9 bl 0x0801c72c REF[UNCONDITIONAL_CALL:0801c72c]
+INSN 0802639e 2000 movs r0,r4
+INSN 080263a0 2030 adds r0,#0x20
+INSN 080263a2 f6f7c3f9 bl 0x0801c72c REF[UNCONDITIONAL_CALL:0801c72c]
+INSN 080263a6 e1e7 b 0x0802636c REF[UNCONDITIONAL_JUMP:0802636c]

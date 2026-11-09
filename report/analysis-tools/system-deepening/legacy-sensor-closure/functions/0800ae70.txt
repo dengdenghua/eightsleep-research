@@ -1,0 +1,125 @@
+FUNCTION 0800ae70 FUN_0800ae70 BODY [[0800ae70, 0800af0b]]
+INCOMING 0800c56e UNCONDITIONAL_CALL
+INCOMING 0800c57e UNCONDITIONAL_CALL
+INCOMING 0800da7e UNCONDITIONAL_CALL
+INCOMING 0800de38 UNCONDITIONAL_CALL
+
+undefined8
+FUN_0800ae70(undefined4 *param_1,int param_2,undefined4 param_3,undefined4 param_4,
+            undefined1 param_5)
+
+{
+  int iVar1;
+  uint uVar2;
+  uint uVar3;
+  uint *puVar4;
+  
+  iVar1 = DAT_0800af10;
+  uVar2 = *(uint *)(DAT_0800af10 + 0x1c);
+  uVar3 = *(uint *)(DAT_0800af0c + param_2 * 8 + 4);
+  *param_1 = *(undefined4 *)(param_2 * 8 + DAT_0800af0c);
+  *(uint *)(iVar1 + 0x1c) = uVar3 | uVar2;
+  FUN_0800abc4();
+  FUN_08008bc0(param_3,param_5);
+  FUN_08008bc0(param_4,param_5);
+  *(char *)(param_1 + 1) = (char)param_2 + '\x01';
+  if (param_2 == 1) {
+    FUN_08009be4(DAT_0800af14,2);
+    uVar2 = DAT_0800af18;
+  }
+  else {
+    FUN_08009be4(DAT_0800af24,1);
+    uVar2 = DAT_0800af28;
+  }
+  uVar3 = DAT_0800af1c;
+  puVar4 = (uint *)*param_1;
+  *puVar4 = *puVar4 & 0xfffffffe;
+  *puVar4 = uVar3 & *puVar4 | 0x1000;
+  puVar4[4] = uVar2;
+  *puVar4 = *puVar4 | 1;
+  puVar4[2] = 0;
+  puVar4[3] = 0;
+  puVar4[2] = 0;
+  puVar4[2] = puVar4[2] | 0x8000;
+  uVar2 = DAT_0800af20;
+  *puVar4 = *puVar4;
+  puVar4[1] = puVar4[1] & uVar2;
+  *puVar4 = *puVar4 | 1;
+  return CONCAT44(param_4,param_1);
+}
+
+
+ASSEMBLY
+0800ae70 push {r0,r1,r2,r4,r5,r6,r7,lr} BYTES f7b5
+0800ae72 movs r7,r2 BYTES 1700
+0800ae74 lsls r2,r1,#0x3 BYTES ca00
+0800ae76 mov r12,r2 BYTES 9446
+0800ae78 movs r4,r0 BYTES 0400
+0800ae7a movs r5,r1 BYTES 0d00
+0800ae7c str r3,[sp,#0x4] BYTES 0193 REF WRITE=Stack[-0x1c]
+0800ae7e add r3,sp,#0x20 BYTES 08ab
+0800ae80 ldrb r6,[r3,#0x0] BYTES 1e78 REF READ=Stack[0x0]
+0800ae82 ldr r3,[0x0800af0c] BYTES 224b REF READ=0800af0c WORD=800e804
+0800ae84 ldr r0,[r2,r3] BYTES d058 REF DATA=0800e804 WORD=40005400
+0800ae86 ldr r2,[0x0800af10] BYTES 224a REF READ=0800af10 WORD=40021000
+0800ae88 add r3,r12 BYTES 6344
+0800ae8a ldr r1,[r2,#0x1c] BYTES d169 REF READ=4002101c
+0800ae8c ldr r3,[r3,#0x4] BYTES 5b68 REF DATA=0800e808 WORD=200000
+0800ae8e str r0,[r4,#0x0] BYTES 2060
+0800ae90 orrs r3,r1 BYTES 0b43
+0800ae92 str r3,[r2,#0x1c] BYTES d361 REF WRITE=4002101c
+0800ae94 bl 0x0800abc4 BYTES fff796fe REF UNCONDITIONAL_CALL=0800abc4
+0800ae98 movs r1,r6 BYTES 3100
+0800ae9a movs r0,r7 BYTES 3800
+0800ae9c bl 0x08008bc0 BYTES fdf790fe REF UNCONDITIONAL_CALL=08008bc0
+0800aea0 movs r1,r6 BYTES 3100
+0800aea2 ldr r0,[sp,#0x4] BYTES 0198 REF READ=Stack[-0x1c]
+0800aea4 bl 0x08008bc0 BYTES fdf78cfe REF UNCONDITIONAL_CALL=08008bc0
+0800aea8 adds r3,r5,#0x1 BYTES 6b1c
+0800aeaa strb r3,[r4,#0x4] BYTES 2371
+0800aeac cmp r5,#0x1 BYTES 012d
+0800aeae bne 0x0800af00 BYTES 27d1 REF CONDITIONAL_JUMP=0800af00
+0800aeb0 movs r1,#0x2 BYTES 0221
+0800aeb2 ldr r0,[0x0800af14] BYTES 1848 REF READ=0800af14 WORD=800e7c5 REF PARAM=0800e7c5 WORD=6332695b
+0800aeb4 bl 0x08009be4 BYTES fef796fe REF UNCONDITIONAL_CALL=08009be4
+0800aeb8 ldr r5,[0x0800af18] BYTES 174d REF READ=0800af18 WORD=20303e5d
+0800aeba movs r2,#0x1 BYTES 0122
+0800aebc ldr r3,[r4,#0x0] BYTES 2368
+0800aebe ldr r0,[0x0800af1c] BYTES 1748 REF READ=0800af1c WORD=cfe0ff
+0800aec0 ldr r1,[r3,#0x0] BYTES 1968
+0800aec2 bics r1,r2 BYTES 9143
+0800aec4 str r1,[r3,#0x0] BYTES 1960
+0800aec6 ldr r1,[r3,#0x0] BYTES 1968
+0800aec8 ands r0,r1 BYTES 0840
+0800aeca movs r1,#0x80 BYTES 8021
+0800aecc lsls r1,r1,#0x5 BYTES 4901
+0800aece orrs r1,r0 BYTES 0143
+0800aed0 str r1,[r3,#0x0] BYTES 1960
+0800aed2 str r5,[r3,#0x10] BYTES 1d61
+0800aed4 ldr r1,[r3,#0x0] BYTES 1968
+0800aed6 orrs r1,r2 BYTES 1143
+0800aed8 str r1,[r3,#0x0] BYTES 1960
+0800aeda movs r1,#0x0 BYTES 0021
+0800aedc str r1,[r3,#0x8] BYTES 9960
+0800aede str r1,[r3,#0xc] BYTES d960
+0800aee0 str r1,[r3,#0x8] BYTES 9960
+0800aee2 movs r1,#0x80 BYTES 8021
+0800aee4 ldr r0,[r3,#0x8] BYTES 9868
+0800aee6 lsls r1,r1,#0x8 BYTES 0902
+0800aee8 orrs r1,r0 BYTES 0143
+0800aeea str r1,[r3,#0x8] BYTES 9960
+0800aeec ldr r1,[r3,#0x0] BYTES 1968
+0800aeee ldr r0,[0x0800af20] BYTES 0c48 REF READ=0800af20 WORD=7ff7fff
+0800aef0 str r1,[r3,#0x0] BYTES 1960
+0800aef2 ldr r1,[r3,#0x4] BYTES 5968
+0800aef4 ands r1,r0 BYTES 0140
+0800aef6 str r1,[r3,#0x4] BYTES 5960
+0800aef8 ldr r1,[r3,#0x0] BYTES 1968
+0800aefa orrs r2,r1 BYTES 0a43
+0800aefc str r2,[r3,#0x0] BYTES 1a60
+0800aefe pop {r0,r1,r2,r4,r5,r6,r7,pc} BYTES f7bd
+0800af00 movs r1,#0x1 BYTES 0121
+0800af02 ldr r0,[0x0800af24] BYTES 0848 REF READ=0800af24 WORD=800e7e6 REF PARAM=0800e7e6 WORD=6332695b
+0800af04 bl 0x08009be4 BYTES fef76efe REF UNCONDITIONAL_CALL=08009be4
+0800af08 ldr r5,[0x0800af28] BYTES 074d REF READ=0800af28 WORD=10420f13
+0800af0a b 0x0800aeba BYTES d6e7 REF UNCONDITIONAL_JUMP=0800aeba

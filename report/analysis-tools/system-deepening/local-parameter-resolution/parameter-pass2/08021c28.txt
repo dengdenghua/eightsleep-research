@@ -1,0 +1,197 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+char FUN_08021c28(int param_1,undefined4 param_2,undefined4 param_3)
+
+{
+  char cVar1;
+  undefined4 uVar2;
+  undefined4 uVar3;
+  int iVar4;
+  undefined4 uVar5;
+  undefined4 uVar6;
+  undefined4 uVar7;
+  undefined4 uVar8;
+  char *pcVar9;
+  char *pcVar10;
+  char *local_2c;
+  
+  cVar1 = *(char *)(param_1 + 0x5c);
+  if (cVar1 != '\0') {
+    uVar2 = FUN_08016f60(param_2,10);
+    uVar3 = FUN_08016f6e(param_2,10);
+    iVar4 = FUN_0801053c(param_2,0);
+    if (iVar4 == 0) {
+      iVar4 = FUN_08010578(param_2,param_3);
+      if (iVar4 == 0) {
+        iVar4 = FUN_08010564(param_3,0x41500000);
+        local_2c = "";
+        if (iVar4 == 0) {
+          *(undefined4 *)(param_1 + 0x50) = param_2;
+          *(undefined4 *)(param_1 + 0x54) = param_3;
+          uVar5 = FUN_0802b814(param_3,param_2);
+          uVar5 = FUN_0802b1cc(uVar5,0x41200000);
+          *(undefined4 *)(param_1 + 0x58) = uVar5;
+          iVar4 = FUN_0801053c(param_3,0);
+          pcVar10 = "-";
+          if (iVar4 == 0) {
+            pcVar10 = "";
+          }
+          uVar6 = FUN_08016f60(param_3,10);
+          uVar7 = FUN_08016f6e(param_3,10);
+          iVar4 = FUN_0801053c(uVar5,0);
+          pcVar9 = "-";
+          if (iVar4 == 0) {
+            pcVar9 = "";
+          }
+          uVar8 = FUN_08016f60(uVar5,100);
+          uVar5 = FUN_08016f6e(uVar5,100);
+          FUN_08017634("[tolerance_bins] range updated: %s%u.%01u-%s%u.%01u kPa, bin_width=%s%u.%02u kPa"
+                       ,"",uVar2,uVar3,pcVar10,uVar6,uVar7,pcVar9,uVar8,uVar5);
+          return cVar1;
+        }
+      }
+      else {
+        local_2c = "";
+      }
+    }
+    else {
+      local_2c = "-";
+    }
+    iVar4 = FUN_0801053c(param_3,0);
+    pcVar10 = "-";
+    if (iVar4 == 0) {
+      pcVar10 = "";
+    }
+    uVar5 = FUN_08016f60(param_3,10);
+    uVar6 = FUN_08016f6e(param_3,10);
+    FUN_08017634("[tolerance_bins] invalid range: min=%s%u.%01u max=%s%u.%01u (must be 0 <= min < max <= 13)"
+                 ,local_2c,uVar2,uVar3,pcVar10,uVar5,uVar6);
+  }
+  return '\0';
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08021c28 0300 movs r3,r0
+08021c2a f0b5 push {r4,r5,r6,r7,lr}
+08021c2c 5c33 adds r3,#0x5c
+08021c2e 1b78 ldrb r3,[r3,#0x0]
+08021c30 8db0 sub sp,#0x34
+08021c32 0600 movs r6,r0
+08021c34 0d1c adds r5,r1,#0x0
+08021c36 141c adds r4,r2,#0x0
+08021c38 0893 str r3,[sp,#0x20]
+08021c3a 002b cmp r3,#0x0
+08021c3c 04d1 bne 0x08021c48
+08021c3e 0023 movs r3,#0x0
+08021c40 0893 str r3,[sp,#0x20]
+08021c42 0898 ldr r0,[sp,#0x20]
+08021c44 0db0 add sp,#0x34
+08021c46 f0bd pop {r4,r5,r6,r7,pc}
+08021c48 0a21 movs r1,#0xa
+08021c4a 281c adds r0,r5,#0x0
+08021c4c f5f788f9 bl 0x08016f60
+08021c50 0a21 movs r1,#0xa
+08021c52 0990 str r0,[sp,#0x24]
+08021c54 281c adds r0,r5,#0x0
+08021c56 f5f78af9 bl 0x08016f6e
+08021c5a 0021 movs r1,#0x0
+08021c5c 0a90 str r0,[sp,#0x28]
+08021c5e 281c adds r0,r5,#0x0
+08021c60 eef76cfc bl 0x0801053c
+08021c64 0028 cmp r0,#0x0
+08021c66 4bd1 bne 0x08021d00
+08021c68 211c adds r1,r4,#0x0
+08021c6a 281c adds r0,r5,#0x0
+08021c6c eef784fc bl 0x08010578
+08021c70 334f ldr r7,[0x08021d40]
+08021c72 0028 cmp r0,#0x0
+08021c74 62d1 bne 0x08021d3c
+08021c76 3349 ldr r1,[0x08021d44]
+08021c78 201c adds r0,r4,#0x0
+08021c7a eef773fc bl 0x08010564
+08021c7e 0797 str r7,[sp,#0x1c]
+08021c80 0028 cmp r0,#0x0
+08021c82 3fd1 bne 0x08021d04
+08021c84 3565 str r5,[r6,#0x50]
+08021c86 291c adds r1,r5,#0x0
+08021c88 7465 str r4,[r6,#0x54]
+08021c8a 201c adds r0,r4,#0x0
+08021c8c 09f0c2fd bl 0x0802b814
+08021c90 2d49 ldr r1,[0x08021d48]
+08021c92 09f09bfa bl 0x0802b1cc
+08021c96 0021 movs r1,#0x0
+08021c98 b065 str r0,[r6,#0x58]
+08021c9a 051c adds r5,r0,#0x0
+08021c9c 201c adds r0,r4,#0x0
+08021c9e eef74dfc bl 0x0801053c
+08021ca2 2a4e ldr r6,[0x08021d4c]
+08021ca4 0028 cmp r0,#0x0
+08021ca6 00d1 bne 0x08021caa
+08021ca8 3e00 movs r6,r7
+08021caa 0a21 movs r1,#0xa
+08021cac 201c adds r0,r4,#0x0
+08021cae f5f757f9 bl 0x08016f60
+08021cb2 0a21 movs r1,#0xa
+08021cb4 0790 str r0,[sp,#0x1c]
+08021cb6 201c adds r0,r4,#0x0
+08021cb8 f5f759f9 bl 0x08016f6e
+08021cbc 0021 movs r1,#0x0
+08021cbe 0b90 str r0,[sp,#0x2c]
+08021cc0 281c adds r0,r5,#0x0
+08021cc2 eef73bfc bl 0x0801053c
+08021cc6 214c ldr r4,[0x08021d4c]
+08021cc8 0028 cmp r0,#0x0
+08021cca 00d1 bne 0x08021cce
+08021ccc 1c4c ldr r4,[0x08021d40]
+08021cce 6421 movs r1,#0x64
+08021cd0 281c adds r0,r5,#0x0
+08021cd2 f5f745f9 bl 0x08016f60
+08021cd6 6421 movs r1,#0x64
+08021cd8 0700 movs r7,r0
+08021cda 281c adds r0,r5,#0x0
+08021cdc f5f747f9 bl 0x08016f6e
+08021ce0 0b9b ldr r3,[sp,#0x2c]
+08021ce2 1b4d ldr r5,[0x08021d50]
+08021ce4 0293 str r3,[sp,#0x8]
+08021ce6 079b ldr r3,[sp,#0x1c]
+08021ce8 0590 str r0,[sp,#0x14]
+08021cea 0193 str r3,[sp,#0x4]
+08021cec 2800 movs r0,r5
+08021cee 1449 ldr r1,[0x08021d40]
+08021cf0 0a9b ldr r3,[sp,#0x28]
+08021cf2 099a ldr r2,[sp,#0x24]
+08021cf4 0497 str r7,[sp,#0x10]
+08021cf6 0394 str r4,[sp,#0xc]
+08021cf8 0096 str r6,[sp,#0x0]
+08021cfa f5f79bfc bl 0x08017634
+08021cfe a0e7 b 0x08021c42
+08021d00 124b ldr r3,[0x08021d4c]
+08021d02 0793 str r3,[sp,#0x1c]
+08021d04 0021 movs r1,#0x0
+08021d06 201c adds r0,r4,#0x0
+08021d08 eef718fc bl 0x0801053c
+08021d0c 0f4e ldr r6,[0x08021d4c]
+08021d0e 0028 cmp r0,#0x0
+08021d10 00d1 bne 0x08021d14
+08021d12 0b4e ldr r6,[0x08021d40]
+08021d14 0a21 movs r1,#0xa
+08021d16 201c adds r0,r4,#0x0
+08021d18 f5f722f9 bl 0x08016f60
+08021d1c 0a21 movs r1,#0xa
+08021d1e 0500 movs r5,r0
+08021d20 201c adds r0,r4,#0x0
+08021d22 f5f724f9 bl 0x08016f6e
+08021d26 0b4c ldr r4,[0x08021d54]
+08021d28 0290 str r0,[sp,#0x8]
+08021d2a 0a9b ldr r3,[sp,#0x28]
+08021d2c 2000 movs r0,r4
+08021d2e 099a ldr r2,[sp,#0x24]
+08021d30 0799 ldr r1,[sp,#0x1c]
+08021d32 0195 str r5,[sp,#0x4]
+08021d34 0096 str r6,[sp,#0x0]
+08021d36 f5f77dfc bl 0x08017634
+08021d3a 80e7 b 0x08021c3e
+08021d3c 0797 str r7,[sp,#0x1c]
+08021d3e e1e7 b 0x08021d04

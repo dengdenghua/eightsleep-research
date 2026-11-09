@@ -1,0 +1,104 @@
+{
+  "status": "PASS",
+  "tests": 8,
+  "case_count": 5,
+  "cases": {
+    "baseline": {
+      "outer_body_length": 46,
+      "outer_header_log_length": 44,
+      "outer_strnlen_return": 44,
+      "outer_text_cstring": "FW: 1000 [sampling] attempting gain and sync",
+      "outer_payload_hex": "46573a2031303030205b73616d706c696e675d20617474656d7074696e67206761696e20616e642073796e63",
+      "embedded_nul_offset": -1,
+      "header_matches_body_text_count": true,
+      "outer_matches_expected_original": true,
+      "candidate_frame_crc_accepted": [
+        true
+      ],
+      "boundary": "LSP CRC accepted in copied model, business log parser/USB/NATS/cloud outcomes unknown"
+    },
+    "during_literal_copy": {
+      "outer_body_length": 46,
+      "outer_header_log_length": 44,
+      "outer_strnlen_return": 44,
+      "outer_text_cstring": "FW: 1000 [sampling] overfpting gain and sync",
+      "outer_payload_hex": "46573a2031303030205b73616d706c696e675d206f766572667074696e67206761696e20616e642073796e63",
+      "embedded_nul_offset": -1,
+      "header_matches_body_text_count": true,
+      "outer_matches_expected_original": false,
+      "candidate_frame_crc_accepted": [
+        true,
+        true
+      ],
+      "boundary": "LSP CRC accepted in copied model, business log parser/USB/NATS/cloud outcomes unknown"
+    },
+    "before_strnlen": {
+      "outer_body_length": 30,
+      "outer_header_log_length": 28,
+      "outer_strnlen_return": 28,
+      "outer_text_cstring": "FW: 1000 [sampling] overflow",
+      "outer_payload_hex": "46573a2031303030205b73616d706c696e675d206f766572666c6f77",
+      "embedded_nul_offset": -1,
+      "header_matches_body_text_count": true,
+      "outer_matches_expected_original": false,
+      "candidate_frame_crc_accepted": [
+        true,
+        true
+      ],
+      "boundary": "LSP CRC accepted in copied model, business log parser/USB/NATS/cloud outcomes unknown"
+    },
+    "after_strnlen": {
+      "outer_body_length": 46,
+      "outer_header_log_length": 44,
+      "outer_strnlen_return": 44,
+      "outer_text_cstring": "FW: 1000 [sampling] overflow",
+      "outer_payload_hex": "46573a2031303030205b73616d706c696e675d206f766572666c6f770067206761696e20616e642073796e63",
+      "embedded_nul_offset": 28,
+      "header_matches_body_text_count": true,
+      "outer_matches_expected_original": false,
+      "candidate_frame_crc_accepted": [
+        true,
+        true
+      ],
+      "boundary": "LSP CRC accepted in copied model, business log parser/USB/NATS/cloud outcomes unknown"
+    },
+    "during_body_copy": {
+      "outer_body_length": 46,
+      "outer_header_log_length": 28,
+      "outer_strnlen_return": 44,
+      "outer_text_cstring": "FW: 1000 [sampling] overflow",
+      "outer_payload_hex": "46573a2031303030205b73616d706c696e675d206f766572666c6f770067206761696e20616e642073796e63",
+      "embedded_nul_offset": 28,
+      "header_matches_body_text_count": false,
+      "outer_matches_expected_original": false,
+      "candidate_frame_crc_accepted": [
+        true,
+        true
+      ],
+      "boundary": "LSP CRC accepted in copied model, business log parser/USB/NATS/cloud outcomes unknown"
+    }
+  },
+  "input": {
+    "outer_format_va": "0802ef89",
+    "outer_format": "[sampling] attempting gain and sync",
+    "inner_format_va": "0803016f",
+    "inner_format": "[sampling] overflow",
+    "tick_fixture": 1000
+  },
+  "preconditions": [
+    "sampling active and ADC full",
+    "gain-dirty foreground branch selected",
+    "one IRQ at chosen exact instruction phase",
+    "nested log returns normally with buffer capacity available",
+    "foreground registers/stack locals restored",
+    "no additional IRQ/USB slot reuse/copy failure"
+  ],
+  "not_modelled": [
+    "actual event frequency",
+    "native printf execution or generic formats",
+    "USB/PMA and send queue scheduling",
+    "framer reentry while already encoding",
+    "business log opcode handling",
+    "NATS/uploader/cloud"
+  ]
+}

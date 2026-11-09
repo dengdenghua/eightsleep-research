@@ -1,0 +1,26 @@
+FUNCTION 080090ac analyst_heater_output_callback BODY [[080090ac, 080090c3]]
+
+void __stdcall_softfp analyst_heater_output_callback(undefined *arg0,uint arg1)
+
+{
+  arg0[0x21] = (char)arg1;
+  if ((*(uint *)(arg0 + 0x20) & 0xffff00) == 0x100) {
+    arg0[0x21] = 2;
+  }
+  return;
+}
+
+
+ASSEMBLY
+080090ac adds r2,r0,#0x2 BYTES 821c
+080090ae strb r1,[r2,#0x1f] BYTES d177
+080090b0 ldr r3,[r0,#0x20] BYTES 036a
+080090b2 ldr r1,[0x080090c4] BYTES 0449 REF READ=080090c4 WORD=ffff00
+080090b4 ands r3,r1 BYTES 0b40
+080090b6 movs r1,#0x80 BYTES 8021
+080090b8 lsls r1,r1,#0x1 BYTES 4900
+080090ba cmp r3,r1 BYTES 8b42
+080090bc bne 0x080090c2 BYTES 01d1 REF CONDITIONAL_JUMP=080090c2
+080090be movs r3,#0x2 BYTES 0223
+080090c0 strb r3,[r2,#0x1f] BYTES d377
+080090c2 bx lr BYTES 7047

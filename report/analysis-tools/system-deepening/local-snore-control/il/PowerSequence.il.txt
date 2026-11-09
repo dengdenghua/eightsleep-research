@@ -1,0 +1,129 @@
+// IL code: Eight.Capybara
+.class public auto ansi beforefieldinit Eight.Capybara.AdjustableBase.Joints.PowerSequence
+	extends [System.Runtime]System.Object
+{
+	// Fields
+	.field private static initonly float64 MaxSpeed
+	.field private float64 lastPower
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			int32 startingPower
+		) cil managed 
+	{
+		// Method begins at RVA 0x1e71b
+		// Header size: 1
+		// Code size: 15 (0xf)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0006: ldarg.0
+		IL_0007: ldarg.1
+		IL_0008: conv.r8
+		IL_0009: stfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::lastPower
+		IL_000e: ret
+	} // end of method PowerSequence::.ctor
+
+	.method public hidebysig 
+		instance float64 GetNextPower (
+			valuetype [System.Runtime]System.Nullable`1<float64> lastSpeed
+		) cil managed 
+	{
+		// Method begins at RVA 0x1e72c
+		// Header size: 12
+		// Code size: 151 (0x97)
+		.maxstack 3
+		.locals init (
+			[0] valuetype [System.Runtime]System.Nullable`1<float64>,
+			[1] float64
+		)
+
+		IL_0000: ldarga.s lastSpeed
+		IL_0002: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_0007: brtrue.s IL_0010
+
+		IL_0009: ldarg.0
+		IL_000a: ldfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::lastPower
+		IL_000f: ret
+
+		IL_0010: ldarg.1
+		IL_0011: stloc.0
+		IL_0012: ldc.r8 1.5
+		IL_001b: stloc.1
+		IL_001c: ldloca.s 0
+		IL_001e: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::GetValueOrDefault()
+		IL_0023: ldloc.1
+		IL_0024: cgt.un
+		IL_0026: ldc.i4.0
+		IL_0027: ceq
+		IL_0029: ldloca.s 0
+		IL_002b: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_0030: and
+		IL_0031: brfalse.s IL_0050
+
+		IL_0033: ldarg.0
+		IL_0034: ldarg.0
+		IL_0035: ldfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::lastPower
+		IL_003a: ldc.r8 5
+		IL_0043: add
+		IL_0044: stfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::lastPower
+		IL_0049: ldarg.0
+		IL_004a: ldfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::lastPower
+		IL_004f: ret
+
+		IL_0050: ldarg.1
+		IL_0051: stloc.0
+		IL_0052: ldsfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::MaxSpeed
+		IL_0057: stloc.1
+		IL_0058: ldloca.s 0
+		IL_005a: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::GetValueOrDefault()
+		IL_005f: ldloc.1
+		IL_0060: cgt
+		IL_0062: ldloca.s 0
+		IL_0064: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_0069: and
+		IL_006a: brfalse.s IL_0090
+
+		IL_006c: ldarg.0
+		IL_006d: ldarg.0
+		IL_006e: ldfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::lastPower
+		IL_0073: ldc.r8 0.8
+		IL_007c: mul
+		IL_007d: ldc.r8 8
+		IL_0086: call float64 [System.Runtime]System.Math::Max(float64, float64)
+		IL_008b: stfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::lastPower
+
+		IL_0090: ldarg.0
+		IL_0091: ldfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::lastPower
+		IL_0096: ret
+	} // end of method PowerSequence::GetNextPower
+
+	.method public hidebysig 
+		instance float64 GetLastPower () cil managed 
+	{
+		// Method begins at RVA 0x1e7cf
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::lastPower
+		IL_0006: ret
+	} // end of method PowerSequence::GetLastPower
+
+	.method private hidebysig specialname rtspecialname static 
+		void .cctor () cil managed 
+	{
+		// Method begins at RVA 0x1e7d7
+		// Header size: 1
+		// Code size: 15 (0xf)
+		.maxstack 8
+
+		IL_0000: ldc.r8 5
+		IL_0009: stsfld float64 Eight.Capybara.AdjustableBase.Joints.PowerSequence::MaxSpeed
+		IL_000e: ret
+	} // end of method PowerSequence::.cctor
+
+} // end of class Eight.Capybara.AdjustableBase.Joints.PowerSequence

@@ -1,0 +1,35 @@
+复现边界
+只分析原文件。不要启动固件、不要访问附件、不要把此目录写入设备。
+本目录 O；研究根 R 是 O 上三级（eightsleep-firmware-research-20261107）。
+
+输入和 Ghidra
+INPUTS.json 给出 payload 路径、SHA256、原128字节头映射及原只读工程。
+所有 headless 原命令保存在 COMMANDS.json，使用 -readOnly -noanalysis。
+ExportTriMixExecution.java 先校验工程内记录的输入SHA256；只导出现有函数、现有指令和引用。
+它改变的是本次 DecompInterface 的 RespectReadOnly 选项，不修改原数据库 SRAM 属性。
+运行脚本：python3 O/scripts/run_export.py passN address-or-range ...
+JOBS.json 保留实际运行句柄/退出状态，passN.log 保留 stdout/stderr。
+复跑请用新输出目录，不要覆盖既有证据。导出过程中没有修函数边界或重做全局分析。
+
+不依赖 Ghidra 的复核
+1. python3 O/scripts/raw_facts.py
+   验证payload字节身份及原包[128:]、9个向量条目和4个TBB表项，更新RAW_FACTS.json。
+2. python3 O/scripts/build_indexes.py
+   从已经存在的pass1–4导出精确匹配地址和行号，更新结构化索引。
+3. python3 O/scripts/verify_bytes.py
+   将每条INSN机器码与payload及原包+128比较；核对flash literal数值与BL/B.W目标。
+   更新BYTE_VALIDATION.json及SOURCE_MANIFEST.json。
+   原包和输入hash从文件实时计算；manifest自身不纳入自身hash。
+   该步骤应在最后运行；之后任何报告/索引变更都需要重新运行。
+
+本轮结果
+4次headless导出均exit0；Python脚本已做AST语法检查且未生成__pycache__。
+2845条导出指令记录（含重复）共7088字节逐条匹配；2763个唯一指令地址。
+179次flash literal核验、299次BL/B.W目标算术核验；9个向量指针和4个TBB表项匹配。
+精确唯一字节数及各文件SHA256以BYTE_VALIDATION.json为准。
+字节验证证明导出与原件一致；不等于验证全部伪代码语义、运行可达性或实机效果。
+
+来源边界
+EVIDENCE_MAP中的TPP编号仅为本目录本地索引，不是REA MCP服务返回的证据ID。
+这轮使用已有本地Ghidra工程；没有伪造工具服务证据或进行硬件实验。
+由函数名/数据库owner给出的caller仅用作线索；报告采用实际参数和共享尾分支核对调度。

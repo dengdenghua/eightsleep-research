@@ -1,0 +1,65 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+void FUN_08021804(char *param_1,int param_2)
+
+{
+  if ((param_1 != (char *)0x0) && (*param_1 != '\0')) {
+    if (param_1[0x34] != '\0') {
+      if (param_2 == 0) {
+        FUN_0801ef58();
+      }
+      else {
+        *(undefined1 **)(param_1 + 0x30) = &LAB_0801ef9c_1;
+        param_1[0x34] = '\x01';
+        param_1[0x48] = '\0';
+        param_1[0x49] = '\0';
+        *(int *)(param_1 + 0x44) = param_2;
+        FUN_08017484(param_1 + 0x38);
+        FUN_08017006(param_1 + 0x38);
+        FUN_08017634("[solenoid:%u] scheduled %s after %ums delay",param_1[0x4d],"close",param_2);
+      }
+    }
+  }
+  return;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08021804 70b5 push {r4,r5,r6,lr}
+08021806 0400 movs r4,r0
+08021808 0d00 movs r5,r1
+0802180a 0028 cmp r0,#0x0
+0802180c 1fd0 beq 0x0802184e
+0802180e 0378 ldrb r3,[r0,#0x0]
+08021810 002b cmp r3,#0x0
+08021812 1cd0 beq 0x0802184e
+08021814 0300 movs r3,r0
+08021816 3433 adds r3,#0x34
+08021818 1a78 ldrb r2,[r3,#0x0]
+0802181a 002a cmp r2,#0x0
+0802181c 17d0 beq 0x0802184e
+0802181e 0029 cmp r1,#0x0
+08021820 16d0 beq 0x08021850
+08021822 0d4a ldr r2,[0x08021858]
+08021824 0600 movs r6,r0
+08021826 0263 str r2,[r0,#0x30]
+08021828 0122 movs r2,#0x1
+0802182a 1a70 strb r2,[r3,#0x0]
+0802182c 0022 movs r2,#0x0
+0802182e 3836 adds r6,#0x38
+08021830 9a82 strh r2,[r3,#0x14]
+08021832 4164 str r1,[r0,#0x44]
+08021834 3000 movs r0,r6
+08021836 f5f725fe bl 0x08017484
+0802183a 4d34 adds r4,#0x4d
+0802183c 3000 movs r0,r6
+0802183e f5f7e2fb bl 0x08017006
+08021842 2b00 movs r3,r5
+08021844 054a ldr r2,[0x0802185c]
+08021846 2178 ldrb r1,[r4,#0x0]
+08021848 0548 ldr r0,[0x08021860]
+0802184a f5f7f3fe bl 0x08017634
+0802184e 70bd pop {r4,r5,r6,pc}
+08021850 fdf782fb bl 0x0801ef58
+08021854 fbe7 b 0x0802184e

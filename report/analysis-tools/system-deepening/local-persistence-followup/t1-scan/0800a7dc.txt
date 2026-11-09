@@ -1,0 +1,35 @@
+TARGET 0800a7dc function=0800a7dc
+REF_TO 0800a8aa UNCONDITIONAL_CALL owner=0800a81a
+REF_TO 0800fd92 UNCONDITIONAL_CALL owner=0800fd54
+REF_TO 08016b32 UNCONDITIONAL_CALL owner=08016b16
+FUNCTION_BODY [[0800a7dc, 0800a7ff]]
+
+undefined4 FUN_0800a7dc(int param_1,int param_2,uint param_3,undefined4 param_4)
+
+{
+  uint uVar1;
+  
+  for (uVar1 = 0; (uVar1 & 0xffff) < param_3; uVar1 = (uVar1 & 0xffff) + 1) {
+    FUN_0800e1dc(param_1,*(undefined2 *)(param_2 + (uVar1 & 0xffff) * 2));
+    param_1 = param_1 + 2;
+  }
+  return param_4;
+}
+
+
+INSN 0800a7dc f8b5 push {r3,r4,r5,r6,r7,lr}
+INSN 0800a7de 0446 mov r4,r0
+INSN 0800a7e0 0d46 mov r5,r1
+INSN 0800a7e2 1646 mov r6,r2
+INSN 0800a7e4 0027 movs r7,#0x0
+INSN 0800a7e6 07e0 b 0x0800a7f8 REF[UNCONDITIONAL_JUMP:0800a7f8]
+INSN 0800a7e8 bfb2 uxth r7,r7
+INSN 0800a7ea 35f81710 ldrh.w r1,[r5,r7,lsl #0x1]
+INSN 0800a7ee 2046 mov r0,r4
+INSN 0800a7f0 03f0f4fc bl 0x0800e1dc REF[UNCONDITIONAL_CALL:0800e1dc]
+INSN 0800a7f4 a41c adds r4,r4,#0x2
+INSN 0800a7f6 7f1c adds r7,r7,#0x1
+INSN 0800a7f8 b8b2 uxth r0,r7
+INSN 0800a7fa b042 cmp r0,r6
+INSN 0800a7fc f4d3 bcc 0x0800a7e8 REF[CONDITIONAL_JUMP:0800a7e8]
+INSN 0800a7fe f1bd pop {r0,r4,r5,r6,r7,pc}

@@ -1,0 +1,72 @@
+FUNCTION 0800df6c FUN_0800df6c BODY [[0800df6c, 0800dfb9]]
+INCOMING 0800d44c UNCONDITIONAL_CALL
+
+/* WARNING: Control flow encountered bad instruction data */
+
+void FUN_0800df6c(void)
+
+{
+  undefined4 uVar1;
+  int iVar2;
+  byte *unaff_r4;
+  
+  uVar1 = FUN_0800637c(unaff_r4[1] & 0xfffffffc | (uint)*unaff_r4 << 8);
+  uVar1 = FUN_08005cbc(uVar1,DAT_0800e06c);
+  uVar1 = FUN_08005cbc(uVar1,0x37800000);
+  uVar1 = FUN_08005f20(uVar1,DAT_0800e070);
+  iVar2 = FUN_0800518c(uVar1,DAT_0800e074);
+  if (iVar2 == 0) {
+    FUN_0800d226();
+  }
+  iVar2 = FUN_080051b4(uVar1,0);
+  if (iVar2 == 0) {
+    FUN_0800d226();
+  }
+  *(undefined4 *)(DAT_0800e078 + 0xdc) = uVar1;
+  FUN_0800d226();
+  uVar1 = FUN_0800637c(unaff_r4[1] & 0xfffffffc | (uint)*unaff_r4 << 8);
+  uVar1 = FUN_08005cbc(uVar1,DAT_0800e07c);
+  uVar1 = FUN_08005cbc(uVar1,0x37800000);
+  uVar1 = FUN_08005f20(uVar1,DAT_0800e080);
+  iVar2 = FUN_080051c8(uVar1,0);
+  if (iVar2 == 0) {
+    FUN_0800d28c();
+  }
+  *(undefined4 *)(DAT_0800e078 + 0xe0) = uVar1;
+  FUN_0800d28c();
+                    /* WARNING: Bad instruction - Truncating control flow here */
+  halt_baddata();
+}
+
+
+ASSEMBLY
+0800df6c movs r2,#0x3 BYTES 0322
+0800df6e ldrb r3,[r4,#0x0] BYTES 2378
+0800df70 ldrb r0,[r4,#0x1] BYTES 6078
+0800df72 lsls r3,r3,#0x8 BYTES 1b02
+0800df74 bics r0,r2 BYTES 9043
+0800df76 orrs r0,r3 BYTES 1843
+0800df78 bl 0x0800637c BYTES f8f700fa REF UNCONDITIONAL_CALL=0800637c
+0800df7c ldr r1,[0x0800e06c] BYTES 3b49 REF READ=0800e06c WORD=432fb852
+0800df7e bl 0x08005cbc BYTES f7f79dfe REF UNCONDITIONAL_CALL=08005cbc
+0800df82 movs r1,#0xde BYTES de21
+0800df84 lsls r1,r1,#0x16 BYTES 8905
+0800df86 bl 0x08005cbc BYTES f7f799fe REF UNCONDITIONAL_CALL=08005cbc
+0800df8a ldr r1,[0x0800e070] BYTES 3949 REF READ=0800e070 WORD=423b6666
+0800df8c bl 0x08005f20 BYTES f7f7c8ff REF UNCONDITIONAL_CALL=08005f20
+0800df90 ldr r1,[0x0800e074] BYTES 3849 REF READ=0800e074 WORD=428c0000
+0800df92 adds r6,r0,#0x0 BYTES 061c
+0800df94 bl 0x0800518c BYTES f7f7faf8 REF UNCONDITIONAL_CALL=0800518c
+0800df98 cmp r0,#0x0 BYTES 0028
+0800df9a bne 0x0800dfa0 BYTES 01d1 REF CONDITIONAL_JUMP=0800dfa0
+0800df9c bl 0x0800d226 BYTES fff743f9 REF UNCONDITIONAL_CALL=0800d226
+0800dfa0 movs r1,#0x0 BYTES 0021
+0800dfa2 adds r0,r6,#0x0 BYTES 301c
+0800dfa4 bl 0x080051b4 BYTES f7f706f9 REF UNCONDITIONAL_CALL=080051b4
+0800dfa8 cmp r0,#0x0 BYTES 0028
+0800dfaa bne 0x0800dfb0 BYTES 01d1 REF CONDITIONAL_JUMP=0800dfb0
+0800dfac bl 0x0800d226 BYTES fff73bf9 REF UNCONDITIONAL_CALL=0800d226
+0800dfb0 ldr r3,[0x0800e078] BYTES 314b REF READ=0800e078 WORD=2000024c
+0800dfb2 adds r3,#0xdc BYTES dc33 REF PARAM=20000328
+0800dfb4 str r6,[r3,#0x0] BYTES 1e60 REF WRITE=20000328
+0800dfb6 bl 0x0800d226 BYTES fff736f9 REF UNCONDITIONAL_CALL=0800d226

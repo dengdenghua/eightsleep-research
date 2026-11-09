@@ -1,0 +1,268 @@
+// IL code: Microsoft.Extensions.Options
+.class public auto ansi beforefieldinit Microsoft.Extensions.Options.OptionsFactory`1<class TOptions>
+	extends [System.Runtime]System.Object
+	implements class Microsoft.Extensions.Options.IOptionsFactory`1<!TOptions>
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.param type TOptions
+		.custom instance void [System.Runtime]System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembersAttribute::.ctor(valuetype [System.Runtime]System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes) = (
+			01 00 01 00 00 00 00 00
+		)
+	.interfaceimpl type class Microsoft.Extensions.Options.IOptionsFactory`1<!TOptions>
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+
+	// Fields
+	.field private initonly class Microsoft.Extensions.Options.IConfigureOptions`1<!TOptions>[] _setups
+	.field private initonly class Microsoft.Extensions.Options.IPostConfigureOptions`1<!TOptions>[] _postConfigures
+	.field private initonly class Microsoft.Extensions.Options.IValidateOptions`1<!TOptions>[] _validations
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [System.Runtime]System.Collections.Generic.IEnumerable`1<class Microsoft.Extensions.Options.IConfigureOptions`1<!TOptions>> setups,
+			class [System.Runtime]System.Collections.Generic.IEnumerable`1<class Microsoft.Extensions.Options.IPostConfigureOptions`1<!TOptions>> postConfigures
+		) cil managed 
+	{
+		// Method begins at RVA 0x326f
+		// Header size: 1
+		// Code size: 14 (0xe)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: ldarg.2
+		IL_0003: call !!0[] [System.Runtime]System.Array::Empty<class Microsoft.Extensions.Options.IValidateOptions`1<!TOptions>>()
+		IL_0008: call instance void class Microsoft.Extensions.Options.OptionsFactory`1<!TOptions>::.ctor(class [System.Runtime]System.Collections.Generic.IEnumerable`1<class Microsoft.Extensions.Options.IConfigureOptions`1<!0>>, class [System.Runtime]System.Collections.Generic.IEnumerable`1<class Microsoft.Extensions.Options.IPostConfigureOptions`1<!0>>, class [System.Runtime]System.Collections.Generic.IEnumerable`1<class Microsoft.Extensions.Options.IValidateOptions`1<!0>>)
+		IL_000d: ret
+	} // end of method OptionsFactory`1::.ctor
+
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [System.Runtime]System.Collections.Generic.IEnumerable`1<class Microsoft.Extensions.Options.IConfigureOptions`1<!TOptions>> setups,
+			class [System.Runtime]System.Collections.Generic.IEnumerable`1<class Microsoft.Extensions.Options.IPostConfigureOptions`1<!TOptions>> postConfigures,
+			class [System.Runtime]System.Collections.Generic.IEnumerable`1<class Microsoft.Extensions.Options.IValidateOptions`1<!TOptions>> validations
+		) cil managed 
+	{
+		// Method begins at RVA 0x3280
+		// Header size: 12
+		// Code size: 88 (0x58)
+		.maxstack 3
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0006: ldarg.0
+		IL_0007: ldarg.1
+		IL_0008: isinst class Microsoft.Extensions.Options.IConfigureOptions`1<!TOptions>[]
+		IL_000d: dup
+		IL_000e: brtrue.s IL_001c
+
+		IL_0010: pop
+		IL_0011: ldarg.1
+		IL_0012: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Microsoft.Extensions.Options.IConfigureOptions`1<!TOptions>>::.ctor(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!0>)
+		IL_0017: call instance !0[] class [System.Collections]System.Collections.Generic.List`1<class Microsoft.Extensions.Options.IConfigureOptions`1<!TOptions>>::ToArray()
+
+		IL_001c: stfld class Microsoft.Extensions.Options.IConfigureOptions`1<!0>[] class Microsoft.Extensions.Options.OptionsFactory`1<!TOptions>::_setups
+		IL_0021: ldarg.0
+		IL_0022: ldarg.2
+		IL_0023: isinst class Microsoft.Extensions.Options.IPostConfigureOptions`1<!TOptions>[]
+		IL_0028: dup
+		IL_0029: brtrue.s IL_0037
+
+		IL_002b: pop
+		IL_002c: ldarg.2
+		IL_002d: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Microsoft.Extensions.Options.IPostConfigureOptions`1<!TOptions>>::.ctor(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!0>)
+		IL_0032: call instance !0[] class [System.Collections]System.Collections.Generic.List`1<class Microsoft.Extensions.Options.IPostConfigureOptions`1<!TOptions>>::ToArray()
+
+		IL_0037: stfld class Microsoft.Extensions.Options.IPostConfigureOptions`1<!0>[] class Microsoft.Extensions.Options.OptionsFactory`1<!TOptions>::_postConfigures
+		IL_003c: ldarg.0
+		IL_003d: ldarg.3
+		IL_003e: isinst class Microsoft.Extensions.Options.IValidateOptions`1<!TOptions>[]
+		IL_0043: dup
+		IL_0044: brtrue.s IL_0052
+
+		IL_0046: pop
+		IL_0047: ldarg.3
+		IL_0048: newobj instance void class [System.Collections]System.Collections.Generic.List`1<class Microsoft.Extensions.Options.IValidateOptions`1<!TOptions>>::.ctor(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!0>)
+		IL_004d: call instance !0[] class [System.Collections]System.Collections.Generic.List`1<class Microsoft.Extensions.Options.IValidateOptions`1<!TOptions>>::ToArray()
+
+		IL_0052: stfld class Microsoft.Extensions.Options.IValidateOptions`1<!0>[] class Microsoft.Extensions.Options.OptionsFactory`1<!TOptions>::_validations
+		IL_0057: ret
+	} // end of method OptionsFactory`1::.ctor
+
+	.method public final hidebysig newslot virtual 
+		instance !TOptions Create (
+			string name
+		) cil managed 
+	{
+		// Method begins at RVA 0x32e4
+		// Header size: 12
+		// Code size: 220 (0xdc)
+		.maxstack 3
+		.locals init (
+			[0] !TOptions,
+			[1] class Microsoft.Extensions.Options.IConfigureOptions`1<!TOptions>[],
+			[2] int32,
+			[3] class Microsoft.Extensions.Options.IConfigureOptions`1<!TOptions>,
+			[4] class Microsoft.Extensions.Options.IConfigureNamedOptions`1<!TOptions>,
+			[5] class Microsoft.Extensions.Options.IPostConfigureOptions`1<!TOptions>[],
+			[6] class [System.Collections]System.Collections.Generic.List`1<string>,
+			[7] class Microsoft.Extensions.Options.IValidateOptions`1<!TOptions>[],
+			[8] class Microsoft.Extensions.Options.ValidateOptionsResult
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: callvirt instance !0 class Microsoft.Extensions.Options.OptionsFactory`1<!TOptions>::CreateInstance(string)
+		IL_0007: stloc.0
+		IL_0008: ldarg.0
+		IL_0009: ldfld class Microsoft.Extensions.Options.IConfigureOptions`1<!0>[] class Microsoft.Extensions.Options.OptionsFactory`1<!TOptions>::_setups
+		IL_000e: stloc.1
+		IL_000f: ldc.i4.0
+		IL_0010: stloc.2
+		IL_0011: br.s IL_0046
+		// loop start (head: IL_0046)
+			IL_0013: ldloc.1
+			IL_0014: ldloc.2
+			IL_0015: ldelem.ref
+			IL_0016: stloc.3
+			IL_0017: ldloc.3
+			IL_0018: isinst class Microsoft.Extensions.Options.IConfigureNamedOptions`1<!TOptions>
+			IL_001d: stloc.s 4
+			IL_001f: ldloc.s 4
+			IL_0021: brfalse.s IL_002e
+
+			IL_0023: ldloc.s 4
+			IL_0025: ldarg.1
+			IL_0026: ldloc.0
+			IL_0027: callvirt instance void class Microsoft.Extensions.Options.IConfigureNamedOptions`1<!TOptions>::Configure(string, !0)
+			IL_002c: br.s IL_0042
+
+			IL_002e: ldarg.1
+			IL_002f: ldsfld string Microsoft.Extensions.Options.Options::DefaultName
+			IL_0034: call bool [System.Runtime]System.String::op_Equality(string, string)
+			IL_0039: brfalse.s IL_0042
+
+			IL_003b: ldloc.3
+			IL_003c: ldloc.0
+			IL_003d: callvirt instance void class Microsoft.Extensions.Options.IConfigureOptions`1<!TOptions>::Configure(!0)
+
+			IL_0042: ldloc.2
+			IL_0043: ldc.i4.1
+			IL_0044: add
+			IL_0045: stloc.2
+
+			IL_0046: ldloc.2
+			IL_0047: ldloc.1
+			IL_0048: ldlen
+			IL_0049: conv.i4
+			IL_004a: blt.s IL_0013
+		// end loop
+
+		IL_004c: ldarg.0
+		IL_004d: ldfld class Microsoft.Extensions.Options.IPostConfigureOptions`1<!0>[] class Microsoft.Extensions.Options.OptionsFactory`1<!TOptions>::_postConfigures
+		IL_0052: stloc.s 5
+		IL_0054: ldc.i4.0
+		IL_0055: stloc.2
+		IL_0056: br.s IL_0067
+		// loop start (head: IL_0067)
+			IL_0058: ldloc.s 5
+			IL_005a: ldloc.2
+			IL_005b: ldelem.ref
+			IL_005c: ldarg.1
+			IL_005d: ldloc.0
+			IL_005e: callvirt instance void class Microsoft.Extensions.Options.IPostConfigureOptions`1<!TOptions>::PostConfigure(string, !0)
+			IL_0063: ldloc.2
+			IL_0064: ldc.i4.1
+			IL_0065: add
+			IL_0066: stloc.2
+
+			IL_0067: ldloc.2
+			IL_0068: ldloc.s 5
+			IL_006a: ldlen
+			IL_006b: conv.i4
+			IL_006c: blt.s IL_0058
+		// end loop
+
+		IL_006e: ldarg.0
+		IL_006f: ldfld class Microsoft.Extensions.Options.IValidateOptions`1<!0>[] class Microsoft.Extensions.Options.OptionsFactory`1<!TOptions>::_validations
+		IL_0074: ldlen
+		IL_0075: brfalse.s IL_00da
+
+		IL_0077: newobj instance void class [System.Collections]System.Collections.Generic.List`1<string>::.ctor()
+		IL_007c: stloc.s 6
+		IL_007e: ldarg.0
+		IL_007f: ldfld class Microsoft.Extensions.Options.IValidateOptions`1<!0>[] class Microsoft.Extensions.Options.OptionsFactory`1<!TOptions>::_validations
+		IL_0084: stloc.s 7
+		IL_0086: ldc.i4.0
+		IL_0087: stloc.2
+		IL_0088: br.s IL_00b6
+		// loop start (head: IL_00b6)
+			IL_008a: ldloc.s 7
+			IL_008c: ldloc.2
+			IL_008d: ldelem.ref
+			IL_008e: ldarg.1
+			IL_008f: ldloc.0
+			IL_0090: callvirt instance class Microsoft.Extensions.Options.ValidateOptionsResult class Microsoft.Extensions.Options.IValidateOptions`1<!TOptions>::Validate(string, !0)
+			IL_0095: stloc.s 8
+			IL_0097: ldloc.s 8
+			IL_0099: brfalse.s IL_00b2
+
+			IL_009b: ldloc.s 8
+			IL_009d: callvirt instance bool Microsoft.Extensions.Options.ValidateOptionsResult::get_Failed()
+			IL_00a2: brfalse.s IL_00b2
+
+			IL_00a4: ldloc.s 6
+			IL_00a6: ldloc.s 8
+			IL_00a8: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerable`1<string> Microsoft.Extensions.Options.ValidateOptionsResult::get_Failures()
+			IL_00ad: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::AddRange(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!0>)
+
+			IL_00b2: ldloc.2
+			IL_00b3: ldc.i4.1
+			IL_00b4: add
+			IL_00b5: stloc.2
+
+			IL_00b6: ldloc.2
+			IL_00b7: ldloc.s 7
+			IL_00b9: ldlen
+			IL_00ba: conv.i4
+			IL_00bb: blt.s IL_008a
+		// end loop
+
+		IL_00bd: ldloc.s 6
+		IL_00bf: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<string>::get_Count()
+		IL_00c4: ldc.i4.0
+		IL_00c5: ble.s IL_00da
+
+		IL_00c7: ldarg.1
+		IL_00c8: ldtoken !TOptions
+		IL_00cd: call class [System.Runtime]System.Type [System.Runtime]System.Type::GetTypeFromHandle(valuetype [System.Runtime]System.RuntimeTypeHandle)
+		IL_00d2: ldloc.s 6
+		IL_00d4: newobj instance void Microsoft.Extensions.Options.OptionsValidationException::.ctor(string, class [System.Runtime]System.Type, class [System.Runtime]System.Collections.Generic.IEnumerable`1<string>)
+		IL_00d9: throw
+
+		IL_00da: ldloc.0
+		IL_00db: ret
+	} // end of method OptionsFactory`1::Create
+
+	.method family hidebysig newslot virtual 
+		instance !TOptions CreateInstance (
+			string name
+		) cil managed 
+	{
+		// Method begins at RVA 0x33cc
+		// Header size: 1
+		// Code size: 6 (0x6)
+		.maxstack 8
+
+		IL_0000: call !!0 [System.Runtime]System.Activator::CreateInstance<!TOptions>()
+		IL_0005: ret
+	} // end of method OptionsFactory`1::CreateInstance
+
+} // end of class Microsoft.Extensions.Options.OptionsFactory`1

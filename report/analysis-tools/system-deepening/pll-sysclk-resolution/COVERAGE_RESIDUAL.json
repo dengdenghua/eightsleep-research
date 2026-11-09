@@ -1,0 +1,56 @@
+{
+  "schema": "eightsleep.nonusb.pll-sysclk-coverage-residual.v1",
+  "date": "2026-11-08",
+  "scope": "Gap 2 from the previous round: writer 2 (0800c8dc) PLL configuration and both config entrances' local structs, resolved into a computed SYSCLK.",
+  "closed_this_round": [
+    {
+      "id": "PLL-01",
+      "previous": "writer 2's PLL configuration bytes were not decoded into an actual core clock; local structs passed to 080108ac / 08010960 were not decoded into measured frequencies.",
+      "now": "The 14-slot config struct is decoded by constant propagation over exported Thumb instructions; writer2's CFGR2 OR-expression is assembled from those slots plus the writer1 reset value 0x1000; 0800cd24's field shifts and two divisions replay to 64MHz for all three software HSE inputs (16/32/8MHz with PREDIV 2/4/1, PLLMUL 24, PLLDIV 3).",
+      "evidence": ["PLL_CHAIN.json", "BYTE_VALIDATION.json", "MODEL_RESULTS.json"]
+    },
+    {
+      "id": "PLL-02",
+      "previous": "USB-side 64MHz was explicitly NOT transferred to nonUSB; nonUSB's own core clock remained unproven.",
+      "now": "64MHz is now derived independently from nonUSB bytes alone. It is the value the firmware would compute and store in 0x20000250, conditional on PLL lock and a successful SW=2 switch. It is not a measured oscillator or core clock.",
+      "evidence": ["MODEL_RESULTS.json", "pass1/0800cd24.txt", "pass1/0800c8dc.txt"]
+    },
+    {
+      "id": "PLL-03",
+      "previous": "The 080241cc prescaler table was known (max 1/512) but the index actually used by this config was not resolved.",
+      "now": "The second struct is [7,2,0,0x4000]; s[2]=0 clears CFGR bits 11:8 so the index is 0, table[0]=0, no shift. 0x20000250 = 64MHz, and SysTick LOAD is 63999 (step 1) / 639999 (step 10).",
+      "evidence": ["pass1/0800cdb4.txt", "pass1/080108ac.txt", "MODEL_RESULTS.json"]
+    },
+    {
+      "id": "PLL-04",
+      "previous": "The K87 boundary changed the software HSE input from 32MHz to 16MHz; downstream effect on the tick rate was unknown.",
+      "now": "PREDIV scales with the same hwrev branch (4 -> 2), so PLL input stays 8MHz and SYSCLK / SysTick LOAD are unchanged across the K87 boundary.",
+      "evidence": ["MODEL_RESULTS.json", "pass1/080108ac.txt"]
+    }
+  ],
+  "residual": [
+    "physical oscillator / board BOM binding: HSE 16/32/8MHz remains a software input field",
+    "PLL lock completion, SW switch transition, SWS readback and cumulative tick loss need a device",
+    "runtime RCC registers may differ from the 0800c828 reset state",
+    "the integer-division helper 08008174 was not formally proved; quotient semantics come from three call sites",
+    "software tick step is a runtime RAM byte; step 1/10 in the model are explicit assumptions",
+    "0800e8b4 USART baud-rate register values were not recomputed from 64MHz",
+    "hwrev / sku are not bound to a marketing model, board revision or external oscillator",
+    "data tables 08025f00 / 08025f08 / 08025ee8 contents and the 0x18c byte cleared by K90 remain undecoded",
+    "all physical timing, interrupt latency, ADC CLKIN/DRDY and real sampling rates need measurement"
+  ],
+  "unchanged_boundaries": [
+    "air bladder / bed frame work stays deferred",
+    "core physiological algorithm, Autopilot, posture classification, device binding and speaker DSP still depend on new material",
+    "USB 0x2B first producer and legacy waveform RAW writer gaps stay as-is",
+    "shared log formatting buffer / reentrancy special topic was halted by automated safety checks and is not retried, reworded or cited"
+  ],
+  "verification": {
+    "byte_checks": 1418,
+    "byte_failures": 0,
+    "model_cases": 3,
+    "model_assertions": 30,
+    "model_failures": 0,
+    "executes_firmware": false
+  }
+}

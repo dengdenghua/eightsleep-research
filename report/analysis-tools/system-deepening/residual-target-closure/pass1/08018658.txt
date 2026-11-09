@@ -1,0 +1,58 @@
+TARGET 08018658 function=08018658
+REF_TO 08019e26 UNCONDITIONAL_CALL
+REF_TO 08019e4a UNCONDITIONAL_CALL
+FUNCTION_BODY [[08018658, 08018687]]
+
+void FUN_08018658(byte *param_1)
+
+{
+  byte bVar1;
+  byte bVar2;
+  short sVar3;
+  byte *pbVar4;
+  bool bVar5;
+  
+  pbVar4 = param_1 + 3;
+  bVar2 = 0xff;
+  do {
+    bVar2 = bVar2 ^ *param_1;
+    sVar3 = 8;
+    do {
+      bVar1 = bVar2 << 1;
+      bVar5 = (char)bVar2 < '\0';
+      bVar2 = bVar1;
+      if (bVar5) {
+        bVar2 = bVar1 ^ 0x31;
+      }
+      sVar3 = sVar3 + -1;
+    } while (sVar3 != 0);
+    param_1 = param_1 + 1;
+  } while (param_1 != pbVar4);
+  return;
+}
+
+
+INSN 08018658 f0b5 push {r4,r5,r6,r7,lr}
+INSN 0801865a 0300 movs r3,r0
+INSN 0801865c c41c adds r4,r0,#0x3
+INSN 0801865e 0826 movs r6,#0x8
+INSN 08018660 ff20 movs r0,#0xff
+INSN 08018662 3125 movs r5,#0x31
+INSN 08018664 1a78 ldrb r2,[r3,#0x0]
+INSN 08018666 5040 eors r0,r2
+INSN 08018668 3200 movs r2,r6
+INSN 0801866a 47b2 sxtb r7,r0
+INSN 0801866c 4100 lsls r1,r0,#0x1
+INSN 0801866e c8b2 uxtb r0,r1
+INSN 08018670 002f cmp r7,#0x0
+INSN 08018672 01da bge 0x08018678 REF[CONDITIONAL_JUMP:08018678]
+INSN 08018674 6940 eors r1,r5
+INSN 08018676 c8b2 uxtb r0,r1
+INSN 08018678 013a subs r2,#0x1
+INSN 0801867a 92b2 uxth r2,r2
+INSN 0801867c 002a cmp r2,#0x0
+INSN 0801867e f4d1 bne 0x0801866a REF[CONDITIONAL_JUMP:0801866a]
+INSN 08018680 0133 adds r3,#0x1
+INSN 08018682 a342 cmp r3,r4
+INSN 08018684 eed1 bne 0x08018664 REF[CONDITIONAL_JUMP:08018664]
+INSN 08018686 f0bd pop {r4,r5,r6,r7,pc}

@@ -1,0 +1,490 @@
+{
+  "status": "PASS",
+  "case_count": 30,
+  "cases": [
+    {
+      "name": "I2C_pending_at10",
+      "observed": {
+        "request_status": 0,
+        "callback": false,
+        "advance": false
+      },
+      "expected": {
+        "request_status": 0,
+        "callback": false,
+        "advance": false
+      },
+      "evidence": "0801c688",
+      "status": "PASS"
+    },
+    {
+      "name": "I2C_timeout_at11_skips_callback",
+      "observed": {
+        "request_status": 2,
+        "callback": false,
+        "advance": true
+      },
+      "expected": {
+        "request_status": 2,
+        "callback": false,
+        "advance": true
+      },
+      "evidence": "0801c688",
+      "status": "PASS"
+    },
+    {
+      "name": "I2C_success_runs_callback",
+      "observed": true,
+      "expected": true,
+      "evidence": "0801c688",
+      "status": "PASS"
+    },
+    {
+      "name": "ADC_CRC_failure_five_snapshots_retain_current",
+      "observed": [
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ]
+      ],
+      "expected": [
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ]
+      ],
+      "evidence": "0801d228→0801d7dc→080233f4",
+      "status": "PASS"
+    },
+    {
+      "name": "ADC_failure_does_not_clear_availability",
+      "observed": true,
+      "expected": true,
+      "evidence": "0801d228 and0801d7dc do not write enabled",
+      "status": "PASS"
+    },
+    {
+      "name": "stop_preserves_queued_batch_and_consumer_can_pop",
+      "observed": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "expected": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "evidence": "080211b6;main1f900",
+      "status": "PASS"
+    },
+    {
+      "name": "completed_stop_setter_prevents_new_scheduled_snapshots",
+      "observed": 0,
+      "expected": 0,
+      "evidence": "installer zero callback;active0",
+      "status": "PASS"
+    },
+    {
+      "name": "start_flushes_queues_but_keeps_current",
+      "observed": [
+        0,
+        0,
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ]
+      ],
+      "expected": [
+        0,
+        0,
+        [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ]
+      ],
+      "evidence": "08026722/080268c8",
+      "status": "PASS"
+    },
+    {
+      "name": "sync_window_7_replays_backup",
+      "observed": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "expected": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "evidence": "0801d7dc",
+      "status": "PASS"
+    },
+    {
+      "name": "read_after_window_updates_ready_channel_only",
+      "observed": [
+        900,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "expected": [
+        900,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "evidence": "0801d7dc",
+      "status": "PASS"
+    },
+    {
+      "name": "FDC_pending29",
+      "observed": "pending",
+      "expected": "pending",
+      "evidence": "080240e4",
+      "status": "PASS"
+    },
+    {
+      "name": "FDC_timeout30_done_without_update",
+      "observed": "done_without_new_value",
+      "expected": "done_without_new_value",
+      "evidence": "080240e4",
+      "status": "PASS"
+    },
+    {
+      "name": "FDC_timeout_preserves_value_until_age5499",
+      "observed": 12.5,
+      "expected": 12.5,
+      "evidence": "080240e4/08022694",
+      "status": "PASS"
+    },
+    {
+      "name": "FDC_cache_age5500_emits_sentinel",
+      "observed": -1.0,
+      "expected": -1.0,
+      "evidence": "08022694",
+      "status": "PASS"
+    },
+    {
+      "name": "FDC_late_ready_skips_timeout_branch",
+      "observed": "done",
+      "expected": "done",
+      "evidence": "080240e4 pc8 ready gate",
+      "status": "PASS"
+    },
+    {
+      "name": "FDC_recovery_refreshes_cache",
+      "observed": 14.0,
+      "expected": 14.0,
+      "evidence": "080240e4",
+      "status": "PASS"
+    },
+    {
+      "name": "FDC_grace4999_keeps_prior_cache",
+      "observed": 14.0,
+      "expected": 14.0,
+      "evidence": "080240e4",
+      "status": "PASS"
+    },
+    {
+      "name": "FDC_grace5000_accepts_new_value",
+      "observed": 15.0,
+      "expected": 15.0,
+      "evidence": "080240e4",
+      "status": "PASS"
+    },
+    {
+      "name": "FDC_full_reinit_clears_cache",
+      "observed": -1.0,
+      "expected": -1.0,
+      "evidence": "08023d28 memset428/cache initialization",
+      "status": "PASS"
+    },
+    {
+      "name": "TMAG_first_CRC_fail_second_success_net_zero",
+      "observed": [
+        0,
+        1,
+        true
+      ],
+      "expected": [
+        0,
+        1,
+        true
+      ],
+      "evidence": "080231f0",
+      "status": "PASS"
+    },
+    {
+      "name": "TMAG_converts_old_T_X_Y_and_new_Z",
+      "observed": [
+        25.0,
+        10.0,
+        -10.0,
+        10.0
+      ],
+      "expected": [
+        25.0,
+        10.0,
+        -10.0,
+        10.0
+      ],
+      "evidence": "080231f0→08029574",
+      "status": "PASS"
+    },
+    {
+      "name": "TMAG_mixed_output_has_normal19B_layout",
+      "observed": 19,
+      "expected": 19,
+      "evidence": "main1fcb6 normalversion82",
+      "status": "PASS"
+    },
+    {
+      "name": "TMAG_all_good_recovery_replaces_both_blocks",
+      "observed": [
+        20.0,
+        -20.0,
+        10.0
+      ],
+      "expected": [
+        20.0,
+        -20.0,
+        10.0
+      ],
+      "evidence": "080231f0→08029574",
+      "status": "PASS"
+    },
+    {
+      "name": "TMAG_no_ready_keeps_value",
+      "observed": "no_ready",
+      "expected": "no_ready",
+      "evidence": "08029574",
+      "status": "PASS"
+    },
+    {
+      "name": "TMAG_age2001_requests_without_zeroing",
+      "observed": "request_reg10",
+      "expected": "request_reg10",
+      "evidence": "08029574",
+      "status": "PASS"
+    },
+    {
+      "name": "TMAG_pending_IO_precedes_retry_timer",
+      "observed": "gate_wait",
+      "expected": "gate_wait",
+      "evidence": "08029574",
+      "status": "PASS"
+    },
+    {
+      "name": "TMAG_two_failed_CRCs_still_mark_completion",
+      "observed": [
+        true,
+        5002
+      ],
+      "expected": [
+        true,
+        5002
+      ],
+      "evidence": "080231f0",
+      "status": "PASS"
+    },
+    {
+      "name": "TMAG_health_boundary_net4_vs5",
+      "observed": [
+        false,
+        true
+      ],
+      "expected": [
+        false,
+        true
+      ],
+      "evidence": "0802694c",
+      "status": "PASS"
+    },
+    {
+      "name": "TMAG_health_boundary_age59999_vs60000",
+      "observed": [
+        false,
+        true
+      ],
+      "expected": [
+        false,
+        true
+      ],
+      "evidence": "0802694c",
+      "status": "PASS"
+    },
+    {
+      "name": "health_check_is_gated_not_each_main_loop",
+      "observed": [
+        false,
+        true,
+        true
+      ],
+      "expected": [
+        false,
+        true,
+        true
+      ],
+      "evidence": "0802694c leading gate",
+      "status": "PASS"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "model/results/mixed-cache-normal39.body",
+      "bytes": 19,
+      "sha256": "845f350660d76f7382ee02323f955a1d6fd1fabb339593756706672d0098fd0f"
+    },
+    {
+      "path": "model/results/recovered-normal39.body",
+      "bytes": 19,
+      "sha256": "25ef149cb42e384b8911d44acad179b7a6c5a33f538d3fab92d061a8125216e5"
+    },
+    {
+      "path": "model/results/traces.json",
+      "bytes": 1900,
+      "sha256": "8d453de6cee3e50fa2fc8ec9acb34bc0b783c94148991461daf299ec091758bc"
+    }
+  ],
+  "limits": [
+    "Normal bounded fault events with supplied transport/CRC outcomes; no malformed data generation, no target execution.",
+    "No IRQ reentrancy, corruption, USB transport or cloud model; no physical cadence inferred. Stop fixtures assume setter completed and no callback already running.",
+    "ADC start drain/reinit hardware transactions are not simulated; assertions distinguish shared current from queue contents.",
+    "FDC model represents one cache and selected measurement branches, not the entire I2C register machine.",
+    "Global assessment tests threshold/entry gate only; board-reset policy branches are documented statically, not hardware simulated."
+  ]
+}

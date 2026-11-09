@@ -1,0 +1,537 @@
+// IL code: Eight.Firmness
+.class public auto ansi sealed beforefieldinit Eight.Firmness.Services.Calibration.CalibrationCsvWriter
+	extends [System.Runtime]System.Object
+	implements [System.Runtime]System.IDisposable
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.interfaceimpl type [System.Runtime]System.IDisposable
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	// Fields
+	.field private initonly class [System.Runtime]System.IO.StreamWriter writer
+	.field private initonly int32 bagSensorCount
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger logger
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+	.field private valuetype [System.Runtime]System.Nullable`1<float64> expectedNextDeviceMs
+	.field private int64 '<SamplesWritten>k__BackingField'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+	.field private int64 '<DroppedSampleCount>k__BackingField'
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+		01 00 00 00
+	)
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			string path,
+			int32 bagSensorCount,
+			[opt] class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger logger
+		) cil managed 
+	{
+		.param [3] = nullref
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x8c04
+		// Header size: 1
+		// Code size: 47 (0x2f)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+		IL_0006: ldarg.0
+		IL_0007: ldarg.2
+		IL_0008: stfld int32 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::bagSensorCount
+		IL_000d: ldarg.0
+		IL_000e: ldarg.3
+		IL_000f: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger Eight.Firmness.Services.Calibration.CalibrationCsvWriter::logger
+		IL_0014: ldarg.0
+		IL_0015: ldarg.1
+		IL_0016: ldc.i4.2
+		IL_0017: ldc.i4.2
+		IL_0018: ldc.i4.1
+		IL_0019: newobj instance void [System.Runtime]System.IO.FileStream::.ctor(string, valuetype [System.Runtime]System.IO.FileMode, valuetype [System.Runtime]System.IO.FileAccess, valuetype [System.Runtime]System.IO.FileShare)
+		IL_001e: newobj instance void [System.Runtime]System.IO.StreamWriter::.ctor(class [System.Runtime]System.IO.Stream)
+		IL_0023: stfld class [System.Runtime]System.IO.StreamWriter Eight.Firmness.Services.Calibration.CalibrationCsvWriter::writer
+		IL_0028: ldarg.0
+		IL_0029: call instance void Eight.Firmness.Services.Calibration.CalibrationCsvWriter::WriteHeader()
+		IL_002e: ret
+	} // end of method CalibrationCsvWriter::.ctor
+
+	.method public hidebysig specialname 
+		instance int64 get_SamplesWritten () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x8c34
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld int64 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::'<SamplesWritten>k__BackingField'
+		IL_0006: ret
+	} // end of method CalibrationCsvWriter::get_SamplesWritten
+
+	.method private hidebysig specialname 
+		instance void set_SamplesWritten (
+			int64 'value'
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x8c3c
+		// Header size: 1
+		// Code size: 8 (0x8)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld int64 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::'<SamplesWritten>k__BackingField'
+		IL_0007: ret
+	} // end of method CalibrationCsvWriter::set_SamplesWritten
+
+	.method public hidebysig specialname 
+		instance int64 get_DroppedSampleCount () cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x8c45
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld int64 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::'<DroppedSampleCount>k__BackingField'
+		IL_0006: ret
+	} // end of method CalibrationCsvWriter::get_DroppedSampleCount
+
+	.method private hidebysig specialname 
+		instance void set_DroppedSampleCount (
+			int64 'value'
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Method begins at RVA 0x8c4d
+		// Header size: 1
+		// Code size: 8 (0x8)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld int64 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::'<DroppedSampleCount>k__BackingField'
+		IL_0007: ret
+	} // end of method CalibrationCsvWriter::set_DroppedSampleCount
+
+	.method private hidebysig 
+		instance void WriteHeader () cil managed 
+	{
+		// Method begins at RVA 0x8c58
+		// Header size: 12
+		// Code size: 108 (0x6c)
+		.maxstack 4
+		.locals init (
+			[0] class [System.Collections]System.Collections.Generic.List`1<string>,
+			[1] int32,
+			[2] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: newobj instance void class [System.Collections]System.Collections.Generic.List`1<string>::.ctor()
+		IL_0005: dup
+		IL_0006: ldstr "Timestamp_UTC"
+		IL_000b: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+		IL_0010: dup
+		IL_0011: ldstr "Sample_Rate_Hz"
+		IL_0016: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+		IL_001b: stloc.0
+		IL_001c: ldc.i4.0
+		IL_001d: stloc.1
+		IL_001e: br.s IL_004f
+		// loop start (head: IL_004f)
+			IL_0020: ldloc.0
+			IL_0021: ldloca.s 2
+			IL_0023: ldc.i4.s 10
+			IL_0025: ldc.i4.1
+			IL_0026: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+			IL_002b: ldloca.s 2
+			IL_002d: ldstr "Pressure_S"
+			IL_0032: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+			IL_0037: ldloca.s 2
+			IL_0039: ldloc.1
+			IL_003a: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+			IL_003f: ldloca.s 2
+			IL_0041: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+			IL_0046: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+			IL_004b: ldloc.1
+			IL_004c: ldc.i4.1
+			IL_004d: add
+			IL_004e: stloc.1
+
+			IL_004f: ldloc.1
+			IL_0050: ldarg.0
+			IL_0051: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::bagSensorCount
+			IL_0056: ble.s IL_0020
+		// end loop
+
+		IL_0058: ldarg.0
+		IL_0059: ldfld class [System.Runtime]System.IO.StreamWriter Eight.Firmness.Services.Calibration.CalibrationCsvWriter::writer
+		IL_005e: ldc.i4.s 44
+		IL_0060: ldloc.0
+		IL_0061: call string [System.Runtime]System.String::Join<string>(char, class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>)
+		IL_0066: callvirt instance void [System.Runtime]System.IO.TextWriter::WriteLine(string)
+		IL_006b: ret
+	} // end of method CalibrationCsvWriter::WriteHeader
+
+	.method public hidebysig 
+		instance void WriteSamples (
+			class Eight.Firmness.Models.Telemetry.PressureTelemetry telemetry
+		) cil managed 
+	{
+		// Method begins at RVA 0x8cd0
+		// Header size: 12
+		// Code size: 462 (0x1ce)
+		.maxstack 4
+		.locals init (
+			[0] float64,
+			[1] string,
+			[2] int32,
+			[3] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler,
+			[4] valuetype [System.Runtime]System.DateTimeOffset,
+			[5] int32,
+			[6] class [System.Collections]System.Collections.Generic.List`1<string>,
+			[7] uint16,
+			[8] valuetype [System.Collections]System.Collections.Generic.List`1/Enumerator<class Eight.Firmness.Models.Telemetry.PressureSensorData>,
+			[9] class Eight.Firmness.Models.Telemetry.PressureSensorData,
+			[10] float64,
+			[11] int64
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.Telemetry.PressureSensorData> Eight.Firmness.Models.Telemetry.PressureTelemetry::get_Sensors()
+		IL_0006: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.Telemetry.PressureSensorData>::get_Count()
+		IL_000b: ldarg.0
+		IL_000c: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::bagSensorCount
+		IL_0011: beq.s IL_0066
+
+		IL_0013: ldloca.s 3
+		IL_0015: ldc.i4.s 49
+		IL_0017: ldc.i4.2
+		IL_0018: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_001d: ldloca.s 3
+		IL_001f: ldstr "Telemetry has "
+		IL_0024: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0029: ldloca.s 3
+		IL_002b: ldarg.1
+		IL_002c: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.Telemetry.PressureSensorData> Eight.Firmness.Models.Telemetry.PressureTelemetry::get_Sensors()
+		IL_0031: callvirt instance int32 class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.Telemetry.PressureSensorData>::get_Count()
+		IL_0036: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_003b: ldloca.s 3
+		IL_003d: ldstr " bag sensors, writer was sized for "
+		IL_0042: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_0047: ldloca.s 3
+		IL_0049: ldarg.0
+		IL_004a: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::bagSensorCount
+		IL_004f: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<int32>(!!0)
+		IL_0054: ldloca.s 3
+		IL_0056: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_005b: ldstr "telemetry"
+		IL_0060: newobj instance void [System.Runtime]System.ArgumentException::.ctor(string, string)
+		IL_0065: throw
+
+		IL_0066: ldarg.1
+		IL_0067: callvirt instance uint16 Eight.Firmness.Models.Telemetry.PressureTelemetry::get_Frequency()
+		IL_006c: ldc.i4.0
+		IL_006d: bgt.s IL_007a
+
+		IL_006f: ldc.r8 0.0
+		IL_0078: br.s IL_008b
+
+		IL_007a: ldc.r8 1000
+		IL_0083: ldarg.1
+		IL_0084: callvirt instance uint16 Eight.Firmness.Models.Telemetry.PressureTelemetry::get_Frequency()
+		IL_0089: conv.r8
+		IL_008a: div
+
+		IL_008b: stloc.0
+		IL_008c: ldarg.0
+		IL_008d: ldarg.1
+		IL_008e: callvirt instance uint32 Eight.Firmness.Models.Telemetry.PressureTelemetry::get_DeviceTimestampMs()
+		IL_0093: ldloc.0
+		IL_0094: call instance void Eight.Firmness.Services.Calibration.CalibrationCsvWriter::DetectGap(uint32, float64)
+		IL_0099: ldarg.1
+		IL_009a: callvirt instance int64 Eight.Firmness.Models.Telemetry.PressureTelemetry::get_Timestamp()
+		IL_009f: call valuetype [System.Runtime]System.DateTimeOffset [System.Runtime]System.DateTimeOffset::FromUnixTimeSeconds(int64)
+		IL_00a4: stloc.s 4
+		IL_00a6: ldloca.s 4
+		IL_00a8: ldstr "O"
+		IL_00ad: call class [System.Runtime]System.Globalization.CultureInfo [System.Runtime]System.Globalization.CultureInfo::get_InvariantCulture()
+		IL_00b2: call instance string [System.Runtime]System.DateTimeOffset::ToString(string, class [System.Runtime]System.IFormatProvider)
+		IL_00b7: stloc.1
+		IL_00b8: ldarg.1
+		IL_00b9: callvirt instance int32 Eight.Firmness.Models.Telemetry.PressureTelemetry::get_SampleCount()
+		IL_00be: stloc.2
+		IL_00bf: ldc.i4.0
+		IL_00c0: stloc.s 5
+		IL_00c2: br IL_01a1
+		// loop start (head: IL_01a1)
+			IL_00c7: ldc.i4.2
+			IL_00c8: ldarg.0
+			IL_00c9: ldfld int32 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::bagSensorCount
+			IL_00ce: add
+			IL_00cf: ldc.i4.1
+			IL_00d0: add
+			IL_00d1: newobj instance void class [System.Collections]System.Collections.Generic.List`1<string>::.ctor(int32)
+			IL_00d6: dup
+			IL_00d7: ldloc.1
+			IL_00d8: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+			IL_00dd: dup
+			IL_00de: ldarg.1
+			IL_00df: callvirt instance uint16 Eight.Firmness.Models.Telemetry.PressureTelemetry::get_Frequency()
+			IL_00e4: stloc.s 7
+			IL_00e6: ldloca.s 7
+			IL_00e8: call class [System.Runtime]System.Globalization.CultureInfo [System.Runtime]System.Globalization.CultureInfo::get_InvariantCulture()
+			IL_00ed: call instance string [System.Runtime]System.UInt16::ToString(class [System.Runtime]System.IFormatProvider)
+			IL_00f2: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+			IL_00f7: stloc.s 6
+			IL_00f9: ldarg.1
+			IL_00fa: callvirt instance class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.Telemetry.PressureSensorData> Eight.Firmness.Models.Telemetry.PressureTelemetry::get_Sensors()
+			IL_00ff: callvirt instance valuetype [System.Collections]System.Collections.Generic.List`1/Enumerator<!0> class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.Telemetry.PressureSensorData>::GetEnumerator()
+			IL_0104: stloc.s 8
+			.try
+			{
+				IL_0106: br.s IL_0134
+				// loop start (head: IL_0134)
+					IL_0108: ldloca.s 8
+					IL_010a: call instance !0 valuetype [System.Collections]System.Collections.Generic.List`1/Enumerator<class Eight.Firmness.Models.Telemetry.PressureSensorData>::get_Current()
+					IL_010f: stloc.s 9
+					IL_0111: ldloc.s 6
+					IL_0113: ldloc.s 9
+					IL_0115: callvirt instance class [System.Collections]System.Collections.Generic.List`1<float64> Eight.Firmness.Models.Telemetry.PressureSensorData::get_PressureKpa()
+					IL_011a: ldloc.s 5
+					IL_011c: callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<float64>::get_Item(int32)
+					IL_0121: stloc.s 10
+					IL_0123: ldloca.s 10
+					IL_0125: call class [System.Runtime]System.Globalization.CultureInfo [System.Runtime]System.Globalization.CultureInfo::get_InvariantCulture()
+					IL_012a: call instance string [System.Runtime]System.Double::ToString(class [System.Runtime]System.IFormatProvider)
+					IL_012f: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+
+					IL_0134: ldloca.s 8
+					IL_0136: call instance bool valuetype [System.Collections]System.Collections.Generic.List`1/Enumerator<class Eight.Firmness.Models.Telemetry.PressureSensorData>::MoveNext()
+					IL_013b: brtrue.s IL_0108
+				// end loop
+
+				IL_013d: leave.s IL_014d
+			} // end .try
+			finally
+			{
+				IL_013f: ldloca.s 8
+				IL_0141: constrained. valuetype [System.Collections]System.Collections.Generic.List`1/Enumerator<class Eight.Firmness.Models.Telemetry.PressureSensorData>
+				IL_0147: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+				IL_014c: endfinally
+			} // end handler
+
+			IL_014d: ldloc.s 6
+			IL_014f: ldarg.1
+			IL_0150: callvirt instance class Eight.Firmness.Models.Telemetry.PressureSensorData Eight.Firmness.Models.Telemetry.PressureTelemetry::get_Ambient()
+			IL_0155: callvirt instance class [System.Collections]System.Collections.Generic.List`1<float64> Eight.Firmness.Models.Telemetry.PressureSensorData::get_PressureKpa()
+			IL_015a: ldloc.s 5
+			IL_015c: callvirt instance !0 class [System.Collections]System.Collections.Generic.List`1<float64>::get_Item(int32)
+			IL_0161: stloc.s 10
+			IL_0163: ldloca.s 10
+			IL_0165: call class [System.Runtime]System.Globalization.CultureInfo [System.Runtime]System.Globalization.CultureInfo::get_InvariantCulture()
+			IL_016a: call instance string [System.Runtime]System.Double::ToString(class [System.Runtime]System.IFormatProvider)
+			IL_016f: callvirt instance void class [System.Collections]System.Collections.Generic.List`1<string>::Add(!0)
+			IL_0174: ldarg.0
+			IL_0175: ldfld class [System.Runtime]System.IO.StreamWriter Eight.Firmness.Services.Calibration.CalibrationCsvWriter::writer
+			IL_017a: ldc.i4.s 44
+			IL_017c: ldloc.s 6
+			IL_017e: call string [System.Runtime]System.String::Join<string>(char, class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>)
+			IL_0183: callvirt instance void [System.Runtime]System.IO.TextWriter::WriteLine(string)
+			IL_0188: ldarg.0
+			IL_0189: call instance int64 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::get_SamplesWritten()
+			IL_018e: stloc.s 11
+			IL_0190: ldarg.0
+			IL_0191: ldloc.s 11
+			IL_0193: ldc.i4.1
+			IL_0194: conv.i8
+			IL_0195: add
+			IL_0196: call instance void Eight.Firmness.Services.Calibration.CalibrationCsvWriter::set_SamplesWritten(int64)
+			IL_019b: ldloc.s 5
+			IL_019d: ldc.i4.1
+			IL_019e: add
+			IL_019f: stloc.s 5
+
+			IL_01a1: ldloc.s 5
+			IL_01a3: ldloc.2
+			IL_01a4: blt IL_00c7
+		// end loop
+
+		IL_01a9: ldloc.0
+		IL_01aa: ldc.r8 0.0
+		IL_01b3: ble.un.s IL_01cd
+
+		IL_01b5: ldarg.0
+		IL_01b6: ldarg.1
+		IL_01b7: callvirt instance uint32 Eight.Firmness.Models.Telemetry.PressureTelemetry::get_DeviceTimestampMs()
+		IL_01bc: conv.r.un
+		IL_01bd: conv.r8
+		IL_01be: ldloc.2
+		IL_01bf: conv.r8
+		IL_01c0: ldloc.0
+		IL_01c1: mul
+		IL_01c2: add
+		IL_01c3: newobj instance void valuetype [System.Runtime]System.Nullable`1<float64>::.ctor(!0)
+		IL_01c8: stfld valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.CalibrationCsvWriter::expectedNextDeviceMs
+
+		IL_01cd: ret
+	} // end of method CalibrationCsvWriter::WriteSamples
+
+	.method private hidebysig 
+		instance void DetectGap (
+			uint32 actualStartMs,
+			float64 periodMs
+		) cil managed 
+	{
+		// Method begins at RVA 0x8ebc
+		// Header size: 12
+		// Code size: 137 (0x89)
+		.maxstack 6
+		.locals init (
+			[0] float64,
+			[1] float64,
+			[2] valuetype [System.Runtime]System.Nullable`1<float64>,
+			[3] int64
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld valuetype [System.Runtime]System.Nullable`1<float64> Eight.Firmness.Services.Calibration.CalibrationCsvWriter::expectedNextDeviceMs
+		IL_0006: stloc.2
+		IL_0007: ldloca.s 2
+		IL_0009: call instance bool valuetype [System.Runtime]System.Nullable`1<float64>::get_HasValue()
+		IL_000e: brfalse.s IL_0024
+
+		IL_0010: ldloca.s 2
+		IL_0012: call instance !0 valuetype [System.Runtime]System.Nullable`1<float64>::GetValueOrDefault()
+		IL_0017: stloc.0
+		IL_0018: ldarg.2
+		IL_0019: ldc.r8 0.0
+		IL_0022: bgt.un.s IL_0025
+
+		IL_0024: ret
+
+		IL_0025: ldarg.1
+		IL_0026: conv.r.un
+		IL_0027: conv.r8
+		IL_0028: ldloc.0
+		IL_0029: sub
+		IL_002a: stloc.1
+		IL_002b: ldloc.1
+		IL_002c: ldarg.2
+		IL_002d: ldc.r8 1.5
+		IL_0036: mul
+		IL_0037: ble.un.s IL_0088
+
+		IL_0039: ldloc.1
+		IL_003a: ldarg.2
+		IL_003b: div
+		IL_003c: ldc.i4.1
+		IL_003d: call float64 [System.Runtime]System.Math::Round(float64, valuetype [System.Runtime]System.MidpointRounding)
+		IL_0042: conv.i8
+		IL_0043: stloc.3
+		IL_0044: ldarg.0
+		IL_0045: ldarg.0
+		IL_0046: call instance int64 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::get_DroppedSampleCount()
+		IL_004b: ldloc.3
+		IL_004c: add
+		IL_004d: call instance void Eight.Firmness.Services.Calibration.CalibrationCsvWriter::set_DroppedSampleCount(int64)
+		IL_0052: ldarg.0
+		IL_0053: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger Eight.Firmness.Services.Calibration.CalibrationCsvWriter::logger
+		IL_0058: dup
+		IL_0059: brtrue.s IL_005d
+
+		IL_005b: pop
+		IL_005c: ret
+
+		IL_005d: ldstr "[calibration] Telemetry gap detected: ~{Dropped} samples dropped ({DriftMs:F0}ms drift at device clock {ActualMs})"
+		IL_0062: ldc.i4.3
+		IL_0063: newarr [System.Runtime]System.Object
+		IL_0068: dup
+		IL_0069: ldc.i4.0
+		IL_006a: ldloc.3
+		IL_006b: box [System.Runtime]System.Int64
+		IL_0070: stelem.ref
+		IL_0071: dup
+		IL_0072: ldc.i4.1
+		IL_0073: ldloc.1
+		IL_0074: box [System.Runtime]System.Double
+		IL_0079: stelem.ref
+		IL_007a: dup
+		IL_007b: ldc.i4.2
+		IL_007c: ldarg.1
+		IL_007d: box [System.Runtime]System.UInt32
+		IL_0082: stelem.ref
+		IL_0083: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+
+		IL_0088: ret
+	} // end of method CalibrationCsvWriter::DetectGap
+
+	.method public hidebysig 
+		instance void Flush () cil managed 
+	{
+		// Method begins at RVA 0x8f51
+		// Header size: 1
+		// Code size: 12 (0xc)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.IO.StreamWriter Eight.Firmness.Services.Calibration.CalibrationCsvWriter::writer
+		IL_0006: callvirt instance void [System.Runtime]System.IO.TextWriter::Flush()
+		IL_000b: ret
+	} // end of method CalibrationCsvWriter::Flush
+
+	.method public final hidebysig newslot virtual 
+		instance void Dispose () cil managed 
+	{
+		// Method begins at RVA 0x8f5e
+		// Header size: 1
+		// Code size: 23 (0x17)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Runtime]System.IO.StreamWriter Eight.Firmness.Services.Calibration.CalibrationCsvWriter::writer
+		IL_0006: callvirt instance void [System.Runtime]System.IO.TextWriter::Flush()
+		IL_000b: ldarg.0
+		IL_000c: ldfld class [System.Runtime]System.IO.StreamWriter Eight.Firmness.Services.Calibration.CalibrationCsvWriter::writer
+		IL_0011: callvirt instance void [System.Runtime]System.IO.TextWriter::Dispose()
+		IL_0016: ret
+	} // end of method CalibrationCsvWriter::Dispose
+
+	// Properties
+	.property instance int64 SamplesWritten()
+	{
+		.get instance int64 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::get_SamplesWritten()
+		.set instance void Eight.Firmness.Services.Calibration.CalibrationCsvWriter::set_SamplesWritten(int64)
+	}
+	.property instance int64 DroppedSampleCount()
+	{
+		.get instance int64 Eight.Firmness.Services.Calibration.CalibrationCsvWriter::get_DroppedSampleCount()
+		.set instance void Eight.Firmness.Services.Calibration.CalibrationCsvWriter::set_DroppedSampleCount(int64)
+	}
+
+} // end of class Eight.Firmness.Services.Calibration.CalibrationCsvWriter

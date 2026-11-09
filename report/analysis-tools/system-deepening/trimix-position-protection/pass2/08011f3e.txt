@@ -1,0 +1,28 @@
+TARGET 08011f3e function=08011f3e
+REF_TO 08018d02 UNCONDITIONAL_CALL owner=08018cfe
+FUNCTION_BODY [[08011f3e, 08011f53]]
+
+bool FUN_08011f3e(uint param_1)
+
+{
+  uint *puVar1;
+  
+  puVar1 = DAT_08011ffc;
+  if (-1 < (int)(param_1 << 3)) {
+    puVar1 = DAT_08012000;
+  }
+  return (*puVar1 & param_1) != 0;
+}
+
+
+INSN 08011f3e 0021 movs r1,#0x0
+INSN 08011f40 c200 lsls r2,r0,#0x3
+INSN 08011f42 4cbf ite mi
+INSN 08011f44 2d4a ldr.mi r2,[0x08011ffc] REF[READ:08011ffc=40020400]
+INSN 08011f46 2e4a ldr.pl r2,[0x08012000] REF[READ:08012000=40020000]
+INSN 08011f48 1268 ldr r2,[r2,#0x0] REF[READ:40020000] REF[READ:40020400]
+INSN 08011f4a 0242 tst r2,r0
+INSN 08011f4c 18bf it ne
+INSN 08011f4e 0121 mov.ne r1,#0x1
+INSN 08011f50 0846 mov r0,r1
+INSN 08011f52 7047 bx lr

@@ -1,0 +1,852 @@
+// IL code: Eight.Firmness
+.class public auto ansi beforefieldinit Eight.Firmness.StateMachine.FirmnessService
+	extends [Microsoft.Extensions.Hosting.Abstractions]Microsoft.Extensions.Hosting.BackgroundService
+	implements Eight.Firmness.StateMachine.IFirmnessProvider
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.interfaceimpl type Eight.Firmness.StateMachine.IFirmnessProvider
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	// Nested Types
+	.class nested private auto ansi abstract sealed beforefieldinit '<>O'
+		extends [System.Runtime]System.Object
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Fields
+		.field public static class [System.Runtime]System.Func`2<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool> '<0>__IsNullState'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+			01 00 02 00 00 00 00 01 00 00
+		)
+
+	} // end of class <>O
+
+	.class nested private auto ansi sealed beforefieldinit '<>c__DisplayClass14_0'
+		extends [System.Runtime]System.Object
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		// Fields
+		.field public class Eight.Firmness.StateMachine.FirmnessService '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken stoppingToken
+
+		// Methods
+		.method public hidebysig specialname rtspecialname 
+			instance void .ctor () cil managed 
+		{
+			// Method begins at RVA 0x2b84e
+			// Header size: 1
+			// Code size: 7 (0x7)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: call instance void [System.Runtime]System.Object::.ctor()
+			IL_0006: ret
+		} // end of method '<>c__DisplayClass14_0'::.ctor
+
+		.method assembly hidebysig 
+			instance class [System.Runtime]System.Threading.Tasks.Task '<ExecuteAsync>b__0' (
+				valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side side
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+			// Method begins at RVA 0x2b858
+			// Header size: 12
+			// Code size: 100 (0x64)
+			.maxstack 9
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld class Eight.Firmness.StateMachine.FirmnessService Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0'::'<>4__this'
+			IL_0006: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.FirmnessService> Eight.Firmness.StateMachine.FirmnessService::logger
+			IL_000b: ldarg.0
+			IL_000c: ldfld class Eight.Firmness.StateMachine.FirmnessService Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0'::'<>4__this'
+			IL_0011: ldfld class [System.Runtime]System.TimeProvider Eight.Firmness.StateMachine.FirmnessService::timeProvider
+			IL_0016: ldarg.1
+			IL_0017: ldstr "balloon"
+			IL_001c: ldarg.0
+			IL_001d: ldfld class Eight.Firmness.StateMachine.FirmnessService Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0'::'<>4__this'
+			IL_0022: ldfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Firmness.StateMachine.FirmnessService::stateFactory
+			IL_0027: ldarg.0
+			IL_0028: ldfld class Eight.Firmness.StateMachine.FirmnessService Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0'::'<>4__this'
+			IL_002d: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.FirmnessService::states
+			IL_0032: ldarg.0
+			IL_0033: ldfld class Eight.Firmness.StateMachine.FirmnessService Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0'::'<>4__this'
+			IL_0038: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> Eight.Firmness.StateMachine.FirmnessService::cancellationTokenSources
+			IL_003d: ldsfld class [System.Runtime]System.Func`2<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool> Eight.Firmness.StateMachine.FirmnessService/'<>O'::'<0>__IsNullState'
+			IL_0042: dup
+			IL_0043: brtrue.s IL_0058
+
+			IL_0045: pop
+			IL_0046: ldnull
+			IL_0047: ldftn bool Eight.Firmness.StateMachine.FirmnessService::IsNullState(class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState)
+			IL_004d: newobj instance void class [System.Runtime]System.Func`2<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool>::.ctor(object, native int)
+			IL_0052: dup
+			IL_0053: stsfld class [System.Runtime]System.Func`2<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool> Eight.Firmness.StateMachine.FirmnessService/'<>O'::'<0>__IsNullState'
+
+			IL_0058: ldarg.0
+			IL_0059: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0'::stoppingToken
+			IL_005e: call class [System.Runtime]System.Threading.Tasks.Task [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.SubsystemHost::RunAsync(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, class [System.Runtime]System.TimeProvider, valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, string, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory, class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>, class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource>, class [System.Runtime]System.Func`2<class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState, bool>, valuetype [System.Runtime]System.Threading.CancellationToken)
+			IL_0063: ret
+		} // end of method '<>c__DisplayClass14_0'::'<ExecuteAsync>b__0'
+
+	} // end of class <>c__DisplayClass14_0
+
+	.class nested private auto ansi sealed beforefieldinit '<ExecuteAsync>d__14'
+		extends [System.Runtime]System.ValueType
+		implements [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.CompilerGeneratedAttribute::.ctor() = (
+			01 00 00 00
+		)
+		.interfaceimpl type [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 00 00 00
+			)
+
+		// Fields
+		.field public int32 '<>1__state'
+		.field public valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder '<>t__builder'
+		.field public class Eight.Firmness.StateMachine.FirmnessService '<>4__this'
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.field public valuetype [System.Runtime]System.Threading.CancellationToken stoppingToken
+		.field private valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter '<>u__1'
+
+		// Methods
+		.method private final hidebysig newslot virtual 
+			instance void MoveNext () cil managed 
+		{
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::MoveNext()
+			// Method begins at RVA 0x2b8c8
+			// Header size: 12
+			// Code size: 318 (0x13e)
+			.maxstack 6
+			.locals init (
+				[0] int32,
+				[1] class Eight.Firmness.StateMachine.FirmnessService,
+				[2] class Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0',
+				[3] class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>,
+				[4] valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter,
+				[5] class [System.Runtime]System.Exception
+			)
+
+			IL_0000: ldarg.0
+			IL_0001: ldfld int32 Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>1__state'
+			IL_0006: stloc.0
+			IL_0007: ldarg.0
+			IL_0008: ldfld class Eight.Firmness.StateMachine.FirmnessService Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>4__this'
+			IL_000d: stloc.1
+			.try
+			{
+				IL_000e: ldloc.0
+				IL_000f: brfalse IL_00eb
+
+				IL_0014: newobj instance void Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0'::.ctor()
+				IL_0019: stloc.2
+				IL_001a: ldloc.2
+				IL_001b: ldarg.0
+				IL_001c: ldfld class Eight.Firmness.StateMachine.FirmnessService Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>4__this'
+				IL_0021: stfld class Eight.Firmness.StateMachine.FirmnessService Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0'::'<>4__this'
+				IL_0026: ldloc.2
+				IL_0027: ldarg.0
+				IL_0028: ldfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::stoppingToken
+				IL_002d: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0'::stoppingToken
+				IL_0032: ldloc.1
+				IL_0033: ldfld class Eight.Firmness.Services.IFirmnessGate Eight.Firmness.StateMachine.FirmnessService::gate
+				IL_0038: callvirt instance bool Eight.Firmness.Services.IFirmnessGate::get_IsAllowed()
+				IL_003d: brtrue.s IL_0073
+
+				IL_003f: ldloc.1
+				IL_0040: ldfld class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration> Eight.Firmness.StateMachine.FirmnessService::configManager
+				IL_0045: callvirt instance !0 class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration>::get_Configuration()
+				IL_004a: dup
+				IL_004b: brtrue.s IL_0051
+
+				IL_004d: pop
+				IL_004e: ldc.i4.0
+				IL_004f: br.s IL_0056
+
+				IL_0051: call instance bool Eight.Firmness.Models.FirmnessConfiguration::get_Enabled()
+
+				IL_0056: brfalse.s IL_0073
+
+				IL_0058: ldloc.1
+				IL_0059: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.FirmnessService> Eight.Firmness.StateMachine.FirmnessService::logger
+				IL_005e: ldstr "Firmness gate denied; disabling persisted configuration"
+				IL_0063: call !!0[] [System.Runtime]System.Array::Empty<object>()
+				IL_0068: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+				IL_006d: ldloc.1
+				IL_006e: call instance void Eight.Firmness.StateMachine.FirmnessService::Disable()
+
+				IL_0073: ldloc.1
+				IL_0074: call instance class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side> Eight.Firmness.StateMachine.FirmnessService::SidesToRun()
+				IL_0079: stloc.3
+				IL_007a: ldloc.1
+				IL_007b: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.FirmnessService> Eight.Firmness.StateMachine.FirmnessService::logger
+				IL_0080: ldstr "Starting firmness service for {SideCount} side(s)"
+				IL_0085: ldc.i4.1
+				IL_0086: newarr [System.Runtime]System.Object
+				IL_008b: dup
+				IL_008c: ldc.i4.0
+				IL_008d: ldloc.3
+				IL_008e: callvirt instance int32 class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>::get_Count()
+				IL_0093: box [System.Runtime]System.Int32
+				IL_0098: stelem.ref
+				IL_0099: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+				IL_009e: ldloc.3
+				IL_009f: ldloc.2
+				IL_00a0: ldftn instance class [System.Runtime]System.Threading.Tasks.Task Eight.Firmness.StateMachine.FirmnessService/'<>c__DisplayClass14_0'::'<ExecuteAsync>b__0'(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+				IL_00a6: newobj instance void class [System.Runtime]System.Func`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.Tasks.Task>::.ctor(object, native int)
+				IL_00ab: call class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!1> [System.Linq]System.Linq.Enumerable::Select<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.Tasks.Task>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>, class [System.Runtime]System.Func`2<!!0, !!1>)
+				IL_00b0: call !!0[] [System.Linq]System.Linq.Enumerable::ToArray<class [System.Runtime]System.Threading.Tasks.Task>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>)
+				IL_00b5: call class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Threading.Tasks.Task::WhenAll(class [System.Runtime]System.Threading.Tasks.Task[])
+				IL_00ba: callvirt instance valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter [System.Runtime]System.Threading.Tasks.Task::GetAwaiter()
+				IL_00bf: stloc.s 4
+				IL_00c1: ldloca.s 4
+				IL_00c3: call instance bool [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::get_IsCompleted()
+				IL_00c8: brtrue.s IL_0108
+
+				IL_00ca: ldarg.0
+				IL_00cb: ldc.i4.0
+				IL_00cc: dup
+				IL_00cd: stloc.0
+				IL_00ce: stfld int32 Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>1__state'
+				IL_00d3: ldarg.0
+				IL_00d4: ldloc.s 4
+				IL_00d6: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>u__1'
+				IL_00db: ldarg.0
+				IL_00dc: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>t__builder'
+				IL_00e1: ldloca.s 4
+				IL_00e3: ldarg.0
+				IL_00e4: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::AwaitUnsafeOnCompleted<valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter, valuetype Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'>(!!0&, !!1&)
+				IL_00e9: leave.s IL_013d
+
+				IL_00eb: ldarg.0
+				IL_00ec: ldfld valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>u__1'
+				IL_00f1: stloc.s 4
+				IL_00f3: ldarg.0
+				IL_00f4: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>u__1'
+				IL_00f9: initobj [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter
+				IL_00ff: ldarg.0
+				IL_0100: ldc.i4.m1
+				IL_0101: dup
+				IL_0102: stloc.0
+				IL_0103: stfld int32 Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>1__state'
+
+				IL_0108: ldloca.s 4
+				IL_010a: call instance void [System.Runtime]System.Runtime.CompilerServices.TaskAwaiter::GetResult()
+				IL_010f: leave.s IL_012a
+			} // end .try
+			catch [System.Runtime]System.Exception
+			{
+				IL_0111: stloc.s 5
+				IL_0113: ldarg.0
+				IL_0114: ldc.i4.s -2
+				IL_0116: stfld int32 Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>1__state'
+				IL_011b: ldarg.0
+				IL_011c: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>t__builder'
+				IL_0121: ldloc.s 5
+				IL_0123: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetException(class [System.Runtime]System.Exception)
+				IL_0128: leave.s IL_013d
+			} // end handler
+
+			IL_012a: ldarg.0
+			IL_012b: ldc.i4.s -2
+			IL_012d: stfld int32 Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>1__state'
+			IL_0132: ldarg.0
+			IL_0133: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>t__builder'
+			IL_0138: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetResult()
+
+			IL_013d: ret
+		} // end of method '<ExecuteAsync>d__14'::MoveNext
+
+		.method private final hidebysig newslot virtual 
+			instance void SetStateMachine (
+				class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine stateMachine
+			) cil managed 
+		{
+			.custom instance void [System.Runtime]System.Diagnostics.DebuggerHiddenAttribute::.ctor() = (
+				01 00 00 00
+			)
+			.override method instance void [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			// Method begins at RVA 0x2ba30
+			// Header size: 1
+			// Code size: 13 (0xd)
+			.maxstack 8
+
+			IL_0000: ldarg.0
+			IL_0001: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>t__builder'
+			IL_0006: ldarg.1
+			IL_0007: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::SetStateMachine(class [System.Runtime]System.Runtime.CompilerServices.IAsyncStateMachine)
+			IL_000c: ret
+		} // end of method '<ExecuteAsync>d__14'::SetStateMachine
+
+	} // end of class <ExecuteAsync>d__14
+
+
+	// Fields
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.FirmnessService> logger
+	.field private initonly class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory stateFactory
+	.field private initonly class Eight.Firmness.Models.BalloonOptions options
+	.field private initonly class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration> configManager
+	.field private initonly class Eight.Firmness.Services.IFirmnessGate gate
+	.field private initonly class [System.Runtime]System.TimeProvider timeProvider
+	.field private initonly class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> states
+	.field private initonly class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> cancellationTokenSources
+	.field private bool disposed
+
+	// Methods
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.FirmnessService> logger,
+			class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory stateFactory,
+			class Eight.Firmness.Models.BalloonOptions options,
+			class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration> configManager,
+			class Eight.Firmness.Services.IFirmnessGate gate,
+			class [System.Runtime]System.TimeProvider timeProvider
+		) cil managed 
+	{
+		// Method begins at RVA 0x24c4
+		// Header size: 12
+		// Code size: 74 (0x4a)
+		.maxstack 2
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.FirmnessService> Eight.Firmness.StateMachine.FirmnessService::logger
+		IL_0007: ldarg.0
+		IL_0008: ldarg.2
+		IL_0009: stfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Firmness.StateMachine.FirmnessService::stateFactory
+		IL_000e: ldarg.0
+		IL_000f: ldarg.3
+		IL_0010: stfld class Eight.Firmness.Models.BalloonOptions Eight.Firmness.StateMachine.FirmnessService::options
+		IL_0015: ldarg.0
+		IL_0016: ldarg.s configManager
+		IL_0018: stfld class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration> Eight.Firmness.StateMachine.FirmnessService::configManager
+		IL_001d: ldarg.0
+		IL_001e: ldarg.s gate
+		IL_0020: stfld class Eight.Firmness.Services.IFirmnessGate Eight.Firmness.StateMachine.FirmnessService::gate
+		IL_0025: ldarg.0
+		IL_0026: ldarg.s timeProvider
+		IL_0028: stfld class [System.Runtime]System.TimeProvider Eight.Firmness.StateMachine.FirmnessService::timeProvider
+		IL_002d: ldarg.0
+		IL_002e: newobj instance void class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::.ctor()
+		IL_0033: stfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.FirmnessService::states
+		IL_0038: ldarg.0
+		IL_0039: newobj instance void class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource>::.ctor()
+		IL_003e: stfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> Eight.Firmness.StateMachine.FirmnessService::cancellationTokenSources
+		IL_0043: ldarg.0
+		IL_0044: call instance void [Microsoft.Extensions.Hosting.Abstractions]Microsoft.Extensions.Hosting.BackgroundService::.ctor()
+		IL_0049: ret
+	} // end of method FirmnessService::.ctor
+
+	.method private hidebysig static 
+		bool IsNullState (
+			class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState state
+		) cil managed 
+	{
+		// Method begins at RVA 0x251a
+		// Header size: 1
+		// Code size: 10 (0xa)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: isinst [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.States.NullState
+		IL_0006: ldnull
+		IL_0007: cgt.un
+		IL_0009: ret
+	} // end of method FirmnessService::IsNullState
+
+	.method private hidebysig specialname 
+		instance string get_MachineSection () cil managed 
+	{
+		// Method begins at RVA 0x2525
+		// Header size: 1
+		// Code size: 36 (0x24)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Firmness.Models.BalloonOptions Eight.Firmness.StateMachine.FirmnessService::options
+		IL_0006: callvirt instance string Eight.Firmness.Models.BalloonOptions::get_MachineSection()
+		IL_000b: call bool [System.Runtime]System.String::IsNullOrEmpty(string)
+		IL_0010: brtrue.s IL_001e
+
+		IL_0012: ldarg.0
+		IL_0013: ldfld class Eight.Firmness.Models.BalloonOptions Eight.Firmness.StateMachine.FirmnessService::options
+		IL_0018: callvirt instance string Eight.Firmness.Models.BalloonOptions::get_MachineSection()
+		IL_001d: ret
+
+		IL_001e: ldstr "unknown"
+		IL_0023: ret
+	} // end of method FirmnessService::get_MachineSection
+
+	.method private hidebysig 
+		instance void WarnUnconfiguredSides (
+			class [System.Collections]System.Collections.Generic.Dictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, string[]> usbPorts
+		) cil managed 
+	{
+		// Method begins at RVA 0x254c
+		// Header size: 12
+		// Code size: 82 (0x52)
+		.maxstack 6
+		.locals init (
+			[0] class [System.Runtime]System.Collections.Generic.IEnumerator`1<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>,
+			[1] valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: call class [System.Runtime]System.Collections.Generic.IReadOnlyList`1<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side> [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.UsbPortMap::UnconfiguredSides(class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, string[]>)
+		IL_0006: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>::GetEnumerator()
+		IL_000b: stloc.0
+		.try
+		{
+			IL_000c: br.s IL_003d
+			// loop start (head: IL_003d)
+				IL_000e: ldloc.0
+				IL_000f: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>::get_Current()
+				IL_0014: stloc.1
+				IL_0015: ldarg.0
+				IL_0016: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.FirmnessService> Eight.Firmness.StateMachine.FirmnessService::logger
+				IL_001b: ldstr "no firmness usbPortConfig for {Section}/{Side} — R12 disabled"
+				IL_0020: ldc.i4.2
+				IL_0021: newarr [System.Runtime]System.Object
+				IL_0026: dup
+				IL_0027: ldc.i4.0
+				IL_0028: ldarg.0
+				IL_0029: call instance string Eight.Firmness.StateMachine.FirmnessService::get_MachineSection()
+				IL_002e: stelem.ref
+				IL_002f: dup
+				IL_0030: ldc.i4.1
+				IL_0031: ldloc.1
+				IL_0032: call string [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+				IL_0037: stelem.ref
+				IL_0038: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogWarning(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+
+				IL_003d: ldloc.0
+				IL_003e: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_0043: brtrue.s IL_000e
+			// end loop
+
+			IL_0045: leave.s IL_0051
+		} // end .try
+		finally
+		{
+			IL_0047: ldloc.0
+			IL_0048: brfalse.s IL_0050
+
+			IL_004a: ldloc.0
+			IL_004b: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_0050: endfinally
+		} // end handler
+
+		IL_0051: ret
+	} // end of method FirmnessService::WarnUnconfiguredSides
+
+	.method private hidebysig 
+		instance class [System.Runtime]System.Collections.Generic.IReadOnlyCollection`1<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side> SidesToRun () cil managed 
+	{
+		// Method begins at RVA 0x25bc
+		// Header size: 12
+		// Code size: 85 (0x55)
+		.maxstack 2
+		.locals init (
+			[0] class [System.Collections]System.Collections.Generic.Dictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, string[]>,
+			[1] string[]
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.Firmness.Models.BalloonOptions Eight.Firmness.StateMachine.FirmnessService::options
+		IL_0006: callvirt instance string[] Eight.Firmness.Models.BalloonOptions::get_UsbRoots()
+		IL_000b: stloc.1
+		IL_000c: ldloc.1
+		IL_000d: brfalse.s IL_003b
+
+		IL_000f: ldloc.1
+		IL_0010: ldlen
+		IL_0011: conv.i4
+		IL_0012: ldc.i4.0
+		IL_0013: ble.s IL_003b
+
+		IL_0015: ldarg.0
+		IL_0016: ldfld class Eight.Firmness.Models.BalloonOptions Eight.Firmness.StateMachine.FirmnessService::options
+		IL_001b: callvirt instance class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, int32[]> Eight.Firmness.Models.BalloonOptions::get_SidePartNumbers()
+		IL_0020: dup
+		IL_0021: brtrue.s IL_0027
+
+		IL_0023: pop
+		IL_0024: ldnull
+		IL_0025: br.s IL_0031
+
+		IL_0027: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerable`1<!0> class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, int32[]>::get_Keys()
+		IL_002c: call !!0[] [System.Linq]System.Linq.Enumerable::ToArray<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>)
+
+		IL_0031: dup
+		IL_0032: brtrue.s IL_003a
+
+		IL_0034: pop
+		IL_0035: call !!0[] [System.Runtime]System.Array::Empty<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>()
+
+		IL_003a: ret
+
+		IL_003b: ldarg.0
+		IL_003c: ldfld class Eight.Firmness.Models.BalloonOptions Eight.Firmness.StateMachine.FirmnessService::options
+		IL_0041: callvirt instance class [System.Collections]System.Collections.Generic.Dictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, string[]> Eight.Firmness.Models.BalloonOptions::get_UsbPorts()
+		IL_0046: stloc.0
+		IL_0047: ldarg.0
+		IL_0048: ldloc.0
+		IL_0049: call instance void Eight.Firmness.StateMachine.FirmnessService::WarnUnconfiguredSides(class [System.Collections]System.Collections.Generic.Dictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, string[]>)
+		IL_004e: ldloc.0
+		IL_004f: callvirt instance class [System.Collections]System.Collections.Generic.Dictionary`2/KeyCollection<!0, !1> class [System.Collections]System.Collections.Generic.Dictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, string[]>::get_Keys()
+		IL_0054: ret
+	} // end of method FirmnessService::SidesToRun
+
+	.method family hidebysig virtual 
+		instance class [System.Runtime]System.Threading.Tasks.Task ExecuteAsync (
+			valuetype [System.Runtime]System.Threading.CancellationToken stoppingToken
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.AsyncStateMachineAttribute::.ctor(class [System.Runtime]System.Type) = (
+			01 00 3f 45 69 67 68 74 2e 46 69 72 6d 6e 65 73
+			73 2e 53 74 61 74 65 4d 61 63 68 69 6e 65 2e 46
+			69 72 6d 6e 65 73 73 53 65 72 76 69 63 65 2b 3c
+			45 78 65 63 75 74 65 41 73 79 6e 63 3e 64 5f 5f
+			31 34 00 00
+		)
+		// Method begins at RVA 0x2620
+		// Header size: 12
+		// Code size: 63 (0x3f)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: call valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Create()
+		IL_0007: stfld valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>t__builder'
+		IL_000c: ldloca.s 0
+		IL_000e: ldarg.0
+		IL_000f: stfld class Eight.Firmness.StateMachine.FirmnessService Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>4__this'
+		IL_0014: ldloca.s 0
+		IL_0016: ldarg.1
+		IL_0017: stfld valuetype [System.Runtime]System.Threading.CancellationToken Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::stoppingToken
+		IL_001c: ldloca.s 0
+		IL_001e: ldc.i4.m1
+		IL_001f: stfld int32 Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>1__state'
+		IL_0024: ldloca.s 0
+		IL_0026: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>t__builder'
+		IL_002b: ldloca.s 0
+		IL_002d: call instance void [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::Start<valuetype Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'>(!!0&)
+		IL_0032: ldloca.s 0
+		IL_0034: ldflda valuetype [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder Eight.Firmness.StateMachine.FirmnessService/'<ExecuteAsync>d__14'::'<>t__builder'
+		IL_0039: call instance class [System.Runtime]System.Threading.Tasks.Task [System.Runtime]System.Runtime.CompilerServices.AsyncTaskMethodBuilder::get_Task()
+		IL_003e: ret
+	} // end of method FirmnessService::ExecuteAsync
+
+	.method public final hidebysig newslot virtual 
+		instance class [System.Runtime]System.Collections.Generic.IReadOnlyDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> GetCurrentStates () cil managed 
+	{
+		// Method begins at RVA 0x266b
+		// Header size: 1
+		// Code size: 7 (0x7)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.FirmnessService::states
+		IL_0006: ret
+	} // end of method FirmnessService::GetCurrentStates
+
+	.method public final hidebysig newslot virtual 
+		instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState GetCurrentState (
+			valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side side
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 02 00 00
+		)
+		// Method begins at RVA 0x2674
+		// Header size: 12
+		// Code size: 17 (0x11)
+		.maxstack 3
+		.locals init (
+			[0] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.FirmnessService::states
+		IL_0006: ldarg.1
+		IL_0007: ldloca.s 0
+		IL_0009: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::TryGetValue(!0, !1&)
+		IL_000e: pop
+		IL_000f: ldloc.0
+		IL_0010: ret
+	} // end of method FirmnessService::GetCurrentState
+
+	.method public final hidebysig newslot virtual 
+		instance void Enable () cil managed 
+	{
+		// Method begins at RVA 0x2694
+		// Header size: 12
+		// Code size: 113 (0x71)
+		.maxstack 13
+		.locals init (
+			[0] class Eight.Firmness.Models.FirmnessConfiguration,
+			[1] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.DeviceMode>,
+			[2] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.BalloonTelemetryProfile>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration> Eight.Firmness.StateMachine.FirmnessService::configManager
+		IL_0006: callvirt instance !0 class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration>::get_Configuration()
+		IL_000b: dup
+		IL_000c: brtrue.s IL_0041
+
+		IL_000e: pop
+		IL_000f: ldc.i4.0
+		IL_0010: ldnull
+		IL_0011: ldnull
+		IL_0012: ldloca.s 1
+		IL_0014: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.DeviceMode>
+		IL_001a: ldloc.1
+		IL_001b: ldloca.s 1
+		IL_001d: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.DeviceMode>
+		IL_0023: ldloc.1
+		IL_0024: ldnull
+		IL_0025: ldnull
+		IL_0026: ldc.i4.0
+		IL_0027: ldc.i4.0
+		IL_0028: ldloca.s 2
+		IL_002a: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.BalloonTelemetryProfile>
+		IL_0030: ldloc.2
+		IL_0031: ldloca.s 2
+		IL_0033: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.BalloonTelemetryProfile>
+		IL_0039: ldloc.2
+		IL_003a: ldnull
+		IL_003b: ldnull
+		IL_003c: newobj instance void Eight.Firmness.Models.FirmnessConfiguration::.ctor(bool, class Eight.Firmness.Models.FirmnessTarget, class Eight.Firmness.Models.FirmnessTarget, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.DeviceMode>, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.DeviceMode>, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.FirmnessPreset>, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.FirmnessPreset>, bool, bool, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.BalloonTelemetryProfile>, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.BalloonTelemetryProfile>, class Eight.Firmness.Models.ToleranceBands, class Eight.Firmness.Models.ToleranceBands)
+
+		IL_0041: stloc.0
+		IL_0042: ldarg.0
+		IL_0043: ldfld class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration> Eight.Firmness.StateMachine.FirmnessService::configManager
+		IL_0048: ldloc.0
+		IL_0049: callvirt instance class Eight.Firmness.Models.FirmnessConfiguration Eight.Firmness.Models.FirmnessConfiguration::'<Clone>$'()
+		IL_004e: dup
+		IL_004f: ldc.i4.1
+		IL_0050: callvirt instance void modreq([System.Runtime]System.Runtime.CompilerServices.IsExternalInit) Eight.Firmness.Models.FirmnessConfiguration::set_Enabled(bool)
+		IL_0055: callvirt instance !0 class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration>::UpdateConfiguration(!0)
+		IL_005a: pop
+		IL_005b: ldarg.0
+		IL_005c: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.FirmnessService> Eight.Firmness.StateMachine.FirmnessService::logger
+		IL_0061: ldstr "Firmness devices enabled"
+		IL_0066: call !!0[] [System.Runtime]System.Array::Empty<object>()
+		IL_006b: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_0070: ret
+	} // end of method FirmnessService::Enable
+
+	.method public final hidebysig newslot virtual 
+		instance void Disable () cil managed 
+	{
+		// Method begins at RVA 0x2714
+		// Header size: 12
+		// Code size: 240 (0xf0)
+		.maxstack 13
+		.locals init (
+			[0] class Eight.Firmness.Models.FirmnessConfiguration,
+			[1] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.DeviceMode>,
+			[2] valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.BalloonTelemetryProfile>,
+			[3] valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side[],
+			[4] int32,
+			[5] valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side,
+			[6] class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState,
+			[7] class [System.Runtime]System.Threading.CancellationTokenSource
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration> Eight.Firmness.StateMachine.FirmnessService::configManager
+		IL_0006: callvirt instance !0 class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration>::get_Configuration()
+		IL_000b: dup
+		IL_000c: brtrue.s IL_0041
+
+		IL_000e: pop
+		IL_000f: ldc.i4.0
+		IL_0010: ldnull
+		IL_0011: ldnull
+		IL_0012: ldloca.s 1
+		IL_0014: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.DeviceMode>
+		IL_001a: ldloc.1
+		IL_001b: ldloca.s 1
+		IL_001d: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.DeviceMode>
+		IL_0023: ldloc.1
+		IL_0024: ldnull
+		IL_0025: ldnull
+		IL_0026: ldc.i4.0
+		IL_0027: ldc.i4.0
+		IL_0028: ldloca.s 2
+		IL_002a: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.BalloonTelemetryProfile>
+		IL_0030: ldloc.2
+		IL_0031: ldloca.s 2
+		IL_0033: initobj valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.BalloonTelemetryProfile>
+		IL_0039: ldloc.2
+		IL_003a: ldnull
+		IL_003b: ldnull
+		IL_003c: newobj instance void Eight.Firmness.Models.FirmnessConfiguration::.ctor(bool, class Eight.Firmness.Models.FirmnessTarget, class Eight.Firmness.Models.FirmnessTarget, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.DeviceMode>, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.DeviceMode>, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.FirmnessPreset>, class [System.Collections]System.Collections.Generic.List`1<class Eight.Firmness.Models.FirmnessPreset>, bool, bool, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.BalloonTelemetryProfile>, valuetype [System.Runtime]System.Nullable`1<valuetype Eight.Firmness.Models.BalloonTelemetryProfile>, class Eight.Firmness.Models.ToleranceBands, class Eight.Firmness.Models.ToleranceBands)
+
+		IL_0041: stloc.0
+		IL_0042: ldarg.0
+		IL_0043: ldfld class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration> Eight.Firmness.StateMachine.FirmnessService::configManager
+		IL_0048: ldloc.0
+		IL_0049: callvirt instance class Eight.Firmness.Models.FirmnessConfiguration Eight.Firmness.Models.FirmnessConfiguration::'<Clone>$'()
+		IL_004e: dup
+		IL_004f: ldc.i4.0
+		IL_0050: callvirt instance void modreq([System.Runtime]System.Runtime.CompilerServices.IsExternalInit) Eight.Firmness.Models.FirmnessConfiguration::set_Enabled(bool)
+		IL_0055: callvirt instance !0 class [Eight.Capybara.Config]Eight.Capybara.Config.IPodConfigurationManager`1<class Eight.Firmness.Models.FirmnessConfiguration>::UpdateConfiguration(!0)
+		IL_005a: pop
+		IL_005b: ldarg.0
+		IL_005c: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.FirmnessService::states
+		IL_0061: callvirt instance class [System.Runtime]System.Collections.Generic.ICollection`1<!0> class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::get_Keys()
+		IL_0066: call !!0[] [System.Linq]System.Linq.Enumerable::ToArray<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side>(class [System.Runtime]System.Collections.Generic.IEnumerable`1<!!0>)
+		IL_006b: stloc.3
+		IL_006c: ldc.i4.0
+		IL_006d: stloc.s 4
+		IL_006f: br.s IL_00d3
+		// loop start (head: IL_00d3)
+			IL_0071: ldloc.3
+			IL_0072: ldloc.s 4
+			IL_0074: ldelem.i4
+			IL_0075: stloc.s 5
+			IL_0077: ldarg.0
+			IL_0078: ldfld class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory Eight.Firmness.StateMachine.FirmnessService::stateFactory
+			IL_007d: ldloc.s 5
+			IL_007f: callvirt instance class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemStateFactory::CreateNullState(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+			IL_0084: stloc.s 6
+			IL_0086: ldarg.0
+			IL_0087: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState> Eight.Firmness.StateMachine.FirmnessService::states
+			IL_008c: ldloc.s 5
+			IL_008e: ldloc.s 6
+			IL_0090: callvirt instance void class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.StateMachine.ISubsystemState>::set_Item(!0, !1)
+			IL_0095: ldarg.0
+			IL_0096: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.FirmnessService> Eight.Firmness.StateMachine.FirmnessService::logger
+			IL_009b: ldstr "[{Side}:balloon] Reset to NullState due to disable"
+			IL_00a0: ldc.i4.1
+			IL_00a1: newarr [System.Runtime]System.Object
+			IL_00a6: dup
+			IL_00a7: ldc.i4.0
+			IL_00a8: ldloc.s 5
+			IL_00aa: call string [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.SideExtensions::ToLowerString(valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side)
+			IL_00af: stelem.ref
+			IL_00b0: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+			IL_00b5: ldarg.0
+			IL_00b6: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> Eight.Firmness.StateMachine.FirmnessService::cancellationTokenSources
+			IL_00bb: ldloc.s 5
+			IL_00bd: ldloca.s 7
+			IL_00bf: callvirt instance bool class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource>::TryGetValue(!0, !1&)
+			IL_00c4: brfalse.s IL_00cd
+
+			IL_00c6: ldloc.s 7
+			IL_00c8: callvirt instance void [System.Runtime]System.Threading.CancellationTokenSource::Cancel()
+
+			IL_00cd: ldloc.s 4
+			IL_00cf: ldc.i4.1
+			IL_00d0: add
+			IL_00d1: stloc.s 4
+
+			IL_00d3: ldloc.s 4
+			IL_00d5: ldloc.3
+			IL_00d6: ldlen
+			IL_00d7: conv.i4
+			IL_00d8: blt.s IL_0071
+		// end loop
+
+		IL_00da: ldarg.0
+		IL_00db: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.Firmness.StateMachine.FirmnessService> Eight.Firmness.StateMachine.FirmnessService::logger
+		IL_00e0: ldstr "Firmness devices disabled"
+		IL_00e5: call !!0[] [System.Runtime]System.Array::Empty<object>()
+		IL_00ea: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_00ef: ret
+	} // end of method FirmnessService::Disable
+
+	.method public hidebysig virtual 
+		instance void Dispose () cil managed 
+	{
+		// Method begins at RVA 0x2810
+		// Header size: 12
+		// Code size: 96 (0x60)
+		.maxstack 2
+		.locals init (
+			[0] class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [System.Runtime]System.Threading.CancellationTokenSource>
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld bool Eight.Firmness.StateMachine.FirmnessService::disposed
+		IL_0006: brfalse.s IL_0009
+
+		IL_0008: ret
+
+		IL_0009: ldarg.0
+		IL_000a: ldc.i4.1
+		IL_000b: stfld bool Eight.Firmness.StateMachine.FirmnessService::disposed
+		IL_0010: ldarg.0
+		IL_0011: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> Eight.Firmness.StateMachine.FirmnessService::cancellationTokenSources
+		IL_0016: callvirt instance class [System.Runtime]System.Collections.Generic.ICollection`1<!1> class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource>::get_Values()
+		IL_001b: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<class [System.Runtime]System.Threading.CancellationTokenSource>::GetEnumerator()
+		IL_0020: stloc.0
+		.try
+		{
+			IL_0021: br.s IL_0034
+			// loop start (head: IL_0034)
+				IL_0023: ldloc.0
+				IL_0024: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<class [System.Runtime]System.Threading.CancellationTokenSource>::get_Current()
+				IL_0029: dup
+				IL_002a: callvirt instance void [System.Runtime]System.Threading.CancellationTokenSource::Cancel()
+				IL_002f: callvirt instance void [System.Runtime]System.Threading.CancellationTokenSource::Dispose()
+
+				IL_0034: ldloc.0
+				IL_0035: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+				IL_003a: brtrue.s IL_0023
+			// end loop
+
+			IL_003c: leave.s IL_0048
+		} // end .try
+		finally
+		{
+			IL_003e: ldloc.0
+			IL_003f: brfalse.s IL_0047
+
+			IL_0041: ldloc.0
+			IL_0042: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_0047: endfinally
+		} // end handler
+
+		IL_0048: ldarg.0
+		IL_0049: ldfld class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource> Eight.Firmness.StateMachine.FirmnessService::cancellationTokenSources
+		IL_004e: callvirt instance void class [System.Collections.Concurrent]System.Collections.Concurrent.ConcurrentDictionary`2<valuetype [Eight.Lsp.Subsystems]Eight.Lsp.Subsystems.Models.Side, class [System.Runtime]System.Threading.CancellationTokenSource>::Clear()
+		IL_0053: ldarg.0
+		IL_0054: call instance void [Microsoft.Extensions.Hosting.Abstractions]Microsoft.Extensions.Hosting.BackgroundService::Dispose()
+		IL_0059: ldarg.0
+		IL_005a: call void [System.Runtime]System.GC::SuppressFinalize(object)
+		IL_005f: ret
+	} // end of method FirmnessService::Dispose
+
+	// Properties
+	.property instance string MachineSection()
+	{
+		.get instance string Eight.Firmness.StateMachine.FirmnessService::get_MachineSection()
+	}
+
+} // end of class Eight.Firmness.StateMachine.FirmnessService

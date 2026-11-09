@@ -1,0 +1,57 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+Raw uploader static call-chain recovery — 2026-11-07
+Target: opt/eight/bin/jetstream-uploader in official MTK SWU
+SHA256 a93fef74e2bb1d61e36979a9d1997afecf1b4655ebe6190e2887dac95262fe06
+All paths below relative to analysis/sleep-pipeline; addresses are Ghidra virtual addresses, image base 0x00100000.
+
+1. Positive producer-to-upload evidence
+Managed accessory producer: PostureTelemetryHandler -> NatsPublisher -> CBOR -> localhost JetStream (REPORT.txt section2).
+Cover producer: Frank whole-second CBOR -> raw.x.sens.stealth -> localhost JetStream (signal-host subtask).
+config/etc/nats.conf maps raw.> to rawmem.>; uploader config selects raw stream memory tier.
+Uploader FUN_003b06cc receives the NATS message. Subject is param_3[3]/[4], payload is param_3[0xd]/[0xe].
+uploader-repaired/003b06cc.c:191-236 tests rawmem. prefix and recreates canonical raw.* subject by removing seven bytes and prepending raw.
+At lines326-333 it selects/creates an entry keyed by the subject. Lines538-546 grow the byte buffer if necessary, memcpy the original payload bytes, increment payload length and message count. No sensor feature transform occurs at this append site.
+Lines242-243 reject payloads larger than0xBB800 (768000 bytes). Lines451-476 consider aggregate bytes and elapsed time before starting another chunk. This chunk size cap differs from config batch_max_bytes262144.
+Lines279-289 handle the Raw-Mem-Time header on memory-tier records; the timestamp feeds chunk splitting. This is not a physiological feature window or a sleep-stage epoch.
+The chunker groups and concatenates bytes. It does not decode the cover piezo/IMU arrays into sleep labels in this recovered path.
+
+2. Real sender CBOR schema
+uploader-repaired/003a6344.c:34,58-69 writes a CBOR map header, text key proto=text raw, and text key part=caller-selected part name.
+uploader-repaired/003a6640.c:110-164 writes the session form:
+  {"proto":"raw", "part":"session", "dev":<device string>,
+   "specialization":<specialization string>, "version":"2",
+   "compression":"zlib"}  // compression field conditional in generic encoder
+The version value is a text string, not CBOR integer2.
+The production reconnect/session path uploader-repaired/001c1810.c:562-609 constructs version byte0x32 and sets the compression flag to1. Lines790-805 copy that flag into the generic message struct and call003a6640. Thus the recovered normal session advertises zlib compression.
+This must not be confused with config/etc/jetstream-uploader.toml's jetstream.compression="none", which controls local storage.
+uploader-repaired/003a6640.c:217-233 writes batch form:
+  {"proto":"raw", "part":"batch", "id":<integer>, "stream":(_ <byte chunks>)}
+The stream begins byte0x5f, CBOR indefinite-length byte string. Generic chunk variant lines77-92 emits a definite byte-string header0x40|length encoding and copies supplied bytes; terminator variant emits0xff.
+uploader-pass3/003adfd4.c is the CBOR major-type/length encoder, not a sensor DSP function.
+extract_uploader_literals.py independently maps actual ELF PT_LOAD ranges to file offsets. uploader-literals.json records exact bytes for each keyword and the0x5f/0xff values, so this schema does not rely on Ghidra auto-naming of concatenated strings.
+The inner per-subject records are now recovered too: uploader-pass9/001b51ec.c:287-288 calls003b0154 to collect chunks, then003b18dc; uploader-pass10/003b18dc.c:70-92 iterates each chunk and calls003eb940. uploader-pass4/003eb940.c:40-110 writes CBOR map3 {seq:<unsigned sequence>,topic:<canonical subject text>,data:<raw bytes>}. It increments sequence and resets data length after success. The byte payload path is uploader-pass11/003eb210.c:32-50, which writes CBOR byte-string header and memcpy-copies the original data. The fixed constants(1,3),(1,5),(1,4) at0x784960,0x792ce0,0x784980 are definite-length markers for map3 and key lengths5/4. Names seq/topic/data are direct literal stores in003eb940, not guessed from logger text.
+Thus a batch stream contains encoded per-topic records, and each record's data contains the concatenated producer CBOR messages. This is nesting/framing, not a physiological feature extractor.
+Compression boundary is positively recovered: uploader-repaired/001c1810.c:1341-1364 first requires the session ACK to have proto=raw,part=session, then wraps the established TLS stream via0027db98. uploader-pass13/0027db98.c:15-36 builds raw/deflate.rs writer state with32KiB output buffer and compressor initialization. The pre-ACK session encoder uses002a6da0; the post-ACK batch/chunk path001b2840 uses002a6a28 ->0028b414 ->0027d50c ->00433f48, then0028a82c writes compressed bytes into TLS. uploader-pass14/0028b414.c:47-59 and0027d50c.c:54-56,87-89 are actual compression calls. The writer persists across these batch/chunk sends;0028b2b8 flushes it. Therefore compression encloses the post-session CBOR protocol stream, not only the inner data value. The protocol names it zlib; exact wrapper bits and compressor tuning were not independently reconstructed or packet-tested, so no decompressor interoperability claim is made.
+
+3. Endpoint, TLS and identity path
+uploader-repaired/003e3bec.c:15-30 constructs default host raw-api-upload.8slp.net, port0x1bb=443, CA path /etc/ssl/certs/ca-certificates.crt, and enabled TLS flag.
+uploader-pass5/001d4c3c.c:924 references /persistent/deviceinfo/specialization;1113 calls003af01c with /persistent/deviceinfo (string length0x16).
+uploader-pass4/003af01c.c:81 appends endpoints.json, reads JSON;266-319 retrieves rawApiUpload, accepts a string and trims whitespace using003e1d04; empty/missing/invalid cases return fallback. The effective override file is /persistent/deviceinfo/endpoints.json. This is runtime state absent from the shipped rootfs, so default host is not proof of every deployed device's host.
+Production session uploader-repaired/001c1810.c:421 invokes003a7844, which creates the connector future. Its vtable poll method003a78d8 calls003b89cc for the connection and003cc4a8 while handshaking. uploader-pass4/003cc4a8.c:236 has the actual handshake EOF error path ("tls handshake eof"). This is a TLS transport path, not merely port443 interpreted as HTTPS.
+No HTTP endpoint pathname has been recovered for this upload protocol; CBOR is written through its raw connection client. Do not invent an HTTP POST route.
+CA configuration is recovered, but this report does not assert a complete independent certificate-validation audit or pinning analysis.
+
+4. Returned messages observed here are protocol acknowledgments
+uploader-repaired/001c1810.c:1173 calls RawApiResp CBOR deserialization. Its field descriptor table0x009cbe60 contains exactly proto,part,id; independently decoded in uploader-literals.json.
+uploader-repaired/002e68b4.c contains the matching string comparisons/deserialization. The session-start failure/timeout handling surrounds this call.
+This recovered RawApiResp is upload protocol metadata, not a sleep-stage result vector. It does not prove no other cloud API returns sleep stages; the companion app/backend are outside this SWU.
+The batch checkpoint is positively checked: uploader-switchfix/001bd33c.c:1118 deserializes the same RawApiResp;1207-1217 requires proto exactly raw,part exactly batch,and present id equal to the expected batch id. Wrong id and unexpected response enter error paths. The upload batch id increments only after the successful branch reaches1517. This excludes interpreting this ACK as a returned sleep-stage classification.
+
+5. Analysis quality and limits
+Ghidra12.1.4/Java21 performed static ARM64 analysis, no target firmware code ran. Projects and generated pseudocode are preserved.
+Initial Ghidra GCC exception analysis produced impossible catch ranges. A separate RawUploaderNoGcc project disabled that analyzer, then repaired known Rust panic/no-return helpers. Stable normal paths above were compared with exact constants and callsites.
+Pseudocode remains reconstructed and contains uncertain types. The initial huge async state-machine001bd33c output was invalid because its unbounded indirect branch read adjacent ASCII text as jump-table entries. FixUploaderSwitch.java restores the15 actual halfword targets at0x77e230 and restricts function body to0x1bd33c..0x1bfdf8; uploader-switchfix.log preserves all target addresses. The corrected1823-line output in uploader-switchfix is used only for explicit dataflow/ACK comparisons. Initial uploader-repaired/001bd33c.c is retained for provenance and must not be used for conclusions.
+Recovered evidence supports raw bytes -> subject/time chunking -> CBOR session/batch -> TLS uploader. It provides positive off-device raw data flow, alongside official backend-processing documentation; it does not recover remote model weights, network architecture, feature formulas, or a Pod6-specific sleep-stage algorithm.
+Final logical flow: producer CBOR -> localhost JetStream -> per-topic byte concatenation -> CBOR{seq,topic,data} records -> CBOR batch stream -> persistent deflate writer -> TLS. Initial CBOR session declaration/ACK precedes installing the deflate writer; raw-API responses recovered here remain control ACKs.

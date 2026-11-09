@@ -1,0 +1,44 @@
+{
+  "completed": [
+    "EP81 mode/maxpacket/PMA binding",
+    "first and subsequent source RAM reads",
+    "PMA copy exact byte boundaries",
+    "IRQ8 vector and lower callback binding",
+    "timeout vs gate-drain IRQ exclusion scope",
+    "first-free pool reuse and sequential encoder writes",
+    "eight bounded synthetic copy/interleaving checks"
+  ],
+  "unknown": [
+    "actual >50 latency frequency and IRQ ordering",
+    "all source buffer writers and every interrupt interleaving",
+    "actual USB host receipt and receiver CRC response",
+    "other-speed and double-buffer branches",
+    "oversize-framer inputs reaching >=1024 repeated flush path"
+  ],
+  "next_questions": [
+    {
+      "question": "MTK host receiving USB frames: CRC/escape/length failure handling, resync and seq gaps",
+      "can_do_now": "trace existing host reader code statically; synthetic malformed inputs when contract closed",
+      "needs_device": "frequency and actual receiver events"
+    },
+    {
+      "question": "Which framer callers can reach >=1024 encoded output and reuse same selected slot after flush?",
+      "can_do_now": "bound caller lengths and worst-case escaping from existing firmware",
+      "needs_device": "real occurrence only; normal377-byte raw body alone is not proof of overflow"
+    },
+    {
+      "question": "Does >50 recovery or comparison/completion interleaving occur on a real Pod?",
+      "can_do_now": "precise passive capture points and counters already identified",
+      "needs_device": "powered connected device, passive USB trace and local counters"
+    }
+  ],
+  "not_claimed": [
+    "physical corruption observed",
+    "hostACK or cloud receipt",
+    "all code race free or all schedules reachable",
+    "sample rate from USB packet size",
+    "all firmware/versions equivalence"
+  ],
+  "analysis_mode": "Ghidra readOnly/noanalysis, no DB mutation; REA MCP unavailable; no network/target/account activity",
+  "review_status": "independent exported-branch and final-report review passed; hardware bit0x100 branch condition made explicit"
+}

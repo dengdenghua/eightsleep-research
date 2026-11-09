@@ -1,0 +1,93 @@
+官方国行 APK：本地处理覆盖清查与残余链闭合
+2026-11-08；仅静态分析；未启动 APK、登录、请求账号 API 或操作设备。
+
+范围与结论
+本轮复用 Android 全量保留工作区，对既有报告留下的 health 字段消费者、HotFlash 结果/设置/激活、Nap 开始/延长/停止/倒计时补查正常主链，并补读 HealthTrendsOutliersDataProcessor 的完整数值方法。它们确有手机端统计、缓存、时间运算和乐观 UI；所读输入仍是服务器指标或用户设置，不能把这些方法说成压电分离、心搏检测或睡眠分期算法。
+Jetlag 的独立补查在 jetlag/；合并时以其实际完成的 COVERAGE/FINDINGS 为准。本文件不提前宣称该支已完成。
+“静态主链闭合”指已定位输入、实际业务入口、关键变换、状态/数据库与输出；不等于 198663 个方法全部逐行审完，也不等于每个 Compose 分支、反射、第三方库或运行时失败组合均验证。
+
+样本与证据规则
+APK 7.63.5-cn-tencent，SHA256 8e98f266dece67bfacc8b47058c6611f609c88baa84776a7fb3a637a05202b04。
+W=analysis/android-volume/cn-7.63.5；index_id=462a22f663ae482ea93bab3130b96eaf。
+index SHA256=4a6a63564ae05b2404ebdd218a5c579798c3486a83ddbf92bc913274641843a4。
+S2=decoded/000-com.eightsleep.eight_7.63.5-cn-tencent-8e98f266dece/smali_classes2/；S1 为 smali/，S3 为 smali_classes3/，S4 为 smali_classes4/。
+下面简写的路径均相对于对应 S 目录。完整路径、方法行号、原文件 SHA256 和副本路径见 SOURCE_LEDGER.json。副本使用 source_by_sha/<sha256>.smali，避免大小写不敏感磁盘上 Ld/b 与 ld/b 等路径碰撞。
+原生 REA MCP 当前不可用；复用其现有 index.sqlite 只读查询，不重解包。JADX 350 errors 的限制继续有效，本轮数值/分支结论以 Smali 为准。没有捏造新增 REA evidence_id。
+PRIOR_EVIDENCE_RECHECK.json 核对 599 个既有源码文件哈希；这是证据完整性复核，不是重新运行原算法，也不把仅捕获的文件宣称全部已审。
+
+A. Health：哪些字段真的参与本地判断
+1) WellBeingHealthScoreStatResponse.toDomain:535–563 把 value/rating/ranges/abnormalities/dayCount/daysUntilAvailable/daysUntilCalibrated 原样交给 rc.m。
+   rc/m 的 c 是 wellbeing.ranges，g 是 daysUntilCalibrated。四 DEX 直接字段引用搜索中，这两个 domain 字段只见构造、equals、hashCode、toString；未见外部业务字段读取。搜索模式、所有命中和范围保存在 SEARCH_497eacbc60.json、SEARCH_e3e9f4272f.json。
+   结论只限定这些字段和直接字节码路径，不排除反射，也不能泛称所有 health ranges 都无用。daysUntilAvailable 的 f 则确实由 HealthCheckHomeViewModel 2020/2042 决定 Pending，沿用既有 health-results 证据。
+2) abnormalities 的已证实消费者：HealthCheckHomeViewModel.updateContent:2500–2534、2631–2665、2764–2796 分别读取 hr/hrv/rr.getValue()，再交各自 formatter。三项异常基准曲线使用 aggregate 的 HEART_RATE/HRV/BREATH_RATE 与 WELLBEING_HR_UPPER/WELLBEING_HRV_LOWER/WELLBEING_RR_UPPER 等键，不是在这里从 probability/stdDev 计算新边界。
+3) 三个 HealthScoreTrendSelector 的 invoke:115–134 确实能返回 abnormalities.hr/hrv/rr；但 HealthTierTrend.getHealthScoreSelector 在四 DEX 直接 invoke 索引无调用者。它们是存在的选择器，不能据此声称 detail 页面实际使用。DIRECT_CALLS.json 保留查询结果。
+   WellBeingDetailStats 的 probability/dayOfWeekAverage/dayOfWeekStdDev/dayOfWeekDeviation/abnormalLowerBound/abnormalUpperBound getter，在本轮全四 DEX 定向搜索只命中 JsonAdapter；已观察业务只读 value。isAbnormal 的所见引用为自身结构方法和 JsonAdapter。SEARCH_497eacbc60.json、SEARCH_5905b5e4b2.json 保留这个有限负结果。
+
+B. Health 异常趋势：本地还有“选最严重一天”的运算
+HealthTrendsOutliersDataProcessor.transformPeriodData:130–1044 已完整按 Smali 补读。
+- 仅 SIX_MONTHS/YEAR（clinit:95–107）额外请求相应锚点的 WEEK aggregate，filter 仅放行 ya.g 成功值，再取首个成功值。
+- 对首个 period 的 samples，按 WELLBEING_HR、WELLBEING_RR、WELLBEING_HRV 三项 rc.k.a 之和选择最大样本；计分时缺项按 0。同分不替换，因此保留原顺序中先出现者（400–544）。这不是重算异常概率。
+- 输出总数仍从传入的当前 sample 三项非空计数求和；三项全缺则为 null，不是 0（716–909）。半年/全年额外的 wg.j0 三分量来自选中的最大样本，其他周期来自当前 sample（912–940）。当前计数 >0 的类型才列入 outlier type 列表（970–1021）。总数与“最严重一天”明细可来自不同层级。
+- 关键空表边界：代码调用 Im.r.Z0 取 periods[0]，其 S4/Im/r:2049–2078 明确在空 List 时抛 NoSuchElementException；这里并不是 firstOrNull。成功值里 periods=[] 可在该路径触发异常。这是静态条件结论，未观察账号遇到该响应。
+- HealthCheckHomeViewModel.updateContent:1684 有实际调用；其输出进入 UI 状态。动态图表是否触发半年/全年分支、是否出现空列表、上层如何显示异常仍须运行观察，不能由直接调用索引保证。
+
+C. HotFlash：结果展示与控制应分开看
+C1 结果输入/统计
+HotFlashDetailsViewModel 的 selectedDate 流先 smartFetchMetricAggregates，再合并用户显示设置、ObserveTrendByDate、ObserveMetricAggregatesByDates；$1$3:175–229 从聚合列表取 firstOrNull 后调用 updateContent。
+updateContent$lambda$0:247–848 的本地行为：
+- 生成截至所选日的 WEEK 日期窗口；只把窗口内 samples 放入 date→sample Map，同日后值覆盖前值（276–405）。
+- 当日 sessionCount、averageDuration、mostCommonSleepStage 来自 DailyTrends.M.summary。缺 summary 时 count=0、duration=ZERO、stage=null；duration 按秒包装，不在手机重新估计事件长度（411–491）。
+- session 列表逐项保留时间、秒数、温控 phase、sleep stage、level；无条目用默认空列表（494–588）。
+- 两个图表列表都从同一日期映射取 HOT_FLASH_SESSION_COUNT，缺项补 0，再 roundToInt（592–746）。
+- total 则遍历整个 aggregate.samples、缺项当 0、先求和再取整；没有复用前面的日期过滤/去重 Map（749–806）。第四个统计值来自 aggregate.doubleAvg[HOT_FLASH_SESSION_COUNT] 并取整（809–839）。
+因此窗口外样本、同日重复项、逐点取整与总和取整，均可能使图点之和与 total 不一致。这里只说明代码可允许的输入后果，不是声称官方响应实际含脏数据。
+
+C2 设置/缓存
+HotFlashModeSettingsViewModel（S3）duration 修改和开关先乐观更新 UI；失败回调恢复此前模型。关闭走 removeHotFlashModeSettings，开启/改时长走 ld.X0→ld.W0→HotFlashModeRepository.updateHotFlashModeSettings。
+gd/k.invokeSuspend:107–145 将 Kotlin duration 取整秒后 LocalTime.ofSecondOfDay，levelDelta 取 Ga.b.a 的 raw integer，封装 HotFlashModeSettingsRequestSettings(enabled,hotFlashDuration,levelDelta)。不存在该函数自动学习偏移的计算；超出 LocalTime 可接受范围也不是在这里取模。
+fd/b:120–142、197–224、298–320 声明 DELETE/PUT/GET v1/users/{userId}/temperature/hot-flash-mode。
+gd/b.emit 的 GET/PUT 成功分支把 response.toEntity(userId) 写 rd.b；rd/b:68–119 按 user_id 观察 Room hot_flash_mode_settings，h:151–304 插入/删除，cache TTL=12h。observe 分支缓存缺失或过期会刷新。缓存不是设备执行确认。
+
+C3 激活/停止
+ControlsViewModel.handleHotFlashModeStartClicked:4325–4654 先作乐观 UI：按当前 SleepPhase 取对应设置温度，用 Ga.b.f 加设置偏移，最终 raw 限于 −100..100（Ga/b:472–506）；状态改 HOT_FLASH，保存旧状态与手机当前时间，结束显示时间=Instant.now()+设置秒数。这里计算的是显示/设置模型，不能当作水温测量。
+随后 $handleHotFlashModeStartClicked$2→ld.d→ld.c→TemperatureRepository.activateHotFlashMode→gd.D→fd.b.j，PUT .../hot-flash-mode/activate。
+停止经 ld.n→ld.m→TemperatureRepository.deactivateHotFlashMode→gd.J→fd.b.n，PUT .../hot-flash-mode/deactivate。激活成功把响应更新进用户温控内存状态，并收集 refreshTemperatureSettings；停止成功也刷新。gd/B.emit:225–615 已追明。
+这两条本次 HotFlash 主链直接使用 API，没有经过既有普通调温的 H0/Backup BLE 路由。不能据此声称所有离线 HotFlash 功能不存在，但不能把普通 BLE 调温能力等同于这两条按钮已离线可用。
+
+D. Nap：开始/延长/停止走请求，本地倒计时是显示
+D1 输入与顺序
+NapModeSettingsViewModel 初始选项为 0h20m、pod raw 0。时间选择若 hours==2 会把 minutes 强制为 0（onUiAction$lambda$2:1166–1215）；该 reducer 没有对所有任意小时值做全范围校验。
+mapNapSettings$lambda$16:587–863 读取设置与闹钟配置；有枕头但缺枕头温度时填 Ga.b(0)，无枕头时保持 null。总 alarm 开关为 vibrationEnabled OR audioEnabled。音轨显示优先匹配配置 ID，找不到时尝试 futuristic；这不是音频信号处理。
+点击开始的 $startNap$1 先提交 Nap 闹钟配置（振动强度 level、pattern、enabled、trackId、audioEnabled、volume），该链成功后才进入 startNap。AlarmRepository→j9.E→i9.a.g，PUT v1/users/{USER_ID}/temporary-mode/nap-mode；j9.F 成功把返回配置转实体写 Room。该配置更新与接下来的启用请求不是一个数据库/服务端原子事务。
+$startNap$1$1→md.C→md.B:127 用 LocalTime.of(hours,minutes)，随后 NapModeRepository.startNap→gd.u；请求包含 pod raw、可空 pillow raw、duration、alarmRequested（StartNapRequest durationHms 构造参数有 @Json(name="duration")）。fd.a.c 声明 POST .../temperature/nap-mode/activate。
+若要求闹钟，开始成功后再取得 refreshAlarms Flow，并由外层 collector 收集；不是本地 AlarmManager 新建床垫闹钟的证据。
+
+D2 缓存与状态
+NapModeRepository:86–181 初始 StateFlow 是按用户映射的成功空 Map；更新只改该 user 键。
+gd.v:135–185 在开始成功后把请求的 pod/pillow/duration 保存为 rd.f，经 rd.e.h 写 Room nap settings；然后把响应 startTime/endTime/levels/alarmRequested/sessionId 转 kd.f，写内存状态。服务器给出的 start/end 不是手机在请求前推算出来的实机结束时间。
+getNapModeSettings/observeNapModeSettings 使用 rd.e；getNapStatus 使用独立状态请求并更新上述内存映射，状态查询遇到 EightException 的 HTTP 404 会清该用户状态（gd.s 与 EightException.a）。状态到 kd.c 只包装 ClockSystem 与档位显示，不重算午睡检测。
+fd/a:48–205 的相关声明：GET .../nap-mode/status，GET .../nap-mode，POST .../nap-mode/activate，POST .../nap-mode/extend，PUT .../nap-mode/deactivate。声明中另有 PUT .../nap-mode，但不因存在声明就说本次主链调用了它。
+
+D3 延长与停止
+Banner extendNap→P2.h.F:701–721 默认 10 分钟→md.e/md.d→NapModeRepository.extendNap→gd.m。gd.m 以 bn.J.R 格式化 HH:mm:ss（整小时、分钟/秒分量补到至少两位），封装 ExtendNapRequest 后 POST extend；成功 gd.n 使用服务器新 status 更新内存。
+stopNap 发送 PUT deactivate，成功 gd.x 将该用户状态设 null。extend/stop 收到 NoActiveNapException 时 gd.l 也清该用户状态；不能把任意网络错误都写成清空或成功停止。
+$observeNapStatus$1$1$1 对非空状态用 start/end 启动倒计时；null 状态取消 countdownJob 并关闭 banner。该 observer 读取服务器状态结果，不读取床垫原始波形。
+
+D4 本地倒计时和边界
+startCountdown 的 totalMs=end−start、remainingMs=end−Instant.now()。
+$startCountdown$1:309–443 每次在 remaining>0 时更新显示，delay(1000)，再用手机当前时间重算 remaining；不是简单每秒减 1000，也不能据此推导设备计时精度。
+progress = totalMs>0 ? trunc(((totalMs−remainingMs)/totalMs)*100) : 0。此方法未将 progress 限制到 [0,100]；若手机时钟早于 start，构造上可能为负。剩余不足 1h 格式 mm:ss，否则经 bn.J.R 输出 HH:mm:ss；elapsed minutes 从 total−remaining 换算，并夹到 Int 范围。
+remaining<=0 分支直接返回 Unit，没有 stopNap、refreshNapStatus 或 dismiss 调用。故“手机倒计时结束”不能作为“手机发出终止控制”或“设备已停止”的证据。
+音量修改 updateVolume:1759–1876 先更新 UI；只有所存 AudioPlayerStatus==PLAYING 才调用 updatePlayerVolume，传入的 trackId/isAdjustmentComplete 在这个方法中未参与条件。音频预览/媒体播放的全部后端和底层解码不属于本次睡眠/温控主链覆盖。
+
+E. 与既有主链如何拼接
+COVERAGE.json 给出心肺指标、分期/会话、基线/健康评分、手工时间编辑、温控/BLE/离线缓存、闹钟、安装实时检测、HotFlash、Nap、Jetlag 的输入→本地运算→存储/输出矩阵。
+已有闭合内容继续沿用：HRV 日图读取 rmssd，呼吸率读 nemeanRespiratoryRate，HR 读 heartRate；会话选择和边界裁剪；aggregate 缓存的新旧 Map 合并/空响应占位；手工编辑只发 awake/asleep/awake 区间；普通调温与 BLE 路由；Alarm WS 缓存/刷新；安装测试的 max(samples) 累加和 timer 重放。没有重复拿它们跑一遍相同数值模型。
+本轮新增方法的输入均不包含逐压电通道原始信号。结合旧证据，只能说所列消费者从服务端结果/状态或用户输入开始；生产滤波、信号分离、融合、睡眠/HRV 推理与云端策略的实现不能由这些客户端方法补出来。
+
+剩余运行验证与准确边界
+1. 真实 Compose 路由/特性开关、网络错误和取消竞态、Room 与 UI 的时间先后，以及用户机型启用哪些功能需运行观察。代码可达不等于实机此时已执行。
+2. HotFlash/Nap API 是否接受这些请求、服务端最小/最大时长与温度约束、响应缺失/重复条件、设备何时执行，均未请求验证。
+3. 封装中的 LocalTime、字段名、Retrofit 注解来自静态契约；未把手写请求称为已观测网络包；未导出账号数据或设备日志。
+4. 本轮未穷尽音频预览/播放器、每一条 Compose 展示分支、所有业务失败组合与第三方库。未恢复云端算法不是“还有客户端公式没读”的同义词。
+5. “整个 APK 每条本地逻辑全审完”仍不成立。可验收的是 COVERAGE.json 所列功能的已有链加本轮正常主链与明确数值边界，不以关键词搜索无命中代替全程序证明。

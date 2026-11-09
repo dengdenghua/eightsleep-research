@@ -1,0 +1,71 @@
+{
+  "review": "Independent content and collector review for sensor/data modules",
+  "date": "2026-11-07",
+  "checked": [
+    {
+      "file": "wiki/architecture.md",
+      "sha256": "d235b10feddef85dbf1f9d9af53bb7a733528c00889eae62caf0f2641a95c749"
+    },
+    {
+      "file": "wiki/evidence-method.md",
+      "sha256": "b3e6719143c0d7f698bd7faca711232c3be3f57d74127bb0eacc323ba30b3718"
+    },
+    {
+      "file": "README.md",
+      "sha256": "fd999b1a6c39ddadd058192ac16fdc5d8214804ec7759da3af9cef65a602fedc"
+    },
+    {
+      "file": "wiki/modules/hardware.md",
+      "sha256": "cf9862d7395355a826634fc935e529c8159f1918830bc54f61fc7dc1cefc3b96"
+    },
+    {
+      "file": "wiki/modules/sensor-mcu.md",
+      "sha256": "fe6c1481cfc3620ec176165a8594f7c10fc89fccf395e5e1e0489501ac4532f0"
+    },
+    {
+      "file": "wiki/modules/host-signal.md",
+      "sha256": "7ad5f188bb6c45d580cd70d7532066fa697ee23267bc1d023a7ac4896a73657b"
+    },
+    {
+      "file": "wiki/modules/raw-upload.md",
+      "sha256": "0842e4a0ab25d4776efb3ab68b2e6474dd8eecc69763aab3add66c28a39ac2ee"
+    },
+    {
+      "file": "tools/collect_evidence.py",
+      "sha256": "cd552b853f6d952650f9eb05c2e10c0372184a3264c04e13e80cbd7874e5cf56"
+    }
+  ],
+  "content_result": "No material overstatement or contradiction found in the reviewed pages. Sample/current deployment boundaries, synthetic versus physical timing, local versus remote inference, K60 conditions, MCU/host processing and RAM/file persistence limits are retained.",
+  "source_checks": [
+    "K60 route and namespace reports",
+    "sensor main/frontend/freshness/tap reports",
+    "host signal/timing/dual-side/gain reports",
+    "upload-distortion/gain-recovery/time-recovery reports",
+    "uploader protocol and local storage reports"
+  ],
+  "privacy_scan": {
+    "scope": "51 explicitly cited .txt reports only; no raw account responses, login state or credentials were read",
+    "patterns": [
+      "quoted literal account/device identifier assignment",
+      "opaque credential assignment",
+      "literal long identifier in account/device/session route"
+    ],
+    "matches": 0,
+    "values_printed": false
+  },
+  "issues": [
+    {
+      "severity": "low",
+      "file": "tools/collect_evidence.py:29-44",
+      "claim": "Collector can be reused to refresh sanitized report snapshots, but current redaction only catches unquoted camelCase identifier keys and selected token encodings.",
+      "evidence": "Synthetic examples {\"deviceId\":\"SYNTHETIC_DEVICE_0001\"}, {\"refresh_token\":\"SYNTHETIC_REFRESH_0001\"}, and /v1/devices/SYNTHETIC_DEVICE_0001/live do not match the identifier redactor. There is no opaque password/refresh-token assignment redactor. The current 51 cited reports had zero matches of these suspect shapes, so this is a future-refresh gap rather than a detected current leak.",
+      "correction": "Extend the reusable redaction function to match quoted camelCase/snake_case identity and credential keys and literal identity path segments; preserve explicit placeholders. Add a small synthetic check for these shapes, and retain the report allowlist/manual selection boundary."
+    }
+  ],
+  "not_checked": [
+    "HTML runtime and browser layout",
+    "full semantics of other agents module pages",
+    "raw private account material",
+    "original target execution or hardware behavior"
+  ]
+}

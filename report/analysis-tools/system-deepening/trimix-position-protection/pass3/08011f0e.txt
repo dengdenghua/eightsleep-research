@@ -1,0 +1,30 @@
+TARGET 08011f0e function=08011f0e
+REF_TO 0800f66e UNCONDITIONAL_CALL owner=0800f652
+REF_TO 0800f696 UNCONDITIONAL_CALL owner=0800f652
+REF_TO 08012cc4 UNCONDITIONAL_CALL owner=08012c20
+FUNCTION_BODY [[08011f0e, 08011f21]]
+
+void FUN_08011f0e(uint *param_1,int param_2)
+
+{
+  uint uVar1;
+  
+  if (param_2 == 0) {
+    uVar1 = *param_1 & 0xfffe;
+  }
+  else {
+    uVar1 = *param_1 | 1;
+  }
+  *param_1 = uVar1;
+  return;
+}
+
+
+INSN 08011f0e 0029 cmp r1,#0x0
+INSN 08011f10 0168 ldr r1,[r0,#0x0]
+INSN 08011f12 12bf itee ne
+INSN 08011f14 41f00101 orr.ne r1,r1,#0x1
+INSN 08011f18 4ff6fe72 movw.eq r2,#0xfffe
+INSN 08011f1c 1140 and.eq r1,r2
+INSN 08011f1e 0160 str r1,[r0,#0x0]
+INSN 08011f20 7047 bx lr

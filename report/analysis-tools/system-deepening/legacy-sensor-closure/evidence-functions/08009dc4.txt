@@ -1,0 +1,147 @@
+FUNCTION 08009dc4 FUN_08009dc4 BODY [[08009dc4, 08009e7f]]
+INCOMING 0800c850 UNCONDITIONAL_CALL
+INCOMING 0800d210 UNCONDITIONAL_CALL
+INCOMING 0800d254 UNCONDITIONAL_CALL
+INCOMING 08009ea8 UNCONDITIONAL_CALL
+
+undefined8 __stdcall_softfp
+FUN_08009dc4(undefined4 *param_1,undefined4 param_2,int param_3,int param_4)
+
+{
+  int iVar1;
+  int iVar2;
+  int iVar3;
+  int *piVar4;
+  uint uVar5;
+  int *piVar6;
+  
+  piVar4 = (int *)*param_1;
+  iVar2 = param_3;
+  iVar1 = FUN_08009c88(piVar4);
+  if (iVar1 == 0) {
+    FUN_08009be4("[i2c%u] tx_rx failed busy_wait",(char)piVar4[1]);
+    uVar5 = 0;
+  }
+  else {
+    iVar2 = FUN_08008b64(param_1,param_2,1,0,param_2,param_3,iVar2);
+    if (iVar2 == 1) {
+      iVar2 = FUN_08008184(piVar4,0x50,0);
+      if (iVar2 == 0) {
+        FUN_08009be4("[i2c%u] timed out waiting for TC/NACKF flag",(char)piVar4[1]);
+      }
+      else if (*(int *)(*piVar4 + 0x18) << 0x19 < 0) {
+        piVar6 = (int *)*param_1;
+        iVar2 = 0;
+        *(uint *)(*piVar6 + 4) =
+             (*(ushort *)(param_1 + 1) & 0x1ff) << 1 |
+             *(uint *)(*piVar6 + 4) & 0xfc009800 | param_4 << 0x10 | 0x2002400U;
+        do {
+          iVar3 = FUN_08008184(piVar6,4,0);
+          iVar1 = iVar2;
+          if (iVar3 == 0) break;
+          *(char *)(param_3 + iVar2) = (char)*(undefined4 *)(*piVar6 + 0x24);
+          iVar2 = iVar2 + 1;
+          iVar1 = param_4;
+        } while (param_4 != iVar2);
+        uVar5 = (uint)(param_4 == iVar1);
+        if (param_4 != iVar1) {
+          FUN_08009be4("[i2c%u] tx_rx failed rx",(char)piVar4[1]);
+        }
+        FUN_08009dac(piVar4);
+        goto LAB_08009de2;
+      }
+    }
+    FUN_08009be4("[i2c%u] tx_rx failed tx",(char)piVar4[1]);
+    FUN_08009dac(piVar4);
+    uVar5 = 0;
+  }
+LAB_08009de2:
+  return CONCAT44(param_2,uVar5);
+}
+
+
+ASSEMBLY
+08009dc4 push {r0,r1,r2,r4,r5,r6,r7,lr} BYTES f7b5
+08009dc6 ldr r4,[r0,#0x0] BYTES 0468
+08009dc8 movs r5,r0 BYTES 0500
+08009dca movs r0,r4 BYTES 2000
+08009dcc str r1,[sp,#0x0] BYTES 0091 REF WRITE=Stack[-0x20]
+08009dce str r2,[sp,#0x4] BYTES 0192 REF WRITE=Stack[-0x1c]
+08009dd0 movs r6,r3 BYTES 1e00
+08009dd2 bl 0x08009c88 BYTES fff759ff REF UNCONDITIONAL_CALL=08009c88
+08009dd6 subs r7,r0,#0x0 BYTES 071e
+08009dd8 bne 0x08009de6 BYTES 05d1 REF CONDITIONAL_JUMP=08009de6
+08009dda ldrb r1,[r4,#0x4] BYTES 2179
+08009ddc ldr r0,[0x08009e80] BYTES 2848 REF READ=08009e80 WORD=800e74a REF PARAM=0800e74a WORD=6332695b
+08009dde bl 0x08009be4 BYTES fff701ff REF UNCONDITIONAL_CALL=08009be4
+08009de2 movs r0,r7 BYTES 3800
+08009de4 pop {r1,r2,r3,r4,r5,r6,r7,pc} BYTES febd
+08009de6 movs r3,#0x0 BYTES 0023
+08009de8 movs r2,#0x1 BYTES 0122
+08009dea ldr r1,[sp,#0x0] BYTES 0099 REF READ=Stack[-0x20]
+08009dec movs r0,r5 BYTES 2800
+08009dee bl 0x08008b64 BYTES fef7b9fe REF UNCONDITIONAL_CALL=08008b64
+08009df2 cmp r0,#0x1 BYTES 0128
+08009df4 bne 0x08009e0c BYTES 0ad1 REF CONDITIONAL_JUMP=08009e0c
+08009df6 movs r2,#0x0 BYTES 0022
+08009df8 movs r1,#0x50 BYTES 5021
+08009dfa movs r0,r4 BYTES 2000
+08009dfc bl 0x08008184 BYTES fef7c2f9 REF UNCONDITIONAL_CALL=08008184
+08009e00 cmp r0,#0x0 BYTES 0028
+08009e02 bne 0x08009e1e BYTES 0cd1 REF CONDITIONAL_JUMP=08009e1e
+08009e04 ldrb r1,[r4,#0x4] BYTES 2179
+08009e06 ldr r0,[0x08009e84] BYTES 1f48 REF READ=08009e84 WORD=800e769 REF PARAM=0800e769 WORD=6332695b
+08009e08 bl 0x08009be4 BYTES fff7ecfe REF UNCONDITIONAL_CALL=08009be4
+08009e0c ldrb r1,[r4,#0x4] BYTES 2179
+08009e0e ldr r0,[0x08009e88] BYTES 1e48 REF READ=08009e88 WORD=800e795 REF PARAM=0800e795 WORD=6332695b
+08009e10 bl 0x08009be4 BYTES fff7e8fe REF UNCONDITIONAL_CALL=08009be4
+08009e14 movs r0,r4 BYTES 2000
+08009e16 bl 0x08009dac BYTES fff7c9ff REF UNCONDITIONAL_CALL=08009dac
+08009e1a movs r7,#0x0 BYTES 0027
+08009e1c b 0x08009de2 BYTES e1e7 REF UNCONDITIONAL_JUMP=08009de2
+08009e1e ldr r3,[r4,#0x0] BYTES 2368
+08009e20 ldr r3,[r3,#0x18] BYTES 9b69
+08009e22 lsls r3,r3,#0x19 BYTES 5b06
+08009e24 bpl 0x08009e0c BYTES f2d5 REF CONDITIONAL_JUMP=08009e0c
+08009e26 ldr r7,[r5,#0x0] BYTES 2f68
+08009e28 ldr r3,[0x08009e8c] BYTES 184b REF READ=08009e8c WORD=2002400
+08009e2a ldr r2,[r7,#0x0] BYTES 3a68
+08009e2c lsls r0,r6,#0x10 BYTES 3004
+08009e2e orrs r3,r0 BYTES 0343
+08009e30 ldr r1,[r2,#0x4] BYTES 5168
+08009e32 ldr r0,[0x08009e90] BYTES 1748 REF READ=08009e90 WORD=fc009800
+08009e34 ands r1,r0 BYTES 0140
+08009e36 orrs r1,r3 BYTES 1943
+08009e38 ldrh r3,[r5,#0x4] BYTES ab88
+08009e3a movs r5,#0x0 BYTES 0025
+08009e3c lsls r3,r3,#0x17 BYTES db05
+08009e3e lsrs r3,r3,#0x16 BYTES 9b0d
+08009e40 orrs r3,r1 BYTES 0b43
+08009e42 str r3,[r2,#0x4] BYTES 5360
+08009e44 movs r2,#0x0 BYTES 0022
+08009e46 movs r1,#0x4 BYTES 0421
+08009e48 movs r0,r7 BYTES 3800
+08009e4a bl 0x08008184 BYTES fef79bf9 REF UNCONDITIONAL_CALL=08008184
+08009e4e cmp r0,#0x0 BYTES 0028
+08009e50 bne 0x08009e6e BYTES 0dd1 REF CONDITIONAL_JUMP=08009e6e
+08009e52 subs r7,r6,r5 BYTES 771b
+08009e54 rsbs r3,r7 BYTES 7b42
+08009e56 adcs r7,r3 BYTES 5f41
+08009e58 uxtb r7,r7 BYTES ffb2
+08009e5a cmp r6,r5 BYTES ae42
+08009e5c beq 0x08009e66 BYTES 03d0 REF CONDITIONAL_JUMP=08009e66
+08009e5e ldrb r1,[r4,#0x4] BYTES 2179
+08009e60 ldr r0,[0x08009e94] BYTES 0c48 REF READ=08009e94 WORD=800e7ad REF PARAM=0800e7ad WORD=6332695b
+08009e62 bl 0x08009be4 BYTES fff7bffe REF UNCONDITIONAL_CALL=08009be4
+08009e66 movs r0,r4 BYTES 2000
+08009e68 bl 0x08009dac BYTES fff7a0ff REF UNCONDITIONAL_CALL=08009dac
+08009e6c b 0x08009de2 BYTES b9e7 REF UNCONDITIONAL_JUMP=08009de2
+08009e6e ldr r3,[r7,#0x0] BYTES 3b68
+08009e70 ldr r2,[sp,#0x4] BYTES 019a REF READ=Stack[-0x1c]
+08009e72 ldr r3,[r3,#0x24] BYTES 5b6a
+08009e74 strb r3,[r2,r5] BYTES 5355
+08009e76 adds r5,#0x1 BYTES 0135
+08009e78 cmp r6,r5 BYTES ae42
+08009e7a bne 0x08009e44 BYTES e3d1 REF CONDITIONAL_JUMP=08009e44
+08009e7c movs r5,r6 BYTES 3500
+08009e7e b 0x08009e52 BYTES e8e7 REF UNCONDITIONAL_JUMP=08009e52

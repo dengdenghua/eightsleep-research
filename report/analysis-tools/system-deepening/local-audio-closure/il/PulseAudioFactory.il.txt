@@ -1,0 +1,1018 @@
+// IL code: Eight.PulseAudio
+.class public auto ansi sealed beforefieldinit Eight.PulseAudio.PulseAudioFactory
+	extends [System.Runtime]System.Object
+	implements [System.Runtime]System.IDisposable,
+	           Eight.PulseAudio.IPulseAudioFactory
+{
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+		01 00 01 00 00
+	)
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 00 00 00
+	)
+	.interfaceimpl type [System.Runtime]System.IDisposable
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	.interfaceimpl type Eight.PulseAudio.IPulseAudioFactory
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+
+	// Fields
+	.field private initonly class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.PulseAudio.PulseAudioFactory> logger
+	.field private initonly class [System.ComponentModel]System.IServiceProvider serviceProvider
+	.field private initonly class Eight.PulseAudio.ThreadedMainLoop mainLoop
+	.field private bool disposed
+	.field private class Eight.PulseAudio.ContextSubscription contextSubscription
+	.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+		01 00 02 00 00
+	)
+
+	// Methods
+	.method public final hidebysig newslot virtual 
+		instance class Eight.PulseAudio.ChannelMap CreateStereoChannelMap () cil managed 
+	{
+		// Method begins at RVA 0x247c
+		// Header size: 12
+		// Code size: 59 (0x3b)
+		.maxstack 2
+		.locals init (
+			[0] class [System.Runtime]System.IDisposable,
+			[1] valuetype Eight.PulseAudio.pa_channel_map,
+			[2] valuetype Eight.PulseAudio.pa_channel_map& pinned,
+			[3] class Eight.PulseAudio.ChannelMap
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_0006: callvirt instance class [System.Runtime]System.IDisposable Eight.PulseAudio.ThreadedMainLoop::Lock()
+		IL_000b: stloc.0
+		.try
+		{
+			IL_000c: ldloca.s 1
+			IL_000e: initobj Eight.PulseAudio.pa_channel_map
+			IL_0014: ldloc.1
+			IL_0015: newobj instance void Eight.PulseAudio.ChannelMap::.ctor(valuetype Eight.PulseAudio.pa_channel_map)
+			IL_001a: dup
+			IL_001b: ldflda valuetype Eight.PulseAudio.pa_channel_map Eight.PulseAudio.ChannelMap::Struct
+			IL_0020: stloc.2
+			IL_0021: ldloc.2
+			IL_0022: conv.u
+			IL_0023: call valuetype Eight.PulseAudio.pa_channel_map* Eight.PulseAudio.PulseAudio::pa_channel_map_init_stereo(valuetype Eight.PulseAudio.pa_channel_map*)
+			IL_0028: pop
+			IL_0029: ldc.i4.0
+			IL_002a: conv.u
+			IL_002b: stloc.2
+			IL_002c: stloc.3
+			IL_002d: leave.s IL_0039
+		} // end .try
+		finally
+		{
+			IL_002f: ldloc.0
+			IL_0030: brfalse.s IL_0038
+
+			IL_0032: ldloc.0
+			IL_0033: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_0038: endfinally
+		} // end handler
+
+		IL_0039: ldloc.3
+		IL_003a: ret
+	} // end of method PulseAudioFactory::CreateStereoChannelMap
+
+	.method public final hidebysig newslot virtual 
+		instance class Eight.PulseAudio.ChannelMap CreateSwappedStereoChannelMap () cil managed 
+	{
+		// Method begins at RVA 0x24d4
+		// Header size: 1
+		// Code size: 6 (0x6)
+		.maxstack 8
+
+		IL_0000: call class Eight.PulseAudio.ChannelMap Eight.PulseAudio.ChannelMap::SwappedStereo()
+		IL_0005: ret
+	} // end of method PulseAudioFactory::CreateSwappedStereoChannelMap
+
+	.method public final hidebysig newslot virtual 
+		instance class Eight.PulseAudio.Context CreateContext (
+			string name,
+			class [System.Runtime]System.Collections.Generic.IEnumerable`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>> pairs
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		.param [2]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 04 00 00 00 01 00 01 01 00 00
+			)
+		// Method begins at RVA 0x24dc
+		// Header size: 12
+		// Code size: 31 (0x1f)
+		.maxstack 3
+		.locals init (
+			[0] class Eight.PulseAudio.PropList,
+			[1] class Eight.PulseAudio.Context
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.2
+		IL_0002: call instance class Eight.PulseAudio.PropList Eight.PulseAudio.PulseAudioFactory::CreatePropList(class [System.Runtime]System.Collections.Generic.IEnumerable`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>>)
+		IL_0007: stloc.0
+		.try
+		{
+			IL_0008: ldarg.0
+			IL_0009: ldarg.1
+			IL_000a: ldloc.0
+			IL_000b: call instance class Eight.PulseAudio.Context Eight.PulseAudio.PulseAudioFactory::CreateContext(string, class Eight.PulseAudio.PropList)
+			IL_0010: stloc.1
+			IL_0011: leave.s IL_001d
+		} // end .try
+		finally
+		{
+			IL_0013: ldloc.0
+			IL_0014: brfalse.s IL_001c
+
+			IL_0016: ldloc.0
+			IL_0017: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_001c: endfinally
+		} // end handler
+
+		IL_001d: ldloc.1
+		IL_001e: ret
+	} // end of method PulseAudioFactory::CreateContext
+
+	.method public final hidebysig newslot virtual 
+		instance class Eight.PulseAudio.Context CreateContext (
+			string name,
+			class Eight.PulseAudio.PropList propList
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2518
+		// Header size: 12
+		// Code size: 141 (0x8d)
+		.maxstack 3
+		.locals init (
+			[0] class [System.Runtime]System.IDisposable,
+			[1] class Eight.PulseAudio.Context,
+			[2] class Eight.PulseAudio.Operation,
+			[3] class Eight.PulseAudio.Context,
+			[4] valuetype Eight.PulseAudio.pa_context_state_t
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_0006: callvirt instance class [System.Runtime]System.IDisposable Eight.PulseAudio.ThreadedMainLoop::Lock()
+		IL_000b: stloc.0
+		.try
+		{
+			IL_000c: ldarg.0
+			IL_000d: ldarg.1
+			IL_000e: ldarg.2
+			IL_000f: call instance class Eight.PulseAudio.Context Eight.PulseAudio.PulseAudioFactory::CreateContextWithPropList(string, class Eight.PulseAudio.PropList)
+			IL_0014: stloc.1
+			IL_0015: ldloc.1
+			IL_0016: brtrue.s IL_001c
+
+			IL_0018: ldnull
+			IL_0019: stloc.3
+			IL_001a: leave.s IL_008b
+			// loop start (head: IL_001c)
+				IL_001c: ldloc.1
+				IL_001d: callvirt instance valuetype Eight.PulseAudio.pa_context_state_t Eight.PulseAudio.Context::GetState()
+				IL_0022: stloc.s 4
+				IL_0024: ldloc.s 4
+				IL_0026: ldc.i4.4
+				IL_0027: beq.s IL_0050
+
+				IL_0029: ldloc.s 4
+				IL_002b: call bool Eight.PulseAudio.PulseAudio::PA_CONTEXT_IS_GOOD(valuetype Eight.PulseAudio.pa_context_state_t)
+				IL_0030: brtrue.s IL_0043
+
+				IL_0032: ldarg.0
+				IL_0033: ldloc.1
+				IL_0034: call instance void Eight.PulseAudio.PulseAudioFactory::LogContextError(class Eight.PulseAudio.Context)
+				IL_0039: ldloc.1
+				IL_003a: callvirt instance void Eight.PulseAudio.Context::Dispose()
+				IL_003f: ldnull
+				IL_0040: stloc.3
+				IL_0041: leave.s IL_008b
+
+				IL_0043: ldarg.0
+				IL_0044: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+				IL_0049: callvirt instance void Eight.PulseAudio.ThreadedMainLoop::WaitForSignal()
+				IL_004e: br.s IL_001c
+			// end loop
+
+			IL_0050: ldarg.0
+			IL_0051: ldloc.1
+			IL_0052: call instance void Eight.PulseAudio.PulseAudioFactory::CreateContextSubscription(class Eight.PulseAudio.Context)
+			IL_0057: ldarg.0
+			IL_0058: ldloc.1
+			IL_0059: call instance class Eight.PulseAudio.Operation Eight.PulseAudio.PulseAudioFactory::SubscribeToNotifications(class Eight.PulseAudio.Context)
+			IL_005e: stloc.2
+			.try
+			{
+				IL_005f: ldloc.2
+				IL_0060: brtrue.s IL_0073
+
+				IL_0062: ldarg.0
+				IL_0063: ldloc.1
+				IL_0064: call instance void Eight.PulseAudio.PulseAudioFactory::LogContextError(class Eight.PulseAudio.Context)
+				IL_0069: ldloc.1
+				IL_006a: callvirt instance void Eight.PulseAudio.Context::Dispose()
+				IL_006f: ldnull
+				IL_0070: stloc.3
+				IL_0071: leave.s IL_008b
+
+				IL_0073: ldloc.1
+				IL_0074: stloc.3
+				IL_0075: leave.s IL_008b
+			} // end .try
+			finally
+			{
+				IL_0077: ldloc.2
+				IL_0078: brfalse.s IL_0080
+
+				IL_007a: ldloc.2
+				IL_007b: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+				IL_0080: endfinally
+			} // end handler
+		} // end .try
+		finally
+		{
+			IL_0081: ldloc.0
+			IL_0082: brfalse.s IL_008a
+
+			IL_0084: ldloc.0
+			IL_0085: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_008a: endfinally
+		} // end handler
+
+		IL_008b: ldloc.3
+		IL_008c: ret
+	} // end of method PulseAudioFactory::CreateContext
+
+	.method private hidebysig 
+		instance class Eight.PulseAudio.Context CreateContextWithPropList (
+			string name,
+			class Eight.PulseAudio.PropList propList
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x25d0
+		// Header size: 12
+		// Code size: 119 (0x77)
+		.maxstack 4
+		.locals init (
+			[0] valuetype Eight.PulseAudio.pa_context*,
+			[1] class Eight.PulseAudio.Context
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_0006: ldfld valuetype Eight.PulseAudio.pa_threaded_mainloop* Eight.PulseAudio.ThreadedMainLoop::pointer
+		IL_000b: call valuetype Eight.PulseAudio.pa_mainloop_api* Eight.PulseAudio.PulseAudio::pa_threaded_mainloop_get_api(valuetype Eight.PulseAudio.pa_threaded_mainloop*)
+		IL_0010: ldarg.1
+		IL_0011: ldarg.2
+		IL_0012: ldfld valuetype Eight.PulseAudio.pa_proplist* Eight.PulseAudio.PropList::pointer
+		IL_0017: call valuetype Eight.PulseAudio.pa_context* Eight.PulseAudio.PulseAudio::pa_context_new_with_proplist(valuetype Eight.PulseAudio.pa_mainloop_api*, string, valuetype Eight.PulseAudio.pa_proplist*)
+		IL_001c: stloc.0
+		IL_001d: ldarg.0
+		IL_001e: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_0023: ldloc.0
+		IL_0024: newobj instance void Eight.PulseAudio.Context::.ctor(class Eight.PulseAudio.ILockProvider, valuetype Eight.PulseAudio.pa_context*)
+		IL_0029: stloc.1
+		IL_002a: ldloc.1
+		IL_002b: ldfld valuetype Eight.PulseAudio.pa_context* Eight.PulseAudio.Context::Pointer
+		IL_0030: ldftn void Eight.PulseAudio.PulseAudioFactory::ContextRunningCallback(valuetype Eight.PulseAudio.pa_context*, void*)
+		IL_0036: ldarg.0
+		IL_0037: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_003c: ldfld valuetype Eight.PulseAudio.pa_threaded_mainloop* Eight.PulseAudio.ThreadedMainLoop::pointer
+		IL_0041: call void Eight.PulseAudio.PulseAudio::pa_context_set_state_callback(valuetype Eight.PulseAudio.pa_context*, method unmanaged cdecl void *(valuetype Eight.PulseAudio.pa_context*, void*), void*)
+		IL_0046: ldloc.1
+		IL_0047: ldfld valuetype Eight.PulseAudio.pa_context* Eight.PulseAudio.Context::Pointer
+		IL_004c: ldc.i4.0
+		IL_004d: conv.u
+		IL_004e: ldc.i4.0
+		IL_004f: ldc.i4.0
+		IL_0050: conv.u
+		IL_0051: call int32 Eight.PulseAudio.PulseAudio::pa_context_connect(valuetype Eight.PulseAudio.pa_context*, int8*, valuetype Eight.PulseAudio.pa_context_flags_t, valuetype Eight.PulseAudio.pa_spawn_api*)
+		IL_0056: brfalse.s IL_0075
+
+		IL_0058: ldloc.1
+		IL_0059: callvirt instance void Eight.PulseAudio.Context::Dispose()
+		IL_005e: ldarg.0
+		IL_005f: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.PulseAudio.PulseAudioFactory> Eight.PulseAudio.PulseAudioFactory::logger
+		IL_0064: ldstr "Failed to create context"
+		IL_0069: call !!0[] [System.Runtime]System.Array::Empty<object>()
+		IL_006e: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_0073: ldnull
+		IL_0074: ret
+
+		IL_0075: ldloc.1
+		IL_0076: ret
+	} // end of method PulseAudioFactory::CreateContextWithPropList
+
+	.method private hidebysig 
+		instance class Eight.PulseAudio.Operation SubscribeToNotifications (
+			class Eight.PulseAudio.Context context
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x2653
+		// Header size: 1
+		// Code size: 13 (0xd)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: ldc.i4.4
+		IL_0003: ldc.i4.0
+		IL_0004: conv.u
+		IL_0005: ldc.i4.0
+		IL_0006: conv.u
+		IL_0007: call instance class Eight.PulseAudio.Operation Eight.PulseAudio.PulseAudioFactory::SubscribeToContext(class Eight.PulseAudio.Context, valuetype Eight.PulseAudio.pa_subscription_mask_t, method unmanaged void *(valuetype Eight.PulseAudio.pa_context*, int32, void*), void*)
+		IL_000c: ret
+	} // end of method PulseAudioFactory::SubscribeToNotifications
+
+	.method private hidebysig 
+		instance void LogContextError (
+			class Eight.PulseAudio.Context context
+		) cil managed 
+	{
+		// Method begins at RVA 0x2664
+		// Header size: 12
+		// Code size: 20 (0x14)
+		.maxstack 2
+		.locals init (
+			[0] int32
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: ldfld valuetype Eight.PulseAudio.pa_context* Eight.PulseAudio.Context::Pointer
+		IL_0006: call int32 Eight.PulseAudio.PulseAudio::pa_context_errno(valuetype Eight.PulseAudio.pa_context*)
+		IL_000b: stloc.0
+		IL_000c: ldarg.0
+		IL_000d: ldloc.0
+		IL_000e: call instance void Eight.PulseAudio.PulseAudioFactory::PulseAudioError(int32)
+		IL_0013: ret
+	} // end of method PulseAudioFactory::LogContextError
+
+	.method private hidebysig static 
+		void ContextRunningCallback (
+			valuetype Eight.PulseAudio.pa_context* context,
+			void* data
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.custom instance void [System.Runtime.InteropServices]System.Runtime.InteropServices.UnmanagedCallersOnlyAttribute::.ctor() = (
+			01 00 01 00 53 1d 50 09 43 61 6c 6c 43 6f 6e 76
+			73 01 00 00 00 80 80 53 79 73 74 65 6d 2e 52 75
+			6e 74 69 6d 65 2e 43 6f 6d 70 69 6c 65 72 53 65
+			72 76 69 63 65 73 2e 43 61 6c 6c 43 6f 6e 76 43
+			64 65 63 6c 2c 20 53 79 73 74 65 6d 2e 52 75 6e
+			74 69 6d 65 2c 20 56 65 72 73 69 6f 6e 3d 39 2e
+			30 2e 30 2e 30 2c 20 43 75 6c 74 75 72 65 3d 6e
+			65 75 74 72 61 6c 2c 20 50 75 62 6c 69 63 4b 65
+			79 54 6f 6b 65 6e 3d 62 30 33 66 35 66 37 66 31
+			31 64 35 30 61 33 61
+		)
+		// Method begins at RVA 0x2684
+		// Header size: 12
+		// Code size: 64 (0x40)
+		.maxstack 3
+		.locals init (
+			[0] valuetype Eight.PulseAudio.pa_context_state_t,
+			[1] valuetype [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: call valuetype Eight.PulseAudio.pa_context_state_t Eight.PulseAudio.PulseAudio::pa_context_get_state(valuetype Eight.PulseAudio.pa_context*)
+		IL_0006: stloc.0
+		IL_0007: ldloca.s 1
+		IL_0009: ldc.i4.s 36
+		IL_000b: ldc.i4.1
+		IL_000c: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::.ctor(int32, int32)
+		IL_0011: ldloca.s 1
+		IL_0013: ldstr "pulse: context state has changed to "
+		IL_0018: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendLiteral(string)
+		IL_001d: ldloca.s 1
+		IL_001f: ldloc.0
+		IL_0020: call instance void [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::AppendFormatted<valuetype Eight.PulseAudio.pa_context_state_t>(!!0)
+		IL_0025: ldloca.s 1
+		IL_0027: call instance string [System.Runtime]System.Runtime.CompilerServices.DefaultInterpolatedStringHandler::ToStringAndClear()
+		IL_002c: call void [System.Console]System.Console::WriteLine(string)
+		IL_0031: ldloc.0
+		IL_0032: ldc.i4.4
+		IL_0033: sub
+		IL_0034: ldc.i4.2
+		IL_0035: bgt.un.s IL_003f
+
+		IL_0037: ldarg.1
+		IL_0038: ldc.i4.0
+		IL_0039: call void Eight.PulseAudio.PulseAudio::pa_threaded_mainloop_signal(valuetype Eight.PulseAudio.pa_threaded_mainloop*, int32)
+		IL_003e: ret
+
+		IL_003f: ret
+	} // end of method PulseAudioFactory::ContextRunningCallback
+
+	.method private hidebysig 
+		instance void CreateContextSubscription (
+			class Eight.PulseAudio.Context context
+		) cil managed 
+	{
+		// Method begins at RVA 0x26d0
+		// Header size: 1
+		// Code size: 41 (0x29)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.PulseAudio.ContextSubscription Eight.PulseAudio.PulseAudioFactory::contextSubscription
+		IL_0006: dup
+		IL_0007: brtrue.s IL_000c
+
+		IL_0009: pop
+		IL_000a: br.s IL_0011
+
+		IL_000c: call instance void Eight.PulseAudio.ContextSubscription::Dispose()
+
+		IL_0011: ldarg.0
+		IL_0012: ldarg.1
+		IL_0013: newobj instance void Eight.PulseAudio.ContextSubscription::.ctor(class Eight.PulseAudio.Context)
+		IL_0018: stfld class Eight.PulseAudio.ContextSubscription Eight.PulseAudio.PulseAudioFactory::contextSubscription
+		IL_001d: ldarg.0
+		IL_001e: ldfld class Eight.PulseAudio.ContextSubscription Eight.PulseAudio.PulseAudioFactory::contextSubscription
+		IL_0023: callvirt instance void Eight.PulseAudio.ContextSubscription::Subscribe()
+		IL_0028: ret
+	} // end of method PulseAudioFactory::CreateContextSubscription
+
+	.method assembly hidebysig 
+		instance class Eight.PulseAudio.Operation CreateOperation (
+			valuetype Eight.PulseAudio.pa_operation* operation
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x26fa
+		// Header size: 1
+		// Code size: 20 (0x14)
+		.maxstack 8
+
+		IL_0000: ldarg.1
+		IL_0001: ldc.i4.0
+		IL_0002: conv.u
+		IL_0003: bne.un.s IL_0007
+
+		IL_0005: ldnull
+		IL_0006: ret
+
+		IL_0007: ldarg.0
+		IL_0008: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_000d: ldarg.1
+		IL_000e: newobj instance void Eight.PulseAudio.Operation::.ctor(class Eight.PulseAudio.ILockProvider, valuetype Eight.PulseAudio.pa_operation*)
+		IL_0013: ret
+	} // end of method PulseAudioFactory::CreateOperation
+
+	.method public hidebysig 
+		instance class Eight.PulseAudio.PropList CreatePropList (
+			class [System.Runtime]System.Collections.Generic.IEnumerable`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>> pairs
+		) cil managed 
+	{
+		.param [1]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 04 00 00 00 01 00 01 01 00 00
+			)
+		// Method begins at RVA 0x2710
+		// Header size: 12
+		// Code size: 123 (0x7b)
+		.maxstack 3
+		.locals init (
+			[0] class [System.Runtime]System.IDisposable,
+			[1] valuetype Eight.PulseAudio.pa_proplist*,
+			[2] class Eight.PulseAudio.PropList,
+			[3] class [System.Runtime]System.Collections.Generic.IEnumerator`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>>,
+			[4] valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>,
+			[5] class Eight.PulseAudio.PropList
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_0006: callvirt instance class [System.Runtime]System.IDisposable Eight.PulseAudio.ThreadedMainLoop::Lock()
+		IL_000b: stloc.0
+		.try
+		{
+			IL_000c: call valuetype Eight.PulseAudio.pa_proplist* Eight.PulseAudio.PulseAudio::pa_proplist_new()
+			IL_0011: stloc.1
+			IL_0012: ldarg.0
+			IL_0013: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+			IL_0018: ldloc.1
+			IL_0019: newobj instance void Eight.PulseAudio.PropList::.ctor(class Eight.PulseAudio.ILockProvider, valuetype Eight.PulseAudio.pa_proplist*)
+			IL_001e: stloc.2
+			IL_001f: ldarg.1
+			IL_0020: callvirt instance class [System.Runtime]System.Collections.Generic.IEnumerator`1<!0> class [System.Runtime]System.Collections.Generic.IEnumerable`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>>::GetEnumerator()
+			IL_0025: stloc.3
+			.try
+			{
+				IL_0026: br.s IL_0055
+				// loop start (head: IL_0055)
+					IL_0028: ldloc.3
+					IL_0029: callvirt instance !0 class [System.Runtime]System.Collections.Generic.IEnumerator`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>>::get_Current()
+					IL_002e: stloc.s 4
+					IL_0030: ldloc.2
+					IL_0031: ldfld valuetype Eight.PulseAudio.pa_proplist* Eight.PulseAudio.PropList::pointer
+					IL_0036: ldloca.s 4
+					IL_0038: call instance !0 valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>::get_Key()
+					IL_003d: ldloca.s 4
+					IL_003f: call instance !1 valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>::get_Value()
+					IL_0044: call int32 Eight.PulseAudio.PulseAudio::pa_proplist_sets(valuetype Eight.PulseAudio.pa_proplist*, string, string)
+					IL_0049: brfalse.s IL_0055
+
+					IL_004b: ldstr "Failed to add item to proplist"
+					IL_0050: call void [System.Console]System.Console::WriteLine(string)
+
+					IL_0055: ldloc.3
+					IL_0056: callvirt instance bool [System.Runtime]System.Collections.IEnumerator::MoveNext()
+					IL_005b: brtrue.s IL_0028
+				// end loop
+
+				IL_005d: leave.s IL_0069
+			} // end .try
+			finally
+			{
+				IL_005f: ldloc.3
+				IL_0060: brfalse.s IL_0068
+
+				IL_0062: ldloc.3
+				IL_0063: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+				IL_0068: endfinally
+			} // end handler
+
+			IL_0069: ldloc.2
+			IL_006a: stloc.s 5
+			IL_006c: leave.s IL_0078
+		} // end .try
+		finally
+		{
+			IL_006e: ldloc.0
+			IL_006f: brfalse.s IL_0077
+
+			IL_0071: ldloc.0
+			IL_0072: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_0077: endfinally
+		} // end handler
+
+		IL_0078: ldloc.s 5
+		IL_007a: ret
+	} // end of method PulseAudioFactory::CreatePropList
+
+	.method public hidebysig specialname rtspecialname 
+		instance void .ctor (
+			class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.PulseAudio.PulseAudioFactory> logger,
+			class [System.ComponentModel]System.IServiceProvider serviceProvider,
+			class Eight.PulseAudio.ThreadedMainLoop mainLoop
+		) cil managed 
+	{
+		// Method begins at RVA 0x27b4
+		// Header size: 1
+		// Code size: 28 (0x1c)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.1
+		IL_0002: stfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.PulseAudio.PulseAudioFactory> Eight.PulseAudio.PulseAudioFactory::logger
+		IL_0007: ldarg.0
+		IL_0008: ldarg.2
+		IL_0009: stfld class [System.ComponentModel]System.IServiceProvider Eight.PulseAudio.PulseAudioFactory::serviceProvider
+		IL_000e: ldarg.0
+		IL_000f: ldarg.3
+		IL_0010: stfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_0015: ldarg.0
+		IL_0016: call instance void [System.Runtime]System.Object::.ctor()
+		IL_001b: ret
+	} // end of method PulseAudioFactory::.ctor
+
+	.method public final hidebysig newslot virtual 
+		instance void Dispose () cil managed 
+	{
+		// Method begins at RVA 0x27d1
+		// Header size: 1
+		// Code size: 52 (0x34)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld bool Eight.PulseAudio.PulseAudioFactory::disposed
+		IL_0006: brfalse.s IL_0009
+
+		IL_0008: ret
+
+		IL_0009: ldarg.0
+		IL_000a: ldfld class Eight.PulseAudio.ContextSubscription Eight.PulseAudio.PulseAudioFactory::contextSubscription
+		IL_000f: dup
+		IL_0010: brtrue.s IL_0015
+
+		IL_0012: pop
+		IL_0013: br.s IL_001a
+
+		IL_0015: call instance void Eight.PulseAudio.ContextSubscription::Dispose()
+
+		IL_001a: ldarg.0
+		IL_001b: ldnull
+		IL_001c: stfld class Eight.PulseAudio.ContextSubscription Eight.PulseAudio.PulseAudioFactory::contextSubscription
+		IL_0021: ldarg.0
+		IL_0022: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_0027: callvirt instance void Eight.PulseAudio.ThreadedMainLoop::Dispose()
+		IL_002c: ldarg.0
+		IL_002d: ldc.i4.1
+		IL_002e: stfld bool Eight.PulseAudio.PulseAudioFactory::disposed
+		IL_0033: ret
+	} // end of method PulseAudioFactory::Dispose
+
+	.method private hidebysig 
+		instance void PulseAudioError (
+			int32 errorCode
+		) cil managed 
+	{
+		// Method begins at RVA 0x2806
+		// Header size: 1
+		// Code size: 32 (0x20)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.PulseAudio.PulseAudioFactory> Eight.PulseAudio.PulseAudioFactory::logger
+		IL_0006: ldstr "PulseAudio Error: {error}"
+		IL_000b: ldc.i4.1
+		IL_000c: newarr [System.Runtime]System.Object
+		IL_0011: dup
+		IL_0012: ldc.i4.0
+		IL_0013: ldarg.1
+		IL_0014: call string Eight.PulseAudio.Utils::GetErrorMessage(int32)
+		IL_0019: stelem.ref
+		IL_001a: call void [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.LoggerExtensions::LogInformation(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger, string, object[])
+		IL_001f: ret
+	} // end of method PulseAudioFactory::PulseAudioError
+
+	.method public final hidebysig newslot virtual 
+		instance class Eight.PulseAudio.IAudioStreamWriter CreateAudioStreamWriter (
+			class Eight.PulseAudio.Stream 'stream',
+			class [System.IO.Pipelines]System.IO.Pipelines.PipeReader reader
+		) cil managed 
+	{
+		// Method begins at RVA 0x2827
+		// Header size: 1
+		// Code size: 19 (0x13)
+		.maxstack 8
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class [System.ComponentModel]System.IServiceProvider Eight.PulseAudio.PulseAudioFactory::serviceProvider
+		IL_0006: call !!0 [Microsoft.Extensions.DependencyInjection.Abstractions]Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions::GetRequiredService<class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.PulseAudio.AudioStreamWriter>>(class [System.ComponentModel]System.IServiceProvider)
+		IL_000b: ldarg.1
+		IL_000c: ldarg.2
+		IL_000d: newobj instance void Eight.PulseAudio.AudioStreamWriter::.ctor(class [Microsoft.Extensions.Logging.Abstractions]Microsoft.Extensions.Logging.ILogger`1<class Eight.PulseAudio.AudioStreamWriter>, class Eight.PulseAudio.Stream, class [System.IO.Pipelines]System.IO.Pipelines.PipeReader)
+		IL_0012: ret
+	} // end of method PulseAudioFactory::CreateAudioStreamWriter
+
+	.method public final hidebysig newslot virtual 
+		instance class Eight.PulseAudio.SampleSpec CreateSampleSpec (
+			int32 bitsPerSample,
+			int32 sampleRate,
+			int32 channels,
+			bool isLittleEndian
+		) cil managed 
+	{
+		// Method begins at RVA 0x283c
+		// Header size: 12
+		// Code size: 48 (0x30)
+		.maxstack 4
+		.locals init (
+			[0] valuetype Eight.PulseAudio.pa_sample_spec
+		)
+
+		IL_0000: ldloca.s 0
+		IL_0002: initobj Eight.PulseAudio.pa_sample_spec
+		IL_0008: ldloca.s 0
+		IL_000a: ldarg.0
+		IL_000b: ldarg.1
+		IL_000c: ldarg.s isLittleEndian
+		IL_000e: call instance valuetype Eight.PulseAudio.pa_sample_format_t Eight.PulseAudio.PulseAudioFactory::GetFormat(int32, bool)
+		IL_0013: stfld valuetype Eight.PulseAudio.pa_sample_format_t Eight.PulseAudio.pa_sample_spec::format
+		IL_0018: ldloca.s 0
+		IL_001a: ldarg.2
+		IL_001b: stfld uint32 Eight.PulseAudio.pa_sample_spec::rate
+		IL_0020: ldloca.s 0
+		IL_0022: ldarg.3
+		IL_0023: conv.u1
+		IL_0024: stfld uint8 Eight.PulseAudio.pa_sample_spec::channels
+		IL_0029: ldloc.0
+		IL_002a: newobj instance void Eight.PulseAudio.SampleSpec::.ctor(valuetype Eight.PulseAudio.pa_sample_spec)
+		IL_002f: ret
+	} // end of method PulseAudioFactory::CreateSampleSpec
+
+	.method private hidebysig 
+		instance valuetype Eight.PulseAudio.pa_sample_format_t GetFormat (
+			int32 bitsPerSample,
+			bool isLittleEndian
+		) cil managed 
+	{
+		// Method begins at RVA 0x2878
+		// Header size: 12
+		// Code size: 39 (0x27)
+		.maxstack 2
+		.locals init (
+			[0] valuetype Eight.PulseAudio.pa_sample_format_t
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: ldc.i4.s 16
+		IL_0003: beq.s IL_000c
+
+		IL_0005: ldarg.1
+		IL_0006: ldc.i4.s 24
+		IL_0008: beq.s IL_0011
+
+		IL_000a: br.s IL_001f
+
+		IL_000c: ldarg.2
+		IL_000d: brtrue.s IL_0016
+
+		IL_000f: br.s IL_001f
+
+		IL_0011: ldarg.2
+		IL_0012: brtrue.s IL_001a
+
+		IL_0014: br.s IL_001f
+
+		IL_0016: ldc.i4.3
+		IL_0017: stloc.0
+		IL_0018: br.s IL_0025
+
+		IL_001a: ldc.i4.s 9
+		IL_001c: stloc.0
+		IL_001d: br.s IL_0025
+
+		IL_001f: newobj instance void [System.Runtime]System.NotImplementedException::.ctor()
+		IL_0024: throw
+
+		IL_0025: ldloc.0
+		IL_0026: ret
+	} // end of method PulseAudioFactory::GetFormat
+
+	.method public final hidebysig newslot virtual 
+		instance class Eight.PulseAudio.Stream CreateStream (
+			class Eight.PulseAudio.Context context,
+			string name,
+			class Eight.PulseAudio.SampleSpec sampleSpec,
+			class Eight.PulseAudio.ChannelMap channelMap,
+			class [System.Runtime]System.Collections.Generic.IEnumerable`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>> entries
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		.param [5]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8[]) = (
+				01 00 04 00 00 00 01 00 01 01 00 00
+			)
+		// Method begins at RVA 0x28ac
+		// Header size: 12
+		// Code size: 36 (0x24)
+		.maxstack 6
+		.locals init (
+			[0] class Eight.PulseAudio.PropList,
+			[1] class Eight.PulseAudio.Stream
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldarg.s entries
+		IL_0003: call instance class Eight.PulseAudio.PropList Eight.PulseAudio.PulseAudioFactory::CreatePropList(class [System.Runtime]System.Collections.Generic.IEnumerable`1<valuetype [System.Runtime]System.Collections.Generic.KeyValuePair`2<string, string>>)
+		IL_0008: stloc.0
+		.try
+		{
+			IL_0009: ldarg.0
+			IL_000a: ldarg.1
+			IL_000b: ldarg.2
+			IL_000c: ldarg.3
+			IL_000d: ldarg.s channelMap
+			IL_000f: ldloc.0
+			IL_0010: call instance class Eight.PulseAudio.Stream Eight.PulseAudio.PulseAudioFactory::CreateStream(class Eight.PulseAudio.Context, string, class Eight.PulseAudio.SampleSpec, class Eight.PulseAudio.ChannelMap, class Eight.PulseAudio.PropList)
+			IL_0015: stloc.1
+			IL_0016: leave.s IL_0022
+		} // end .try
+		finally
+		{
+			IL_0018: ldloc.0
+			IL_0019: brfalse.s IL_0021
+
+			IL_001b: ldloc.0
+			IL_001c: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_0021: endfinally
+		} // end handler
+
+		IL_0022: ldloc.1
+		IL_0023: ret
+	} // end of method PulseAudioFactory::CreateStream
+
+	.method public hidebysig 
+		instance class Eight.PulseAudio.Stream CreateStream (
+			class Eight.PulseAudio.Context context,
+			string name,
+			class Eight.PulseAudio.SampleSpec sampleSpec,
+			class Eight.PulseAudio.ChannelMap channelMap,
+			class Eight.PulseAudio.PropList propList
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x28ec
+		// Header size: 12
+		// Code size: 49 (0x31)
+		.maxstack 6
+		.locals init (
+			[0] class Eight.PulseAudio.Stream,
+			[1] class [System.Runtime]System.IDisposable,
+			[2] class Eight.PulseAudio.Stream
+		)
+
+		IL_0000: ldarg.0
+		IL_0001: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_0006: callvirt instance class [System.Runtime]System.IDisposable Eight.PulseAudio.ThreadedMainLoop::Lock()
+		IL_000b: stloc.1
+		.try
+		{
+			IL_000c: ldarg.0
+			IL_000d: ldarg.1
+			IL_000e: ldarg.2
+			IL_000f: ldarg.3
+			IL_0010: ldarg.s channelMap
+			IL_0012: ldarg.s propList
+			IL_0014: call instance class Eight.PulseAudio.Stream Eight.PulseAudio.PulseAudioFactory::CreateStreamWithPropList(class Eight.PulseAudio.Context, string, class Eight.PulseAudio.SampleSpec, class Eight.PulseAudio.ChannelMap, class Eight.PulseAudio.PropList)
+			IL_0019: stloc.0
+			IL_001a: ldloc.0
+			IL_001b: brtrue.s IL_0021
+
+			IL_001d: ldnull
+			IL_001e: stloc.2
+			IL_001f: leave.s IL_002f
+
+			IL_0021: leave.s IL_002d
+		} // end .try
+		finally
+		{
+			IL_0023: ldloc.1
+			IL_0024: brfalse.s IL_002c
+
+			IL_0026: ldloc.1
+			IL_0027: callvirt instance void [System.Runtime]System.IDisposable::Dispose()
+
+			IL_002c: endfinally
+		} // end handler
+
+		IL_002d: ldloc.0
+		IL_002e: ret
+
+		IL_002f: ldloc.2
+		IL_0030: ret
+	} // end of method PulseAudioFactory::CreateStream
+
+	.method private hidebysig 
+		instance class Eight.PulseAudio.Stream CreateStreamWithPropList (
+			class Eight.PulseAudio.Context context,
+			string name,
+			class Eight.PulseAudio.SampleSpec sampleSpec,
+			class Eight.PulseAudio.ChannelMap channelMap,
+			class Eight.PulseAudio.PropList propList
+		) cil managed 
+	{
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		// Method begins at RVA 0x293c
+		// Header size: 12
+		// Code size: 85 (0x55)
+		.maxstack 5
+		.locals init (
+			[0] valuetype Eight.PulseAudio.pa_stream*,
+			[1] valuetype Eight.PulseAudio.pa_sample_spec*,
+			[2] valuetype Eight.PulseAudio.pa_sample_spec& pinned,
+			[3] valuetype Eight.PulseAudio.pa_channel_map*,
+			[4] valuetype Eight.PulseAudio.pa_channel_map& pinned
+		)
+
+		IL_0000: ldarg.3
+		IL_0001: ldflda valuetype Eight.PulseAudio.pa_sample_spec Eight.PulseAudio.SampleSpec::Struct
+		IL_0006: stloc.2
+		IL_0007: ldloc.2
+		IL_0008: conv.u
+		IL_0009: stloc.1
+		IL_000a: ldarg.s channelMap
+		IL_000c: ldflda valuetype Eight.PulseAudio.pa_channel_map Eight.PulseAudio.ChannelMap::Struct
+		IL_0011: stloc.s 4
+		IL_0013: ldloc.s 4
+		IL_0015: conv.u
+		IL_0016: stloc.3
+		IL_0017: ldarg.1
+		IL_0018: ldfld valuetype Eight.PulseAudio.pa_context* Eight.PulseAudio.Context::Pointer
+		IL_001d: ldarg.2
+		IL_001e: ldloc.1
+		IL_001f: ldloc.3
+		IL_0020: ldarg.s propList
+		IL_0022: ldfld valuetype Eight.PulseAudio.pa_proplist* Eight.PulseAudio.PropList::pointer
+		IL_0027: call valuetype Eight.PulseAudio.pa_stream* Eight.PulseAudio.PulseAudio::pa_stream_new_with_proplist(valuetype Eight.PulseAudio.pa_context*, string, valuetype Eight.PulseAudio.pa_sample_spec*, valuetype Eight.PulseAudio.pa_channel_map*, valuetype Eight.PulseAudio.pa_proplist*)
+		IL_002c: stloc.0
+		IL_002d: ldc.i4.0
+		IL_002e: conv.u
+		IL_002f: stloc.s 4
+		IL_0031: ldc.i4.0
+		IL_0032: conv.u
+		IL_0033: stloc.2
+		IL_0034: ldloc.0
+		IL_0035: ldc.i4.0
+		IL_0036: conv.u
+		IL_0037: bne.un.s IL_0042
+
+		IL_0039: ldarg.0
+		IL_003a: ldarg.1
+		IL_003b: call instance void Eight.PulseAudio.PulseAudioFactory::LogContextError(class Eight.PulseAudio.Context)
+		IL_0040: ldnull
+		IL_0041: ret
+
+		IL_0042: ldarg.0
+		IL_0043: ldfld class Eight.PulseAudio.ThreadedMainLoop Eight.PulseAudio.PulseAudioFactory::mainLoop
+		IL_0048: ldarg.0
+		IL_0049: ldfld class Eight.PulseAudio.ContextSubscription Eight.PulseAudio.PulseAudioFactory::contextSubscription
+		IL_004e: ldloc.0
+		IL_004f: newobj instance void Eight.PulseAudio.Stream::.ctor(class Eight.PulseAudio.ILockProvider, class Eight.PulseAudio.ContextSubscription, valuetype Eight.PulseAudio.pa_stream*)
+		IL_0054: ret
+	} // end of method PulseAudioFactory::CreateStreamWithPropList
+
+	.method public hidebysig 
+		instance class Eight.PulseAudio.Operation SubscribeToContext (
+			class Eight.PulseAudio.Context context,
+			valuetype Eight.PulseAudio.pa_subscription_mask_t mask,
+			method unmanaged void *(valuetype Eight.PulseAudio.pa_context*, int32, void*) callback,
+			void* userdata
+		) cil managed 
+	{
+		.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
+			01 00 00 00 00
+		)
+		.param [0]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 02 00 00
+			)
+		.param [1]
+			.custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableAttribute::.ctor(uint8) = (
+				01 00 01 00 00
+			)
+		// Method begins at RVA 0x29a0
+		// Header size: 12
+		// Code size: 24 (0x18)
+		.maxstack 4
+		.locals init (
+			[0] valuetype Eight.PulseAudio.pa_operation*
+		)
+
+		IL_0000: ldarg.1
+		IL_0001: ldfld valuetype Eight.PulseAudio.pa_context* Eight.PulseAudio.Context::Pointer
+		IL_0006: ldarg.2
+		IL_0007: ldarg.3
+		IL_0008: ldarg.s userdata
+		IL_000a: call valuetype Eight.PulseAudio.pa_operation* Eight.PulseAudio.PulseAudio::pa_context_subscribe(valuetype Eight.PulseAudio.pa_context*, valuetype Eight.PulseAudio.pa_subscription_mask_t, method unmanaged void *(valuetype Eight.PulseAudio.pa_context*, int32, void*), void*)
+		IL_000f: stloc.0
+		IL_0010: ldarg.0
+		IL_0011: ldloc.0
+		IL_0012: call instance class Eight.PulseAudio.Operation Eight.PulseAudio.PulseAudioFactory::CreateOperation(valuetype Eight.PulseAudio.pa_operation*)
+		IL_0017: ret
+	} // end of method PulseAudioFactory::SubscribeToContext
+
+} // end of class Eight.PulseAudio.PulseAudioFactory

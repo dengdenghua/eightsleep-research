@@ -1,0 +1,108 @@
+{
+  "schema": "eightsleep.nonusb.callback-implementations.coverage-residual.v1",
+  "date": "2026-11-08",
+  "round": 7,
+  "scope": "A 类静态残余 #2 回调实现、#3 上报字段、#7 hwrev 内部标识，外加除数表引用点全集",
+  "executes_firmware": false,
+  "closed": [
+    {
+      "id": "CB-01",
+      "item": "setter 装入的 80 个函数指针的实际实现",
+      "result": "80 个唯一 thumb_function_pointer 全部落台账：19 个有 Ghidra 函数体，61 个由冻结镜像原始 Thumb 半字解出有界前缀；21 个实现分类，每个都记录入口、槽位、写入 setter、调用目标、立即数、literal 与语义",
+      "evidence": ["CALLBACK_LEDGER.json", "pass1/", "pass4/"]
+    },
+    {
+      "id": "CB-02",
+      "item": "短 thunk 共享被调目标与 0x08027f10 描述表",
+      "result": "0801fdf0 = 按 ID 写 GPIO（0800acc8: value==0 写 base+0x28 清零，否则写 base+0x18 置位）；0801fdd0 = 按 ID 读（base+0x10 & mask）；08010020 = write(1)/write(0)/write(1) 三脉冲。描述表 0x08027f10 为 12B/项 [u32 外设基址, u32 引脚与掩码, u32 端口索引]，24 个被 thunk 引用的 ID 全部有合法条目",
+      "evidence": ["pass4/0801fdf0.txt", "pass4/0801fdd0.txt", "pass4/0800acc8.txt", "BYTE_VALIDATION.json"]
+    },
+    {
+      "id": "CB-03",
+      "item": "hwrev -> 内部 3 字符标识",
+      "result": "0801dd62..0801dd80 共 13 条指令给出公式：d8=((hwrev>>8)&0xF)+0x41，d9=((hwrev>>4)&0xF)+0x30，da=(hwrev&0xF)+0x30；写入 RAM 0x200014d8/d9/da。全镜像 5 处指针引用，d9/da 无独立 literal。与 flash 字符串表交叉验证：13 个真实阈值全部一致",
+      "evidence": ["HWREV_IDENTIFIERS.json", "pass3/0801dd40_0801def0.txt", "pass2/0801d888.txt"]
+    },
+    {
+      "id": "CB-04",
+      "item": "hwrev 分派 -> init 回调 -> 时钟链闭环",
+      "result": "080108ac 用条件 hwrev-0xA87<0x79 选 16MHz/uVar2=0x10，否则 32MHz/0x30；08010960 选 8MHz。正好对应第四轮 writer2 的三版 CFGR2 0x56061813/33/03，三套输入均算出 64MHz SYSCLK",
+      "evidence": ["pass4/080108ac.txt", "pass4/08010960.txt", "CALLBACK_LEDGER.json"]
+    },
+    {
+      "id": "CB-05",
+      "item": "主分派上报字段写入台账 / 除数表引用点",
+      "result": "从 0801d888 伪 C 提取 136 条写入、107 个唯一偏移、9 个块操作，带来源类别与缩进条件栈；0x0802420c 在全镜像只有 0800ea48 一处指针引用，末 4 项再无其它消费者",
+      "evidence": ["REPORT_FIELDS.json", "BYTE_VALIDATION.json", "pass3/0801d888_0801eac0.txt"]
+    }
+  ],
+  "corrections": [
+    "上一轮 pass1 批量导出把 80 个地址拼成单个 script arg，触发 NumberFormatException；ExportSensorDiff.java 第 47 行要求逐项 argv。本轮改为每项独立 argv 后一次导出成功。",
+    "短 thunk 里的 movs r0,#imm8 不是 ASCII 字符输出，而是 0x08027f10 描述表的索引 ID；由 0801fdf0/0801fdd0/08010020 的伪 C 确认。",
+    "字符串表 idx4=K10 / idx5=K05 与阈值行 4=0x0A05 / 5=0x0A10 的顺序互换不是错配：setter 的 string_index 分别是 5 和 4，交叉引用后仍与 hwrev 公式一致。",
+    "阈值行 0=0x0000 是「无条件累加基线」，不代表真实 hwrev；按公式算得 A00，与 flash 的 I00 不一致，已从 13/13 一致性比对中单列剔除。",
+    "0800f488 不是空函数缺失，而是 125 个连续 46c0 NOP 后接 4770（252B 的占位 no-op 回调）。"
+  ],
+  "cross_validation": {
+    "byte_checks": 1250,
+    "byte_failures": 0,
+    "model_assertions": 39,
+    "model_failures": 0,
+    "insn_rows_machine_verified": 17155,
+    "flash_literals_verified": "all REF[READ:flash=value] rows in 147 exports",
+    "source_manifest_entries": 158,
+    "determinism": "核验与模型脚本重跑输出哈希不变"
+  },
+  "hard_numbers": {
+    "frozen_bbin_bytes": 132896,
+    "ghidra_exports_retained": 147,
+    "export_passes": 4,
+    "export_targets": 143,
+    "callback_pointers": 80,
+    "callbacks_with_ghidra_body": 19,
+    "callbacks_decoded_from_raw_thumb": 61,
+    "raw_prefix_reaching_return": 59,
+    "raw_prefix_reaching_unconditional_branch": 2,
+    "raw_prefix_undecoded": 0,
+    "callback_classes": 21,
+    "init_callbacks": 7,
+    "gpio_thunk_ids_verified": 24,
+    "hwrev_threshold_rows": 14,
+    "identifier_rows_matching_flash_string": 13,
+    "hwrev_boundaries_modelled": 16,
+    "report_field_writes": 136,
+    "report_unique_offsets": 107,
+    "report_block_operations": 9,
+    "identifier_ram_pointer_hits": 5,
+    "divider_table_pointer_hits": 1
+  },
+  "residual_static": [
+    "0x08027f10 全表逐项的端口/引脚语义与外设寄存器命名（当前只解释被 24 个 thunk 引用的条目）",
+    "0801fd60 的完整返回语义与 DAT_08027f10 第三字段用途",
+    "7 个 init 回调之间除 080108ac/08010960 以外的逐条差异对照",
+    "上报字段条件栈的完整数据流（当前按缩进采集 if，未覆盖 switch/label 跳转）",
+    "9 个 memcpy/memset 块操作展开成逐字节偏移台账",
+    "3 字符标识 4 个读取者各自的使用上下文与格式化输出"
+  ],
+  "residual_requires_new_material": [
+    "外设寄存器命名与器件 datasheet、板级 BOM 与物理晶振绑定",
+    "0x0802420c 末 4 项除数 0x408/0x402/0x108/0x101 的功能定论",
+    "通道索引 -> 物理传感通道映射、上报字段的名称/单位",
+    "营销型号与 hwrev/sku 的对应关系"
+  ],
+  "residual_requires_device": [
+    "运行时 RCC 实际走向、波特率与除数索引、64MHz 实测",
+    "PLL lock 与时钟切换过渡/累计 tick 损失、ADC 时序与采样率",
+    "配置块解析失败时 RAM 0x200014d8 的实际残留值",
+    "某个回调在真实板型上是否被调用（静态只有函数指针，没有执行轨迹）",
+    "全部实机时序"
+  ],
+  "boundaries": [
+    "61 个未解码回调是有界前缀，止于首条返回/无条件跳转，不是完整函数体。",
+    "Ghidra 伪 C 只用于共享被调目标的语义归纳；所有发布字节都单独对冻结镜像核验。",
+    "3 字符标识公式用 asrs 作用于零扩展的 16 位载入值；hwrev >= 0x8000 时与逻辑右移不同。",
+    "nibble > 9 时 +0x30 产生标点（如 hwrev 0x0AFF -> K??），flash 表无对应字符串。",
+    "上报字段是反编译重建出的「可能写入」，不是运行时执行路径。",
+    "HSE 是写入 0x20000474 的软件输入，64MHz 是条件性计算值，不是实测频率。"
+  ]
+}

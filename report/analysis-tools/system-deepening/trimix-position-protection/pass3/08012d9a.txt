@@ -1,0 +1,62 @@
+TARGET 08012d9a function=08012d9a
+REF_TO 08012cfe UNCONDITIONAL_CALL owner=08012c20
+REF_TO 08012d08 UNCONDITIONAL_CALL owner=08012c20
+REF_TO 08012d12 UNCONDITIONAL_CALL owner=08012c20
+REF_TO 08012d1c UNCONDITIONAL_CALL owner=08012c20
+REF_TO 08012d26 UNCONDITIONAL_CALL owner=08012c20
+FUNCTION_BODY [[08012d9a, 08012d9f] [08017362, 080173a1]]
+
+void FUN_08012d9a(void)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  int extraout_r2;
+  undefined8 uVar3;
+  
+  uVar3 = FUN_080173c4();
+  uVar2 = (undefined4)((ulonglong)uVar3 >> 0x20);
+  iVar1 = (int)uVar3;
+  if (extraout_r2 < 7) {
+    uVar3 = FUN_080173ba(iVar1,uVar2,(extraout_r2 + -1) * 5,*(undefined4 *)(iVar1 + 0x34));
+    *(int *)((int)uVar3 + 0x34) = (int)((ulonglong)uVar3 >> 0x20);
+    return;
+  }
+  if (extraout_r2 < 0xd) {
+    uVar3 = FUN_080173ba(iVar1,uVar2,(extraout_r2 + -7) * 5,*(undefined4 *)(iVar1 + 0x30));
+    *(int *)((int)uVar3 + 0x30) = (int)((ulonglong)uVar3 >> 0x20);
+    return;
+  }
+  uVar3 = FUN_080173ba(iVar1,uVar2,(extraout_r2 + -0xd) * 5,*(undefined4 *)(iVar1 + 0x2c));
+  *(int *)((int)uVar3 + 0x2c) = (int)((ulonglong)uVar3 >> 0x20);
+  return;
+}
+
+
+INSN 08012d9a 2046 mov r0,r4
+INSN 08012d9c 04f0e1ba b.w 0x08017362 REF[UNCONDITIONAL_JUMP:08017362]
+INSN 08017362 70b5 push {r4,r5,r6,lr}
+INSN 08017364 00f02ef8 bl 0x080173c4 REF[UNCONDITIONAL_CALL:080173c4]
+INSN 08017368 1f24 movs r4,#0x1f
+INSN 0801736a 072a cmp r2,#0x7
+INSN 0801736c 07da bge 0x0801737e REF[CONDITIONAL_JUMP:0801737e]
+INSN 0801736e 521e subs r2,r2,#0x1
+INSN 08017370 02eb8202 add.w r2,r2,r2, lsl #0x2
+INSN 08017374 436b ldr r3,[r0,#0x34]
+INSN 08017376 00f020f8 bl 0x080173ba REF[UNCONDITIONAL_CALL:080173ba]
+INSN 0801737a 4163 str r1,[r0,#0x34]
+INSN 0801737c 70bd pop {r4,r5,r6,pc}
+INSN 0801737e 0d2a cmp r2,#0xd
+INSN 08017380 07da bge 0x08017392 REF[CONDITIONAL_JUMP:08017392]
+INSN 08017382 d21f subs r2,r2,#0x7
+INSN 08017384 02eb8202 add.w r2,r2,r2, lsl #0x2
+INSN 08017388 036b ldr r3,[r0,#0x30]
+INSN 0801738a 00f016f8 bl 0x080173ba REF[UNCONDITIONAL_CALL:080173ba]
+INSN 0801738e 0163 str r1,[r0,#0x30]
+INSN 08017390 70bd pop {r4,r5,r6,pc}
+INSN 08017392 0d3a subs r2,#0xd
+INSN 08017394 02eb8202 add.w r2,r2,r2, lsl #0x2
+INSN 08017398 c36a ldr r3,[r0,#0x2c]
+INSN 0801739a 00f00ef8 bl 0x080173ba REF[UNCONDITIONAL_CALL:080173ba]
+INSN 0801739e c162 str r1,[r0,#0x2c]
+INSN 080173a0 70bd pop {r4,r5,r6,pc}

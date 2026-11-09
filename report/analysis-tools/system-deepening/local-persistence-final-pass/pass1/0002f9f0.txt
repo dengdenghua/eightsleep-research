@@ -1,0 +1,35 @@
+FUNCTION 0002f9f0 BODY [[0002f9f0, 0002fa09]]
+REF_TO 00035144 UNCONDITIONAL_CALL
+
+void FUN_0002f9f0(undefined4 param_1)
+
+{
+  int iVar1;
+  code *pcVar2;
+  uint uVar3;
+  
+  iVar1 = DAT_0002fa0c;
+  uVar3 = 0;
+  do {
+    pcVar2 = *(code **)(iVar1 + uVar3 * 4);
+    if (pcVar2 != (code *)0x0) {
+      (*pcVar2)(param_1);
+    }
+    uVar3 = uVar3 + 1;
+  } while (uVar3 < 4);
+  return;
+}
+
+
+INSN 0002f9f0 70b5 push {r4,r5,r6,lr}
+INSN 0002f9f2 064d ldr r5,[0x0002fa0c] REF[READ:0002fa0c=200056a8]
+INSN 0002f9f4 0646 mov r6,r0
+INSN 0002f9f6 0024 movs r4,#0x0
+INSN 0002f9f8 55f82410 ldr.w r1,[r5,r4,lsl #0x2] REF[READ:200056a8] REF[READ:200056ac]
+INSN 0002f9fc 09b1 cbz r1,0x0002fa02 REF[CONDITIONAL_JUMP:0002fa02]
+INSN 0002f9fe 3046 mov r0,r6
+INSN 0002fa00 8847 blx r1
+INSN 0002fa02 641c adds r4,r4,#0x1
+INSN 0002fa04 042c cmp r4,#0x4
+INSN 0002fa06 f7d3 bcc 0x0002f9f8 REF[CONDITIONAL_JUMP:0002f9f8]
+INSN 0002fa08 70bd pop {r4,r5,r6,pc}

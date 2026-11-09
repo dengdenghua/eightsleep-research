@@ -1,0 +1,1039 @@
+{
+  "kind": "bounded symbolic model; not firmware, device or cloud execution",
+  "firmware_scope": {
+    "MCU": "USB 5.5.34.0 SHA256 1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563",
+    "host": "84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375"
+  },
+  "real_device_current_deployment_matched": false,
+  "assumptions": [
+    "all numeric results are conditional on named injected input sequences",
+    "callback intervals are ordinal time; 500Hz conversion to ms is conditional",
+    "host reference stable; bucket gates accept inputs before chosen flush",
+    "two paired second buckets and fresh destination buffers; one ADC scalar per side",
+    "caller flush gate is both sides >=3 buckets OR either side >=10; these [3,3]/[3,4] cases use only the both-sides >=3 branch, with additional future buckets outside the modeled second",
+    "queue cases start with empty ADC/IMU queues and mod5=0, matching the explicit start path at MCU 080268C8",
+    "primary0 corresponds to equal bucket counts; primary1 to right having more buckets",
+    "no automatic cloud compensation or physiology/clinical effect is modeled"
+  ],
+  "cache_cases": [
+    {
+      "case": "all_five_updated_before_every_snapshot",
+      "callbacks": 500,
+      "channel_values": 2500,
+      "helper_successes": 500,
+      "stale_channel_values": 0,
+      "stale_channel_fraction": 0.0,
+      "snapshots_with_any_retained_value": 0,
+      "max_age_callback_intervals": 0,
+      "mean_age_callback_intervals": 0
+    },
+    {
+      "case": "ten_failed_reads_callbacks_100_to_109",
+      "callbacks": 500,
+      "channel_values": 2500,
+      "helper_successes": 490,
+      "stale_channel_values": 50,
+      "stale_channel_fraction": 0.02,
+      "snapshots_with_any_retained_value": 10,
+      "max_age_callback_intervals": 10,
+      "mean_age_callback_intervals": 0.11
+    },
+    {
+      "case": "one_ready_channel_per_callback_round_robin",
+      "callbacks": 500,
+      "channel_values": 2500,
+      "helper_successes": 500,
+      "stale_channel_values": 2000,
+      "stale_channel_fraction": 0.8,
+      "snapshots_with_any_retained_value": 500,
+      "max_age_callback_intervals": 4,
+      "mean_age_callback_intervals": 2
+    },
+    {
+      "case": "injected_three_replay_callbacks_100_to_102",
+      "callbacks": 500,
+      "channel_values": 2500,
+      "helper_successes": 500,
+      "stale_channel_values": 15,
+      "stale_channel_fraction": 0.006,
+      "snapshots_with_any_retained_value": 3,
+      "max_age_callback_intervals": 3,
+      "mean_age_callback_intervals": 0.012,
+      "note": "Injected backup replay leaves cache unchanged but returns success; replay count is assumed."
+    }
+  ],
+  "queue_stall_cases": [
+    {
+      "initial_stall_callbacks": 0,
+      "initial_drained_packets": 0,
+      "adc_drops": 0,
+      "imu_drops": 0,
+      "resumed_callbacks": 200,
+      "resumed_packets": 40,
+      "resumed_skew_histogram_callback_intervals": {
+        "0": 40
+      },
+      "last_ten_packet_skews": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "last_packet": {
+        "adc": [
+          196,
+          197,
+          198,
+          199,
+          200
+        ],
+        "imu": 200,
+        "skew": 0
+      },
+      "remaining_adc": 0,
+      "remaining_imu": 0,
+      "within_packet_adc_ordinals_contiguous": true
+    },
+    {
+      "initial_stall_callbacks": 30,
+      "initial_drained_packets": 6,
+      "adc_drops": 0,
+      "imu_drops": 0,
+      "resumed_callbacks": 200,
+      "resumed_packets": 40,
+      "resumed_skew_histogram_callback_intervals": {
+        "0": 40
+      },
+      "last_ten_packet_skews": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "last_packet": {
+        "adc": [
+          226,
+          227,
+          228,
+          229,
+          230
+        ],
+        "imu": 230,
+        "skew": 0
+      },
+      "remaining_adc": 0,
+      "remaining_imu": 0,
+      "within_packet_adc_ordinals_contiguous": true
+    },
+    {
+      "initial_stall_callbacks": 31,
+      "initial_drained_packets": 6,
+      "adc_drops": 1,
+      "imu_drops": 0,
+      "resumed_callbacks": 200,
+      "resumed_packets": 40,
+      "resumed_skew_histogram_callback_intervals": {
+        "-1": 40
+      },
+      "last_ten_packet_skews": [
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1,
+        -1
+      ],
+      "last_packet": {
+        "adc": [
+          227,
+          228,
+          229,
+          230,
+          231
+        ],
+        "imu": 230,
+        "skew": -1
+      },
+      "remaining_adc": 0,
+      "remaining_imu": 0,
+      "within_packet_adc_ordinals_contiguous": true
+    },
+    {
+      "initial_stall_callbacks": 35,
+      "initial_drained_packets": 6,
+      "adc_drops": 5,
+      "imu_drops": 0,
+      "resumed_callbacks": 200,
+      "resumed_packets": 40,
+      "resumed_skew_histogram_callback_intervals": {
+        "-5": 40
+      },
+      "last_ten_packet_skews": [
+        -5,
+        -5,
+        -5,
+        -5,
+        -5,
+        -5,
+        -5,
+        -5,
+        -5,
+        -5
+      ],
+      "last_packet": {
+        "adc": [
+          231,
+          232,
+          233,
+          234,
+          235
+        ],
+        "imu": 230,
+        "skew": -5
+      },
+      "remaining_adc": 0,
+      "remaining_imu": 1,
+      "within_packet_adc_ordinals_contiguous": true
+    },
+    {
+      "initial_stall_callbacks": 59,
+      "initial_drained_packets": 6,
+      "adc_drops": 29,
+      "imu_drops": 0,
+      "resumed_callbacks": 200,
+      "resumed_packets": 40,
+      "resumed_skew_histogram_callback_intervals": {
+        "-29": 40
+      },
+      "last_ten_packet_skews": [
+        -29,
+        -29,
+        -29,
+        -29,
+        -29,
+        -29,
+        -29,
+        -29,
+        -29,
+        -29
+      ],
+      "last_packet": {
+        "adc": [
+          255,
+          256,
+          257,
+          258,
+          259
+        ],
+        "imu": 230,
+        "skew": -29
+      },
+      "remaining_adc": 0,
+      "remaining_imu": 5,
+      "within_packet_adc_ordinals_contiguous": true
+    },
+    {
+      "initial_stall_callbacks": 60,
+      "initial_drained_packets": 6,
+      "adc_drops": 30,
+      "imu_drops": 0,
+      "resumed_callbacks": 200,
+      "resumed_packets": 40,
+      "resumed_skew_histogram_callback_intervals": {
+        "-30": 40
+      },
+      "last_ten_packet_skews": [
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30
+      ],
+      "last_packet": {
+        "adc": [
+          256,
+          257,
+          258,
+          259,
+          260
+        ],
+        "imu": 230,
+        "skew": -30
+      },
+      "remaining_adc": 0,
+      "remaining_imu": 6,
+      "within_packet_adc_ordinals_contiguous": true
+    },
+    {
+      "initial_stall_callbacks": 61,
+      "initial_drained_packets": 6,
+      "adc_drops": 31,
+      "imu_drops": 0,
+      "resumed_callbacks": 200,
+      "resumed_packets": 40,
+      "resumed_skew_histogram_callback_intervals": {
+        "-31": 40
+      },
+      "last_ten_packet_skews": [
+        -31,
+        -31,
+        -31,
+        -31,
+        -31,
+        -31,
+        -31,
+        -31,
+        -31,
+        -31
+      ],
+      "last_packet": {
+        "adc": [
+          257,
+          258,
+          259,
+          260,
+          261
+        ],
+        "imu": 230,
+        "skew": -31
+      },
+      "remaining_adc": 0,
+      "remaining_imu": 6,
+      "within_packet_adc_ordinals_contiguous": true
+    },
+    {
+      "initial_stall_callbacks": 65,
+      "initial_drained_packets": 6,
+      "adc_drops": 35,
+      "imu_drops": 1,
+      "resumed_callbacks": 200,
+      "resumed_packets": 40,
+      "resumed_skew_histogram_callback_intervals": {
+        "-35": 6,
+        "-30": 34
+      },
+      "last_ten_packet_skews": [
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30
+      ],
+      "last_packet": {
+        "adc": [
+          261,
+          262,
+          263,
+          264,
+          265
+        ],
+        "imu": 235,
+        "skew": -30
+      },
+      "remaining_adc": 0,
+      "remaining_imu": 6,
+      "within_packet_adc_ordinals_contiguous": true
+    },
+    {
+      "initial_stall_callbacks": 90,
+      "initial_drained_packets": 6,
+      "adc_drops": 60,
+      "imu_drops": 6,
+      "resumed_callbacks": 200,
+      "resumed_packets": 40,
+      "resumed_skew_histogram_callback_intervals": {
+        "-60": 6,
+        "-30": 34
+      },
+      "last_ten_packet_skews": [
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30
+      ],
+      "last_packet": {
+        "adc": [
+          286,
+          287,
+          288,
+          289,
+          290
+        ],
+        "imu": 260,
+        "skew": -30
+      },
+      "remaining_adc": 0,
+      "remaining_imu": 6,
+      "within_packet_adc_ordinals_contiguous": true
+    },
+    {
+      "initial_stall_callbacks": 120,
+      "initial_drained_packets": 6,
+      "adc_drops": 90,
+      "imu_drops": 12,
+      "resumed_callbacks": 200,
+      "resumed_packets": 40,
+      "resumed_skew_histogram_callback_intervals": {
+        "-90": 6,
+        "-30": 34
+      },
+      "last_ten_packet_skews": [
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30,
+        -30
+      ],
+      "last_packet": {
+        "adc": [
+          316,
+          317,
+          318,
+          319,
+          320
+        ],
+        "imu": 290,
+        "skew": -30
+      },
+      "remaining_adc": 0,
+      "remaining_imu": 6,
+      "within_packet_adc_ordinals_contiguous": true
+    }
+  ],
+  "host_pipeline_cases": [
+    {
+      "case": "complete_baseline",
+      "injected_missing_left_ordinals": [],
+      "assumed_bucket_counts_left_right": [
+        3,
+        3
+      ],
+      "host_copy_events": [],
+      "overwrites": [],
+      "primary": 0,
+      "buzzer_writes": 500,
+      "unique_output_slots": 500,
+      "stopped_at": null,
+      "epoch_offset": 0,
+      "erased_both_buckets": true,
+      "same_second_late_input_rejected_by_watermark": true,
+      "sides": [
+        {
+          "side": 0,
+          "genuine_inputs_in_bucket": 500,
+          "genuine_input_origins_surviving": 500,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 500,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 500,
+          "unwritten_or_sentinel_positions": 0
+        },
+        {
+          "side": 1,
+          "genuine_inputs_in_bucket": 500,
+          "genuine_input_origins_surviving": 500,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 500,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 500,
+          "unwritten_or_sentinel_positions": 0
+        }
+      ]
+    },
+    {
+      "case": "one_missing_slot100_left_primary",
+      "injected_missing_left_ordinals": [
+        100
+      ],
+      "assumed_bucket_counts_left_right": [
+        3,
+        3
+      ],
+      "host_copy_events": [
+        {
+          "source_ordinal": 101,
+          "actual_key": [
+            0,
+            100
+          ],
+          "intended_missing_key": [
+            0,
+            100
+          ]
+        }
+      ],
+      "overwrites": [],
+      "primary": 0,
+      "buzzer_writes": 500,
+      "unique_output_slots": 500,
+      "stopped_at": null,
+      "epoch_offset": 0,
+      "erased_both_buckets": true,
+      "same_second_late_input_rejected_by_watermark": true,
+      "sides": [
+        {
+          "side": 0,
+          "genuine_inputs_in_bucket": 499,
+          "genuine_input_origins_surviving": 499,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 500,
+          "synthetic_values_surviving": 1,
+          "genuine_values_at_original_slot": 499,
+          "unwritten_or_sentinel_positions": 0
+        },
+        {
+          "side": 1,
+          "genuine_inputs_in_bucket": 500,
+          "genuine_input_origins_surviving": 500,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 500,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 500,
+          "unwritten_or_sentinel_positions": 0
+        }
+      ]
+    },
+    {
+      "case": "two_missing_slots100_101_left_primary",
+      "injected_missing_left_ordinals": [
+        100,
+        101
+      ],
+      "assumed_bucket_counts_left_right": [
+        3,
+        3
+      ],
+      "host_copy_events": [],
+      "overwrites": [],
+      "primary": 0,
+      "buzzer_writes": 100,
+      "unique_output_slots": 100,
+      "stopped_at": 100,
+      "epoch_offset": 0,
+      "erased_both_buckets": true,
+      "same_second_late_input_rejected_by_watermark": true,
+      "sides": [
+        {
+          "side": 0,
+          "genuine_inputs_in_bucket": 498,
+          "genuine_input_origins_surviving": 100,
+          "genuine_input_origins_not_in_output": 398,
+          "written_non_sentinel_values": 100,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 100,
+          "unwritten_or_sentinel_positions": 400
+        },
+        {
+          "side": 1,
+          "genuine_inputs_in_bucket": 500,
+          "genuine_input_origins_surviving": 100,
+          "genuine_input_origins_not_in_output": 400,
+          "written_non_sentinel_values": 100,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 100,
+          "unwritten_or_sentinel_positions": 400
+        }
+      ]
+    },
+    {
+      "case": "lost_five_sample_packet100_104_left_primary",
+      "injected_missing_left_ordinals": [
+        100,
+        101,
+        102,
+        103,
+        104
+      ],
+      "assumed_bucket_counts_left_right": [
+        3,
+        3
+      ],
+      "host_copy_events": [],
+      "overwrites": [],
+      "primary": 0,
+      "buzzer_writes": 100,
+      "unique_output_slots": 100,
+      "stopped_at": 100,
+      "epoch_offset": 0,
+      "erased_both_buckets": true,
+      "same_second_late_input_rejected_by_watermark": true,
+      "sides": [
+        {
+          "side": 0,
+          "genuine_inputs_in_bucket": 495,
+          "genuine_input_origins_surviving": 100,
+          "genuine_input_origins_not_in_output": 395,
+          "written_non_sentinel_values": 100,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 100,
+          "unwritten_or_sentinel_positions": 400
+        },
+        {
+          "side": 1,
+          "genuine_inputs_in_bucket": 500,
+          "genuine_input_origins_surviving": 100,
+          "genuine_input_origins_not_in_output": 400,
+          "written_non_sentinel_values": 100,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 100,
+          "unwritten_or_sentinel_positions": 400
+        }
+      ]
+    },
+    {
+      "case": "same_five_missing_left_secondary",
+      "injected_missing_left_ordinals": [
+        100,
+        101,
+        102,
+        103,
+        104
+      ],
+      "assumed_bucket_counts_left_right": [
+        3,
+        4
+      ],
+      "host_copy_events": [],
+      "overwrites": [],
+      "primary": 1,
+      "buzzer_writes": 500,
+      "unique_output_slots": 500,
+      "stopped_at": null,
+      "epoch_offset": 0,
+      "erased_both_buckets": true,
+      "same_second_late_input_rejected_by_watermark": true,
+      "sides": [
+        {
+          "side": 0,
+          "genuine_inputs_in_bucket": 495,
+          "genuine_input_origins_surviving": 495,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 495,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 495,
+          "unwritten_or_sentinel_positions": 5
+        },
+        {
+          "side": 1,
+          "genuine_inputs_in_bucket": 500,
+          "genuine_input_origins_surviving": 500,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 500,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 500,
+          "unwritten_or_sentinel_positions": 0
+        }
+      ]
+    },
+    {
+      "case": "one_missing_slot1_left_primary",
+      "injected_missing_left_ordinals": [
+        1
+      ],
+      "assumed_bucket_counts_left_right": [
+        3,
+        3
+      ],
+      "host_copy_events": [
+        {
+          "source_ordinal": 2,
+          "actual_key": [
+            0,
+            1
+          ],
+          "intended_missing_key": [
+            0,
+            1
+          ]
+        }
+      ],
+      "overwrites": [],
+      "primary": 0,
+      "buzzer_writes": 500,
+      "unique_output_slots": 500,
+      "stopped_at": null,
+      "epoch_offset": 0,
+      "erased_both_buckets": true,
+      "same_second_late_input_rejected_by_watermark": true,
+      "sides": [
+        {
+          "side": 0,
+          "genuine_inputs_in_bucket": 499,
+          "genuine_input_origins_surviving": 499,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 500,
+          "synthetic_values_surviving": 1,
+          "genuine_values_at_original_slot": 499,
+          "unwritten_or_sentinel_positions": 0
+        },
+        {
+          "side": 1,
+          "genuine_inputs_in_bucket": 500,
+          "genuine_input_origins_surviving": 500,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 500,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 500,
+          "unwritten_or_sentinel_positions": 0
+        }
+      ]
+    },
+    {
+      "case": "two_missing_slots1_2_left_primary",
+      "injected_missing_left_ordinals": [
+        1,
+        2
+      ],
+      "assumed_bucket_counts_left_right": [
+        3,
+        3
+      ],
+      "host_copy_events": [],
+      "overwrites": [],
+      "primary": 0,
+      "buzzer_writes": 1,
+      "unique_output_slots": 1,
+      "stopped_at": 1,
+      "epoch_offset": 0,
+      "erased_both_buckets": true,
+      "same_second_late_input_rejected_by_watermark": true,
+      "sides": [
+        {
+          "side": 0,
+          "genuine_inputs_in_bucket": 498,
+          "genuine_input_origins_surviving": 1,
+          "genuine_input_origins_not_in_output": 497,
+          "written_non_sentinel_values": 1,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 1,
+          "unwritten_or_sentinel_positions": 499
+        },
+        {
+          "side": 1,
+          "genuine_inputs_in_bucket": 500,
+          "genuine_input_origins_surviving": 1,
+          "genuine_input_origins_not_in_output": 499,
+          "written_non_sentinel_values": 1,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 1,
+          "unwritten_or_sentinel_positions": 499
+        }
+      ]
+    },
+    {
+      "case": "leading_five_missing_left_primary",
+      "injected_missing_left_ordinals": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "assumed_bucket_counts_left_right": [
+        3,
+        3
+      ],
+      "host_copy_events": [],
+      "overwrites": [],
+      "primary": 0,
+      "buzzer_writes": 500,
+      "unique_output_slots": 496,
+      "stopped_at": null,
+      "epoch_offset": 0,
+      "erased_both_buckets": true,
+      "same_second_late_input_rejected_by_watermark": true,
+      "sides": [
+        {
+          "side": 0,
+          "genuine_inputs_in_bucket": 495,
+          "genuine_input_origins_surviving": 495,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 495,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 495,
+          "unwritten_or_sentinel_positions": 5
+        },
+        {
+          "side": 1,
+          "genuine_inputs_in_bucket": 500,
+          "genuine_input_origins_surviving": 496,
+          "genuine_input_origins_not_in_output": 4,
+          "written_non_sentinel_values": 496,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 495,
+          "unwritten_or_sentinel_positions": 4
+        }
+      ]
+    },
+    {
+      "case": "leading_five_missing_left_secondary",
+      "injected_missing_left_ordinals": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "assumed_bucket_counts_left_right": [
+        3,
+        4
+      ],
+      "host_copy_events": [],
+      "overwrites": [],
+      "primary": 1,
+      "buzzer_writes": 500,
+      "unique_output_slots": 500,
+      "stopped_at": null,
+      "epoch_offset": 0,
+      "erased_both_buckets": true,
+      "same_second_late_input_rejected_by_watermark": true,
+      "sides": [
+        {
+          "side": 0,
+          "genuine_inputs_in_bucket": 495,
+          "genuine_input_origins_surviving": 495,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 495,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 495,
+          "unwritten_or_sentinel_positions": 5
+        },
+        {
+          "side": 1,
+          "genuine_inputs_in_bucket": 500,
+          "genuine_input_origins_surviving": 500,
+          "genuine_input_origins_not_in_output": 0,
+          "written_non_sentinel_values": 500,
+          "synthetic_values_surviving": 0,
+          "genuine_values_at_original_slot": 500,
+          "unwritten_or_sentinel_positions": 0
+        }
+      ]
+    }
+  ],
+  "cross_second_cases": [
+    {
+      "case": "cross_second_copy_real_destination_arrives",
+      "injected_missing_left_ordinals": [
+        499
+      ],
+      "copy_events": [
+        {
+          "source_ordinal": 500,
+          "actual_key": [
+            1,
+            499
+          ],
+          "intended_missing_key": [
+            0,
+            499
+          ]
+        }
+      ],
+      "overwrites": [
+        {
+          "epoch_offset": 1,
+          "slot": 499,
+          "previous_copy": true,
+          "replacement_copy": false
+        }
+      ],
+      "next_second_output": {
+        "primary": 0,
+        "buzzer_writes": 500,
+        "unique_output_slots": 500,
+        "stopped_at": null,
+        "epoch_offset": 1,
+        "erased_both_buckets": true,
+        "same_second_late_input_rejected_by_watermark": true,
+        "sides": [
+          {
+            "side": 0,
+            "genuine_inputs_in_bucket": 500,
+            "genuine_input_origins_surviving": 500,
+            "genuine_input_origins_not_in_output": 0,
+            "written_non_sentinel_values": 500,
+            "synthetic_values_surviving": 0,
+            "genuine_values_at_original_slot": 500,
+            "unwritten_or_sentinel_positions": 0
+          },
+          {
+            "side": 1,
+            "genuine_inputs_in_bucket": 500,
+            "genuine_input_origins_surviving": 500,
+            "genuine_input_origins_not_in_output": 0,
+            "written_non_sentinel_values": 500,
+            "synthetic_values_surviving": 0,
+            "genuine_values_at_original_slot": 500,
+            "unwritten_or_sentinel_positions": 0
+          }
+        ]
+      },
+      "previous_second_missing_slot499_remains_unfilled": true
+    },
+    {
+      "case": "cross_second_copy_real_destination_missing",
+      "injected_missing_left_ordinals": [
+        499,
+        999
+      ],
+      "copy_events": [
+        {
+          "source_ordinal": 500,
+          "actual_key": [
+            1,
+            499
+          ],
+          "intended_missing_key": [
+            0,
+            499
+          ]
+        }
+      ],
+      "overwrites": [],
+      "next_second_output": {
+        "primary": 0,
+        "buzzer_writes": 500,
+        "unique_output_slots": 500,
+        "stopped_at": null,
+        "epoch_offset": 1,
+        "erased_both_buckets": true,
+        "same_second_late_input_rejected_by_watermark": true,
+        "sides": [
+          {
+            "side": 0,
+            "genuine_inputs_in_bucket": 499,
+            "genuine_input_origins_surviving": 499,
+            "genuine_input_origins_not_in_output": 0,
+            "written_non_sentinel_values": 500,
+            "synthetic_values_surviving": 1,
+            "genuine_values_at_original_slot": 499,
+            "unwritten_or_sentinel_positions": 0
+          },
+          {
+            "side": 1,
+            "genuine_inputs_in_bucket": 500,
+            "genuine_input_origins_surviving": 500,
+            "genuine_input_origins_not_in_output": 0,
+            "written_non_sentinel_values": 500,
+            "synthetic_values_surviving": 0,
+            "genuine_values_at_original_slot": 500,
+            "unwritten_or_sentinel_positions": 0
+          }
+        ]
+      },
+      "previous_second_missing_slot499_remains_unfilled": true
+    }
+  ],
+  "synthetic_wire_check": {
+    "payload_bytes": 376,
+    "adc_frames": 5,
+    "imu_blocks_on_wire": 1,
+    "host_internal_attachments_of_that_imu_block": 5,
+    "loader_imu_selection": "one per five array indices, no five-point mean",
+    "warning": "Repeated attachments are not five independent IMU measurements."
+  },
+  "verified_target_hashes": [
+    {
+      "relative_to_research_root": "mediatek/rootfs-selected/opt/eight/bin/frankenfirmware",
+      "bytes": 5060488,
+      "sha256": "84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375"
+    },
+    {
+      "relative_to_research_root": "mediatek/rootfs-selected/opt/eight/lib/subsystem_updates/firmware-sensor-g0-usb.bbin",
+      "bytes": 140828,
+      "sha256": "1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563"
+    }
+  ],
+  "source_files": [
+    {
+      "relative_to_analysis": "sensor-mcu/freshness/freshness_model.py",
+      "sha256": "ca2bbb78d356330d1b8ab4f2bc536e5fd51d5f969441d7d33f2e5f6067b54e52"
+    },
+    {
+      "relative_to_analysis": "sensor-mcu/freshness/freshness_pseudocode.c",
+      "sha256": "773fa4494396a3a0c93dddcc6d51cb1f6508724026dfbed80ec2f0dded8f3673"
+    },
+    {
+      "relative_to_analysis": "sensor-mcu/SAMPLE_FRESHNESS_ZH.txt",
+      "sha256": "e876ad7f9a3e719a78d775c153107a14bcdb04756a1da680adb4273d30f39c6d"
+    },
+    {
+      "relative_to_analysis": "sensor-mcu/freshness/FRESHNESS_EVIDENCE.json",
+      "sha256": "8598dcc8fcb2f759eb18bb2581ff9b79ef4942fce3e3b7372e0785c2385b22a7"
+    },
+    {
+      "relative_to_analysis": "signal-host/TIMING_CONTINUITY_ZH.txt",
+      "sha256": "e9f475de4f8709ad375a3c728ffa5184a49646979834779cb8fee7e2a8f2938e"
+    },
+    {
+      "relative_to_analysis": "signal-host/DUAL_SIDE_CONTINUITY_ZH.txt",
+      "sha256": "0c8df0fe9512e4474f91cab2027bd583bfdc160ec0c8be311c100808e8b1ef6d"
+    },
+    {
+      "relative_to_analysis": "signal-host/dual-side/continuity_cases.py",
+      "sha256": "2660a40b7018498d81ae6f67484e866c206d5f79d5bea6ea2cfd7530a9a7e86e"
+    },
+    {
+      "relative_to_analysis": "signal-host/host_signal_parser.py",
+      "sha256": "27492b2b75d03ef3666aa5b86e89b10f8a2293a55b6d5e4b5bf90659a661c9cd"
+    },
+    {
+      "relative_to_analysis": "signal-host/timing/0021a5c0.asm.txt",
+      "sha256": "c4a47153a6a2d616385adef4553b21b17ec03d44bb68f235fd4f790178d0d3e9"
+    },
+    {
+      "relative_to_analysis": "signal-host/timing/caller/0027e7b0.asm.txt",
+      "sha256": "5af99e5a5d9ede5ed7870b6d1eff08c2dd526a70a5edab44bfd15ca90db995f2"
+    },
+    {
+      "relative_to_analysis": "signal-host/timing/001fdec0.asm.txt",
+      "sha256": "22ee061e8405b0d4e654c91afc9a80595c1651008aaa40d9328c13403ef906b8"
+    },
+    {
+      "relative_to_analysis": "signal-host/timing/001ffa70.asm.txt",
+      "sha256": "b042f552623598efd2b4fc867d81d864b4b363adac71844e8298d7064f3857d5"
+    },
+    {
+      "relative_to_analysis": "signal-host/timing/001fee40.asm.txt",
+      "sha256": "859325ad2edb891cfec039b30119126fe19c4d264b90ad2e88fde6aa0967d0a3"
+    }
+  ]
+}

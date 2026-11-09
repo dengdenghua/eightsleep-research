@@ -1,0 +1,59 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+HOST-03：旧 RAW 名称、实际文件写入与可读取字段
+2026-11-07；静态分析官方 Frank 镜像，未接设备、未读取实机文件。
+
+关键结论
+本轮明确读懂的是 /persistent/SEQNO.RAW 序号状态文件，不是传感波形容器。
+“writing to 00000000.RAW” 文案所在路径仅设置名称和计时状态；已追的 Stealth 正文依旧走 NATS/JetStream。不能看到 .RAW 名字就认定磁盘有一份原始波形。
+本轮没有真实 .RAW capture，没有能够从该样本恢复的旧波形 .RAW 完整 writer/layout，故不提供假定格式的波形读取器。
+
+一、名称何时初始化和刷新
+全局初始化 0017BDD0：
+  raw logger 为 DAT005E40B0；sequencer 对象为 DAT005E4010，文件名复制 "SEQNO.RAW"。
+  sequencer 的 sequence slot=0、checkpoint slot=1；logger+0x1B70 指向 sequencer。
+  logger 默认 interval=900000；时钟回调 thunk00252DC0 为 steady_clock::now()/1000000，即毫秒。
+  frank.service 的 WorkingDirectory=/persistent，所以相对 SEQNO.RAW 落到该目录。
+
+启动链：00185920 → 001DF9A0 → 001E4334 → 001E2CF0。
+001E2CF0 等 raw gate，调用 001F85B0 初始化/保存 sequencer，清 logger+0x1B68，向 logger+0x1B58 写格式 %08lX.RAW（snprintf 缓冲 13 字节），设置 enable 字节和开始计时，再释放 gate。
+周期刷新：001E3AE4 → 001E3084。
+001E3084 在 enable 为真时检查计时：原计时未到则保留；到期或无有效计时则重新生成名称、更新计时。
+默认 900000ms=15分钟，指的是这段名称/计时轮转状态，不是已证明的“每15分钟波形文件”。
+%08lX 是最少8位，而不是强制仅8位；当序号超过8位时，13字节缓冲会截断。离线测试保留此边界，没有静默“修好”原格式。
+
+二、实际打开/写文件的代码写了什么
+001F85B0(unsafe_init)：
+  fopen SEQNO.RAW，已有文件 r+，无文件 w+。
+  fseek sequence_slot*8，fread 8字节到 sequence；完整读取成功后 sequence++。
+  读不到完整8字节或错误时，sequence 设 0，并尝试保存当前 sequence。
+  再 fseek checkpoint_slot*8，读8字节 checkpoint；失败设0并调用001F8260。
+001F8260(_checkpoint)：先在 slot0 写8字节 sequence，再在 slot1 写8字节 checkpoint，关闭文件；有 fseek/ferror/写入长度错误分支。
+001E8774 退出/关闭路径：等待 flush/gate，打开 sequencer 的文件路径，把当前 sequence 写8字节后关闭；它虽然调用 fwrite，写的仍是 SEQNO.RAW 序号，不是传感数组。
+独立复核另补查该关闭路径的异步分支：001F4350 构造 001EF9A0；后者在 logger+0x10C8/+0x10D0 范围非空时取得 raw gate，然后调用 001E9390(logger,1)，再清 gate。该调用仍是既有 JetStream 编码/发布路径，没有在这里打开旧波形文件。导出见 legacy-pass4/001ef9a0.c 及原汇编。
+
+因此目前可解释字段（本镜像 AArch64 little endian 原样内存 fwrite）：
+  偏移0，8字节，uint64 little-endian：sequence。
+  偏移8，8字节，uint64 little-endian：checkpoint。
+  未恢复魔数、版本头、CRC。额外尾部不擅自解释。
+这里的字段来自明确 fseek/fread/fwrite 操作和 slot 默认值，而不是由扩展名推断。
+seqno_decoder.py 只接受名称 SEQNO.RAW；检查至少16字节并输出这两字段。任意其他 .RAW 名称明确拒绝，避免把波形当序号解析。
+
+三、为什么没有补一个“旧波形 RAW 解码器”
+本轮不止 grep 文案，实际做了：
+  1. SEQNO.RAW、%08lX.RAW、startNewLogFile 的字符串及间接数据引用追踪。
+  2. 全部已反汇编指令扫描 logger filename/size/enable/interval 偏移 0x1B58/0x1B68/0x1B78/0x1B80/0x1BB0，保存全部命中。
+  3. 进一步导出两个 startNewLogFile 状态机、logger 全局构造、序号读写及实际 fwrite 调用者。
+  4. 复核生产 Stealth 链 001EA774 →001E9390→001F49B0→001AFE00→js_Publish。
+结果：名称/计时路径没有 fopen/fwrite 的波形写入；实际 raw_sequencer 文件写入只是上述两个整数。其他 fwrite 命中涉及自身状态/配置，不提供“以 logger 名称存传感数组”的正向链。
+该负面结论限定于本样本已识别的 logger 实现与引用覆盖；不能证明其他旧固件从未有相应格式，或其他外部程序绝不会产生同扩展名文件。
+
+四、验证与剩余材料边界
+  python3 analysis/finishable-20261107/raw-upload/seqno_decoder.py --selftest
+8 项检查通过：两字段原样、启动加1、短文件恢复、缺checkpoint、u64溢出、名称格式与截断、严格短文件拒绝。
+HOST_03_VALIDATION.json 和 SEQNO_SYNTHETIC.bin 都明确标记合成样例；没有写“真实文件读取成功”。
+legacy-pass1..4 为本轮完整函数/指令/引用；legacy-focused-refs.txt / legacy-offset-refs.txt 为定位证据；SOURCE_MANIFEST.json 记录 hash。
+
+后续不是继续猜字段：若得到真实 8位hex.RAW 或另一版本 writer，先确定其生产程序和版本，再恢复容器。若只取得 SEQNO.RAW，本轮工具可读取状态字段，但最终需与该实机版本绑定。
+本样本范围的 HOST-03 静态追踪可收尾；任务总状态仍建议 needs-artifact，因为原标题要求的旧波形 writer/layout 尚无恢复来源。不能把 SEQNO 已解缩写成“旧 RAW 已全部解读”。

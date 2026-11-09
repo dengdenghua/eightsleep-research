@@ -1,0 +1,123 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+void analysis_08019c1a(void)
+
+{
+  int iVar1;
+  undefined4 uVar2;
+  char *pcVar3;
+  char *unaff_r4;
+  uint unaff_r5;
+  int unaff_r6;
+  int in_stack_00000058;
+  
+  if (4 < unaff_r5) {
+    FUN_08027fb8(&stack0x00000058,unaff_r6 + 1,4);
+    pcVar3 = "[cmd] invalid timeout %u ms (must be 1-300000)";
+    if (299999 < in_stack_00000058 - 1U) goto LAB_080198b6;
+    pcVar3 = "[cmd] failed to set grant durations";
+    if (unaff_r4[0x1b04] == '\0') goto LAB_0801975c;
+    *(int *)(unaff_r4 + 0x1aac) = in_stack_00000058;
+    *(int *)(unaff_r4 + 0x1ab0) = in_stack_00000058;
+    *(int *)(unaff_r4 + 0x1ab4) = in_stack_00000058;
+    FUN_08017634("[scheduler] grant durations set (inflate=%u deflate=%u default=%u)",
+                 in_stack_00000058,in_stack_00000058,in_stack_00000058);
+    iVar1 = in_stack_00000058;
+    uVar2 = FUN_08026fb0(in_stack_00000058);
+    uVar2 = FUN_0802b1cc(uVar2,0x447a0000);
+    unaff_r6 = FUN_08016f60(uVar2,10);
+    FUN_08016f6e(uVar2,10);
+    unaff_r4 = "[cmd] grant durations set to %u ms (%s%u.%01u seconds)";
+    FUN_08017634("[cmd] grant durations set to %u ms (%s%u.%01u seconds)",iVar1,"",unaff_r6);
+    goto LAB_08019a0e;
+  }
+  FUN_08017634("[cmd] set_bag_timeout: need 5 bytes");
+  uVar2 = 6;
+  do {
+    while( true ) {
+      FUN_08015fec(uVar2);
+      FUN_0801a424();
+      FUN_08027fb8(&stack0x00000058,unaff_r6 + 1,4);
+      iVar1 = in_stack_00000058;
+      pcVar3 = "[cmd] invalid interval %u ms (must be 1-60000)";
+      if (in_stack_00000058 - 1U < 60000) break;
+LAB_080198b6:
+      FUN_08017634(pcVar3,in_stack_00000058);
+LAB_0801988e:
+      uVar2 = 1;
+    }
+    pcVar3 = "[cmd] failed to set control interval";
+    if (unaff_r4[0x1b04] == '\0') {
+LAB_0801975c:
+      FUN_08017634(pcVar3);
+      goto LAB_0801988e;
+    }
+    *(int *)(unaff_r4 + 0x1ae4) = in_stack_00000058;
+    FUN_08016fce(unaff_r4 + 0x1adc,in_stack_00000058);
+    FUN_08017634("[scheduler] control interval set to %u ms",iVar1);
+    FUN_08017634("[cmd] control interval set to %u ms",in_stack_00000058);
+LAB_08019a0e:
+    uVar2 = 0;
+  } while( true );
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+08019c1a 7c48 ldr r0,[0x08019e0c]
+08019c1c 042d cmp r5,#0x4
+08019c1e 00d8 bhi 0x08019c22
+08019c20 bce5 b 0x0801979c
+08019c22 0422 movs r2,#0x4
+08019c24 711c adds r1,r6,#0x1
+08019c26 16a8 add r0,sp,#0x58
+08019c28 0ef0c6f9 bl 0x08027fb8
+08019c2c 1699 ldr r1,[sp,#0x58]
+08019c2e 784b ldr r3,[0x08019e10]
+08019c30 4a1e subs r2,r1,#0x1
+08019c32 7848 ldr r0,[0x08019e14]
+08019c34 9a42 cmp r2,r3
+08019c36 00d9 bls 0x08019c3a
+08019c38 3de6 b 0x080198b6
+08019c3a 774b ldr r3,[0x08019e18]
+08019c3c 7748 ldr r0,[0x08019e1c]
+08019c3e e318 adds r3,r4,r3
+08019c40 1b78 ldrb r3,[r3,#0x0]
+08019c42 002b cmp r3,#0x0
+08019c44 00d1 bne 0x08019c48
+08019c46 89e5 b 0x0801975c
+08019c48 754b ldr r3,[0x08019e20]
+08019c4a 0a00 movs r2,r1
+08019c4c e318 adds r3,r4,r3
+08019c4e 1960 str r1,[r3,#0x0]
+08019c50 744b ldr r3,[0x08019e24]
+08019c52 7548 ldr r0,[0x08019e28]
+08019c54 e318 adds r3,r4,r3
+08019c56 1960 str r1,[r3,#0x0]
+08019c58 744b ldr r3,[0x08019e2c]
+08019c5a e418 adds r4,r4,r3
+08019c5c 2160 str r1,[r4,#0x0]
+08019c5e 0b00 movs r3,r1
+08019c60 fdf7e8fc bl 0x08017634
+08019c64 169d ldr r5,[sp,#0x58]
+08019c66 2800 movs r0,r5
+08019c68 0df0a2f9 bl 0x08026fb0
+08019c6c 7049 ldr r1,[0x08019e30]
+08019c6e 11f0adfa bl 0x0802b1cc
+08019c72 0a21 movs r1,#0xa
+08019c74 041c adds r4,r0,#0x0
+08019c76 fdf773f9 bl 0x08016f60
+08019c7a 0a21 movs r1,#0xa
+08019c7c 0600 movs r6,r0
+08019c7e 201c adds r0,r4,#0x0
+08019c80 fdf775f9 bl 0x08016f6e
+08019c84 6b4c ldr r4,[0x08019e34]
+08019c86 0090 str r0,[sp,#0x0]
+08019c88 3300 movs r3,r6
+08019c8a 2900 movs r1,r5
+08019c8c 2000 movs r0,r4
+08019c8e 554a ldr r2,[0x08019de4]
+08019c90 fdf7d0fc bl 0x08017634
+08019c94 bbe6 b 0x08019a0e
+08019cb8 fdf7bcfc bl 0x08017634
+08019cbc a7e6 b 0x08019a0e

@@ -1,0 +1,36 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+HOST-01 补充：四类缓存到 CBOR 字节
+2026-11-07；仅电脑重建与合成数据，不运行设备固件，不发网络数据。
+Frank SHA256：84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+地址采用Ghidra基址0x100000；ELF VA需要减去该值。
+
+交付 encode_buffers.py 接受明确大小的RAM字节镜像，按本镜像布局生成成功编码路径的CBOR。
+run_cases.py 30项验证通过。用此前独立的host_signal_parser.py读回，检查整数边界、map/数组、通道/侧别、gain符号、版本字段、固定长度和缺值字节。fixtures全是合成输入，不是用户波形。
+
+1. 字节编码从底层helper核对
+001D66C0按0..23、24..255、256..65535、32/64位边界选择最短整数/长度头，后续长度值大端。
+001D6860写长度后memcpy原数据，未按采样值重新编码或换序。
+001D7B30输出BF（不定长map），001D7FE0输出FF结束；001D7C30与001D7AB0分别写定长map/array；001D79D4为UTF-8/原字节字符串长度+数据。
+001F0E90是字符串key+uint32值。实际key已从原ELF读取：freq、lver、rver、gyro、z、gain、adc；地址/文件偏移/字节保存在RAW_KEYS.json。
+
+2. 四个输出
+buzzer 001F1730：不定长map，type=piezo-buzzer、ts、freq=500、left/right。每侧定长3项：gain[5]、version、data[5]。每条data固定2000字节，即500个int32 little-endian；少量有效点时也不会仅写有效点数量。gain通过short符号扩展，高位为1的16位字段在此可编码成负数。
+IMU 001F10B0：不定长map，type=imu-multi-channel、ts、freq=100、lver/rver、left/right。每侧4组，每组gyro/accel，各有x/y/z，每轴200字节，即100个int16 little-endian。
+multi 001F1BF0：不定长map，type=piezo-multi-channel、ts、freq=500、left/right。每侧gain[2]、version、data[2]；data仍固定2000字节。此函数gain使用LDRH零扩展，和buzzer符号处理不同。
+extADC 001FB0B0：定长map，type=piezo-dual、ts、freq=500、adc、gain；adc的bit6..7为0时发left1,left2,right1,right2四块，否则发left1,right1两块。adc&0x3E非零另增version=2、left.gain、right.gain。四组合map条目数分别9/12/7/10，已逐一检查。
+
+3. 缺值保留及组合边界
+ADC缺值仍是原blob字节FFFFFF7F（有符号int32最大值）；IMU为FF7F。编码器不把它变成CBOR null，也不在此清洗。
+00200960在stealth mask bit26下按buzzer→IMU→可选multi拼接多个CBOR值，没有新增外层数组。合成完整三块body为38224字节；该长度随元数据整数编码宽度变化，不是所有包的固定总长度。
+extADC由既有compat独立flush发出，不能盲目附到同一个stealth body。
+gain和version从本次RAM对应位置读取；它们如何随采样批次更新由HOST-01元数据模型另行接入，字节编码器不会假定标签代表硬件已设置成功。
+
+4. 本模型明确不做的部分
+仅复现成功编码路径，不模拟输出容量不足导致的每次helper部分写入、C++异常、内存损坏、缓冲区清除、NATS队列、上传信封/压缩/加密或服务器接收。
+已有HOST联合模型负责编码返回失败时的删桶/清空后果；本文件不给出“真实设备上传逐字节一致”的结论，尚需同版本真实记录对照。
+原程序仅编码已存在内存，不检查我们工具要求的buffer长度；工具的短输入拒绝是研究输入校验，不冒充固件保护。
+
+复跑：python3 run_cases.py
+SOURCE_MANIFEST.json保存原ELF身份、各函数导出和工具哈希。没有引用自造REA证据号。

@@ -1,0 +1,25 @@
+TARGET 08011f22 function=08011f22
+REF_TO 08012cbc UNCONDITIONAL_CALL owner=08012c20
+FUNCTION_BODY [[08011f22, 08011f31]]
+
+void FUN_08011f22(uint *param_1,uint param_2,int param_3)
+
+{
+  if (param_3 == 0) {
+    param_2 = *param_1 & ~param_2;
+  }
+  else {
+    param_2 = param_2 | *param_1;
+  }
+  *param_1 = param_2;
+  return;
+}
+
+
+INSN 08011f22 002a cmp r2,#0x0
+INSN 08011f24 0268 ldr r2,[r0,#0x0]
+INSN 08011f26 14bf ite ne
+INSN 08011f28 1143 orr.ne r1,r2
+INSN 08011f2a 22ea0101 bic.eq.w r1,r2,r1
+INSN 08011f2e 0160 str r1,[r0,#0x0]
+INSN 08011f30 7047 bx lr

@@ -1,0 +1,241 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+/* WARNING: Possible PIC construction at 0x0801a2a0: Changing call to branch */
+/* WARNING: Possible PIC construction at 0x0801a2c6: Changing call to branch */
+/* WARNING: Possible PIC construction at 0x0801a2f2: Changing call to branch */
+/* WARNING: Possible PIC construction at 0x0801a344: Changing call to branch */
+/* WARNING: Removing unreachable block (ram,0x0801a2f6) */
+/* WARNING: Removing unreachable block (ram,0x0801a2fa) */
+/* WARNING: Removing unreachable block (ram,0x0801a306) */
+/* WARNING: Removing unreachable block (ram,0x0801a348) */
+/* WARNING: Removing unreachable block (ram,0x0801a356) */
+/* WARNING: Removing unreachable block (ram,0x0801a362) */
+/* WARNING: Removing unreachable block (ram,0x0801a36e) */
+/* WARNING: Removing unreachable block (ram,0x0801a3c6) */
+/* WARNING: Removing unreachable block (ram,0x0801a3cc) */
+/* WARNING: Removing unreachable block (ram,0x0801a394) */
+/* WARNING: Removing unreachable block (ram,0x0801a39c) */
+/* WARNING: Removing unreachable block (ram,0x0801a39e) */
+/* WARNING: Removing unreachable block (ram,0x0801a3a2) */
+/* WARNING: Removing unreachable block (ram,0x0801a3ac) */
+/* WARNING: Removing unreachable block (ram,0x0801a3b4) */
+/* WARNING: Removing unreachable block (ram,0x0801a3ba) */
+/* WARNING: Removing unreachable block (ram,0x0801a3bc) */
+/* WARNING: Removing unreachable block (ram,0x08019c90) */
+/* WARNING: Removing unreachable block (ram,0x0801a342) */
+
+void analysis_0801a280(void)
+
+{
+  undefined4 uVar1;
+  char *pcVar2;
+  uint uVar3;
+  uint uVar4;
+  uint *unaff_r4;
+  uint unaff_r5;
+  uint *unaff_r6;
+  uint in_stack_00000058;
+  
+  if (unaff_r5 < 5) {
+    func_0x0801979c("[cmd] set_deflate_settle: need 5 bytes");
+  }
+  FUN_08027fb8(&stack0x00000058,(undefined1 *)((int)unaff_r6 + 1),4);
+  pcVar2 = "[cmd] invalid deflate settle %u ms (must be 0-2000)";
+  uVar4 = in_stack_00000058;
+  if (in_stack_00000058 < 0x7d1) {
+    uVar3 = FUN_08015f10("[cmd] invalid deflate settle %u ms (must be 0-2000)");
+    unaff_r6 = unaff_r4 + 0x556;
+    unaff_r4 = unaff_r4 + 0x58b;
+    uVar4 = 0;
+    while( true ) {
+      if (uVar3 <= (uVar4 & 0xff)) {
+        FUN_08017634("[cmd] deflate settle time set to %u ms on %u bags",in_stack_00000058,uVar3);
+        goto SUB_08019a0e;
+      }
+      if (((unaff_r6 == (uint *)0x0) || ((char)unaff_r4[2] == '\0')) || (2000 < in_stack_00000058))
+      break;
+      *unaff_r4 = in_stack_00000058;
+      FUN_08017634("[bag_task] bag %u: deflate settle time set to %u ms",(char)*unaff_r6,
+                   in_stack_00000058);
+      unaff_r6 = unaff_r6 + 0x38;
+      unaff_r4 = unaff_r4 + 0x38;
+      uVar4 = uVar4 + 1;
+    }
+    pcVar2 = "[cmd] failed to set deflate settle on bag %u";
+  }
+SUB_080198b6:
+  FUN_08017634(pcVar2,uVar4);
+  do {
+    uVar1 = 1;
+    while( true ) {
+      FUN_08015fec(uVar1);
+      FUN_0801a424();
+      FUN_08027fb8(&stack0x00000058,(undefined1 *)((int)unaff_r6 + 1),4);
+      uVar4 = in_stack_00000058;
+      pcVar2 = "[cmd] invalid interval %u ms (must be 1-60000)";
+      if (59999 < in_stack_00000058 - 1) goto SUB_080198b6;
+      if ((char)unaff_r4[0x6c1] == '\0') break;
+      unaff_r4[0x6b9] = in_stack_00000058;
+      FUN_08016fce(unaff_r4 + 0x6b7,in_stack_00000058);
+      FUN_08017634("[scheduler] control interval set to %u ms",uVar4);
+      FUN_08017634("[cmd] control interval set to %u ms",in_stack_00000058);
+SUB_08019a0e:
+      uVar1 = 0;
+    }
+    FUN_08017634("[cmd] failed to set control interval");
+  } while( true );
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+0801a280 a548 ldr r0,[0x0801a518]
+0801a282 042d cmp r5,#0x4
+0801a284 01d8 bhi 0x0801a28a
+0801a286 fff789fa bl 0x0801979c
+0801a28a fa27 movs r7,#0xfa
+0801a28c 711c adds r1,r6,#0x1
+0801a28e 0422 movs r2,#0x4
+0801a290 16a8 add r0,sp,#0x58
+0801a292 0df091fe bl 0x08027fb8
+0801a296 1699 ldr r1,[sp,#0x58]
+0801a298 a048 ldr r0,[0x0801a51c]
+0801a29a ff00 lsls r7,r7,#0x3
+0801a29c b942 cmp r1,r7
+0801a29e 01d9 bls 0x0801a2a4
+0801a2a0 fff709fb bl 0x080198b6
+0801a2a4 fbf734fe bl 0x08015f10
+0801a2a8 0021 movs r1,#0x0
+0801a2aa 0500 movs r5,r0
+0801a2ac 9c4b ldr r3,[0x0801a520]
+0801a2ae e618 adds r6,r4,r3
+0801a2b0 9c4b ldr r3,[0x0801a524]
+0801a2b2 e418 adds r4,r4,r3
+0801a2b4 cab2 uxtb r2,r1
+0801a2b6 169b ldr r3,[sp,#0x58]
+0801a2b8 9542 cmp r5,r2
+0801a2ba 06d8 bhi 0x0801a2ca
+0801a2bc 2a00 movs r2,r5
+0801a2be 1900 movs r1,r3
+0801a2c0 9948 ldr r0,[0x0801a528]
+0801a2c2 fdf7b7f9 bl 0x08017634
+0801a2c6 fff7a2fb bl 0x08019a0e
+0801a2ca 002e cmp r6,#0x0
+0801a2cc 10d0 beq 0x0801a2f0
+0801a2ce 227a ldrb r2,[r4,#0x8]
+0801a2d0 002a cmp r2,#0x0
+0801a2d2 0dd0 beq 0x0801a2f0
+0801a2d4 4a1c adds r2,r1,#0x1
+0801a2d6 0892 str r2,[sp,#0x20]
+0801a2d8 bb42 cmp r3,r7
+0801a2da 09d8 bhi 0x0801a2f0
+0801a2dc 2360 str r3,[r4,#0x0]
+0801a2de 3178 ldrb r1,[r6,#0x0]
+0801a2e0 1a00 movs r2,r3
+0801a2e2 9248 ldr r0,[0x0801a52c]
+0801a2e4 fdf7a6f9 bl 0x08017634
+0801a2e8 e036 adds r6,#0xe0
+0801a2ea 0899 ldr r1,[sp,#0x20]
+0801a2ec e034 adds r4,#0xe0
+0801a2ee e1e7 b 0x0801a2b4
+0801a2f0 8f48 ldr r0,[0x0801a530]
+0801a2f2 fff7e0fa bl 0x080198b6
+0801a2f6 092d cmp r5,#0x9
+0801a2f8 05d8 bhi 0x0801a306
+0801a2fa 0a21 movs r1,#0xa
+0801a2fc 8d48 ldr r0,[0x0801a534]
+0801a2fe fdf799f9 bl 0x08017634
+0801a302 fff74dfa bl 0x080197a0
+0801a306 16ad add r5,sp,#0x58
+0801a308 3100 movs r1,r6
+0801a30a 0a22 movs r2,#0xa
+0801a30c 2800 movs r0,r5
+0801a30e 0df053fe bl 0x08027fb8
+0801a312 4221 movs r1,#0x42
+0801a314 06ab add r3,sp,#0x18
+0801a316 13af add r7,sp,#0x4c
+0801a318 c918 adds r1,r1,r3
+0801a31a 0222 movs r2,#0x2
+0801a31c 3800 movs r0,r7
+0801a31e 14ae add r6,sp,#0x50
+0801a320 6d78 ldrb r5,[r5,#0x1]
+0801a322 0df049fe bl 0x08027fb8
+0801a326 0222 movs r2,#0x2
+0801a328 17a9 add r1,sp,#0x5c
+0801a32a 3000 movs r0,r6
+0801a32c 0df044fe bl 0x08027fb8
+0801a330 4621 movs r1,#0x46
+0801a332 06ab add r3,sp,#0x18
+0801a334 0422 movs r2,#0x4
+0801a336 c918 adds r1,r1,r3
+0801a338 15a8 add r0,sp,#0x54
+0801a33a 0df03dfe bl 0x08027fb8
+0801a33e 012d cmp r5,#0x1
+0801a340 02d9 bls 0x0801a348
+0801a342 7d48 ldr r0,[0x0801a538]
+0801a344 fff70afa bl 0x0801975c
+0801a348 3b88 ldrh r3,[r7,#0x0]
+0801a34a 7c4a ldr r2,[0x0801a53c]
+0801a34c 0893 str r3,[sp,#0x20]
+0801a34e 0a3b subs r3,#0xa
+0801a350 9bb2 uxth r3,r3
+0801a352 9342 cmp r3,r2
+0801a354 f5d8 bhi 0x0801a342
+0801a356 3388 ldrh r3,[r6,#0x0]
+0801a358 0993 str r3,[sp,#0x24]
+0801a35a 099a ldr r2,[sp,#0x24]
+0801a35c 784b ldr r3,[0x0801a540]
+0801a35e 9a42 cmp r2,r3
+0801a360 efd8 bhi 0x0801a342
+0801a362 784b ldr r3,[0x0801a544]
+0801a364 159f ldr r7,[sp,#0x54]
+0801a366 fa18 adds r2,r7,r3
+0801a368 774b ldr r3,[0x0801a548]
+0801a36a 9a42 cmp r2,r3
+0801a36c e9d8 bhi 0x0801a342
+0801a36e 0123 movs r3,#0x1
+0801a370 1d40 ands r5,r3
+0801a372 764b ldr r3,[0x0801a54c]
+0801a374 e618 adds r6,r4,r3
+0801a376 3000 movs r0,r6
+0801a378 05f0acff bl 0x080202d4
+0801a37c 734b ldr r3,[0x0801a54c]
+0801a37e 2a00 movs r2,r5
+0801a380 e554 strb r5,[r4,r3]
+0801a382 089b ldr r3,[sp,#0x20]
+0801a384 b760 str r7,[r6,#0x8]
+0801a386 7380 strh r3,[r6,#0x2]
+0801a388 099b ldr r3,[sp,#0x24]
+0801a38a b380 strh r3,[r6,#0x4]
+0801a38c 704b ldr r3,[0x0801a550]
+0801a38e e318 adds r3,r4,r3
+0801a390 002d cmp r5,#0x0
+0801a392 18d1 bne 0x0801a3c6
+0801a394 0421 movs r1,#0x4
+0801a396 1970 strb r1,[r3,#0x0]
+0801a398 6e4b ldr r3,[0x0801a554]
+0801a39a e318 adds r3,r4,r3
+0801a39c 1a70 strb r2,[r3,#0x0]
+0801a39e 0028 cmp r0,#0x0
+0801a3a0 08d0 beq 0x0801a3b4
+0801a3a2 3000 movs r0,r6
+0801a3a4 05f096ff bl 0x080202d4
+0801a3a8 0028 cmp r0,#0x0
+0801a3aa 03d1 bne 0x0801a3b4
+0801a3ac 6a4b ldr r3,[0x0801a558]
+0801a3ae e018 adds r0,r4,r3
+0801a3b0 07f0f6f9 bl 0x080217a0
+0801a3b4 6949 ldr r1,[0x0801a55c]
+0801a3b6 002d cmp r5,#0x0
+0801a3b8 00d0 beq 0x0801a3bc
+0801a3ba 6949 ldr r1,[0x0801a560]
+0801a3bc 6948 ldr r0,[0x0801a564]
+0801a3be 099b ldr r3,[sp,#0x24]
+0801a3c0 089a ldr r2,[sp,#0x20]
+0801a3c2 0097 str r7,[sp,#0x0]
+0801a3c4 64e4 b 0x08019c90
+0801a3c6 1a78 ldrb r2,[r3,#0x0]
+0801a3c8 042a cmp r2,#0x4
+0801a3ca e8d1 bne 0x0801a39e
+0801a3cc 0022 movs r2,#0x0
+0801a3ce e5e7 b 0x0801a39c

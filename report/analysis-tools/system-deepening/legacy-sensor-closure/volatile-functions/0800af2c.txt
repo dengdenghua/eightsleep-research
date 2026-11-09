@@ -1,0 +1,199 @@
+FUNCTION 0800af2c FUN_0800af2c BODY [[0800af2c, 0800b01f]]
+
+void FUN_0800af2c(undefined4 param_1,uint param_2)
+
+{
+  uint uVar1;
+  int iVar2;
+  uint local_50;
+  undefined *local_44;
+  undefined4 local_40;
+  undefined4 local_3c;
+  uint local_38;
+  undefined4 local_34;
+  undefined4 local_30;
+  undefined4 local_2c;
+  undefined4 local_28;
+  undefined4 local_24;
+  undefined4 local_20;
+  undefined4 local_1c;
+  
+  iVar2 = DAT_200001fc;
+  if (DAT_200001fc != 0) {
+    local_50 = *(uint *)(DAT_200001fc + 0x20);
+    if (param_2 < local_50) {
+      local_50 = param_2;
+    }
+    uVar1 = Ram40020048;
+    if ((uVar1 & 0xffff) != 0) {
+      uVar1 = Ram40020000;
+      while ((uint)(DAT_20000248 - DAT_200015d8) < 6) {
+        if (((uVar1 & 0x2000) != 0) || ((uVar1 & 0x8000) != 0)) {
+          uVar1 = Ram40020004;
+          Ram40020004 = uVar1 | 0xf0ff;
+          break;
+        }
+        if ((uVar1 & 0x5000) != 0) {
+          uVar1 = Ram40020004;
+          Ram40020004 = uVar1 | 0x50ff;
+        }
+        uVar1 = Ram40020000;
+        WaitForEvent();
+      }
+    }
+    FUN_0800e120(*(undefined4 *)(DAT_200001fc + 0x1c),param_1,local_50);
+    uVar1 = Ram40020004;
+    Ram40020004 = uVar1 | 0xf0ff;
+    uVar1 = Ram40013820;
+    Ram40013820 = uVar1 | 0x48;
+    local_3c = 0x10;
+    local_40 = *(undefined4 *)(iVar2 + 0x1c);
+    local_30 = 0x80;
+    local_34 = 0;
+    local_44 = &UNK_40013828;
+    local_20 = 0x3000;
+    local_2c = 0;
+    local_28 = 0;
+    local_24 = 0;
+    local_1c = 0;
+    local_38 = local_50;
+    uVar1 = Ram40020044;
+    Ram40020044 = uVar1 & 0xfffe;
+    uVar1 = Ram40020044;
+    Ram40020044 = uVar1 & 0xfffe;
+    Ram40020044 = 0;
+    Ram40020048 = 0;
+    Ram4002004c = 0;
+    Ram40020050 = 0;
+    uVar1 = Ram40020004;
+    Ram40020004 = uVar1 | 0xf000;
+    FUN_08008384(&DAT_40020044,&local_44);
+    uVar1 = Ram40020044;
+    Ram40020044 = uVar1 | 1;
+    DAT_200015d8 = DAT_20000248;
+  }
+  return;
+}
+
+
+ASSEMBLY
+0800af2c push {r4,r5,r6,r7,lr} BYTES f0b5
+0800af2e ldr r3,[0x0800b020] BYTES 3c4b REF READ=0800b020 WORD=200001fc
+0800af30 sub sp,#0x3c BYTES 8fb0
+0800af32 ldr r6,[r3,#0x0] BYTES 1e68 REF READ=200001fc
+0800af34 cmp r6,#0x0 BYTES 002e
+0800af36 beq 0x0800aff8 BYTES 5fd0 REF CONDITIONAL_JUMP=0800aff8
+0800af38 ldr r3,[r6,#0x20] BYTES 336a
+0800af3a str r3,[sp,#0x0] BYTES 0093 REF WRITE=Stack[-0x50]
+0800af3c cmp r3,r1 BYTES 8b42
+0800af3e bls 0x0800af42 BYTES 00d9 REF CONDITIONAL_JUMP=0800af42
+0800af40 str r1,[sp,#0x0] BYTES 0091 REF WRITE=Stack[-0x50]
+0800af42 ldr r4,[0x0800b024] BYTES 384c REF READ=0800b024 WORD=40020044
+0800af44 ldr r5,[0x0800b028] BYTES 384d REF READ=0800b028 WORD=40020000
+0800af46 ldr r3,[r4,#0x4] BYTES 6368 REF READ=40020048
+0800af48 ldr r7,[0x0800b02c] BYTES 384f REF READ=0800b02c WORD=200015d8
+0800af4a uxth r3,r3 BYTES 9bb2
+0800af4c cmp r3,#0x0 BYTES 002b
+0800af4e beq 0x0800af7e BYTES 16d0 REF CONDITIONAL_JUMP=0800af7e
+0800af50 movs r3,#0xf0 BYTES f023
+0800af52 movs r1,#0xa0 BYTES a021
+0800af54 ldr r2,[r5,#0x0] BYTES 2a68 REF READ=40020000
+0800af56 lsls r3,r3,#0x8 BYTES 1b02
+0800af58 ands r2,r3 BYTES 1a40
+0800af5a str r2,[sp,#0x8] BYTES 0292 REF WRITE=Stack[-0x48]
+0800af5c lsls r1,r1,#0x7 BYTES c901
+0800af5e str r3,[sp,#0x4] BYTES 0193 REF WRITE=Stack[-0x4c]
+0800af60 ldr r3,[0x0800b030] BYTES 334b REF READ=0800b030 WORD=20000248
+0800af62 ldr r2,[r3,#0x0] BYTES 1a68 REF READ=20000248
+0800af64 ldr r3,[r7,#0x0] BYTES 3b68 REF READ=200015d8
+0800af66 subs r2,r2,r3 BYTES d21a
+0800af68 cmp r2,#0x5 BYTES 052a
+0800af6a bhi 0x0800af7e BYTES 08d8 REF CONDITIONAL_JUMP=0800af7e
+0800af6c movs r3,#0x80 BYTES 8023
+0800af6e ldr r2,[sp,#0x8] BYTES 029a REF READ=Stack[-0x48]
+0800af70 lsls r3,r3,#0x6 BYTES 9b01
+0800af72 tst r2,r3 BYTES 1a42
+0800af74 beq 0x0800affc BYTES 42d0 REF CONDITIONAL_JUMP=0800affc
+0800af76 ldr r2,[r5,#0x4] BYTES 6a68 REF READ=40020004
+0800af78 ldr r3,[0x0800b034] BYTES 2e4b REF READ=0800b034 WORD=f0ff
+0800af7a orrs r3,r2 BYTES 1343
+0800af7c str r3,[r5,#0x4] BYTES 6b60 REF WRITE=40020004
+0800af7e movs r1,r0 BYTES 0100
+0800af80 ldr r2,[sp,#0x0] BYTES 009a REF READ=Stack[-0x50]
+0800af82 ldr r0,[r6,#0x1c] BYTES f069
+0800af84 bl 0x0800e120 BYTES 03f0ccf8 REF UNCONDITIONAL_CALL=0800e120
+0800af88 ldr r2,[r5,#0x4] BYTES 6a68 REF READ=40020004
+0800af8a ldr r3,[0x0800b034] BYTES 2a4b REF READ=0800b034 WORD=f0ff
+0800af8c ldr r0,[0x0800b038] BYTES 2a48 REF READ=0800b038 WORD=fffe
+0800af8e orrs r3,r2 BYTES 1343
+0800af90 str r3,[r5,#0x4] BYTES 6b60 REF WRITE=40020004
+0800af92 movs r3,#0x48 BYTES 4823
+0800af94 ldr r2,[0x0800b03c] BYTES 294a REF READ=0800b03c WORD=40013800
+0800af96 ldr r1,[r2,#0x20] BYTES 116a REF READ=40013820
+0800af98 orrs r3,r1 BYTES 0b43
+0800af9a str r3,[r2,#0x20] BYTES 1362 REF WRITE=40013820
+0800af9c movs r2,#0x10 BYTES 1022
+0800af9e str r2,[sp,#0x14] BYTES 0592 REF WRITE=Stack[-0x3c]
+0800afa0 ldr r2,[r6,#0x1c] BYTES f269
+0800afa2 movs r3,#0x0 BYTES 0023
+0800afa4 str r2,[sp,#0x10] BYTES 0492 REF WRITE=Stack[-0x40]
+0800afa6 str r2,[sp,#0x4] BYTES 0192 REF WRITE=Stack[-0x4c]
+0800afa8 movs r2,#0x80 BYTES 8022
+0800afaa str r2,[sp,#0x20] BYTES 0892 REF WRITE=Stack[-0x30]
+0800afac ldr r2,[0x0800b040] BYTES 244a REF READ=0800b040 WORD=40013828
+0800afae str r3,[sp,#0x1c] BYTES 0793 REF WRITE=Stack[-0x34]
+0800afb0 str r2,[sp,#0xc] BYTES 0392 REF WRITE=Stack[-0x44]
+0800afb2 movs r2,#0xc0 BYTES c022
+0800afb4 lsls r2,r2,#0x6 BYTES 9201
+0800afb6 str r2,[sp,#0x30] BYTES 0c92 REF WRITE=Stack[-0x20]
+0800afb8 ldr r2,[sp,#0x0] BYTES 009a REF READ=Stack[-0x50]
+0800afba str r3,[sp,#0x24] BYTES 0993 REF WRITE=Stack[-0x2c]
+0800afbc str r3,[sp,#0x28] BYTES 0a93 REF WRITE=Stack[-0x28]
+0800afbe str r3,[sp,#0x2c] BYTES 0b93 REF WRITE=Stack[-0x24]
+0800afc0 str r3,[sp,#0x34] BYTES 0d93 REF WRITE=Stack[-0x1c]
+0800afc2 str r2,[sp,#0x18] BYTES 0692 REF WRITE=Stack[-0x38]
+0800afc4 ldr r1,[r4,#0x0] BYTES 2168 REF READ=40020044
+0800afc6 ands r1,r0 BYTES 0140
+0800afc8 str r1,[r4,#0x0] BYTES 2160 REF WRITE=40020044
+0800afca ldr r2,[r4,#0x0] BYTES 2268 REF READ=40020044
+0800afcc add r1,sp,#0xc BYTES 03a9
+0800afce ands r2,r0 BYTES 0240
+0800afd0 str r2,[r4,#0x0] BYTES 2260 REF WRITE=40020044
+0800afd2 str r3,[r4,#0x0] BYTES 2360 REF WRITE=40020044
+0800afd4 str r3,[r4,#0x4] BYTES 6360 REF WRITE=40020048
+0800afd6 str r3,[r4,#0x8] BYTES a360 REF WRITE=4002004c
+0800afd8 str r3,[r4,#0xc] BYTES e360 REF WRITE=40020050
+0800afda movs r3,#0xf0 BYTES f023
+0800afdc ldr r2,[r5,#0x4] BYTES 6a68 REF READ=40020004
+0800afde lsls r3,r3,#0x8 BYTES 1b02
+0800afe0 orrs r3,r2 BYTES 1343
+0800afe2 str r3,[r5,#0x4] BYTES 6b60 REF WRITE=40020004
+0800afe4 ldr r0,[0x0800b024] BYTES 0f48 REF READ=0800b024 WORD=40020044 REF PARAM=40020044
+0800afe6 bl 0x08008384 BYTES fdf7cdf9 REF UNCONDITIONAL_CALL=08008384
+0800afea movs r3,#0x1 BYTES 0123
+0800afec ldr r2,[r4,#0x0] BYTES 2268 REF READ=40020044
+0800afee orrs r3,r2 BYTES 1343
+0800aff0 str r3,[r4,#0x0] BYTES 2360 REF WRITE=40020044
+0800aff2 ldr r3,[0x0800b030] BYTES 0f4b REF READ=0800b030 WORD=20000248
+0800aff4 ldr r3,[r3,#0x0] BYTES 1b68 REF READ=20000248
+0800aff6 str r3,[r7,#0x0] BYTES 3b60 REF WRITE=200015d8
+0800aff8 add sp,#0x3c BYTES 0fb0
+0800affa pop {r4,r5,r6,r7,pc} BYTES f0bd
+0800affc movs r3,#0x80 BYTES 8023
+0800affe ldr r2,[sp,#0x8] BYTES 029a REF READ=Stack[-0x48]
+0800b000 lsls r3,r3,#0x8 BYTES 1b02
+0800b002 tst r2,r3 BYTES 1a42
+0800b004 bne 0x0800af76 BYTES b7d1 REF CONDITIONAL_JUMP=0800af76
+0800b006 ldr r2,[sp,#0x8] BYTES 029a REF READ=Stack[-0x48]
+0800b008 tst r2,r1 BYTES 0a42
+0800b00a beq 0x0800b014 BYTES 03d0 REF CONDITIONAL_JUMP=0800b014
+0800b00c ldr r3,[r5,#0x4] BYTES 6b68 REF READ=40020004
+0800b00e ldr r2,[0x0800b044] BYTES 0d4a REF READ=0800b044 WORD=50ff
+0800b010 orrs r2,r3 BYTES 1a43
+0800b012 str r2,[r5,#0x4] BYTES 6a60 REF WRITE=40020004
+0800b014 ldr r2,[r5,#0x0] BYTES 2a68 REF READ=40020000
+0800b016 ldr r3,[sp,#0x4] BYTES 019b REF READ=Stack[-0x4c]
+0800b018 ands r2,r3 BYTES 1a40
+0800b01a str r2,[sp,#0x8] BYTES 0292 REF WRITE=Stack[-0x48]
+0800b01c wfe BYTES 20bf
+0800b01e b 0x0800af60 BYTES 9fe7 REF UNCONDITIONAL_JUMP=0800af60

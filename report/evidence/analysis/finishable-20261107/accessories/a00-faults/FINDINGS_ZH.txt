@@ -1,0 +1,44 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+C08 / A00 与 A02 的有限差分：Fault1 已找到，不能跨版本合并故障语义
+
+范围与结果
+本轮按“现有 A00 样本的 bag FSM、reason 写入/清除、压力命令”验收。A00 是不同实现，不是 A02 换头。A00 的 Fault1(REPEATED_TIMEOUT) 有确切写入者；A00 Fault2–4 在本轮已识别的 bag / scheduler / command 路径中仍仅有名称，无已识别非零写入者。A02 中已证明的是 Fault5/6，不能将 A00 Fault1 的路径直接移植到 A02。没有运行固件、联网、发设备命令或驱动附件。
+
+1. 样本和恢复方法
+原文件 mediatek/rootfs-selected/opt/eight/firmware/balloon/A00/firmware-balloon-g0.bbin，101340 B，SHA256 aab75c0907957183686c7f0f5911c94b52aa7dad6abe0b864c6accc74e64272c。A02 为143360 B、SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a。
+A00 BBIN header 的 TLV3 为08008000；整文件按0x08008000映射，+0x80处SP20024000、Reset080186FD。A02整文件映射08010000；二者不能套用同地址。Ghidra的imageBase显示00000000是程序属性，实际内存块加载地址已按BBIN设定。
+独立工程 ghidra/BalloonA00.gpr；初次441函数。main08015824只有一个push/sub-sp栈帧，直到08018360内部长跳转结束；编译器用BL作为内部远跳，初次结果被切成多个函数。RepairA00Branches.java在只读分析副本中将该区间内部BL设为branch、合并同帧、清除末尾08018364–0801840B常量池误反汇编，导出413函数。原始字节未修改；RAW_EVIDENCE验证每条修改元数据的BL目标。
+
+2. 对象布局不能复用
+控制对象 G=0x2000A634；bag B_i=G+0x13A0=0x2000B9D4+i*0x64，初始化五个（i=0..4）。
+B+01 当前FSM；+02前状态；+04目标压力；+08到达容差；+0C离开容差；+10 hold_open；+14阀控制对象；+18压力源；+28 steady计时；+3C单一超时计数；+40 FaultLatch；+41 SafetyLatch；+42 SafetyReason；+43 FaultReason；+4C输出已应用；+50 Fault计时对象；+5C初始60000；+60初始化标志。
+对照 A02：stride0xE0、+8C/+90分充/放气计数、+A0/+A1/+A2分别SafetyLatch/SafetyReason/FaultReason。A00的+40 FaultLatch是实际分支条件，不能忽略。
+
+3. Fault1：从调度超时到原因字段
+main08015824中scheduler RUNNING分支，计时达到本次grant duration时，08017B7C附近进入“grant timeout”分支。对本次选中、非空且已初始化的bag，08017BAE加载B+3C、08017BB2加1、08017BB6写回。此路径不像A02那样只给inflate或deflate分别加计数；另有scheduler自身每bag统计。
+bag FSM08013CC0优先处理压力Safety，再检查B+3C>=3（08013D2A/38）。进入FSM6(FAULT)时，0801409E准备1，080140A4写B+40=1；080140AA检查计数>2，080140AE写B+43=1。
+枚举表080201C8的index1指向08020122字符串REPEATED_TIMEOUT。Fault1在这个A00样本因此是代码证实的重复调度超时；不是仅按名字推断。
+在grant尚未超时的分支，调用08013CC0更新bag，再经080107D0判断FSM==STEADY且steady已持续足够时间；满足时08017C1C清B+3C，日志为timeout counter reset。因而它是连续/未恢复的累计失败，不是开机以来只增不减。
+
+4. 压力命令清计数，不直接清FaultLatch
+主循环命令0x52→080145E8。要求controller和scheduler已初始化、payload至少20字节，复制五个float32并逐个校验。对每个已初始化bag：080146DE清B+3C，080146E0写新target，调用08014544更新容差，stride0x64循环5次；然后08012530使scheduler计划失效。
+这个setter对每次接收的有效目标均清计数，没有A02“旧值为-1或改变量超过旧容差才清双计数”的条件。它不写B+01、B+40、B+42、B+43；08014544只更新容差，08012530修改scheduler计划/运行状态。
+因此若当前FSM6且FaultLatch仍1，单独发新压力目标、把超时计数清0，并不会通过FSM6的正常恢复分支。08013CC0在旧FSM6且计数<3时另查B+40，非0则保留FAULT。
+FaultLatch的本轮已证清零是启动bag memset(100)和随后显式B+40=0；未识别独立运行时clear-fault命令。审阅+0x40写候选时已区分了08013AA8/080136C4的solenoid对象等同偏移，不能把其它对象的清零当bag解锁。
+需要限定：Safety优先级可使旧FAULT进入Safety；状态变换中B+43可清0而B+40仍1。故这不是“所有情况下永久锁死”的证明。Fault原因0也不能等同FaultLatch清除。
+进入FAULT会启动B+50计时，初始化B+5C=60000；已审FSM/scheduler没有找到据此到期清FaultLatch的消费者，不能写成“等60秒自动恢复”。
+
+5. Safety1/2/3与清除边界
+bag FSM先读pressure源；缺有效对象/索引越界用-1，pressure失败标记、p==-1或p>=13进入Safety。已在Safety时，p<12才允许正常退出判定。进入Safety设置B+41=1；p==-1写B+42=2，p>=13写1。仅失败标志非0但数值有效时，没有强行把reason改2，保留此前字段。
+全局电流链在main中：四路初始化有效的current sensor，abs(current)>ROM0802029C默认阈值[15000,10000,10000,15000] mA时置0x2000B270=1。0x2000B271表示至少一路初始化成功。
+080176EA起检测这些条件，再检查global trip 0x2000C161==0；08017706先置trip=1，controller已初始化则停止pump/已登记阀。08017740/44及随后四组STRB分别写五个bag B+41=1、B+42=3。枚举3仍名MANUAL_STOP，但实际生产者是过流紧急停止，不能凭名字说由用户手动触发。
+A00没有在这个已证紧急停止分支看到A02新增的pump>=60°C / solenoid>=85°C→Safety4路径。A00 Safety4(HARDWARE_FAULT)仍只有表名，未在本轮已识别路径找到写4。
+同样不能把全局trip与每bag SafetyLatch混为一体：A00 08013CC0选择Safety的条件中没有“B+41且reason3/4就保持Safety”的A02条件。紧急停止直接关输出且写这些字段，是否跨后续调度持续禁用不能凭字段名断言；本报告只保留已证条件与写入。
+状态变换到非Safety时清SafetyLatch/SafetyReason；启动也清。全局current trip/one-shot trip本轮未识别运行时复位，启动memset清零。已证“清原因字段”不自动等于全系统解除保护。
+
+6. Fault2–4 的有界阴性与覆盖
+A00表index2/3/4为SENSOR_UNRELIABLE / CONTROL_DIVERGENCE / PRESSURE_TRACKING。已识别的B+43非零写入只有FSM的1；清零包括启动、离开/进入相应状态的清原因分支。不能从枚举推导这三个故障存在生产检测器。
+本轮覆盖413导出函数、34909条已识别指令；field-immediate-candidates.txt列472条+3C..43/+50相关候选，回查bag参数、G+13A0数组、G+13E1等绝对别名、setter及scheduler实际调用链，区分solenoid、UART、I2C同偏移。主循环命令0x50..54、bag FSM、压力/容差/模式调用均纳入。RAW_EVIDENCE附原字节、Fault/Safety表和关键写入；导出全函数为可复核覆盖，不表示逐一逆向所有外设库。
+有界结论仅是这个A00和现有A02样本的已识别写入/调用范围；未解析任意间接回调或其他版本，故不用“所有版本绝不触发”。本轮有限差分已完成，未留下必须先读的已知同版本bag入口。要进一步解释未发现的Fault2–4，需要另版本含生产者样本或故障现场被动记录；不能把实机操作模型当安全控制器。更深的所有控制参数模型超出此次有限差分。

@@ -1,0 +1,70 @@
+TARGET 0800a34a function=0800a34a
+REF_TO 0800a2d0 UNCONDITIONAL_CALL owner=0800a2be
+REF_TO 0800a312 UNCONDITIONAL_CALL owner=0800a300
+FUNCTION_BODY [[0800a262, 0800a29b] [0800a34a, 0800a35d]]
+
+void FUN_0800a34a(void)
+
+{
+  ushort uVar1;
+  undefined2 *puVar2;
+  int iVar3;
+  undefined2 uVar4;
+  
+  iVar3 = DAT_0800a7b8;
+  puVar2 = DAT_0800a7b4;
+  *(undefined1 *)((int)DAT_0800a7b4 + 3) = 1;
+  uVar1 = *(ushort *)(iVar3 + 0x10);
+  if (uVar1 < 0x8c) {
+    uVar4 = 400;
+  }
+  else if (uVar1 < 0xa0) {
+    uVar4 = 600;
+  }
+  else if (uVar1 < 0xb4) {
+    uVar4 = 0x44c;
+  }
+  else if (uVar1 < 0xbe) {
+    uVar4 = 2000;
+  }
+  else if (uVar1 < 200) {
+    uVar4 = 0x9c4;
+  }
+  else {
+    uVar4 = 0xfff;
+  }
+  *puVar2 = uVar4;
+  return;
+}
+
+
+INSN 0800a262 0088 ldrh r0,[r0,#0x0] REF[READ:20007bcc]
+INSN 0800a264 8c28 cmp r0,#0x8c
+INSN 0800a266 b8bf it lt
+INSN 0800a268 4ff4c870 mov.lt.w r0,#0x190
+INSN 0800a26c 14db blt 0x0800a298 REF[CONDITIONAL_JUMP:0800a298]
+INSN 0800a26e a028 cmp r0,#0xa0
+INSN 0800a270 b8bf it lt
+INSN 0800a272 4ff41670 mov.lt.w r0,#0x258
+INSN 0800a276 0fdb blt 0x0800a298 REF[CONDITIONAL_JUMP:0800a298]
+INSN 0800a278 b428 cmp r0,#0xb4
+INSN 0800a27a b8bf it lt
+INSN 0800a27c 40f24c40 movw.lt r0,#0x44c
+INSN 0800a280 0adb blt 0x0800a298 REF[CONDITIONAL_JUMP:0800a298]
+INSN 0800a282 be28 cmp r0,#0xbe
+INSN 0800a284 b8bf it lt
+INSN 0800a286 4ff4fa60 mov.lt.w r0,#0x7d0
+INSN 0800a28a 05db blt 0x0800a298 REF[CONDITIONAL_JUMP:0800a298]
+INSN 0800a28c c828 cmp r0,#0xc8
+INSN 0800a28e b4bf ite lt
+INSN 0800a290 40f6c410 movw.lt r0,#0x9c4
+INSN 0800a294 40f6ff70 movw.ge r0,#0xfff
+INSN 0800a298 0880 strh r0,[r1,#0x0] REF[WRITE:20007d70]
+INSN 0800a29a 7047 bx lr
+INSN 0800a34a dff86844 ldr.w r4,[0x0800a7b4] REF[READ:0800a7b4=20007d70]
+INSN 0800a34e dff86854 ldr.w r5,[0x0800a7b8] REF[READ:0800a7b8=20007bbc]
+INSN 0800a352 0120 movs r0,#0x1
+INSN 0800a354 e070 strb r0,[r4,#0x3] REF[WRITE:20007d73]
+INSN 0800a356 2146 mov r1,r4
+INSN 0800a358 05f11000 add.w r0,r5,#0x10
+INSN 0800a35c 81e7 b 0x0800a262 REF[UNCONDITIONAL_JUMP:0800a262]

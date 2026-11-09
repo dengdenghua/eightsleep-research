@@ -1,0 +1,63 @@
+TARGET 08012fd4 function=08012fd4
+REF_TO 080130e4 UNCONDITIONAL_CALL
+REF_TO 08013c90 UNCONDITIONAL_CALL
+FUNCTION_BODY [[08012fd4, 08013025]]
+
+uint FUN_08012fd4(int param_1,short param_2,undefined2 *param_3)
+
+{
+  int iVar1;
+  uint uVar2;
+  undefined2 local_19a;
+  undefined1 auStack_198 [388];
+  
+  FUN_080086a4(auStack_198,0,0x180);
+  iVar1 = FUN_08012f6c(param_1,param_2 << 7 | 0xa000,*(undefined4 *)(param_1 + 0xb0),auStack_198,
+                       &local_19a);
+  uVar2 = 0;
+  if (iVar1 != 0) {
+    uVar2 = FUN_08012f6c(param_1,0,*(undefined4 *)(param_1 + 0xb0),auStack_198,&local_19a);
+  }
+  *param_3 = local_19a;
+  return uVar2 & 1;
+}
+
+
+INSN 08012fd4 f0b5 push {r4,r5,r6,r7,lr}
+INSN 08012fd6 1500 movs r5,r2
+INSN 08012fd8 c022 movs r2,#0xc0
+INSN 08012fda 0e00 movs r6,r1
+INSN 08012fdc 0400 movs r4,r0
+INSN 08012fde e5b0 sub sp,#0x194
+INSN 08012fe0 0021 movs r1,#0x0
+INSN 08012fe2 5200 lsls r2,r2,#0x1
+INSN 08012fe4 04a8 add r0,sp,#0x10
+INSN 08012fe6 f5f75dfb bl 0x080086a4 REF[UNCONDITIONAL_CALL:080086a4]
+INSN 08012fea 0f49 ldr r1,[0x08013028] REF[READ:08013028=ffffa000]
+INSN 08012fec f601 lsls r6,r6,#0x7
+INSN 08012fee 3143 orrs r1,r6
+INSN 08012ff0 0e26 movs r6,#0xe
+INSN 08012ff2 2700 movs r7,r4
+INSN 08012ff4 6e44 add r6,sp
+INSN 08012ff6 0096 str r6,[sp,#0x0] REF[WRITE:Stack[-0x1a8]]
+INSN 08012ff8 b037 adds r7,#0xb0
+INSN 08012ffa 89b2 uxth r1,r1
+INSN 08012ffc 2000 movs r0,r4
+INSN 08012ffe 3a68 ldr r2,[r7,#0x0]
+INSN 08013000 04ab add r3,sp,#0x10
+INSN 08013002 fff7b3ff bl 0x08012f6c REF[UNCONDITIONAL_CALL:08012f6c]
+INSN 08013006 0021 movs r1,#0x0
+INSN 08013008 8842 cmp r0,r1
+INSN 0801300a 06d0 beq 0x0801301a REF[CONDITIONAL_JUMP:0801301a]
+INSN 0801300c 0096 str r6,[sp,#0x0] REF[WRITE:Stack[-0x1a8]]
+INSN 0801300e 2000 movs r0,r4
+INSN 08013010 3a68 ldr r2,[r7,#0x0]
+INSN 08013012 04ab add r3,sp,#0x10
+INSN 08013014 fff7aaff bl 0x08012f6c REF[UNCONDITIONAL_CALL:08012f6c]
+INSN 08013018 0100 movs r1,r0
+INSN 0801301a 0120 movs r0,#0x1
+INSN 0801301c 3388 ldrh r3,[r6,#0x0] REF[READ:Stack[-0x19a]]
+INSN 0801301e 0840 ands r0,r1
+INSN 08013020 2b80 strh r3,[r5,#0x0]
+INSN 08013022 65b0 add sp,#0x194
+INSN 08013024 f0bd pop {r4,r5,r6,r7,pc}

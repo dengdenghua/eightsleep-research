@@ -1,0 +1,78 @@
+{
+  "scope": "managed application lifecycle only",
+  "contracts": [
+    {
+      "id": "queue_owner",
+      "owner": "individual FirmnessReadyState",
+      "on_new_ready": "new empty queue, no transfer",
+      "persistence": "none at MakeRequest"
+    },
+    {
+      "id": "handoff",
+      "order": [
+        "drain selected requests",
+        "await per-ready deviceWriteLock",
+        "handedOff=true",
+        "release lock",
+        "construct Calibrating"
+      ],
+      "scope": "work executed through RunDeviceWrite, not all ordinary Send calls"
+    },
+    {
+      "id": "cancel_calibration",
+      "order": [
+        "cancelRequested=true",
+        "return lastStatus"
+      ],
+      "not_proven": [
+        "inflight send cancelled",
+        "MCU action stopped",
+        "pending calibration removed"
+      ]
+    },
+    {
+      "id": "disable",
+      "order": [
+        "UpdateConfiguration Enabled=false",
+        "stateDict side=Null",
+        "side CTS.Cancel"
+      ],
+      "join_in_method": false,
+      "save_exception": "RAM assignment may already occur; reset/cancel not reached"
+    },
+    {
+      "id": "ready_exit",
+      "order": [
+        "await monitor",
+        "ThrowIfCancellationRequested",
+        "if explicit next state return it",
+        "otherwise await Close(None) on link/fallback"
+      ],
+      "event_only": "non-Firmware link event sets TCS; no immediate in-flight RunTick cancellation"
+    },
+    {
+      "id": "host_reconcile",
+      "rule": "keep local Null; otherwise prefer public Null only when current side CTS is cancelled"
+    },
+    {
+      "id": "reconnect",
+      "source": "current singleton Configuration RAM in same process",
+      "file_read": "manager construction from /persistent/R12.json",
+      "not_transferred": [
+        "old queue",
+        "old Ready telemetry cache",
+        "old semaphore"
+      ]
+    },
+    {
+      "id": "calibration_finalize",
+      "normal_order": [
+        "await action batch",
+        "finalization/record",
+        "stateMachine=null",
+        "new Ready if no pending link change"
+      ],
+      "abandon": "await cleanup with independent cancellation budget; no strict physical stop guarantee"
+    }
+  ]
+}

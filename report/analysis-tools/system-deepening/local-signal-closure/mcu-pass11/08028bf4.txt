@@ -1,0 +1,113 @@
+TARGET 08028bf4 function=08028bf4
+REF_TO 08028c94 UNCONDITIONAL_CALL owner=08028c88
+REF_TO 080207be UNCONDITIONAL_CALL owner=none
+REF_TO 080207ce UNCONDITIONAL_CALL owner=none
+REF_TO 080207de UNCONDITIONAL_CALL owner=none
+REF_TO 08020834 UNCONDITIONAL_CALL owner=none
+REF_TO 08020844 UNCONDITIONAL_CALL owner=none
+REF_TO 08020854 UNCONDITIONAL_CALL owner=none
+FUNCTION_BODY [[08028bf4, 08028c7f]]
+
+undefined4 FUN_08028bf4(int param_1,int param_2)
+
+{
+  undefined4 uVar1;
+  int iVar2;
+  int iVar3;
+  int iVar4;
+  int iVar5;
+  undefined4 uVar6;
+  undefined4 uVar7;
+  int iVar8;
+  undefined4 local_1c [2];
+  
+  uVar6 = 0;
+  iVar8 = 0;
+  iVar4 = param_1 + param_2 * 0x14 + 0x40;
+  param_1 = param_1 + param_2 * 0x14;
+  iVar3 = *(int *)(param_1 + 0x4c);
+  iVar5 = *(int *)(param_1 + 0x50);
+  uVar7 = 0;
+  while ((iVar8 != iVar3 - iVar5 &&
+         (iVar2 = FUN_0801c44c(iVar4,local_1c), uVar1 = local_1c[0], iVar2 != 0))) {
+    iVar2 = FUN_080105b0(local_1c[0],0x40000000);
+    if ((iVar2 != 0) && (iVar2 = FUN_08010588(uVar1,0x42700000), iVar2 != 0)) {
+      uVar7 = FUN_0802d1cc(uVar7,uVar1);
+      uVar6 = FUN_0802d1cc(uVar6,0x3f800000);
+    }
+    FUN_0801c388(iVar4,local_1c);
+    iVar8 = iVar8 + 1;
+  }
+  iVar3 = FUN_0801059c(uVar6,0);
+  if (iVar3 == 0) {
+    uVar7 = 0xc2c80000;
+  }
+  else {
+    uVar7 = FUN_0802d4e0(uVar7,uVar6);
+  }
+  return uVar7;
+}
+
+
+INSN 08028bf4 1423 movs r3,#0x14
+INSN 08028bf6 5943 muls r1,r3
+INSN 08028bf8 0b00 movs r3,r1
+INSN 08028bfa f0b5 push {r4,r5,r6,r7,lr}
+INSN 08028bfc 0024 movs r4,#0x0
+INSN 08028bfe 0026 movs r6,#0x0
+INSN 08028c00 4033 adds r3,#0x40
+INSN 08028c02 c318 adds r3,r0,r3
+INSN 08028c04 85b0 sub sp,#0x14
+INSN 08028c06 4018 adds r0,r0,r1
+INSN 08028c08 c26c ldr r2,[r0,#0x4c]
+INSN 08028c0a 0093 str r3,[sp,#0x0] REF[WRITE:Stack[-0x28]]
+INSN 08028c0c 036d ldr r3,[r0,#0x50]
+INSN 08028c0e 251c adds r5,r4,#0x0
+INSN 08028c10 d31a subs r3,r2,r3
+INSN 08028c12 0193 str r3,[sp,#0x4] REF[WRITE:Stack[-0x24]]
+INSN 08028c14 019b ldr r3,[sp,#0x4] REF[READ:Stack[-0x24]]
+INSN 08028c16 9e42 cmp r6,r3
+INSN 08028c18 05d0 beq 0x08028c26 REF[CONDITIONAL_JUMP:08028c26]
+INSN 08028c1a 0098 ldr r0,[sp,#0x0] REF[READ:Stack[-0x28]]
+INSN 08028c1c 03a9 add r1,sp,#0xc
+INSN 08028c1e f3f715fc bl 0x0801c44c REF[UNCONDITIONAL_CALL:0801c44c]
+INSN 08028c22 0028 cmp r0,#0x0
+INSN 08028c24 08d1 bne 0x08028c38 REF[CONDITIONAL_JUMP:08028c38]
+INSN 08028c26 0021 movs r1,#0x0
+INSN 08028c28 201c adds r0,r4,#0x0
+INSN 08028c2a e7f7b7fc bl 0x0801059c REF[UNCONDITIONAL_CALL:0801059c]
+INSN 08028c2e 0028 cmp r0,#0x0
+INSN 08028c30 21d1 bne 0x08028c76 REF[CONDITIONAL_JUMP:08028c76]
+INSN 08028c32 1348 ldr r0,[0x08028c80] REF[READ:08028c80=c2c80000]
+INSN 08028c34 05b0 add sp,#0x14
+INSN 08028c36 f0bd pop {r4,r5,r6,r7,pc}
+INSN 08028c38 8021 movs r1,#0x80
+INSN 08028c3a 039f ldr r7,[sp,#0xc] REF[READ:Stack[-0x1c]]
+INSN 08028c3c c905 lsls r1,r1,#0x17
+INSN 08028c3e 381c adds r0,r7,#0x0
+INSN 08028c40 e7f7b6fc bl 0x080105b0 REF[UNCONDITIONAL_CALL:080105b0]
+INSN 08028c44 0028 cmp r0,#0x0
+INSN 08028c46 10d0 beq 0x08028c6a REF[CONDITIONAL_JUMP:08028c6a]
+INSN 08028c48 0e49 ldr r1,[0x08028c84] REF[READ:08028c84=42700000]
+INSN 08028c4a 381c adds r0,r7,#0x0
+INSN 08028c4c e7f79cfc bl 0x08010588 REF[UNCONDITIONAL_CALL:08010588]
+INSN 08028c50 0028 cmp r0,#0x0
+INSN 08028c52 0ad0 beq 0x08028c6a REF[CONDITIONAL_JUMP:08028c6a]
+INSN 08028c54 391c adds r1,r7,#0x0
+INSN 08028c56 281c adds r0,r5,#0x0
+INSN 08028c58 04f0b8fa bl 0x0802d1cc REF[UNCONDITIONAL_CALL:0802d1cc]
+INSN 08028c5c fe21 movs r1,#0xfe
+INSN 08028c5e 051c adds r5,r0,#0x0
+INSN 08028c60 8905 lsls r1,r1,#0x16
+INSN 08028c62 201c adds r0,r4,#0x0
+INSN 08028c64 04f0b2fa bl 0x0802d1cc REF[UNCONDITIONAL_CALL:0802d1cc]
+INSN 08028c68 041c adds r4,r0,#0x0
+INSN 08028c6a 0098 ldr r0,[sp,#0x0] REF[READ:Stack[-0x28]]
+INSN 08028c6c 03a9 add r1,sp,#0xc
+INSN 08028c6e f3f78bfb bl 0x0801c388 REF[UNCONDITIONAL_CALL:0801c388]
+INSN 08028c72 0136 adds r6,#0x1
+INSN 08028c74 cee7 b 0x08028c14 REF[UNCONDITIONAL_JUMP:08028c14]
+INSN 08028c76 211c adds r1,r4,#0x0
+INSN 08028c78 281c adds r0,r5,#0x0
+INSN 08028c7a 04f031fc bl 0x0802d4e0 REF[UNCONDITIONAL_CALL:0802d4e0]
+INSN 08028c7e d9e7 b 0x08028c34 REF[UNCONDITIONAL_JUMP:08028c34]

@@ -1,0 +1,31 @@
+TARGET 0800fdbe function=0800fdbe
+REF_TO 0801095e UNCONDITIONAL_CALL owner=080108d8
+FUNCTION_BODY [[0800fdbe, 0800fdd9]]
+
+void FUN_0800fdbe(void)
+
+{
+  int iVar1;
+  
+  iVar1 = DAT_0800fddc;
+  if (*(char *)(DAT_0800fddc + 0xe) == -0x56) {
+    FUN_0800fd54();
+    *(undefined1 *)(iVar1 + 0xe) = 0x55;
+    *(undefined1 *)(DAT_0800fdf4 + 0x29) = 1;
+  }
+  return;
+}
+
+
+INSN 0800fdbe 10b5 push {r4,lr}
+INSN 0800fdc0 064c ldr r4,[0x0800fddc] REF[READ:0800fddc=20007fd0]
+INSN 0800fdc2 a07b ldrb r0,[r4,#0xe] REF[READ:20007fde]
+INSN 0800fdc4 aa28 cmp r0,#0xaa
+INSN 0800fdc6 07d1 bne 0x0800fdd8 REF[CONDITIONAL_JUMP:0800fdd8]
+INSN 0800fdc8 fff7c4ff bl 0x0800fd54 REF[UNCONDITIONAL_CALL:0800fd54]
+INSN 0800fdcc 5520 movs r0,#0x55
+INSN 0800fdce a073 strb r0,[r4,#0xe] REF[WRITE:20007fde]
+INSN 0800fdd0 0120 movs r0,#0x1
+INSN 0800fdd2 0849 ldr r1,[0x0800fdf4] REF[READ:0800fdf4=20007ec8]
+INSN 0800fdd4 81f82900 strb.w r0,[r1,#0x29] REF[WRITE:20007ef1]
+INSN 0800fdd8 10bd pop {r4,pc}

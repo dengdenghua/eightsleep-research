@@ -1,0 +1,68 @@
+G0 USB：读取失败、旧值保留与正常恢复状态链
+日期：2026-11-08，Asia/Shanghai
+
+结论
+读取故障并不统一变成缺值。已闭合的三条规则分别是：
+• ADC接收CRC失败/无ready保留共享current；后续快照仍可带这些值。stop仅停采样回调，start清软件队列但不直接清current；全器件重初始化和普通start不是同一操作。
+• FDC测量超过29tick未完成，会结束该轮并尝试写芯片reset寄存器，但不清有效值缓存；getter到cache age>=5500才返回−1。真正调用08023d28才清整个FDC对象并重设缓存−1。
+• TMAG总线读取未成功时不调用传感回调；而总线成功、数据段CRC失败时仍推进两段流程。第一段失败/第二段成功可以得到旧T/X/Y加新Z，净CRC计数还可回到0；它不同于“整次读取全部丢弃”。0x39取缓存，没有逐段新鲜度或CRC有效位。
+这些是规范状态机及给定正常故障事件的离线结果，不是现场故障率、实机时序或安全利用证明。
+
+一、身份与范围
+仅USB G0原件 firmware-sensor-g0-usb.bbin，140828B，SHA-256 1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563，file_offset=GhidraVA−08010000。不与132896B nonUSB混用。未打开SignalHost工程、访问设备/账号/API或执行原厂程序。
+source/保留既有完整函数导出，REUSED_SOURCES.json记录出处及SHA；pass1..4为同一原件的只读noanalysis补充。pass2/0801a45c.txt为function=none，不当作无代码证明；pass4显式定义正常入口于临时只读会话后导出，工程改动丢弃。原件逐指令/直接BL/literal核验见BYTE_VALIDATION；完整行号索引见EVIDENCE_MAP。
+本轮不研究共享日志格式缓冲/重入、异常协议载荷、内存破坏或利用。main上下文中保留这些调用名字，不分析其专项行为。
+
+二、先区分I2C传输失败与传感数据CRC失败
+0801d128将请求入队；只有入队成功才把request+4设为0（pending），失败返回0，不假装请求执行成功。
+0801c52e启动底层读/写：底层调用返回非零才记录pending和起始timer；返回0时清当前请求指针、将该request+4置2。0801c688在main推进队列：
+  状态非零时，复制到request+4；仅状态==1且callback存在才调用callback；随后推进下一个排队请求。
+  状态仍0且elapsed<=10时继续等；elapsed>=11时置request+4=2，跳过传感callback并推进队列。
+  同步等待helper0801d5cc另有1000tick上限，仍pending时置2；不能把这与异步队列11tick合并成同一超时。
+因此“CRC回调已运行”和“I2C未完成/失败”是两类输入。底层硬件状态产生及实际何时轮到main由现场决定，本轮不将tick阈值替换为实测总线耗时。
+
+三、ADC：CRC/ready失败如何进入后续记录
+0801d228先设置SPI模式并执行同步传输；CRC开启时，对接收words滚动计算CRC，非零残余令错误总数+1、诊断dirty置1并返回失败。设备STATUS里的CRC_ERR另有含义，不能等同于该接收CRC残余。
+0801d7dc在这些分支不写destination：DRDY假、SPI/模式/接收CRC失败、ready mask=0。CRC通过且有ready时只覆盖对应通道，再备份32B；未ready通道保留。对象disabled时返回1但不改destination；同步计时age<8时直接复制对象backup到destination并返回1，age==8才进入正常读路径。
+当前每组8项共享current在SamplingState+dc0记录区，两个ADC对象及backup在其他偏移。080233f4把当时current复制到ADC队列，并每五次另存48B IMU，不检查本次DRDY/CRC或成功序号。故在本模型明确提供5次顺序callback、没有新的有效读数时，五份记录可全部沿用CRC失败前的current。没有据此推测实机必然重复五次。
+flags中的器件可用位不由每次读CRC失败清零；0802489c由初始化返回值决定ADC bit8/9，0802262c由IMU初始化返回决定bit12..15。flags并非每通道本次CRC有效标志。既有Frank缺可用位填sentinel逻辑不在本轮重新执行。
+
+四、stop、start、同步及全器件重初始化
+命令0x29的main 080211b6..080211c6：SamplingState.active=0；调用已安装的timer setter(0,0,0)；随后正常回复。这里没有08026722、memset current、IMU清值或队列清空。
+两个setter 0801a45c/0801cc04先经15db4关闭timer更新中断，并在相关通道未启用时清计数使能；再把采样callback换为08018bc8空函数且context=0，freq=0不重新配置/启动timer。结论限顺序执行、setter完成后的正常派发；不研究已进入的ISR或抢占交错。080233f4本身没有active检查，不能把模型的调度门控误称为callback内部guard。
+main 0x3c发送只看模式与ADC>=5、IMU>=1的队列数量，不额外看active。故stop后已经齐备的一批仍可被消费；小于门槛的残留也不会因stop自动消失。
+命令0x28→080268c8：08026722逐条pop两个软件队列至空；mod5=0；active=1；08026810同步/排空；安装callback233f4/requested500。未直接重置共享current、IMU读数或全部诊断计数。
+08026810读入栈上临时数组排空ADC，随后重启两个backup窗口timer；该过程中ADC对象backup可以改变，但全局current不是该临时读取的destination。后续主循环才可能把backup复制到current。有限模型不运行真实同步/排空硬件，因此只断言start本身不清current，不能把旧值延续次数当作固定8ms内必有多少样本。
+周期同步只调用26810，保留软件队列与mod5；gain-dirty处理进入后无论PGA写入结果如何都会flush并sync，这一结论复用既有FRONTEND_DSP，不重复追日志路径。
+真正27008器件重初始化先保存active、置active0并停setter，随后按模式初始化各器件。ADC init1dab8清其200B对象（包括backup），IMU init219d0清相应对象；这并非清整个SamplingState/current区域。2489c还保存/恢复ADC接收CRC累计字段，再写可用位。27008末尾恢复请求gain；原active非零才调用268c8重新启动并清队列，原本停止则不走该start清队列分支。恢复后的current何时被新backup/新读取覆盖，依赖随后调度与实际器件返回。
+
+五、FDC：测量超时与缓存失效分开
+使用080240e4的对象基址A。enabled=A+8；四通道完成标志A+c8；测量组timer=A+218。未完成时若timer未运行则启动；elapsed>29时：清A+ac四字节测量标志和A+42两字节目标配置，停止测量相关计时，调用0801e07c维护配置；只有该维护返回就绪才通过0801df2a发reg0c=8000。函数返回done=1供聚合主循环推进。
+这不是无条件执行芯片reset，更不是调用08023d28重建软件对象。超时分支不覆写A+118等有效值缓存、不更新时间戳。若A+c8已经是完成，函数绕过该未完成超时分支，可处理完整缓存；所以不能写“超过30tick的数据一律丢弃”。
+1e07c内部在转换开始后先等至少10tick，轮询完成状态并逐通道读取；1df84只有成功I2C回调才合并寄存器并增加完成计数，第四通道完成会置A+c8。传输失败跳过callback时不能自行推定形成新四通道值。
+22694每通道getter仅age<5500时返回最后有效cache，否则−1。故最近一次有效值为12.5/tick0、tick30测量超时的有限事件例中，tick5499仍12.5，tick5500为−1；随后完整有效测量可立即更新并恢复。具体输出时刻仍受500tick发送定时器和main推进影响，模型没有伪造一个必然在5499发出的实机包。
+grace启用后保留旧cache；elapsed4999还保留，5000退出grace并在当前corrected有效时刷新。当前值无效则保留此前cache及其原时间；它最终仍受5500年龄门槛约束。CAPDAC>24的周期调节设回4并启动grace，不等于芯片reset。
+23d28是不同层次：memset整个428B对象，设驱动disabled、四个原值与全部有效cache为−1、CAPDAC=4、重新配置及验证器件。成功才enabled；失败也不会复活已清除旧cache。2572c即使单次测量pending/timeout也继续检查输出定时器，从getter取得当时值/−1并形成规范33/44；cached status另受30000tick检查，不与每次新读或每次超时绑定。
+
+六、TMAG：两段CRC、ready和重新请求
+231f0每段校验6B数据+CRC。通过则覆盖该段缓存，net_error+70非零时减1；失败则不改该段，net_error+70和total_error+6c各加1、dirty+69=1。第一段reg10无论校验结果都请求reg16；第二段完成无论校验结果都置ready+60=1并更新last_completion timer+48。
+reg10的6B包含T、X、Y；reg16的6B含Z与状态等。因此给定先前缓存(T25/X10/Y−10/Z5)，第一段CRC失败而第二段成功带新Z10，worker能得到(T25/X10/Y−10/Z10)。初始净计数0时失败+1、成功−1又为0，但总失败数为1。净计数不是“自上次健康检查以来有几次失败”，成功也不是把它直接清零。
+29574先要求enabled及两个请求状态均非零；任一pending0时立即返回，尚不到重请求timer判断。请求timer age>2000先更新timer并发reg10，然后返回；age==2000不触发。若未到重请求且ready=0，保留转换后的+74/+78/+7c/+80。ready=1则用当前两段cache换算并清ready，无需两段在同一轮均成功。状态寄存器valid/diagnostic位参与描述日志，没有阻止这次数值写入。
+总线状态2使请求不再pending，因此后续worker可以进入周期重请求；但该失败本身没有sensor callback，不会设置本轮ready或新last_completion。相反，两段都“总线成功但CRC不通过”仍会更新last_completion。这两种失败不能用同一“最后成功时间”概念解释。
+main39对XYZ只看TMAG enabled；对温度只看独立TMP enabled，取各自缓存。故未disable时上述缓存组合进入规范19/36B字段，包中没有这次CRC/ready序号。另有独立诊断计数/dirty路径，不据此声称整个设备永不上报CRC错误，也不能将独立诊断自动配给每条39。
+
+七、TMP：未完成读数不自动过期成−1
+22e90初始化温度−100、enabled0，完成设备配置才enabled1。22948异步请求reg0；22d14仅在成功回调时换算并更新+5c温度、+4c timer。总线失败/超时不调用该callback，因此旧温度及其timer不更新。
+294b0在enabled且两个请求非pending时检查：age>10000触发reg0；系统tick<2000时另外使用age>250启动早期读取。未到阈值不意味着清cache，失败后的旧cache没有FDC式的5500失效getter。39在TMP enabled时继续取+5c，disabled时才写−1.0；enabled而尚未成功测温可仍是初始化−100。不能把超10,000tick称为“温度数据强制作废”。
+
+八、全局故障评估与reset入口
+2694c仅在当前alert与上次报告不同，或评估timer elapsed>=300000时继续；其他main调用直接返回。它会尝试重新初始化“预期存在但未enabled”的ADC/IMU，再汇总设备状态。ADC/IMU soft-reset计数>25会置升级处理标志；有计数且当前状态good时只减1。具体状态来源及所有硬件错误组合未在有限模型全覆盖。
+TMAG评估仅在其模式门控启用、对应side条件满足时检查第一对象：未enabled、last_completion age>59999、net_error>4，任一成立为bad。注意这里last_completion是第二段callback到达计时，不等于两段都CRC通过。bad会增加group+248评估失败计数（若该字段不是ffff特殊值）；good不使该计数下降。达到>=2时224f0清第一TMAG及第一TMP enabled，并标记相关状态；2692c是设置alert bit20和提示需要hub reset，不是直接执行硬件reset。
+2694c最后还区分板型/本地side/复位限制，排除bit20，必要时排除已禁用TMAG的bit8；若剩余可恢复故障位存在且未禁复位、冷却条件满足才返回true。已经进入复位冷却时需elapsed>299999。故不能从net_error==5直接推出马上断电重启。
+main接受该返回后调用28ec4。该函数排空相关I2C等待队列并清一组器件enabled，再进入板级电源/clockgen请求流程；这不是排空ADC/IMU采样队列，也未证明队列之外的进行中总线事务同时终止。main用state1/2/3/4等待REQ/ACK、电源等待及恢复；clockgen请求或恢复等待>59999时标记超时并回state0，不能说每次复位必能完成。
+完成相应电源/clockgen条件后main→27008。该函数重新初始化FDC/TMP/TMAG及模式所需ADC/IMU，恢复gain，按原active选择是否start；结果再更新alert。已保留全部上下文，但未模拟实际电源线、clockgen响应或任一板型全路径组合。
+
+九、有限模型与证据边界
+MODEL_RESULTS：30个顺序正常故障/恢复场景，3个产物；可复跑model/recovery_contracts.py。包括I2C10/11tick、CRC失败后五个明确提供的快照、stop残批消费、start清队列但current保留、同步窗口7/8、FDC29/30与5499/5500及grace4999/5000、TMAG旧新片段组合/净计数、两个健康检查阈值及300000tick入口门控。
+输入CRC/总线结果是正常故障事件的显式布尔条件，不生成畸形包；两个39产物仍是规范19B布局。模型不执行固件、不模拟抢占、没有个人传感数据，也不计算实际发生率。
+精确尚缺：当前机器板型/部署及启用组合，实际ADC/IMU/磁传感回调时序和物理连线，clockgen/电源状态的现场反馈，全底层硬件错误码到IRQ的所有组合。已有正常缓存/恢复合同已落证，不能把这些未知反过来写成“恢复必成功”或“旧值一定持续多少秒”。

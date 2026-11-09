@@ -1,0 +1,882 @@
+{
+  "scope": "local boundary models, not complete firmware nor physical simulation",
+  "case_count": 73,
+  "all_passed": true,
+  "cases": [
+    {
+      "name": "water_age_0",
+      "inputs": {
+        "age_ms": 0,
+        "successful": true
+      },
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "water_age_4999",
+      "inputs": {
+        "age_ms": 4999,
+        "successful": true
+      },
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "water_age_5000",
+      "inputs": {
+        "age_ms": 5000,
+        "successful": true
+      },
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "water_age_5001",
+      "inputs": {
+        "age_ms": 5001,
+        "successful": true
+      },
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "success_flag_missing",
+      "inputs": {},
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "uint32_clock_wrap",
+      "inputs": {
+        "now": 100,
+        "last": 4294967040
+      },
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "clock_backwards",
+      "inputs": {
+        "now": 99,
+        "last": 100
+      },
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "pid_preserves_water_valid",
+      "inputs": {
+        "water_valid": false
+      },
+      "actual": {
+        "demand": 0.6000000238418579,
+        "pid_executed": false,
+        "tec_set_called": false
+      },
+      "expected": {
+        "demand": 0.6000000238418579,
+        "pid_executed": false,
+        "tec_set_called": false
+      }
+    },
+    {
+      "name": "pid_preserves_due",
+      "inputs": {
+        "due": false
+      },
+      "actual": {
+        "demand": 0.6000000238418579,
+        "pid_executed": false,
+        "tec_set_called": false
+      },
+      "expected": {
+        "demand": 0.6000000238418579,
+        "pid_executed": false,
+        "tec_set_called": false
+      }
+    },
+    {
+      "name": "pid_preserves_enabled",
+      "inputs": {
+        "enabled": false
+      },
+      "actual": {
+        "demand": 0.6000000238418579,
+        "pid_executed": false,
+        "tec_set_called": false
+      },
+      "expected": {
+        "demand": 0.6000000238418579,
+        "pid_executed": false,
+        "tec_set_called": false
+      }
+    },
+    {
+      "name": "ambient_boundary",
+      "inputs": {
+        "delta": 3.999999761581421,
+        "demand": -1
+      },
+      "actual": -0.800000011920929,
+      "expected": -0.800000011920929
+    },
+    {
+      "name": "ambient_boundary",
+      "inputs": {
+        "delta": 3.999999761581421,
+        "demand": 1
+      },
+      "actual": 0.800000011920929,
+      "expected": 0.800000011920929
+    },
+    {
+      "name": "ambient_boundary",
+      "inputs": {
+        "delta": 4,
+        "demand": -1
+      },
+      "actual": -0.800000011920929,
+      "expected": -0.800000011920929
+    },
+    {
+      "name": "ambient_boundary",
+      "inputs": {
+        "delta": 4,
+        "demand": 1
+      },
+      "actual": 0.800000011920929,
+      "expected": 0.800000011920929
+    },
+    {
+      "name": "ambient_boundary",
+      "inputs": {
+        "delta": 4.000000476837158,
+        "demand": -1
+      },
+      "actual": -1.0,
+      "expected": -1.0
+    },
+    {
+      "name": "ambient_boundary",
+      "inputs": {
+        "delta": 4.000000476837158,
+        "demand": 1
+      },
+      "actual": 0.800000011920929,
+      "expected": 0.800000011920929
+    },
+    {
+      "name": "ambient_invalid_local_only",
+      "inputs": {},
+      "actual": 1.0,
+      "expected": 1
+    },
+    {
+      "name": "ambient_disabled",
+      "inputs": {},
+      "actual": -1.0,
+      "expected": -1
+    },
+    {
+      "name": "target_change_strict_5",
+      "inputs": {
+        "old": 0,
+        "new": 5,
+        "water": 2
+      },
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "target_change_strict_5",
+      "inputs": {
+        "old": 0,
+        "new": 5.000000476837158,
+        "water": 2
+      },
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "touching_water_not_crossing",
+      "inputs": {},
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "water_expired_block_guard",
+      "inputs": {
+        "water_valid": false,
+        "block": 10.999999046325684
+      },
+      "actual": 7,
+      "expected": 7
+    },
+    {
+      "name": "water_expired_block_guard",
+      "inputs": {
+        "water_valid": false,
+        "block": 11
+      },
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "water_expired_block_guard",
+      "inputs": {
+        "water_valid": false,
+        "block": 13.999999046325684
+      },
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "water_expired_block_guard",
+      "inputs": {
+        "water_valid": false,
+        "block": 14
+      },
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "water_expired_block_guard",
+      "inputs": {
+        "water_valid": false,
+        "block": 50
+      },
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "water_expired_block_guard",
+      "inputs": {
+        "water_valid": false,
+        "block": 50.000003814697266
+      },
+      "actual": 9,
+      "expected": 9
+    },
+    {
+      "name": "both_sensors_invalid",
+      "inputs": {},
+      "actual": 1,
+      "expected": 1
+    },
+    {
+      "name": "cold_delta_equal_5",
+      "inputs": {},
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "cold_delta_over_5",
+      "inputs": {},
+      "actual": 8,
+      "expected": 8
+    },
+    {
+      "name": "overtemp_hysteresis",
+      "inputs": {
+        "old": false,
+        "temperature": 60
+      },
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "overtemp_hysteresis",
+      "inputs": {
+        "old": false,
+        "temperature": 65
+      },
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "overtemp_hysteresis",
+      "inputs": {
+        "old": false,
+        "temperature": 65.00000762939453
+      },
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "overtemp_hysteresis",
+      "inputs": {
+        "old": true,
+        "temperature": 60
+      },
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "overtemp_hysteresis",
+      "inputs": {
+        "old": true,
+        "temperature": 65
+      },
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "overtemp_hysteresis",
+      "inputs": {
+        "old": true,
+        "temperature": 65.00000762939453
+      },
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "reversal_no_pwm_through_1099",
+      "inputs": [
+        {
+          "now_ms": 0,
+          "mode": "reversal",
+          "direction": 0,
+          "pending_direction": 1,
+          "pwm": 0,
+          "ramp": 0,
+          "enabled": false,
+          "switched_at": 0,
+          "wait_ms": 1000,
+          "step": 0.001
+        },
+        {
+          "now_ms": 499,
+          "mode": "reversal",
+          "direction": 0,
+          "pending_direction": 1,
+          "pwm": 0,
+          "ramp": 0,
+          "enabled": false,
+          "switched_at": 0,
+          "wait_ms": 1000,
+          "step": 0.001
+        },
+        {
+          "now_ms": 500,
+          "mode": "reversal",
+          "direction": 0,
+          "pending_direction": 1,
+          "pwm": 0,
+          "ramp": 0,
+          "enabled": true,
+          "switched_at": 0,
+          "wait_ms": 1000,
+          "step": 0.001
+        },
+        {
+          "now_ms": 999,
+          "mode": "reversal",
+          "direction": 0,
+          "pending_direction": 1,
+          "pwm": 0,
+          "ramp": 0,
+          "enabled": true,
+          "switched_at": 0,
+          "wait_ms": 1000,
+          "step": 0.001
+        },
+        {
+          "now_ms": 1000,
+          "mode": "normal",
+          "direction": 1,
+          "pending_direction": 1,
+          "pwm": 0,
+          "ramp": 0,
+          "enabled": true,
+          "switched_at": 0,
+          "wait_ms": 1000,
+          "step": 0.001
+        },
+        {
+          "now_ms": 1099,
+          "mode": "normal",
+          "direction": 1,
+          "pending_direction": 1,
+          "pwm": 0,
+          "ramp": 0,
+          "enabled": true,
+          "switched_at": 0,
+          "wait_ms": 1000,
+          "step": 0.001
+        },
+        {
+          "now_ms": 1100,
+          "mode": "normal",
+          "direction": 1,
+          "pending_direction": 1,
+          "pwm": 0.0010000000474974513,
+          "ramp": 0.0010000000474974513,
+          "enabled": true,
+          "switched_at": 0,
+          "wait_ms": 1000,
+          "step": 0.001
+        }
+      ],
+      "actual": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "reversal_enables_at_500",
+      "inputs": {},
+      "actual": [
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "expected": [
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "name": "reversal_ramp_next_normal_tick",
+      "inputs": {},
+      "actual": 0.0010000000474974513,
+      "expected": 0.0010000000474974513
+    },
+    {
+      "name": "safety_precedes_direction",
+      "inputs": {},
+      "actual": [
+        "protected",
+        0,
+        false
+      ],
+      "expected": [
+        "protected",
+        0,
+        false
+      ]
+    },
+    {
+      "name": "downward_request_no_ramp_delay",
+      "inputs": {},
+      "actual": 0.10000000149011612,
+      "expected": 0.10000000149011612
+    },
+    {
+      "name": "fill_duty",
+      "inputs": {
+        "level": 12.5
+      },
+      "actual": 0.0,
+      "expected": 0.0
+    },
+    {
+      "name": "fill_duty",
+      "inputs": {
+        "level": 25
+      },
+      "actual": 1.0,
+      "expected": 1.0
+    },
+    {
+      "name": "fill_duty",
+      "inputs": {
+        "level": 50
+      },
+      "actual": 1.0,
+      "expected": 1.0
+    },
+    {
+      "name": "fill_duty",
+      "inputs": {
+        "level": 75
+      },
+      "actual": 0.550000011920929,
+      "expected": 0.550000011920929
+    },
+    {
+      "name": "fill_duty",
+      "inputs": {
+        "level": 100
+      },
+      "actual": 0.10000000149011612,
+      "expected": 0.10000000149011612
+    },
+    {
+      "name": "disabled_side_pump_off",
+      "inputs": {},
+      "actual": 0.0,
+      "expected": 0
+    },
+    {
+      "name": "fill_three_samples",
+      "inputs": {
+        "raw": [
+          49.9,
+          49.9
+        ],
+        "samples": 3
+      },
+      "actual": "FILL",
+      "expected": "FILL"
+    },
+    {
+      "name": "fill_three_samples",
+      "inputs": {
+        "raw": [
+          50,
+          50
+        ],
+        "samples": 3
+      },
+      "actual": "RED",
+      "expected": "RED"
+    },
+    {
+      "name": "fill_three_samples",
+      "inputs": {
+        "raw": [
+          100,
+          25
+        ],
+        "samples": 3
+      },
+      "actual": "RED",
+      "expected": "RED"
+    },
+    {
+      "name": "fill_three_samples",
+      "inputs": {
+        "raw": [
+          100,
+          24.9
+        ],
+        "samples": 3
+      },
+      "actual": "FILL",
+      "expected": "FILL"
+    },
+    {
+      "name": "fill_before_600",
+      "inputs": {},
+      "actual": [
+        "FILL",
+        400
+      ],
+      "expected": [
+        "FILL",
+        400
+      ]
+    },
+    {
+      "name": "fill_resets_on_drop",
+      "inputs": {},
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "fill_no_increment_not_due",
+      "inputs": {},
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "fill_entry_raw_not_average",
+      "inputs": {
+        "raw": [
+          50,
+          50
+        ],
+        "average": [
+          10,
+          10
+        ]
+      },
+      "actual": "RED",
+      "expected": "RED"
+    },
+    {
+      "name": "WAIT_CAP_threshold",
+      "inputs": {
+        "average": 18.749998092651367,
+        "samples": 15
+      },
+      "actual": "FILL",
+      "expected": "FILL"
+    },
+    {
+      "name": "WAIT_CAP_threshold",
+      "inputs": {
+        "average": 18.75,
+        "samples": 15
+      },
+      "actual": "WAIT_CAP",
+      "expected": "WAIT_CAP"
+    },
+    {
+      "name": "WAIT_CAP_threshold",
+      "inputs": {
+        "average": 18.750001907348633,
+        "samples": 15
+      },
+      "actual": "WAIT_CAP",
+      "expected": "WAIT_CAP"
+    },
+    {
+      "name": "WAIT_CAP_one_sample_early",
+      "inputs": {},
+      "actual": "WAIT_CAP",
+      "expected": "WAIT_CAP"
+    },
+    {
+      "name": "WAIT_CAP_counter_reset",
+      "inputs": {},
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "FLUSH_threshold",
+      "inputs": {
+        "average": 12.499999046325684,
+        "samples": 10
+      },
+      "actual": "FILL",
+      "expected": "FILL"
+    },
+    {
+      "name": "FLUSH_threshold",
+      "inputs": {
+        "average": 12.5,
+        "samples": 10
+      },
+      "actual": "FILL",
+      "expected": "FILL"
+    },
+    {
+      "name": "FLUSH_threshold",
+      "inputs": {
+        "average": 12.500000953674316,
+        "samples": 10
+      },
+      "actual": "FLUSH",
+      "expected": "FLUSH"
+    },
+    {
+      "name": "FLUSH_one_sample_early",
+      "inputs": {},
+      "actual": "FLUSH",
+      "expected": "FLUSH"
+    },
+    {
+      "name": "FLUSH_counter_reset",
+      "inputs": {},
+      "actual": 0,
+      "expected": 0
+    },
+    {
+      "name": "wait_cap_alternating_low_side_shared_counter",
+      "inputs": {},
+      "actual": [
+        "FILL",
+        3000,
+        2
+      ],
+      "expected": [
+        "FILL",
+        3000,
+        2
+      ]
+    },
+    {
+      "name": "wait_cap_to_fill_must_accumulate_again",
+      "inputs": {},
+      "actual": [
+        "FILL",
+        200,
+        3000
+      ],
+      "expected": [
+        "FILL",
+        200,
+        3000
+      ]
+    },
+    {
+      "name": "flush_return_preserves_primed_bits",
+      "inputs": {},
+      "actual": [
+        "FILL",
+        0,
+        3
+      ],
+      "expected": [
+        "FILL",
+        0,
+        3
+      ]
+    },
+    {
+      "name": "flush_to_fill_must_accumulate_again",
+      "inputs": {},
+      "actual": [
+        "FILL",
+        200
+      ],
+      "expected": [
+        "FILL",
+        200
+      ]
+    },
+    {
+      "name": "already_primed_wait_entry_clears_both_counters",
+      "inputs": {},
+      "actual": [
+        "WAIT_CAP",
+        0,
+        0
+      ],
+      "expected": [
+        "WAIT_CAP",
+        0,
+        0
+      ]
+    },
+    {
+      "name": "final_flush_37_5",
+      "inputs": {
+        "minimum_average": 37.499996185302734
+      },
+      "actual": false,
+      "expected": false
+    },
+    {
+      "name": "final_flush_37_5",
+      "inputs": {
+        "minimum_average": 37.5
+      },
+      "actual": true,
+      "expected": true
+    },
+    {
+      "name": "final_flush_37_5",
+      "inputs": {
+        "minimum_average": 37.500003814697266
+      },
+      "actual": true,
+      "expected": true
+    }
+  ],
+  "reversal_trace": [
+    {
+      "now_ms": 0,
+      "mode": "reversal",
+      "direction": 0,
+      "pending_direction": 1,
+      "pwm": 0,
+      "ramp": 0,
+      "enabled": false,
+      "switched_at": 0,
+      "wait_ms": 1000,
+      "step": 0.001
+    },
+    {
+      "now_ms": 499,
+      "mode": "reversal",
+      "direction": 0,
+      "pending_direction": 1,
+      "pwm": 0,
+      "ramp": 0,
+      "enabled": false,
+      "switched_at": 0,
+      "wait_ms": 1000,
+      "step": 0.001
+    },
+    {
+      "now_ms": 500,
+      "mode": "reversal",
+      "direction": 0,
+      "pending_direction": 1,
+      "pwm": 0,
+      "ramp": 0,
+      "enabled": true,
+      "switched_at": 0,
+      "wait_ms": 1000,
+      "step": 0.001
+    },
+    {
+      "now_ms": 999,
+      "mode": "reversal",
+      "direction": 0,
+      "pending_direction": 1,
+      "pwm": 0,
+      "ramp": 0,
+      "enabled": true,
+      "switched_at": 0,
+      "wait_ms": 1000,
+      "step": 0.001
+    },
+    {
+      "now_ms": 1000,
+      "mode": "normal",
+      "direction": 1,
+      "pending_direction": 1,
+      "pwm": 0,
+      "ramp": 0,
+      "enabled": true,
+      "switched_at": 0,
+      "wait_ms": 1000,
+      "step": 0.001
+    },
+    {
+      "now_ms": 1099,
+      "mode": "normal",
+      "direction": 1,
+      "pending_direction": 1,
+      "pwm": 0,
+      "ramp": 0,
+      "enabled": true,
+      "switched_at": 0,
+      "wait_ms": 1000,
+      "step": 0.001
+    },
+    {
+      "now_ms": 1100,
+      "mode": "normal",
+      "direction": 1,
+      "pending_direction": 1,
+      "pwm": 0.0010000000474974513,
+      "ramp": 0.0010000000474974513,
+      "enabled": true,
+      "switched_at": 0,
+      "wait_ms": 1000,
+      "step": 0.001
+    }
+  ],
+  "assumptions": [
+    "finite float32 inputs; previous safety gates/range checks pass unless explicitly injected",
+    "PID output after cooling limiter supplied, not whole PID/cooling stall model",
+    "priming due calls each represent firmware +200 counter; not measured elapsed time",
+    "priming averages supplied; full rolling-average, RED stability and pump diagnosis not simulated",
+    "TEC protected recovery and current self-test outside this model; no physical temperature predictions"
+  ]
+}

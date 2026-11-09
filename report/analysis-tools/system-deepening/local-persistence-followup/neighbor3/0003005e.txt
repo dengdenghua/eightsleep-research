@@ -1,0 +1,42 @@
+TARGET 0003005e function=0003005e
+FUNCTION_BODY [[0003005e, 00030083]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void analyst_selected_0003005e(void)
+
+{
+  int *piVar1;
+  ushort uVar2;
+  ushort uVar3;
+  int iVar4;
+  undefined4 uStack00000000;
+  
+  iVar4 = *_DAT_00030088;
+  piVar1 = (int *)(_DAT_00030084 + 4);
+  uVar2 = *(ushort *)(_DAT_00030088 + 1);
+  uVar3 = *(ushort *)(*piVar1 + 2);
+  *_DAT_00030084 = 3;
+  uStack00000000 = 0;
+  candidate_000326c0(_DAT_0003008c,iVar4 + (uint)uVar2 * 4,*piVar1,(uVar3 + 3 & 0xffff) << 2);
+  return;
+}
+
+
+INSN 0003005e 0a49 ldr r1,[0x00030088] REF[READ:00030088=200036d4]
+INSN 00030060 0848 ldr r0,[0x00030084] REF[READ:00030084=20005760]
+INSN 00030062 0324 movs r4,#0x3
+INSN 00030064 0b68 ldr r3,[r1,#0x0]
+INSN 00030066 4268 ldr r2,[r0,#0x4]
+INSN 00030068 8988 ldrh r1,[r1,#0x4]
+INSN 0003006a 03eb8101 add.w r1,r3,r1, lsl #0x2
+INSN 0003006e 5388 ldrh r3,[r2,#0x2]
+INSN 00030070 0470 strb r4,[r0,#0x0]
+INSN 00030072 db1c adds r3,r3,#0x3
+INSN 00030074 0020 movs r0,#0x0
+INSN 00030076 1b04 lsls r3,r3,#0x10
+INSN 00030078 0090 str r0,[sp,#0x0]
+INSN 0003007a 9b0b lsrs r3,r3,#0xe
+INSN 0003007c 0348 ldr r0,[0x0003008c] REF[READ:0003008c=20003758]
+INSN 0003007e 02f01ffb bl 0x000326c0 REF[UNCONDITIONAL_CALL:000326c0]
+INSN 00030082 38bd pop {r3,r4,r5,pc}

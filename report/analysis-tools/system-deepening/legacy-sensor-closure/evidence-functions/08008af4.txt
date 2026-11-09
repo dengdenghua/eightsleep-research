@@ -1,0 +1,46 @@
+FUNCTION 08008af4 FUN_08008af4 BODY [[08008af4, 08008b1d]]
+INCOMING 0800b1e8 UNCONDITIONAL_CALL
+INCOMING 0800b1de UNCONDITIONAL_CALL
+INCOMING 0800b1d4 UNCONDITIONAL_CALL
+INCOMING 0800b1ca UNCONDITIONAL_CALL
+INCOMING 0800b1c0 UNCONDITIONAL_CALL
+
+void __stdcall_softfp FUN_08008af4(int param_1)
+
+{
+  int iVar1;
+  code *pcVar2;
+  
+  param_1 = param_1 * 8;
+  iVar1 = *(int *)(&DAT_0800f454 + param_1);
+  if (((*(ushort *)(iVar1 + 0x10) & 1) != 0) && ((*(ushort *)(iVar1 + 0xc) & 1) != 0)) {
+    pcVar2 = *(code **)(&DAT_200014a4 + param_1);
+    *(undefined2 *)(iVar1 + 0x10) = 0xfffe;
+    (*pcVar2)(*(undefined4 *)(&DAT_200014a8 + param_1));
+  }
+  return;
+}
+
+
+ASSEMBLY
+08008af4 lsls r3,r0,#0x3 BYTES c300
+08008af6 movs r0,#0x1 BYTES 0120
+08008af8 push {r4,lr} BYTES 10b5
+08008afa ldr r2,[0x08008b20] BYTES 094a REF READ=08008b20 WORD=800f454
+08008afc ldr r2,[r2,r3] BYTES d258 REF DATA=0800f454 WORD=40012c00
+08008afe ldrh r4,[r2,#0x10] BYTES 148a
+08008b00 ldrh r1,[r2,#0xc] BYTES 9189
+08008b02 uxth r1,r1 BYTES 89b2
+08008b04 tst r4,r0 BYTES 0442
+08008b06 beq 0x08008b1c BYTES 09d0 REF CONDITIONAL_JUMP=08008b1c
+08008b08 tst r1,r0 BYTES 0142
+08008b0a beq 0x08008b1c BYTES 07d0 REF CONDITIONAL_JUMP=08008b1c
+08008b0c movs r1,#0x2 BYTES 0221
+08008b0e ldr r0,[0x08008b24] BYTES 0548 REF READ=08008b24 WORD=200014a4
+08008b10 rsbs r1,r1 BYTES 4942
+08008b12 adds r0,r0,r3 BYTES c018
+08008b14 ldr r3,[r0,#0x0] BYTES 0368 REF DATA=200014a4
+08008b16 strh r1,[r2,#0x10] BYTES 1182
+08008b18 ldr r0,[r0,#0x4] BYTES 4068 REF DATA=200014a8
+08008b1a blx r3 BYTES 9847
+08008b1c pop {r4,pc} BYTES 10bd

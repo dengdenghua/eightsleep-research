@@ -1,0 +1,93 @@
+传感 MCU 5.5.34.0：采样新鲜度、快照一致性与 ADC/IMU 排队审计
+样本 SHA256：1a125674542934f36266f88d9f8ca378a6a5ca696d9e58305d1b0e533f795563
+样本：mediatek/rootfs-selected/opt/eight/lib/subsystem_updates/firmware-sensor-g0-usb.bbin
+范围：本样本活动多路采集分支（包括 >=0xA00 Kxx），静态反汇编、既有 Ghidra 项目只读导出、离线队列模型。没有运行固件或测量实机。地址包含 BBIN 映射偏移，按现有项目 0x08010000 基址。
+
+一、结论
+
+0x3c 中的 500 是固件请求的定时快照速率和线上 rate 字段，不能作为“每秒每通道 500 个新转换”的证明。ADC 与 IMU 先在主循环中独立更新共享 cache，定时 IRQ 再复制当时 cache：每次 80B ADC 记录，每五次另复制 48B IMU。读取失败、无 DRDY、部分通道 ready、同步后的 8ms cache 窗口都可能令值延续；线上没有相应的每样本新鲜度/CRC/ready 标记。
+
+共享 cache 的逐通道更新没有整组 IRQ 临界区或双缓冲交换。若 timer IRQ 在写入中间到达，代码允许一个快照混合更新前后的通道或两组 ADC。独立 ADC/IMU 队列容量分别 30/12 条，满时各自丢弃新记录，消费者仅按 5:1 取数且不比较时间；某些积压交错允许 ADC/IMU 配对失配。这两点都是静态可达机制，没有据此估计发生率。
+
+二、从 DRDY 到线上数据的实际链
+
+1. 初始化和中断
+08027834 对 SamplingState 清零 0x10f0 字节；ADC 队列 capacity=30、element=80，IMU 队列 capacity=12、element=48。因此 current values 初始为零，不是故障 sentinel。SamplingState = SensorState + 0xB08。
+
+080268C8 启动：清两队列、mod5=0、active=1、调用 08026810 同步/排空，然后 installer(080233F5, state, 500)。Kxx installer 0801A45C/0801CC04 写全局回调与 context，再配置 timer。向量处理函数 0801BE30/0801BE54 先处理 timer，再调用该回调，证实这不是普通主循环函数。这里没有重新证明晶振精度/实际 IRQ 频率，更不能解决 ADC 时钟物理连线、Si5351 CLK7 reg92 R-divider 未知。
+
+2. ADC 主循环
+0801F198/0801F1D2 先调用 0801DD6C：执行维护并在设备 enabled 时调用 DRDY 谓词。0801D7DC 再检查 8ms cache 窗口和 DRDY；正常读取通过 0801D228 完成同步 SPI 和帧 CRC 后才写全局 ADC 值。板级 0801A134/0801A164 调 080158D4，后者轮询 SPI 状态直到完成或约定的 2ms timeout，不是“先提交 DMA、随后独立完成”的缓存生产链。
+
+0801D7DC 的返回值不能解释为八通道均新：
+  - disabled：返回 1，不改 destination。
+  - cache_window elapsed <8ms：复制 ADC 对象 +0x64 的 32B backup 到 destination，返回 1；主循环外层仍有 DRDY 检查。
+  - DRDY 假、SPI mode/transfer 失败、接收帧 CRC 失败、STATUS low8 ready mask=0：返回 0，destination 保留。
+  - CRC 通过且 ready mask 非零：只更新 ready bit 对应通道，其他通道保留；有任意 ready 即递增 read_count、重启成功计时、备份 32B 并返回 1。
+
+低八位 ready 来自 ADS STATUS（0x01），不是 0x3c header 的低八位。通道值由 signed24 乘软件 multiplier 后逐个 STR 写入固定 destination。调用者以 helper 成功清 +0xDB8/+0xDB9，IRQ 下次将它们累加到 stale_counter 后置 1；这些统计既没有逐通道语义，也不随 0x3c 上报。8ms cache replay/disabled/部分 ready 都能令这个成功标志归零。
+
+0801DD6C 的旧反编译错误推断 void；本审计采用 0801DE30..0801DE42 的 r0 返回和两个主循环 callsite 验证实际布尔用法。freshness/0801dd6c.txt 的只读返回类型修正仍有参数约定警告，不能把该警告当成程序本身的行为。
+
+3. IMU 主循环
+四个 LSM 对象依次维护；enabled 且外部 DRDY 谓词为真时，先重启 last_drdy，再调用 0801EF68 写各自 12B 全局 cache。主循环忽略函数返回的更新 mask。
+
+0801EF68 读 STATUS 0x1E，再用 SPI command 0xA2 从 0x22 起读 12B，直接读陀螺/加速度输出寄存器；本链没有取硬件 FIFO。STATUS bit0 XLDA 只更新 accel XYZ，bit1 GDA 只更新 gyro XYZ；未 ready 的三轴保持旧值。失败也不写 destination。函数将有效值 +32767 改为 +32766，再按 BE16 存储；它没有在错误时写 +32767。四个设备依次读取，48B cache 不保证同一硬件转换时刻。
+
+4. timer 快照及打包
+080233F4 更新本次 tick/两组 requested gain，复制 current 80B 到 ADC 软件队列；不检查 DRDY、stale_counter 或任何 SPI 完成序号。mod5 无论 ADC push 成败均前进；每第五次复制 current 48B IMU 到另一软件队列。
+
+0801F900..0801F9AA 要求 ADC 队列至少 5 条且 IMU 队列至少 1 条。它取第一条 ADC 的 tick，读取“此刻全局 flags”，写 rate=500；输出第一条的 16 值，再取四条只输出各 16 值，丢弃其 tick；最后取最旧 IMU 48B 附加。IMU 元素没有 tick，也没有与 ADC 比较 generation/time。80B 内两组 PGA 请求未输出，详见 frontend/FLAGS_ADDENDUM.txt。
+
+三、异常在该 0x3c 帧里能否分辨
+
+情形                         MCU 本链行为                         0x3c 可见边界
+无 ADC DRDY                  不更新共享 destination               值可能重复；没有本次缺 DRDY 标记
+ADC 接收帧 CRC/SPI 失败        保留共享值；另计数/日志               没有本次失败标记
+仅部分 ADC 通道 ready         部分覆盖，其余保留                   不发送 ready mask
+同步后 8ms cache window       replay ADC 对象 backup              不标 replay
+IMU 无 DRDY/读失败            保留 12B 或未 ready 的三轴            不发送更新 mask/IMU tick
+ADC/IMU queue full            各自 drop-newest，共享 overflow++     不发送 overflow 标记或序号
+5min sync                    pulse/drain/restart cache timers       不发显式 resync 标记
+器件 init/reinit availability flags 表示相关配置路径的结果           不能解释为该条新/CRC 已通过
+
+上表只说这一采集路径和 0x3c；不排除日志、独立诊断命令或其他协议包含统计。ADC STATUS 中 F_RESYNC/REG_MAP/CRC_ERR/RESET 的上升变化被日志/计数处理，但不附入本帧。尤其器件 STATUS.CRC_ERR 是输入 CRC fault，与 MCU 对接收帧做 CRC residual 检查失败应区分。
+
+flags bit8/9、12..15 是两 ADS/四 IMU 的可用结果，不是逐样本有效位；且 flags 不保存在队列记录中，而在消费时读取，积压数据可能配上较后状态。host 0027E7B0 根据缺失的可用位填 ADC 0x7fffffff、IMU 0x7fff（signal-host/timing/caller/0027e7b0.c）。这不能反推 MCU 每次 SPI/CRC/DRDY 故障都会发 sentinel。该帧本身也无法仅由数值相等区分静止信号与 cache replay。
+
+四、5min resync 与 8ms 窗口
+
+08026810 调板级 sync 回调、设置 2ms 软件计时与 300000ms 周期计时，反复以 0801D7DC 读入栈上临时数组直至无成功读取，随后重启两个 ADC 对象 +0x90 的 cache_window 计时。排空过程会改变 ADC 对象 backup，目的缓冲区却不是全局 current record；接下来的主循环才会在窗口内复制 backup。窗口与 DRDY 条件组合的实际重复次数未知。
+
+主循环周期分支 0801F2C4 只调 08026810，没有 08026722 flush，也没有 mod5=0 或停止 timer callback。因此定时排空期间可以继续快照先前全局值，已排队数据也仍保留。显式启动 080268C8 才另有 flush 与 phase reset。gain dirty 块另行 flush/sync 的成功/失败语义已在 FRONTEND_DSP_ZH.txt 修正，本报告不重复当作新发现。
+
+五、整组快照非原子：有界 IRQ 审阅
+
+main 0801F0D6 执行 cpsie i。已核对 main cache 更新前后、0801D7DC、SPI wrapper/080158D4、0801EF68、installer 及采样回调，未发现围绕共享 cache commit 的 cpsid/PRIMASK 临界区、序号锁或双缓冲交换。
+
+ADC 的具体 store 为 0801D934：str r3,[r0,r5]；loop 后才在 0801D904 复制 32B 到对象 backup。IRQ 的 08023456 调队列 push，后者 memcpy current 80B。故若中断到达在若干通道 STR 之后、其余 STR 之前，快照允许“这次新值 + 上次旧值”；在两组 ADC 之间也同理。IMU 逐轴 STRH、四对象顺序更新，同样没有整 48B 原子提交保证。
+
+DSB/DMB 用来约束内存操作完成/顺序，IRQ masking 则是另一个机制。看到屏障不能声称快照原子。这里没有推断单个对齐 word 被撕裂，也没有测得中断是否实际落入该窗口；结论是闭合代码链没有提供 16 值/48B 作为一代数据整体提交的保证。SPI 帧已先完整接收和 CRC 校验，并不能使之后的多条存储自动成为原子操作。
+
+六、独立软件队列允许失配：可复核反例
+
+0801C388 在 write-read==capacity 时返回 false，保留旧元素，丢弃新元素。ADC 的 30 条相当于 30 个 callback 间隔；IMU 的 12 条相当于 60 个 callback 间隔。两队列满条件和 push 结果独立。ADC 失败有“[sampling] overflow”日志，两者失败都累加同一个计数。
+
+离线模型使用 callback 序号，不假设 ADC 每次新转换：
+  consumer 暂不消费但 IRQ 连续运行到第 60 次，ADC 留下序号 1..30，丢弃 31..60；IMU 留下 5,10,...60。
+  consumer 先取 6 包，ADC 1..30 与 IMU 5..30 对齐。
+  再产生 callback 61..65，下一包取 ADC 61..65，却配仍排在最前的 IMU 35。
+  IMU 快照比该包末条 ADC 快照早 30 callback；若且仅若 callback 实际为 500Hz，才换算为 60ms。
+
+freshness/freshness_model.py 在宿主 Python 中验证此状态例、正常例、partial ready 与 IRQ 写入交错例，输出 freshness-model.json。它不运行固件，不能提供实机丢包率、阻塞概率或失配时长分布。即便没有此溢出，设备输出 DRDY/相位和主循环顺序已使“同一快照序号”弱于“所有传感器同一转换时刻”。批内其余四个 ADC tick 未上报，接收方亦不能仅依首 tick/rate 验证五条全部连续。
+
+七、证据及限制
+
+机器可校验证据账本：freshness/FRESHNESS_EVIDENCE.json；构建脚本 build_freshness_ledger.py 校验原样本 SHA256、逐条文件 hash 和精确汇编/代码锚点；freshness_pseudocode.c 给出可读调用链。新导出同时保留 assembly，避免依赖反编译签名错误。
+
+尚不能由静态材料确定：实机 callback jitter/丢中断/丢包率；各 DRDY/转换实际相位；外部时钟物理连线及 CLK7 R-divider；每次 reset/drain 实际持续多久；host/cloud 是否结合别的诊断信息识别这些情形；任何零值或重复值是否在具体录制中真实失效。本报告不把这里的 cache/队列处理等同于睡眠分期或生理算法。
+
+原厂语义来源：
+TI ADS131M08 datasheet，STATUS 0x01 / DRDY 与状态位：https://www.ti.com/lit/ds/symlink/ads131m08.pdf
+ST LSM6DSV datasheet，STATUS_REG 0x1E 及输出寄存器：https://www.st.com/resource/en/datasheet/lsm6dsv.pdf
+Arm CMSIS，DSB/DMB 与 enable/disable IRQ 是不同 intrinsic：https://raw.githubusercontent.com/ARM-software/CMSIS_5/develop/CMSIS/Core/Include/cmsis_gcc.h

@@ -1,0 +1,98 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+本地 Backup / 离线调温审计 — 2026-11-07
+对象：官方 MTK SWU 4b7552d5a9aed31997ff22cf193240800056ef6a。
+仅静态读取已反编译 C#、原厂 DAC JavaScript 和原生反编译文本；未执行目标程序集、未连接设备/端点。
+本文件中的 M: = analysis/sleep-pipeline/decompiled/；J: = mediatek/rootfs-selected/home/dac/app/build/；N: = analysis/signal-host/schedule/。
+根：${RESEARCH_ROOT}。
+
+1. 已证实可在本地执行的操作
+
+蓝牙调温有完整的本地入口→Unix socket→Frank 命令链，而非只存在 Backup 标签：
+- M:Eight.Capybara/Eight.Capybara/BleWorker.cs:33-52 注册 WriteTemperature、DismissAlarm、SnoozeAlarm 等 GATT characteristic。
+- M:Eight.Capybara/Eight.Capybara.Ble.Characteristics/WriteCharacteristicSource.cs:42-75 解密、解压和 JSON 解析后调用具体动作。已有本地 BLE 凭据是先决条件；这里不包含获取凭据的客户端实现。
+- 同目录 WriteTemperatureCharacteristic.cs:18-30：leftLevel/rightLevel 先对对应侧 CallFunction(leftHeat/rightHeat,"36000")，再设置 Level；soloLevel 同时设置两侧。:32-44 的 Off 分支把对应 Heat 与 Level 置0。36000是下发给热控的时长参数，按已恢复 Frank 接口为秒，即10小时，不是温度值。
+- M:Eight.DAC/Eight.DeviceApiClient/Dac.cs:118-140 将 callFunction{name,arg} JSON 发送到 /persistent/deviceinfo/capybara-dac；:150-210 是 Unix stream socket 读写；:213-215 选择默认路径。
+- J:capybara.js:47-51 解析 callFunction；J:loop_coordinator.js:319-335 → onFuncRequest(:221-232) → vibrationProxy → Frank。J:utils.js:118-121 映射 leftHeat/leftLevel/rightHeat/rightLevel 到 HEAT_LEFT/LEVEL_LEFT/HEAT_RIGHT/LEVEL_RIGHT，命令号9/11/10/12见:96-99。最终由 J:franken_server.js:18-38 发本地命令。
+- J:loop_coordinator.js:96-103 以 Promise.all 并行运行云连接、Frank、本地Capybara和网络信息loop。云断开处理(:290-300)清理云通知回调并5秒后重连，没有调用关热，也没有禁用 capybaraLoop。这里证明本地命令路径不以当前云连接成功为条件；仍需本地进程、Frank和设备硬件正常。
+- J:device_api.js:291-302 在尝试连接前 kick watchdog，所以不能把 watchdog 的5分钟直接解读为“断网5分钟关闭本地控制”；watchdog.js:14-28检测的是 kickCount不变，main.js:47设5分钟。
+
+BLE凭据更新与离线边界：
+- M:Eight.Capybara/Eight.Capybara.Ble/BleSecurityService.cs:24-26、46-64从配置恢复凭据；:90-108到期后尝试刷新，但云端断开时跳过；当前内存凭据继续用于:66-87的加解密。
+- DeviceToken的剩余有效时间展示会归零(:28-37)，此处解密函数未加入独立到期拒绝。但手机端是否还允许过期token、如何事先缓存密钥不在这份固件内，因此不能承诺任意长期断网后首次配对/首次操作均成功。
+
+2. 闹钟：本地延迟/清除链是真的；旧托管 SetAlarmSettings 路径存在不匹配
+
+BLE snooze：
+- M:Eight.Capybara/Eight.Capybara.Ble.Characteristics/SnoozeAlarmCharacteristic.cs:34-54验证side=left/right/solo，条件实际允许1..10分钟；错误文案“1 and 9”与条件不一致。
+- :60-78 读取 /persistent/alarm.cbr，缺失/损坏会返回失败。:79-88 取right或left项，再经实际可用的 Dac.CallFunction(alarmR/alarmL/alarmS)路径下发。
+- :106-117 从所选侧复用pl和pi，设置 du=600、tt=本地当前Unix秒+请求分钟数，编码CBOR十六进制。这里是重设闹钟触发时间，不是等待服务端返回新闹钟。
+- 此消费者本身不写 alarm.cbr；原生 Frank 的保存与按时触发路径需要单独对齐。持久数据不在原厂SWU，所以无法给出任何真实用户已保存的闹钟内容。
+- 同类:56-59若当前正在播放Source="alarm"，发送TimedPauseRequest。M:Eight.Audio/Eight.Audio.StateMachine.Tasks/PauseTask.cs:21-33暂停后创建DelayedResumeTask；后者:25-35按本地clock判断start+duration，创建ResumeTask。它证明本地音频snooze恢复计时，不能代替整夜音频唤醒日程的首次启动证据。
+
+BLE dismiss / 实体键：
+- DismissAlarmCharacteristic.cs:21-37停止正在播放的alarm来源音频；:43-71向对应alarmL/R/S发送pl=0、du=600、tt=0、pi=double，同时把对应侧Heat/Level置0。solo关两侧。
+- M:Eight.Capybara/Eight.Capybara.Hardware.Service/ButtonService.cs:34-49将配对按钮释放且间隔<4秒映射到Dac.DismissAlarm；名称叫Snooze但实际消息是dismissAlarm。J:capybara.js:37-41 → loop_coordinator.js:309-311 → clearAlarm(:245-248) → Frank ALARM_CLEAR命令16。托管这一链没有自己加几分钟。
+
+不能误认作已闭环的旧接口：
+- M:Eight.Capybara/Eight.Capybara.DeviceAPI.Handlers/AlarmController.cs:20-36收到SetAlarmSettings，编码pl/du/tt/pi再调用Dac.SetAlarmLSettings/SetAlarmRSettings。Dac.cs:38-66实际发送type="setAlarmLSettings"或"setAlarmRSettings"。
+- 当前同包 J:capybara.js:35-55 的switch仅接受dismissAlarm/getVariable/callFunction；上述两个type进入unsupported request分支。因此这条旧托管路径在当前配对JS下不能当作可用的存储/触发实现。不能只见TriggerTime字段就声称已恢复离线唤醒。
+- 另有真实云端DAC /f/alarmL/R/S→Frank路径（utils.js:113-114、122），与旧托管接口不同。
+
+3. “读取温控状态”不是“执行温控日程”
+
+- M:Eight.Capybara/Eight.Capybara/PollingDeviceState.cs:38-52每1秒读 settings/settings.cbr 和 heat/state1.dat；:29输出只有LED brightness/thermostatLed。
+- ThermostatState.cs:19-32要求state版本2，依次读左右expiration、mode、target；:35-45只有mode=On且expiration>当前时刻才显示On；:48-71读BE u32，target/100，expiration是Unix秒。
+- 此处只消费Frank状态来显示灯，不调用Dac、不保存温度日程、也不作每分钟温控决策。文件存在及时间判断不能单独作为Backup调度器证据。
+- 已完整反编译的24个Eight DLL和DAC应用JS中，对backup/offline/bedtime/schedule及时间触发API的候选搜索未发现另一个托管温度日程执行器。这个范围结论不排除原生 Frank；原生已找到TemperatureScheduler，见后续追加章节。
+
+4. 下载内容/可变脚本：明确区分音频、校准脚本、维护通道和睡眠模型
+
+正向追到的下载链为音频缓存：
+- M:Eight.Audio/Eight.Capybara/TrackDownloader.cs:37-65只在SignalR已连接且speaker存在时调用getalltracks；:84-96成功后12小时刷新、失败1分钟起指数回退到1小时；:100-110将Id/Path/Hash交给trackDataSourceFactory。
+- M:Eight.Audio/Eight.Audio.DataSources/TrackDataManager.cs:83-103本地文件不存在时HttpClient.GetStreamAsync(url)写入缓存；:56-80可选MD5核对/重新下载；:106-128检测媒体格式，不是wav时调用FFmpeg转wav。
+- M:Eight.Audio/Eight.Audio.Tracks/TrackFactory.cs:19-47最终创建WavTrack、RepeatingTrack或RepeatForTrack；生产配置 opt/eight/config/default.json:156指定 /persistent/tracks。即下载数据最终流向音频解码/播放，不是推理引擎。
+- M:Eight.Audio/Eight.Audio.StateMachine.States/InitializingSpeaker.cs:63-87可在重新连接后恢复5分钟内的LastKnownState播放请求。这属于短期播放恢复，不是整夜唤醒时间表。
+
+其他可变内容：
+- M:Eight.Firmness/Eight.Firmness.Services.Calibration/CalibrationAnalyzerRunner.cs:15-28执行配置的Node机械校准脚本，:78-89读取校准结果；此前已追到MCU系数写入。脚本路径可配置不等于动态下载睡眠模型，未看到对应下载→替换→推理链。
+- M:Eight.Capybara/Eight.Capybara.DeviceAPI.Handlers/RemoteConnectivityController.cs:24-64暴露维护SSH相关RPC；RemoteConnectivityService.cs:338-359要求配对模式再启动受2小时timeout约束的SSH tunnel。J:commands/ssh.js:5-8则保存端口/会话密钥给外部维护流程。这些是通用维护能力，不是特定模型更新器；未连接、未触发，也不能由此断言实际部署了额外模型。
+- 24 DLL重建C#中未找到Assembly.Load/LoadFrom、模型URL/路径或标准推理文件消费链；DAC应用JS未找到下载后eval/new Function加载远端算法。发现的HttpNetClient是联网检测，NatsMonitoringClient是本地监控，附件FOTA消费者处理固件镜像。上述是有界审计，不排除SWU以外持久数据、云端实现、后续OTA或维护操作。
+
+5. 当前可恢复策略与未覆盖边界
+
+- 已闭环：既有授权BLE会话的手动调温/关热；读取本地闹钟配置后重新设定snooze触发时间；本地闹钟清除和已播放音频的延迟恢复；音频预缓存及短时间播放恢复。
+- 尚不能由托管/JS单独恢复：完整bedtime/wake温度日程、存储写入及每天/每周调度；已设闹钟在重启后的首次触发；断网时Autopilot怎样计算新的目标温度；睡眠stage模型在线/离线迁移。
+- 根线程的shell恢复/重启机制另行研究，本报告不重复；原生TemperatureScheduler的调用/存储/时区证据见下一节。
+
+6. 原生TemperatureScheduler：有存储/回调框架，但日历函数是stub，不能当作已工作的Backup日程
+
+本节对象为 MTK opt/eight/bin/frankenfirmware，SHA256
+84727b57ef8b226c78618f9fa9257df7d8ae771c78d8a51e6f3cabf0acc0c375。
+N2: = analysis/signal-host/schedule2/；N3: = analysis/signal-host/schedule3/；T6: = analysis/signal-host/thermal6/。
+
+正向恢复的结构：
+- N3:0018a510.c:179-183在运行循环中调用Thermostat tick 001dc174，后者N2:001dc174.c依次初始化、处理左右两侧001dd7b4、检查附件和expiration。因此调度检查本体确实挂在温控loop，并非仅有孤立字符串。
+- T6:001dbe80.c:55-125为两侧schedule建立周期门控(timer参数1000，clock thunk00252dc0)、分别绑定001db370/001db390，然后调用001dbbf0恢复状态。这里尚未单独导出clock thunk来校准timer单位；不将1000直接冒充已独立测得的执行频率。
+- N:001dc984.c和001dcaa4.c为左右schedule设置函数：解析字符串→立即update→打印→saveState。N:001dd3b0.c解析位置为enabled、7个0/1日标记、两位hour、两位minute、最多5位duration；:86-100限制hour<24、minute<60、duration<=86400，清零schedule自身的抑制expiration。打印模板字节0046a410为[smtwtfs]。这些只是格式语义，不代表星期匹配已经正确实现。
+- N2:001dc6c0.c:50-61写heat/state1.dat版本2：左右热控expiration、mode、target*100、两项状态字段，之后序列化左右schedule。N3:001dd290.c分别写enabled、7个day标记、hour/minute/second/duration和schedule expiration；001dd320.c按同序反序列化。
+- T6:001dbbf0.c:30-61兼容版本1/2并恢复两侧schedule；托管PollingDeviceState的/persistent/heat/state1.dat消费者互证文件含义。原生这里使用相对路径heat/state1.dat；工作目录归属由启动脚本确定，不从相对字符串单独推导。
+- N:001dd7b4.c:11-16在周期到期且schedule抑制期限已过时，要求enabled、duration减elapsed>0、dayFlags[0]非零再调用updateSchedule。N:001dd0a4.c:10-38向回调传剩余秒数，条件不满足传0，随后更新schedule抑制期限。
+- N3:001db370.asm.txt和001db390.asm.txt明确将传入剩余秒数复制到w3，第3参数w2=(duration>0)，分别side=0/1，再跳转001db1a0。后者T6:001db1a0.c是实际setHeatingState，并按附件是否连接及最大持续时间处理。这里修正了伪C漏显示第4参数的反编译失真。
+
+决定性限制：
+- elapsed计算函数001dcfb0先清零32字节日历结构，再调用00252bb0，随后从该结构取秒/分/小时。证据N3:001dcfb0.asm.txt:8-18。其伪C返回类型错误显示void，实际汇编在w0返回运算值；时间输入问题不能由修正返回类型解决。
+- 00252bb0实际只是向cout打印“now_calendar called - stub (TODO!)”并flush。N3:00252bb0.asm.txt:1-43完全没有写入调用者传来的日历结构，也没有读取系统日历。伪C在throw分支后误并入相邻clock_gettime代码，不应把那段当作本函数成功路径。实际汇编成功出口是00252c10的尾调用ostream::flush。
+- 因而调用方使用的hour/minute/second仍为清零值，而不是此刻真实时间。两个day判断还直接读取dayFlags[0]（N:001dd0a4.c:13、001dd7b4.c:15），未见按当前星期索引7个标记。不能声称正确支持每周日程、时区、DST或当前睡前时刻。
+- 对比：00252b10确实调用system_clock::now再/1e9（N3:00252b10.c），00280450/00280484用该Unix秒比较/设置expiry（N2对应文件）。所以普通温控时限和闹钟的Unix时间逻辑不因calendar stub自动失效；有问题的是此日历调度路径，不应扩大为所有本地计时失效。
+- 设置函数001dc984/001dcaa4的现有xref仅见异常/unwind相关表地址，无已恢复的实际代码caller；同包DAC函数映射J:utils.js:12-29、109-125也没有schedule设置项。不能断言绝对不可达（可能存在未覆盖间接调用/历史持久数据），但当前未证明活跃的云端配置→日程写入入口。
+
+本节结论：
+“固件带温度日程序列化和执行回调框架”有代码证据；“该MTK版本因此能在断网时依照真实bedtime每天自动预热”没有成立，且发现明确calendar stub反证。它也没有阶段温度曲线、阶段识别或Autopilot目标计算。若官方Backup确有完整日程，它可能使用另一路实现、版本或服务；不能把这段不完整路径冒充该功能。后续优先核查原生闹钟/普通热控expiration及外部shell实际策略，而非继续凭Scheduler名字推论。
+
+7. 证据与覆盖记录
+
+- local-backup-searches.json保留3次有界搜索的命令、返回值和完整命中：托管备份/调用候选、托管动态加载候选、DAC日程/离线候选。搜索无命中只限定该范围，结论另依赖以上生产者/消费者实际调用链。
+- Native文本来自团队既有Ghidra持久项目的静态导出；未运行frank，未改原固件，未更改既有REPORT.txt/pipeline-summary.json。
+- 除parse/serialize结构检查和汇编交叉验证外，本轮无运行时测试。没有真实设备persistent文件、BLE手机客户端、断网实验或服务器配置，因此这些行为是静态可达性/数据流判断，不能当作用户设备已开启功能的现场结论。

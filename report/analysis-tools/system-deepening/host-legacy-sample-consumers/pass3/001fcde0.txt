@@ -1,0 +1,53 @@
+TARGET 001fcde0 function=001fcde0
+REF_TO 004cc7b4 INDIRECTION owner=none
+REF_TO 004f2e4c DATA owner=none
+REF_TO 001fd120 UNCONDITIONAL_CALL owner=001fce40
+REF_TO 001fd15c UNCONDITIONAL_CALL owner=001fce40
+REF_TO 001fd194 UNCONDITIONAL_CALL owner=001fce40
+REF_TO 001fd1d4 UNCONDITIONAL_CALL owner=001fce40
+REF_TO 001fd5c8 UNCONDITIONAL_CALL owner=001fd210
+REF_TO 001fd628 UNCONDITIONAL_CALL owner=001fd210
+REF_TO 001fd650 UNCONDITIONAL_CALL owner=001fd210
+REF_TO 001fd688 UNCONDITIONAL_CALL owner=001fd210
+REF_TO 001fda5c UNCONDITIONAL_CALL owner=001fd7f0
+REF_TO 001fdae4 UNCONDITIONAL_CALL owner=001fd7f0
+FUNCTION_BODY [[001fcde0, 001fce3f]]
+
+bool FUN_001fcde0(long param_1,undefined8 *param_2)
+
+{
+  long lVar1;
+  
+  lVar1 = FUN_001d79d4(param_1 + 0x10,*param_2);
+  if (lVar1 == 0) {
+    return false;
+  }
+  lVar1 = FUN_001d78d0(param_1 + 0x10,param_2[2],param_2[1]);
+  return lVar1 != 0;
+}
+
+
+INSN 001fcde0 3f2303d5 paciasp
+INSN 001fcde4 fd7bbea9 stp x29,x30,[sp, #-0x20]! REF[WRITE:Stack[-0x20]]
+INSN 001fcde8 fd030091 mov x29,sp
+INSN 001fcdec f35301a9 stp x19,x20,[sp, #0x10] REF[WRITE:Stack[-0x10]]
+INSN 001fcdf0 f30301aa mov x19,x1
+INSN 001fcdf4 14400091 add x20,x0,#0x10
+INSN 001fcdf8 210040f9 ldr x1,[x1]
+INSN 001fcdfc e00314aa mov x0,x20
+INSN 001fce00 f56aff97 bl 0x001d79d4 REF[UNCONDITIONAL_CALL:001d79d4]
+INSN 001fce04 c00000b5 cbnz x0,0x001fce1c REF[CONDITIONAL_JUMP:001fce1c]
+INSN 001fce08 00008052 mov w0,#0x0
+INSN 001fce0c f35341a9 ldp x19,x20,[sp, #0x10] REF[READ:Stack[-0x10]]
+INSN 001fce10 fd7bc2a8 ldp x29,x30,[sp], #0x20 REF[DATA:Stack[-0x20]]
+INSN 001fce14 bf2303d5 autiasp
+INSN 001fce18 c0035fd6 ret
+INSN 001fce1c 628640a9 ldp x2,x1,[x19, #0x8]
+INSN 001fce20 e00314aa mov x0,x20
+INSN 001fce24 ab6aff97 bl 0x001d78d0 REF[UNCONDITIONAL_CALL:001d78d0]
+INSN 001fce28 1f0000f1 cmp x0,#0x0
+INSN 001fce2c e0079f1a cset w0,ne
+INSN 001fce30 f35341a9 ldp x19,x20,[sp, #0x10] REF[READ:Stack[-0x10]]
+INSN 001fce34 fd7bc2a8 ldp x29,x30,[sp], #0x20 REF[DATA:Stack[-0x20]]
+INSN 001fce38 bf2303d5 autiasp
+INSN 001fce3c c0035fd6 ret

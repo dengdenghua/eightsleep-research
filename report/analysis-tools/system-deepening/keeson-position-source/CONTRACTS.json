@@ -1,0 +1,196 @@
+{
+  "status": "static-derived; no hardware validation",
+  "input_sha256": "1856c1baec5f9bca7151e5b550fdf0a8d749e87f889d963a3a343293a4160966",
+  "logical_axes": 4,
+  "stride_bytes": 40,
+  "fields": [
+    {
+      "alias": "P",
+      "base": "0x20003bc8",
+      "width_bits": 32,
+      "meaning": "software position consumed by self-test and reporting"
+    },
+    {
+      "alias": "E",
+      "base": "0x20003bcc",
+      "width_bits": 32,
+      "meaning": "direction-adjusted GPIO callback count"
+    },
+    {
+      "alias": "T",
+      "base": "0x20003bd0",
+      "width_bits": 32,
+      "meaning": "timer replacement count"
+    },
+    {
+      "alias": "A",
+      "base": "0x20003bd8",
+      "width_bits": 64,
+      "meaning": "active-state handled event count"
+    },
+    {
+      "alias": "D",
+      "base": "0x20003be0",
+      "width_bits": 8,
+      "meaning": "last direction written during active callback"
+    },
+    {
+      "alias": "S",
+      "base": "0x20003be1",
+      "width_bits": 8,
+      "meaning": "software run_state:0 increase,1 decrease,2 stopped"
+    },
+    {
+      "alias": "L",
+      "base": "0x20003be2",
+      "width_bits": 8,
+      "meaning": "software top/motion state gate"
+    }
+  ],
+  "auxiliary": [
+    {
+      "alias": "M",
+      "address": "0x20003fb7",
+      "width_bits": 8
+    },
+    {
+      "alias": "H",
+      "address": "0x20003f5e+2*i",
+      "width_bits": 16
+    }
+  ],
+  "pins": [
+    {
+      "logical_axis": 0,
+      "pin": 21,
+      "port": "P0",
+      "edge": "falling",
+      "gpio_pin_cnf": 0,
+      "gpiote_mode": 1,
+      "gpiote_polarity": 2,
+      "callback": "0x303b0",
+      "physical_axis": null
+    },
+    {
+      "logical_axis": 1,
+      "pin": 22,
+      "port": "P0",
+      "edge": "falling",
+      "gpio_pin_cnf": 0,
+      "gpiote_mode": 1,
+      "gpiote_polarity": 2,
+      "callback": "0x303b0",
+      "physical_axis": null
+    },
+    {
+      "logical_axis": 2,
+      "pin": 23,
+      "port": "P0",
+      "edge": "falling",
+      "gpio_pin_cnf": 0,
+      "gpiote_mode": 1,
+      "gpiote_polarity": 2,
+      "callback": "0x303b0",
+      "physical_axis": null
+    },
+    {
+      "logical_axis": 3,
+      "pin": 24,
+      "port": "P0",
+      "edge": "falling",
+      "gpio_pin_cnf": 0,
+      "gpiote_mode": 1,
+      "gpiote_polarity": 2,
+      "callback": "0x303b0",
+      "physical_axis": null
+    }
+  ],
+  "gpio_update": {
+    "requires": "M==0 and S in {0,1,2} and if S==2 then D in {0,1}",
+    "direction": "S if S in {0,1}, else D",
+    "increment_guard": "E != 0xffffffff",
+    "decrement_guard": "int32(E)>0",
+    "P_written_only_if_E_changes": true,
+    "active_counter": "A=(A+1) mod 2**64 only for S 0/1, regardless of E guard",
+    "last_direction": "updated only for S 0/1",
+    "H": "85 in accepted direction branch even if arithmetic guard blocks E",
+    "second_callback_polarity_argument_used": false
+  },
+  "timer_update": {
+    "caller": "0x2c70c",
+    "requires": "M==1",
+    "increase": "S==0 and L!=1; increment T unless T==0xffffffff",
+    "decrease": "S==1 and int32(T)>0",
+    "P_written_only_if_T_changes": true,
+    "accepted_branch_side_effect": "L=2,H=100 even if T guard blocks arithmetic; same outer callback later decrements H",
+    "E_or_A_written": false,
+    "nominal_callback_period_seconds": "328/32768 from previous RTC audit; not Hall frequency or effective sampling rate"
+  },
+  "modes": {
+    "0": "GPIO accepted, timer replacement not called",
+    "1": "GPIO ignored, timer replacement called",
+    "2": "both these position producers inactive",
+    "other_nonzero": "both these position producers inactive"
+  },
+  "zeros": [
+    {
+      "function": "0x2b56c",
+      "condition": "S==1 and H==0",
+      "writes": [
+        "P=0",
+        "E=0",
+        "T=0"
+      ]
+    },
+    {
+      "function": "0x288d4",
+      "condition": "post-loop branch S==1 and H==0; full function also calls 0x2b56c before early return",
+      "writes": [
+        "P=0",
+        "E=0",
+        "T=0",
+        "L=0"
+      ]
+    },
+    {
+      "function": "0x2a098/0x2a8a4",
+      "condition": "command-state and H-gated bottom/position branches; full contexts retained",
+      "writes": [
+        "P=0",
+        "E=0",
+        "T=0"
+      ]
+    }
+  ],
+  "restore": {
+    "function": "0x2b680",
+    "source": "0x20003c68+4*i",
+    "destination": "P",
+    "E_T_synchronization_in_this_function": false,
+    "input_record_scan": "0x29840, 32-byte records starting flash0x76000; actual flash data unavailable"
+  },
+  "selftest": {
+    "function": "0x2b044",
+    "initial_stage_from_startup": "0x11",
+    "compare": "signed32(P-snapshot)>5 or signed32(snapshot-P)>5",
+    "stage5_mode": "HallNum==8 ->0; else CurrentNum==8 ->1; else2",
+    "trigger_reentry_not_closed": true
+  },
+  "reporting": {
+    "functions": [
+      "0x27cac",
+      "0x27c38"
+    ],
+    "encoding": "low16(P), big-endian bytes",
+    "internal_width_bits": 32
+  },
+  "unknown": [
+    "actual installed accessory version",
+    "PCB wiring/axis labels/Hall device type",
+    "distance or angle per edge",
+    "live input frequency or lost-event rate",
+    "all indirect field writes and reset interleavings",
+    "full persistent transaction and power-loss behavior",
+    "self-test activation and reentry initialization"
+  ]
+}

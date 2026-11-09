@@ -1,0 +1,197 @@
+{
+  "synthetic": true,
+  "case": "core_flush_failure_retains_core_head",
+  "scope": "fixture record to caller/queue/publish-return states, not server state",
+  "records": {
+    "js-waits": [
+      {
+        "step": 2,
+        "action": "enqueue_copied",
+        "source_claims": [
+          "ring_copy"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "state": {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 1,
+          "read": 0,
+          "cached_read": 0,
+          "cached_write": 0,
+          "record_ids": [
+            "js-waits"
+          ],
+          "owned_body_bytes": 23
+        },
+        "record_id": "js-waits",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 23,
+        "body_sha256": "b6ba40d74bccc7e83fae083b525cc644e15804880f94e750672db02be5d830bf",
+        "caller_sequence_at_flush": 0
+      },
+      {
+        "step": 9,
+        "action": "js_publish_attempt",
+        "source_claims": [
+          "publish",
+          "observation_boundary"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "submitted_to_js_publish": true,
+        "publish_return_code": 0,
+        "publish_return_ok": true,
+        "ack_observed": null,
+        "possible_remote_accept": "unknown",
+        "remote_acceptance_is_fixture_assumption": true,
+        "cursor_before": 0,
+        "record_id": "js-waits",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 23,
+        "body_sha256": "b6ba40d74bccc7e83fae083b525cc644e15804880f94e750672db02be5d830bf",
+        "caller_sequence_at_flush": 0
+      },
+      {
+        "step": 10,
+        "action": "publish_return_ok_pop",
+        "source_claims": [
+          "publish"
+        ],
+        "synthetic": true,
+        "queue": "raw",
+        "state": {
+          "queue": "raw",
+          "slots": 17,
+          "usable_capacity": 16,
+          "write": 1,
+          "read": 1,
+          "cached_read": 0,
+          "cached_write": 1,
+          "record_ids": [],
+          "owned_body_bytes": 0
+        },
+        "record_id": "js-waits",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 23,
+        "body_sha256": "b6ba40d74bccc7e83fae083b525cc644e15804880f94e750672db02be5d830bf",
+        "caller_sequence_at_flush": 0
+      },
+      {
+        "step": 11,
+        "action": "js_cursor_advanced",
+        "source_claims": [
+          "round_robin"
+        ],
+        "synthetic": true,
+        "cursor": 1,
+        "record_id": "js-waits",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 23,
+        "body_sha256": "b6ba40d74bccc7e83fae083b525cc644e15804880f94e750672db02be5d830bf",
+        "caller_sequence_at_flush": 0
+      }
+    ],
+    "core-head": [
+      {
+        "step": 4,
+        "action": "core_priority_attempt",
+        "source_claims": [
+          "core_priority"
+        ],
+        "synthetic": true,
+        "publish_return_ok": true,
+        "flush_attempted": true,
+        "flush_return_ok": false,
+        "record_id": "core-head",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 24,
+        "body_sha256": "a8bbe1d7c49fb42583d90afac9bf4c8c407b6736f88656ffc0165e208865abaa",
+        "caller_sequence_at_flush": 0
+      },
+      {
+        "step": 5,
+        "action": "connection_cleanup_head_retained",
+        "source_claims": [
+          "failure"
+        ],
+        "synthetic": true,
+        "requested_sleep_seconds": 1,
+        "cursor": 0,
+        "queue_state": [
+          {
+            "queue": "raw",
+            "slots": 17,
+            "usable_capacity": 16,
+            "write": 1,
+            "read": 0,
+            "cached_read": 0,
+            "cached_write": 0,
+            "record_ids": [
+              "js-waits"
+            ],
+            "owned_body_bytes": 23
+          },
+          {
+            "queue": "log",
+            "slots": 1025,
+            "usable_capacity": 1024,
+            "write": 0,
+            "read": 0,
+            "cached_read": 0,
+            "cached_write": 0,
+            "record_ids": [],
+            "owned_body_bytes": 0
+          },
+          {
+            "queue": "third",
+            "slots": 33,
+            "usable_capacity": 32,
+            "write": 0,
+            "read": 0,
+            "cached_read": 0,
+            "cached_write": 0,
+            "record_ids": [],
+            "owned_body_bytes": 0
+          }
+        ],
+        "record_id": "core-head",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 24,
+        "body_sha256": "a8bbe1d7c49fb42583d90afac9bf4c8c407b6736f88656ffc0165e208865abaa",
+        "caller_sequence_at_flush": 0
+      },
+      {
+        "step": 7,
+        "action": "core_priority_attempt",
+        "source_claims": [
+          "core_priority"
+        ],
+        "synthetic": true,
+        "publish_return_ok": true,
+        "flush_attempted": true,
+        "flush_return_ok": true,
+        "record_id": "core-head",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 24,
+        "body_sha256": "a8bbe1d7c49fb42583d90afac9bf4c8c407b6736f88656ffc0165e208865abaa",
+        "caller_sequence_at_flush": 0
+      },
+      {
+        "step": 8,
+        "action": "core_pop_restart_loop",
+        "source_claims": [
+          "core_priority"
+        ],
+        "synthetic": true,
+        "cursor": 0,
+        "record_id": "core-head",
+        "subject": "raw.synthetic.fixture",
+        "body_length": 24,
+        "body_sha256": "a8bbe1d7c49fb42583d90afac9bf4c8c407b6736f88656ffc0165e208865abaa",
+        "caller_sequence_at_flush": 0
+      }
+    ]
+  }
+}

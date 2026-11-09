@@ -1,0 +1,83 @@
+证据快照 · 来源于既有研究报告。其日期、旧任务状态和覆盖限制保留为历史记录；当前结论以 Wiki 模块页及更新证据为准。文中额外文件引用可能只存在于原研究目录。
+本副本按清单做路径及隐私脱敏；不是原始二进制，也不是原厂源码。
+
+MediaTek 原厂 OTA 与 NXP 样本对比
+日期：2026-11-07 Asia/Shanghai
+
+新增样本
+已完成整包下载：233245696 bytes。
+旧签名通道整包SHA-256：59eb790b6396dc162b62536615701b4e2774c665bc13b16f70b83a9d76db4532。
+主线程已将全部CPIO载荷SHA-256与签名清单比对，全部一致；证据 ../../mediatek/cpio-verified.json。
+官方旧OTA接口使用 platform=mediatek 返回：
+https://fw.8slp.net/pod3-updates/mediatek/releases/4b7552d5a9aed31997ff22cf193240800056ef6a.swu
+新接口使用 signingKeyId=20250116 返回：
+https://fw.8slp.net/pod3-updates/mediatek/releases/20250116/4b7552d5a9aed31997ff22cf193240800056ef6a.swu
+两者需要服务器返回的带有效期签名URL，以上裸路径用于标识来源，非稳定下载承诺。
+新接口响应证据：../mtk-new-ota-response.json。
+
+平台与版本
+MTK清单：../../mediatek/sw-description:5-32，目标 mt8365-8sleep；rootfs eightsleep-mtk-image-mt8365-8sleep.tar.gz，并单独提供fitImage。
+NXP清单：sw-description:5-22，目标 imx8mm-var-dart-eight，只有rootfs archive载荷（内核位于rootfs/boot）。
+MTK etc/build 明确 DISTRO=eight、DISTRO_VERSION=4.0.28；etc/rat_version匹配4b7552...；etc/build_time_epoch=1793676602，即2026-11-03 03:30:02 UTC。
+完整包内 usr/lib/os-release 明确 Eight Layer 4.0.28 (kirkstone)。
+FIT结构化解析明确描述为 Kernel fitImage for Eight Layer/5.15.47+gitAUTOINC+d011e19cfc/mt8365-8sleep；kernel arch=arm64、压缩gzip。
+FIT嵌入主DTB的 /model=MT8365 Pumpkin，/compatible=mediatek,mt8365-pumpkin ; mediatek,mt8365。
+另含gpu-mali和video设备树覆盖。已核验FIT里4个子镜像的SHA-256均与各自hash节点一致；见mtk-fit-properties.json、inspect_fit.py。
+以上是固件载荷的静态结构证据，非运行时uname观测。
+NXP已完整核验：FSLC FrameBuffer 3.3 / hardknott，内核载荷名5.4.127+g0deb540df1e2，构建时间2026-10-21 23:00:46 UTC。
+
+新OTA参数从原厂配置得到确认
+mtk-rootfs/etc/swupdate.cfg:18-27 的identify：
+  DeviceId=[ID_REDACTED]（模板占位）
+  CurrentRev=1（模板占位）
+  EmmcWear=0（注释说明运行时渲染eMMC磨损值，0代表未知）
+  Platform=mediatek
+  SigningKeyId=20250116
+gservice和suricatta URL均为 https://update-api.8slp.net/v1/products/pod/update。
+硬件环境 mtk-rootfs/etc/swupdate.env:1 为 mt8365-8sleep。
+主线程已实际调用该新接口并取得302，故Platform/SigningKeyId不再只是猜测。
+
+签名迁移得到密码学校验支持
+两个路径返回的sw-description完全相同，SHA-256：
+79c53efb4e048bb45119977a0bced4d10802c7c40bac71138bba791e5ba96e6d
+但sw-description.sig不同。
+使用OpenSSL SHA256验证的交叉矩阵：
+                 旧NXP包携带公钥        新MTK包携带公钥
+旧路径签名       Verified OK          Verification Failure
+/20250116/签名   Verification Failure Verified OK
+证据：mtk-key-rotation-verification.json。
+公钥PEM SHA-256：
+  旧：7aac33b5b447ff846b74eb8cd959ef5194512ba0bf8c7c40aa6b620daf69c314
+  新：405297bed04cde2cebf437edc1e2cd77476c84bbf1e7b412c15f2c29f7ff9ae9
+旧路径将新公钥放入更新rootfs，同时仍用旧公钥对应私钥签署外层清单，符合密钥迁移路径。密码学验证证明本次两个签名的公钥对应关系；迁移设计目的属于合理推断。
+只获取了新路径包头，不能声称已对新路径整包逐字节校验。但相同清单声明了相同rootfs、fitImage、update.sh的SHA256。
+
+MTK更新过程相比NXP有明显不同
+1. 从内核运行命令行 root=PARTLABEL=rootfs_[ab]确定实际运行槽，而非信任可能已被提前改写的current_slot环境变量。
+   ../../mediatek/update.sh:15-41。
+2. preinst在格式化前，用一次fw_setenv确认运行槽boot_<slot>_success=1，并令目标槽success=0、retry=0。该命令失败则拒绝格式化。
+   ../../mediatek/update.sh:221-256。
+3. rootfs目标为另一rootfs槽ext4，内核目标为对应boot槽VFAT中的/fitImage。
+   ../../mediatek/sw-description:13-32；update.sh:38-41、254-256。
+4. postinst校验文件系统，写目标boot_success=0、retry_boot=5以及current_slot/next_slot，然后延迟重启以留出配对完成窗口。
+   ../../mediatek/update.sh:259-283、301-318。
+5. 脚本检测TMPDIR是否为tmpfs/ramfs，条件性清缓存与移除已经安装的暂存包，避免1GiB型号OTA内存耗尽；这是源码中的实际分支，未在设备运行验证。
+   ../../mediatek/update.sh:148-218。
+6. MT7663 eFUSE修正函数存在，但实际写入命令和末尾调用均注释掉，不能说本次OTA会烧写该eFUSE。
+   ../../mediatek/update.sh:98-114、314-318。
+7. MTK globals.sh 的 TESTING->OK 明确写 boot_<当前槽>_success=1，FAILED分支明确令current_slot=$OTHER_SLOT，与MTK update.sh字母槽体系一致。
+   mtk-rootfs/opt/eight/bin/globals.sh:186-200。它不再使用NXP遗留OTHER_PART/mmcpart分支。
+8. EmmcWear由启动脚本读取sysfs中MMC life_time两个估算码，取最大值乘10；只接收0x00..0x0B，其他值回退0。将配置写到经过tmpfs校验的/run，失败时沿用原配置。
+   mtk-rootfs/opt/eight/bin/swupdate.sh:26-107。
+
+MTK样本的硬件组合配置（不据此判定商品代际）
+mtk-rootfs/opt/eight/config/machine.json含A00、I00、I21三个版本项。I00/I21均把frozen控制口设为/dev/ttyS1，并定义topLeft/topRight/bottomLeft/bottomRight四个USB位置，以及左右pillow、A32Sensor、firmness映射（:33-96）。
+NXP machine.json只含A00的两个UART口。这说明新MTK系统配置覆盖了更丰富的硬件组合；Ixx与MCU中Pod6 Ixx字符串可交叉研究，不能据配置项存在断言某一实际修订已通过验证。
+
+地域与Pod6边界
+取得MT8365原厂系统包证实Eight Sleep有MTK主控分支，不能证明此release是中国专供，也不能单凭下载参数确认所有国行Pod6都用该芯片。市场型号、主机硬件修订、Linux SoC、床套/MCU固件是不同维度。参见CHINA_PLATFORM_NOTE.txt。
+
+提取状态
+已从完整且载荷哈希通过的SWU提取243个常规系统文件到mtk-rootfs；清单和SHA-256记录于mtk-extracted-files.json。
+先前从下载首段得到的8个mtk-partial文件（包括SigningKeyId配置与新公钥）均逐字节与完整样本匹配。mtk-partial保留作调查过程记录；当前分析引用mtk-rootfs完整来源。
+NXP的详细系统路径、服务关系和旧OTA分析见REPORT.txt；两平台差异以本文件为补充，不能把旧NXP体系套用到新MTK包。

@@ -1,0 +1,40 @@
+TARGET 0801a164 function=0801a164
+FUNCTION_BODY [[0801a164, 0801a18b]]
+
+undefined8 analyst_callback_0801a164(undefined4 param_1,undefined4 param_2,uint param_3)
+
+{
+  int iVar1;
+  uint uVar2;
+  undefined4 uVar3;
+  
+  uVar2 = 1;
+  uVar3 = param_1;
+  if (DAT_20000d5d != '\0') {
+    uVar3 = 2;
+    iVar1 = FUN_080158d4(&DAT_20000d00,param_1,param_2,param_3 & 0xffff,2,param_2,param_3);
+    uVar2 = (uint)(iVar1 != 0);
+  }
+  return CONCAT44(uVar3,uVar2);
+}
+
+
+INSN 0801a164 37b5 push {r0,r1,r2,r4,r5,lr}
+INSN 0801a166 094b ldr r3,[0x0801a18c] REF[READ:0801a18c=20000d5d]
+INSN 0801a168 0500 movs r5,r0
+INSN 0801a16a 1b78 ldrb r3,[r3,#0x0] REF[READ:20000d5d]
+INSN 0801a16c 0124 movs r4,#0x1
+INSN 0801a16e 0848 ldr r0,[0x0801a190] REF[READ:0801a190=20000d00] REF[PARAM:20000d00]
+INSN 0801a170 002b cmp r3,#0x0
+INSN 0801a172 09d0 beq 0x0801a188 REF[CONDITIONAL_JUMP:0801a188]
+INSN 0801a174 93b2 uxth r3,r2
+INSN 0801a176 0222 movs r2,#0x2
+INSN 0801a178 0092 str r2,[sp,#0x0] REF[WRITE:Stack[-0x18]]
+INSN 0801a17a 0a00 movs r2,r1
+INSN 0801a17c 2900 movs r1,r5
+INSN 0801a17e fbf7a9fb bl 0x080158d4 REF[UNCONDITIONAL_CALL:080158d4]
+INSN 0801a182 431e subs r3,r0,#0x1
+INSN 0801a184 9841 sbcs r0,r3
+INSN 0801a186 c4b2 uxtb r4,r0
+INSN 0801a188 2000 movs r0,r4
+INSN 0801a18a 3ebd pop {r1,r2,r3,r4,r5,pc}

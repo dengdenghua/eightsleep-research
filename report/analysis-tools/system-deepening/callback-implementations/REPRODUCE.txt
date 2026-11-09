@@ -1,0 +1,79 @@
+nonUSB 第七轮复现说明：回调实现 / hwrev 内部标识 / 上报字段
+2026-11-08
+只读静态逆向。不执行固件、不改 Ghidra 工程、不访问设备/账号/网络。
+
+============================================================
+一、不依赖 Ghidra 的复核（交付包内自包含）
+============================================================
+
+  cd report/analysis-tools/system-deepening/callback-implementations
+  python3 scripts/verify_callback_bytes.py     -> BYTE_VALIDATION.json (1250 项, 0 失败)
+  python3 model/build_models.py               -> CALLBACK_LEDGER.json
+                                                 HWREV_IDENTIFIERS.json
+                                                 REPORT_FIELDS.json
+                                                 MODEL_RESULTS.json (39 断言, 0 失败)
+  python3 scripts/write_export_commands.py    -> EXPORT_COMMANDS.json
+  python3 scripts/write_source_manifest.py    -> SOURCE_MANIFEST.json (158 项)
+
+  scripts/thumb_lite.py 是核对与模型共用的最小 Thumb 解码器，只覆盖本轮
+  80 个回调入口实际出现的指令形式；它不执行固件，只按字节解码。
+
+输入只有三类：
+  1. 冻结固件 materials/.../firmware-sensor-g0.bbin (132896B)
+     SHA256 51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891
+  2. 本目录 pass1..pass4 保留的 147 份只读 Ghidra 导出 + 4 份调用日志
+  3. 第六轮产物 config-object-snapshot/CONFIG_SNAPSHOT.json
+VA -> 文件偏移：offset = VA - 0x08008000。
+
+============================================================
+二、需要 Ghidra 才能重跑的部分
+============================================================
+
+工具链与逐批 targets 见 EXPORT_COMMANDS.json（由 4 份 *-export.log 精确重建）。
+所有调用都是：
+
+  export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+  export PATH="$JAVA_HOME/bin:$PATH"
+  analyzeHeadless <project_dir> NonUsbSensor -process firmware-sensor-g0.bbin \
+      -readOnly -noanalysis -scriptPath <script_dir> \
+      -postScript ExportSensorDiff.java <out_dir> <target...>
+
+四批共 143 个 targets：pass1=80、pass2=8、pass3=18、pass4=37。
+脚本 ExportSensorDiff.java 有 SHA256 守门，且 start:end 只 dump 已解码指令，
+不会反汇编或改写工程。
+
+**本轮踩坑**：脚本第 47 行对每个 script arg 单独执行 Long.parseLong(args[n],16)。
+把 80 个地址用空格拼成一个 shell 参数会抛 NumberFormatException，只生成
+program.txt。修法是「一个 argv 元素一个 target」（Python subprocess 列表或
+shell 数组 "${targets[@]}"），不要用未加引号的字符串变量。
+
+============================================================
+三、产物对照
+============================================================
+
+  BYTE_VALIDATION.json      1250 项字节/指令/literal/引用核验，0 失败
+  CALLBACK_LEDGER.json      80 个函数指针 -> 入口、槽位、写入者、实现、分类
+  HWREV_IDENTIFIERS.json    14 行阈值 + 16 个边界的 3 字符标识与交叉验证
+  REPORT_FIELDS.json        136 条上报对象写入、107 个唯一偏移、9 个块操作
+  MODEL_RESULTS.json        39 条模型断言汇总，0 失败
+  COVERAGE_RESIDUAL.json    闭合项、纠错、残余边界
+  FINDINGS_ZH.txt           中文结论全文
+  EXPORT_COMMANDS.json      四批导出的精确 argv
+  SOURCE_MANIFEST.json      158 项输入 SHA256
+  pass1/..pass4/            147 份只读导出 + 4 份调用日志
+  scripts/ model/           5 个脚本（含共享解码器）
+
+四个模型/核验脚本重复运行输出哈希不变（确定性）；若新增导出，需按
+BYTE_VALIDATION.json 的 insn_rows_total 与 prefix 分组重新核对总数。
+
+============================================================
+四、结论边界（不要越界解读）
+============================================================
+
+- 61 个未解码回调给的是「有界前缀」，止于第一条返回/无条件跳转，不是完整反编译。
+- GPIO 描述表 0x08027f10 的字段解释来自偏移使用方式，不是器件手册命名。
+- 3 字符标识由运行时 hwrev 计算，写入 RAM 0x200014d8；配置对象 +0x0 的
+  版本字符串来自 flash 0x08024234。两套机制独立，只在 13 个真实阈值上一致。
+- 上报字段台账来自 Ghidra 伪 C 的赋值扫描，是「可能的写入」，不是执行轨迹；
+  条件栈按缩进采集，不覆盖 switch/label 跳转的完整数据流。
+- 没有任何实机时序、晶振、BOM、波特率运行值或 64MHz 实测结论。

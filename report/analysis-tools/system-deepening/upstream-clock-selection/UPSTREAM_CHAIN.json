@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-08",
+  "purpose": "Bind the nonUSB upstream clock-configuration selection (HWINFO hwrev -> 14-entry threshold dispatch -> version setters -> init variants -> clock config entries) and the system-clock computation chain to frozen bytes. Read-only Ghidra exports, byte verification and finite integer arithmetic; no firmware execution.",
+  "samples": {
+    "file": "firmware-sensor-g0.bbin",
+    "bytes": 132896,
+    "sha256": "51531576fd31af96f7239b71d26e1f175815f5cb21dbe9ab305fa9a33cc6a891",
+    "image_base": "0x08008000"
+  },
+  "chain": [
+    {
+      "step": 1,
+      "role": "HWINFO parse and hwrev field",
+      "address": "0x0801d888",
+      "detail": "Analyst-seeded function parses the factory HWINFO block at 0x0807F804. FUN_0801ae3a(&ctx,\"hwrev\",&DAT_20001cfc) fills 0x20001cfc; 0x20001cec is the HWINFO-valid flag; DAT_20001cf8 is sku. A log line prints 'HWINFO sn %08x pn %u sku %x hw %04x f %x d %x'. The version letter is derived as ((hwrev >> 8) & 0xf) + 0x41, so 0x0805 -> I, 0x0900 -> J, 0x0A00 -> K.",
+      "evidence": "pass1/0801d888.txt"
+    },
+    {
+      "step": 2,
+      "role": "hwrev threshold dispatch",
+      "address": "0x08025da4",
+      "detail": "14 eight-byte rows [u16 threshold, u16 pad, u32 callee]. INS 0801d8b4 reads hwrev from 0x20001cfc, 0801d8ba reads the row threshold, 0801d8c0 skips when threshold > hwrev, 0801d8c4 loads the callee, and 0801d8cc 'cmp r5,#0xe' fixes the row count at 14. All rows whose threshold is <= hwrev are applied cumulatively; this is NOT a one-of-N switch.",
+      "evidence": "BYTE_VALIDATION.json:hwrev_threshold_dispatch_08025da4"
+    },
+    {
+      "step": 3,
+      "role": "version strings",
+      "address": "0x08024234",
+      "detail": "14 NUL-terminated 4-byte ASCII strings: I00 I05 J00 K00 K10 K05 K30 K33 K34 K35 K36 K37 K87 K90. Version setters store one of these into slot 0 of the configuration object. The encoding hwrev 0x0A87 -> 'K87' and 0x0A90 -> 'K90' matches strings 13/14, and 0x0A87 is also the lower bound of the clock-entry range test.",
+      "evidence": "BYTE_VALIDATION.json:hwrev_version_strings_08024234"
+    },
+    {
+      "step": 4,
+      "role": "version setters",
+      "address": "0x0800f58c / 0x0800f718 / 0x0800fc04 / 0x0800fc98",
+      "detail": "0800f58c (threshold 0) writes 'I00' and init pointer 0x08010bf4 into slot 1. 0800f718 (threshold 0x0805) writes 'I05' plus callbacks. 0800fc04 (threshold 0x0A30) writes 'K30' and init pointer 0x08011915 into slot 1. 0800fc98 (threshold 0x0A34) writes 'K34' and selects a secondary table by sku == 4. These are analyst_seed_* functions already present in the retained project.",
+      "evidence": "pass4/0800f58d.txt, pass4/0800f719.txt, pass4/0800fc05.txt, pass4/0800fc99.txt"
+    },
+    {
+      "step": 5,
+      "role": "init variants",
+      "address": "0x08010bf4 / 0x08010c6c / 0x080114bc / 0x08011914 / 0x08011d90 / 0x08012008",
+      "detail": "Six board/application init functions. 080114bc and 08011d90 call 08010960 (8 MHz input); 08011914 and 08012008 call 080108ac (hwrev-branch 16/32 MHz input); 08010bf4 and 08010c6c are compact variants that also call 080108ac. Their Thumb pointers appear as literals at 0x0800f698, 0x0800f78c, 0x0800fa60, 0x0800fb74, 0x0800fc44 and 0x0800fc88.",
+      "evidence": "pass1/080108ac.txt, pass1/08010960.txt, pass2/*, pass3/08010bd0_08010c90.txt"
+    },
+    {
+      "step": 6,
+      "role": "clock config entries",
+      "address": "0x080108ac / 0x08010960",
+      "detail": "080108ac tests (hwrev - 0xA87 < 0x79), i.e. hwrev 0x0A87..0x0AFF, and writes 16000000 or 32000000 to 0x20000474; 08010960 writes 8000000. Both call writer 1 WITHOUT checking its return, then writers 2/3 and enter 08008c04 on non-zero.",
+      "evidence": "pass1/080108ac.txt, pass1/08010960.txt"
+    },
+    {
+      "step": 7,
+      "role": "system clock computation",
+      "address": "0x0800cd24",
+      "detail": "Returns SYSCLK by RCC_CFGR source selection: HSI -> 16000000 >> ((RCC_CR & 0x3fff) >> 11); HSE -> the software input field 0x20000474; PLL -> integer multiply/divide over PLLMUL, PLLSRC and PLLDIV fields; LSI -> 32000; LSE -> 0x8000; otherwise 0. This is a runtime formula, not a hardcoded 64 MHz.",
+      "evidence": "pass1/0800cd24.txt"
+    },
+    {
+      "step": 8,
+      "role": "prescaler and clock variable",
+      "address": "0x0800cdb4",
+      "detail": "DAT_20000250 = FUN_0800cd24() >> table[(RCC_CFGR2 & 0xfff) >> 8]. The 16-entry table at 0x080241cc is [0,0,0,0,0,0,0,0,1,2,3,4,6,7,8,9], i.e. shift 0..9. Writer 3 then reconfigures SysTick via 0800995c.",
+      "evidence": "pass1/0800cdb4.txt, BYTE_VALIDATION.json:prescaler_shift_table_080241cc"
+    },
+    {
+      "step": 9,
+      "role": "downstream consumers",
+      "address": "0x0800e8b4 / 0x0800995c",
+      "detail": "0800e8b4 uses FUN_0800cd24() to compute a USART baud-rate register, so the clock value affects peripheral timing as well as SysTick. 0800995c writes q/N/LOAD/VAL/CTRL from 0x20000250.",
+      "evidence": "pass3/0800e8b4.txt, nonusb-clock-writers/pass1/0800995c.txt"
+    }
+  ],
+  "hwrev_dispatch_table": [
+    {"row": 0, "threshold": "0x0000", "callee": "0x0800f58d", "note": "default setter; 'I00' + init 08010bf4"},
+    {"row": 1, "threshold": "0x0805", "callee": "0x0800f719", "note": "'I05' setter"},
+    {"row": 2, "threshold": "0x0900", "callee": "0x0800f761"},
+    {"row": 3, "threshold": "0x0A00", "callee": "0x0800f969"},
+    {"row": 4, "threshold": "0x0A05", "callee": "0x0800fafd"},
+    {"row": 5, "threshold": "0x0A10", "callee": "0x0800fae1"},
+    {"row": 6, "threshold": "0x0A30", "callee": "0x0800fc05", "note": "'K30' setter, init 08011915"},
+    {"row": 7, "threshold": "0x0A33", "callee": "0x0800fc65"},
+    {"row": 8, "threshold": "0x0A34", "callee": "0x0800fc99", "note": "'K34' setter, sku-dependent table"},
+    {"row": 9, "threshold": "0x0A35", "callee": "0x0800fcc1"},
+    {"row": 10, "threshold": "0x0A36", "callee": "0x0800fce1"},
+    {"row": 11, "threshold": "0x0A37", "callee": "0x0800fd0d"},
+    {"row": 12, "threshold": "0x0A87", "callee": "0x0800fd25", "note": "matches clock-entry lower bound; callee has no decoded body in this project"},
+    {"row": 13, "threshold": "0x0A90", "callee": "0x0800fd31", "note": "callee has no decoded body in this project"}
+  ],
+  "clock_entry_callers": {
+    "080108ac": ["08010bfa", "08010c72", "080119ce", "080120bc"],
+    "08010960": ["08011570", "08011e50"]
+  },
+  "fatal_error_call_distribution": {
+    "total_unconditional_call_refs": 106,
+    "unique_from_addresses": 106,
+    "by_4k_segment": {"0x08008000-0x08008fff": 27, "0x08009000-0x08009fff": 27,
+                      "0x08010000-0x08010fff": 4, "0x08011000-0x08011fff": 48},
+    "sampled_contexts": {
+      "0x080088f0": "startup/peripheral init",
+      "0x08009514": "init helper",
+      "0x08011288": "application callback registration",
+      "0x08011914": "board init variant that also calls 080108ac"
+    },
+    "conclusion": "08008c04 is a generic fatal-error entry used across startup, peripherals and application code; it is not clock-failure-specific. This is a distribution over recorded references plus four sampled contexts, not full CFG coverage."
+  },
+  "key_findings": [
+    "The abstract range test in 080108ac is bound to a concrete field: 0x20001cfc is the HWINFO hwrev value parsed by 0801d888. hwrev 0x0A87..0x0AFF selects 16 MHz, all other values select 32 MHz in that entry; 08010960 is a separate 8 MHz entry.",
+    "A 14-row hwrev threshold table at 0x08025da4 plus 14 version strings at 0x08024234 plus version setters explain how an init variant is chosen. The loop count is byte-proven by 'cmp r5,#0xe' at 0x0801d8cc; rows are applied cumulatively for every threshold <= hwrev.",
+    "Six init variants call only two clock config entries; their Thumb pointers are byte-verified literals, so the callers are not inferred from addresses alone.",
+    "nonUSB system clock is computed at runtime by 0800cd24 from RCC source/PLL fields and the software input; it is NOT a hardcoded 64 MHz. The USB-side 64 MHz conclusion is used here only to check the LOAD arithmetic.",
+    "The 16-entry prescaler shift table at 0x080241cc means 0x20000250 can be divided by up to 2^9, so the SysTick clock is not necessarily the core clock. A hypothetical 16 MHz / index 15 case gives clock_variable 31250 and LOAD 30.",
+    "0800e8b4 consumes 0800cd24 for USART baud-rate generation, so a wrong or stale clock variable affects peripheral timing beyond the software tick.",
+    "The previous round's 106 fatal-error references are now quantified by segment; the entry is generic, not clock-specific. Real reset completion still needs a device."
+  ],
+  "byte_validation": {
+    "file": "BYTE_VALIDATION.json",
+    "status": "PASS",
+    "instruction_rows": 6782,
+    "instruction_bytes": 15096,
+    "flash_literals": 856,
+    "bl_targets": 765,
+    "direct_branch_targets": 577,
+    "unique_instruction_addresses": 5051,
+    "data_tables": 7,
+    "export_files": 39,
+    "failures": 0
+  },
+  "arithmetic_model": {
+    "file": "MODEL_RESULTS.json",
+    "cases": 9,
+    "checks": 9,
+    "checks_failed": 0,
+    "note": "Hypothetical RCC values only; the PLL case deliberately yields 12.8 MHz to show the output is register-dependent."
+  },
+  "limits": [
+    "The 14 version strings and 14 threshold rows are independently byte-verified, but a complete one-to-one string<->threshold<->init mapping was NOT established; only four setters were inspected.",
+    "Two dispatch callees (0800fd25 / 0800fd31) have no decoded function body in the retained project; a range export found no instructions at those addresses.",
+    "The PLL configuration written by writer 2 and the config structs in 080108ac/08010960 were not decoded into a running core frequency.",
+    "Which hwrev/sku corresponds to a marketing model, board type or physical oscillator remains unknown.",
+    "No switch transition, lost ticks, PLL lock, interrupt latency, ADC CLKIN/DRDY or wall-clock deadline was measured; no firmware was executed and no device/account/network was accessed."
+  ]
+}

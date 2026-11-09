@@ -1,0 +1,24 @@
+TARGET 08011f54 function=08011f54
+REF_TO 08018d0a UNCONDITIONAL_CALL owner=08018cfe
+FUNCTION_BODY [[08011f54, 08011f5f]]
+
+void FUN_08011f54(int param_1)
+
+{
+  int *piVar1;
+  
+  piVar1 = DAT_08012004;
+  if (-1 < param_1 << 3) {
+    piVar1 = DAT_08012008;
+  }
+  *piVar1 = param_1;
+  return;
+}
+
+
+INSN 08011f54 c100 lsls r1,r0,#0x3
+INSN 08011f56 4cbf ite mi
+INSN 08011f58 2a49 ldr.mi r1,[0x08012004] REF[READ:08012004=40020404]
+INSN 08011f5a 2b49 ldr.pl r1,[0x08012008] REF[READ:08012008=40020004]
+INSN 08011f5c 0860 str r0,[r1,#0x0] REF[WRITE:40020004] REF[WRITE:40020404]
+INSN 08011f5e 7047 bx lr

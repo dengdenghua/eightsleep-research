@@ -1,0 +1,70 @@
+{
+  "id": "physiology-algorithms",
+  "title": "生理指标与睡眠分期",
+  "layer": "unlocated",
+  "status": "boundary",
+  "order": 110,
+  "summary": "传感前处理与客户端结果消费已有代码证据；核心心搏/呼吸提取、HRV、双人融合、在床与分期的生产程序或模型尚未取得。",
+  "inputs": [
+    "ADC 压电样本与 IMU 等传感数据",
+    "通道物理布局、标定和采样元数据（缺完整绑定）",
+    "可能的个体历史及训练材料（未取得生产定义）"
+  ],
+  "outputs": [
+    "HR、RR、RMSSD、阶段与在床结果",
+    "分数、基线、健康异常及版本元数据"
+  ],
+  "findings": [
+    "前端频响图、7段算法导航及两份逐函数详解；公式、代码语义与生产未知分别标注。",
+    "本地已确认 ADC 硬件滤波、增益、通道重排、时钟/缺点处理；这不等于生产心肺分离。",
+    "已追主控原始上传路径未闭合波形到 HR/RR/分期的生产者链，该负结果仅限审计范围。",
+    "App 日图和异常 DTO 消费远端已计算结果；不能仅凭此证明全部计算只发生在云端。",
+    "三个历史算法版本与生产源码/模型摘要仍没有官方对应关系。",
+    "旧 batching、论文和研究模型不能替代当前国行部署物。",
+    "Frank 队列满拒新、发布失败保留与NATS流淘汰属于传输保留策略，不是依据生理质量清洗；不能由编码候选推出算法实际收到的输入。",
+    "本地电容换算/量程/状态、温度筛选与加权、机械校准和运动反馈。它们各有真实输入输出，尚不能替代生产心肺分离、HRV、在床或分期实现。"
+  ],
+  "unknowns": [
+    "生产生理算法的滤波带宽、心搏/呼吸检测、异常搏剔除、运动伪迹和缺样规则未知。",
+    "逐通道质量评分、多传感融合、个体校准与传感物理位置未知。",
+    "分期网络、输入特征、权重、epoch、后处理和训练流程未知。",
+    "HRV hrv 字段的公式及其与 RMSSD 差异原因未知。",
+    "基线更新、健康异常及评分生成公式未知。",
+    "出站队列与流回收在实机上的遗漏/重复率及其对生产算法输入的影响"
+  ],
+  "evidence": [
+    "analysis/sensor-mcu/FRONTEND_DSP_ZH.txt",
+    "analysis/sensor-mcu/SAMPLE_FRESHNESS_ZH.txt",
+    "analysis/signal-host/LOCAL_PHYSIOLOGY_AUDIT.txt",
+    "analysis/signal-host/REMAINING_ALGORITHM_ENTRY_AUDIT_ZH.txt",
+    "analysis/android-findings/APP_CARDIORESPIRATORY_PIPELINE_ZH.txt",
+    "analysis/cloud-cleaning-followup/code-only/APP_BASELINE_CODE_ZH.txt",
+    "analysis/account-readonly/history-behavior-followup/FINDINGS_ZH.txt",
+    "analysis/account-readonly/version-lineage-followup/FINDINGS_ZH.txt",
+    "analysis/account-readonly/k60-binding/FINDINGS_ZH.txt",
+    "analysis/device-side-followup/recovery-round/gain-recovery/FINDINGS_ZH.txt",
+    "analysis/device-side-followup/recovery-round/time-recovery/FINDINGS_ZH.txt",
+    "analysis/device-side-followup/upload-distortion/FINDINGS_ZH.txt",
+    "analysis/sensor-mcu/ADC_FILTER_DERIVATION.txt",
+    "analysis/sensor-mcu/SENSOR_ANALYSIS_ZH.txt",
+    "analysis/signal-host/DUAL_SIDE_CONTINUITY_ZH.txt",
+    "analysis/signal-host/GAIN_METADATA_ZH.txt",
+    "analysis/signal-host/SIGNAL_HOST_ANALYSIS.txt",
+    "analysis/signal-host/TIMING_CONTINUITY_ZH.txt",
+    "analysis/android-findings/APP_SLEEP_HEALTH_RESULTS_ZH.txt",
+    "analysis/android-findings/ANDROID_SLEEP_RESULTS_ZH.txt",
+    "analysis/android-findings/APP_SLEEP_EDIT_AND_SELECTION_ZH.txt",
+    "analysis/cloud-cleaning-followup/code-only/aggregate-boundary/AGGREGATE_BOUNDARY_CODE_ZH.txt",
+    "analysis/android-findings/APP_SLEEP_FEEDBACK_ZH.txt",
+    "analysis/account-readonly/historical-version-probe/FINDINGS_ZH.txt",
+    "analysis/prepublish-queue-20261108/code-audit/FINDINGS_ZH.txt",
+    "analysis/system-deepening-20261108/local-signal-closure/FINDINGS_ZH.txt"
+  ],
+  "next": [
+    "ALG-01",
+    "ALG-02",
+    "ALG-03",
+    "ALG-04"
+  ],
+  "plain_intro": "这套处理像一条流水线：先采集和整理读数，再从里面找心搏、呼吸和睡眠状态，最后画成手机图表。现在能详细讲清其中一些步骤，但中间真正做判断的程序还没有完整拿到。"
+}

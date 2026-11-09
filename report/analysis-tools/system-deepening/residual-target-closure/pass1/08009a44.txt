@@ -1,0 +1,21 @@
+TARGET 08009a44 function=08009a44
+REF_TO 08009492 UNCONDITIONAL_CALL
+FUNCTION_BODY [[08009a44, 08009a51]]
+
+/* WARNING: Globals starting with '_' overlap smaller symbols at the same address */
+
+void FUN_08009a44(uint param_1)
+
+{
+  _DAT_40010000 = _DAT_40010000 & 0xfffff9ff | param_1;
+  return;
+}
+
+
+INSN 08009a44 034a ldr r2,[0x08009a54] REF[READ:08009a54=40010000]
+INSN 08009a46 0449 ldr r1,[0x08009a58] REF[READ:08009a58=fffff9ff]
+INSN 08009a48 1368 ldr r3,[r2,#0x0] REF[READ:40010000]
+INSN 08009a4a 0b40 ands r3,r1
+INSN 08009a4c 0343 orrs r3,r0
+INSN 08009a4e 1360 str r3,[r2,#0x0] REF[WRITE:40010000]
+INSN 08009a50 7047 bx lr

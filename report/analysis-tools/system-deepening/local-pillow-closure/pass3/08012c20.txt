@@ -1,0 +1,62 @@
+TARGET 08012c20 function=08012c20
+REF_TO 08012db0 UNCONDITIONAL_CALL owner=08012cbc
+REF_TO 08012cb2 UNCONDITIONAL_CALL owner=08012c68
+REF_TO 08012e3c UNCONDITIONAL_CALL owner=08012e04
+REF_TO 08012e60 UNCONDITIONAL_CALL owner=08012e48
+FUNCTION_BODY [[08012c20, 08012c63]]
+
+undefined8 FUN_08012c20(int param_1,uint param_2)
+
+{
+  int iVar1;
+  undefined4 local_18;
+  undefined4 local_14;
+  
+  local_14 = param_2 & 0xffffff07;
+  local_14._0_2_ = CONCAT11(0x76,(undefined1)local_14);
+  local_18 = CONCAT22((short)((uint)param_1 >> 0x10),0xffff);
+  (**(code **)(param_1 + 4))(1);
+  iVar1 = (**(code **)(param_1 + 0xc))(&local_14,&local_18,2);
+  (**(code **)(param_1 + 4))(0);
+  if (iVar1 != 0) {
+    FUN_08012290("[icm%u] bank %x->%x",*(undefined1 *)(param_1 + 2),*(undefined1 *)(param_1 + 0x10),
+                 param_2);
+    *(char *)(param_1 + 0x10) = (char)param_2;
+  }
+  return CONCAT44(local_18,iVar1);
+}
+
+
+INSN 08012c20 73b5 push {r0,r1,r4,r5,r6,lr}
+INSN 08012c22 0723 movs r3,#0x7
+INSN 08012c24 6a46 mov r2,sp
+INSN 08012c26 0b40 ands r3,r1
+INSN 08012c28 1371 strb r3,[r2,#0x4] REF[WRITE:Stack[-0x14]]
+INSN 08012c2a 7623 movs r3,#0x76
+INSN 08012c2c 0400 movs r4,r0
+INSN 08012c2e 5371 strb r3,[r2,#0x5] REF[WRITE:Stack[-0x13]]
+INSN 08012c30 773b subs r3,#0x77
+INSN 08012c32 1380 strh r3,[r2,#0x0] REF[WRITE:Stack[-0x18]]
+INSN 08012c34 4368 ldr r3,[r0,#0x4]
+INSN 08012c36 0120 movs r0,#0x1
+INSN 08012c38 0d00 movs r5,r1
+INSN 08012c3a 9847 blx r3
+INSN 08012c3c e368 ldr r3,[r4,#0xc]
+INSN 08012c3e 0222 movs r2,#0x2
+INSN 08012c40 6946 mov r1,sp
+INSN 08012c42 01a8 add r0,sp,#0x4
+INSN 08012c44 9847 blx r3
+INSN 08012c46 6368 ldr r3,[r4,#0x4]
+INSN 08012c48 0600 movs r6,r0
+INSN 08012c4a 0020 movs r0,#0x0
+INSN 08012c4c 9847 blx r3
+INSN 08012c4e 002e cmp r6,#0x0
+INSN 08012c50 06d0 beq 0x08012c60 REF[CONDITIONAL_JUMP:08012c60]
+INSN 08012c52 2b00 movs r3,r5
+INSN 08012c54 227c ldrb r2,[r4,#0x10]
+INSN 08012c56 a178 ldrb r1,[r4,#0x2]
+INSN 08012c58 0248 ldr r0,[0x08012c64] REF[READ:08012c64=801c5c5] REF[PARAM:0801c5c5=6d63695b]
+INSN 08012c5a fff719fb bl 0x08012290 REF[UNCONDITIONAL_CALL:08012290]
+INSN 08012c5e 2574 strb r5,[r4,#0x10]
+INSN 08012c60 3000 movs r0,r6
+INSN 08012c62 76bd pop {r1,r2,r4,r5,r6,pc}

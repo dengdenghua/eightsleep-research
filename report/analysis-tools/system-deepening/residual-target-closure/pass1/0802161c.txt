@@ -1,0 +1,35 @@
+TARGET 0802161c function=0802161c
+REF_TO 080211aa UNCONDITIONAL_CALL
+REF_TO 08021248 UNCONDITIONAL_CALL
+REF_TO 08021268 UNCONDITIONAL_CALL
+REF_TO 080215b4 UNCONDITIONAL_CALL
+FUNCTION_BODY [[0802161c, 08021631]]
+
+char * FUN_0802161c(char *param_1,char param_2,int param_3)
+
+{
+  char *pcVar1;
+  
+  pcVar1 = param_1 + param_3;
+  while( true ) {
+    if (param_1 == pcVar1) {
+      return (char *)0x0;
+    }
+    if (*param_1 == param_2) break;
+    param_1 = param_1 + 1;
+  }
+  return param_1;
+}
+
+
+INSN 0802161c c9b2 uxtb r1,r1
+INSN 0802161e 8218 adds r2,r0,r2
+INSN 08021620 9042 cmp r0,r2
+INSN 08021622 01d1 bne 0x08021628 REF[CONDITIONAL_JUMP:08021628]
+INSN 08021624 0020 movs r0,#0x0
+INSN 08021626 7047 bx lr
+INSN 08021628 0378 ldrb r3,[r0,#0x0]
+INSN 0802162a 8b42 cmp r3,r1
+INSN 0802162c fbd0 beq 0x08021626 REF[CONDITIONAL_JUMP:08021626]
+INSN 0802162e 0130 adds r0,#0x1
+INSN 08021630 f6e7 b 0x08021620 REF[UNCONDITIONAL_JUMP:08021620]

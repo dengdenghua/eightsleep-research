@@ -1,0 +1,147 @@
+{
+  "target": "firmware-sensor.bbin 42292 bytes, startup version 3.3.1",
+  "normal_numeric_sampling_chains": "statically closed within named scope",
+  "function_inventory_count": 183,
+  "reviewed_named_function_count": 72,
+  "groups": [
+    {
+      "id": "load_and_main",
+      "functions": [
+        "0800e084",
+        "0800b1f0",
+        "0800b2fc",
+        "0800bedc"
+      ],
+      "scope": "Reset, clock counter, initialization and normal main loop; long-BL metadata repair. Exceptions and every command not exhaustive."
+    },
+    {
+      "id": "internal_adc",
+      "functions": [
+        "08008f48",
+        "08009b64",
+        "08009b30",
+        "080099c4",
+        "0800a49c",
+        "08008af4"
+      ],
+      "scope": "ADC RAM selection/scaling, timer callback, ring and 0x32 packing."
+    },
+    {
+      "id": "mcp3564",
+      "functions": [
+        "0800b30c",
+        "0800a2b8",
+        "08009868",
+        "0800a43c"
+      ],
+      "scope": "ISR callback, status/data admission, sign extension, grouped stale values, packet 0x34/0x41; peripheral retry internals not exhaustive."
+    },
+    {
+      "id": "fdc",
+      "functions": [
+        "0800a64c",
+        "080081dc",
+        "08009398",
+        "080092f0",
+        "080094b0",
+        "08009528",
+        "080095b4"
+      ],
+      "scope": "Configuration and main-loop read, convert, snapshot, status and packet serialization; physical wiring unverified."
+    },
+    {
+      "id": "temperature",
+      "functions": [
+        "0800b400",
+        "0800b354",
+        "0800b710",
+        "0800b7c8",
+        "0800b840",
+        "08008da0",
+        "08008e2c",
+        "08008ef4",
+        "08008c5c"
+      ],
+      "scope": "NTC equations/profile maps, local temperature combination, cache gate and query serialization."
+    },
+    {
+      "id": "environment_and_feedback",
+      "functions": [
+        "080081b0",
+        "0800b560",
+        "0800b6e4",
+        "080090ac",
+        "080090c8",
+        "080090d0",
+        "0800b884"
+      ],
+      "scope": "Main-loop temperature/humidity conversion; feedback thresholds to state and query/status output. All electrical protections not exhaustive."
+    },
+    {
+      "id": "transport_and_scheduler",
+      "functions": [
+        "08008330",
+        "080082f0",
+        "08008124",
+        "0800810c",
+        "080080e8",
+        "0800af2c",
+        "080089f8",
+        "080089d0"
+      ],
+      "scope": "Framing, escaping, CRC, callback r0/r1, UART/DMA output boundary and period scheduler."
+    },
+    {
+      "id": "numeric_helpers",
+      "functions": [
+        "08005180",
+        "0800518c",
+        "080051a0",
+        "080051b4",
+        "080051c8",
+        "0800522c",
+        "080052c8",
+        "0800569c",
+        "080056a8",
+        "080056bc",
+        "080056d0",
+        "080056e4",
+        "08005728",
+        "080062a8",
+        "080062e8",
+        "0800637c",
+        "08007e28",
+        "08005764",
+        "08005f20",
+        "08005a98",
+        "08005cbc",
+        "080063fc",
+        "08006a34",
+        "08007248",
+        "0800772c",
+        "08007f00",
+        "08007fa4"
+      ],
+      "scope": "Soft-float ABI/operation/compare/conversion semantics used by reviewed callsites; no exhaustive IEEE-754 conformance claim."
+    }
+  ],
+  "not_claimed": [
+    "all functions read",
+    "physical sensor wiring known",
+    "current user Pod runs this file",
+    "production sleep/HRV algorithms recovered",
+    "all alarm/motor/electrical-fault controls audited"
+  ],
+  "remaining_static_scope": [
+    "all alarm and motor timing",
+    "all command-error/recovery branches",
+    "all peripheral I2C/SPI timeout paths",
+    "complete electrical protection combinations"
+  ],
+  "remaining_external_evidence": [
+    "active hardware revision and firmware",
+    "physical channel mapping",
+    "real sample gaps/duplicates/timing frequency",
+    "cloud receipt and subsequent processing"
+  ]
+}

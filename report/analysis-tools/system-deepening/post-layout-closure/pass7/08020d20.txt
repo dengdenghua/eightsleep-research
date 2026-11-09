@@ -1,0 +1,78 @@
+TARGET 08020d20 function=08020d20
+REF_TO 08014226 UNCONDITIONAL_CALL
+FUNCTION_BODY [[08020d20, 08020d75]]
+
+undefined8 FUN_08020d20(uint param_1)
+
+{
+  int iVar1;
+  uint uVar2;
+  uint uVar3;
+  int iVar4;
+  
+  if (param_1 == 0) {
+    param_1 = 0;
+    uVar2 = 0;
+    uVar3 = 0;
+    iVar4 = 0;
+  }
+  else {
+    uVar3 = param_1 + ((int)param_1 >> 0x1f) ^ (int)param_1 >> 0x1f;
+    param_1 = param_1 >> 0x1f;
+    iVar1 = FUN_08008514(uVar3);
+    uVar2 = 0x41eU - iVar1 & 0x7ff;
+    if (iVar1 < 0xb) {
+      iVar4 = uVar3 << (iVar1 + 0x15U & 0xff);
+      uVar3 = uVar3 >> (0xbU - iVar1 & 0xff) & 0xfffff;
+    }
+    else {
+      iVar4 = 0;
+      uVar3 = uVar3 << (iVar1 - 0xbU & 0xff) & 0xfffff;
+    }
+  }
+  return CONCAT44(uVar2 << 0x14 | uVar3 | param_1 << 0x1f,iVar4);
+}
+
+
+INSN 08020d20 70b5 push {r4,r5,r6,lr}
+INSN 08020d22 0028 cmp r0,#0x0
+INSN 08020d24 16d0 beq 0x08020d54 REF[CONDITIONAL_JUMP:08020d54]
+INSN 08020d26 c317 asrs r3,r0,#0x1f
+INSN 08020d28 c518 adds r5,r0,r3
+INSN 08020d2a 5d40 eors r5,r3
+INSN 08020d2c c40f lsrs r4,r0,#0x1f
+INSN 08020d2e 2800 movs r0,r5
+INSN 08020d30 e7f7f0fb bl 0x08008514 REF[UNCONDITIONAL_CALL:08008514]
+INSN 08020d34 104b ldr r3,[0x08020d78] REF[READ:08020d78=41e]
+INSN 08020d36 1b1a subs r3,r3,r0
+INSN 08020d38 5b05 lsls r3,r3,#0x15
+INSN 08020d3a 5b0d lsrs r3,r3,#0x15
+INSN 08020d3c 0a28 cmp r0,#0xa
+INSN 08020d3e 14dc bgt 0x08020d6a REF[CONDITIONAL_JUMP:08020d6a]
+INSN 08020d40 0200 movs r2,r0
+INSN 08020d42 2e00 movs r6,r5
+INSN 08020d44 1532 adds r2,#0x15
+INSN 08020d46 9640 lsls r6,r2
+INSN 08020d48 0b22 movs r2,#0xb
+INSN 08020d4a 121a subs r2,r2,r0
+INSN 08020d4c d540 lsrs r5,r2
+INSN 08020d4e 2d03 lsls r5,r5,#0xc
+INSN 08020d50 2d0b lsrs r5,r5,#0xc
+INSN 08020d52 03e0 b 0x08020d5c REF[UNCONDITIONAL_JUMP:08020d5c]
+INSN 08020d54 0024 movs r4,#0x0
+INSN 08020d56 0023 movs r3,#0x0
+INSN 08020d58 0025 movs r5,#0x0
+INSN 08020d5a 0026 movs r6,#0x0
+INSN 08020d5c 1b05 lsls r3,r3,#0x14
+INSN 08020d5e 2b43 orrs r3,r5
+INSN 08020d60 e407 lsls r4,r4,#0x1f
+INSN 08020d62 2343 orrs r3,r4
+INSN 08020d64 3000 movs r0,r6
+INSN 08020d66 1900 movs r1,r3
+INSN 08020d68 70bd pop {r4,r5,r6,pc}
+INSN 08020d6a 0b38 subs r0,#0xb
+INSN 08020d6c 8540 lsls r5,r0
+INSN 08020d6e 2d03 lsls r5,r5,#0xc
+INSN 08020d70 0026 movs r6,#0x0
+INSN 08020d72 2d0b lsrs r5,r5,#0xc
+INSN 08020d74 f2e7 b 0x08020d5c REF[UNCONDITIONAL_JUMP:08020d5c]

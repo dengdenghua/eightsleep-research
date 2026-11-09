@@ -1,0 +1,70 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+void analysis_080211ac(int param_1,undefined4 param_2,undefined4 param_3,undefined4 param_4)
+
+{
+  short sVar1;
+  int iVar2;
+  undefined1 uVar3;
+  undefined4 extraout_r2;
+  ushort uVar4;
+  uint uVar5;
+  
+  iVar2 = FUN_08016fe0(param_1 + 0x34);
+  if (iVar2 != 0) {
+    uVar4 = *(short *)(param_1 + 0x3e) + 1;
+    *(ushort *)(param_1 + 0x3e) = uVar4;
+    uVar5 = (uint)*(ushort *)(param_1 + 0x40);
+    sVar1 = FUN_08010274((uint)*(byte *)(param_1 + 0x3c) * (uVar5 - uVar4),uVar5,extraout_r2,
+                         (uint)*(byte *)(param_1 + 0x3c),param_4);
+    if ((sVar1 == 0) || (uVar3 = (undefined1)sVar1, uVar5 <= uVar4)) {
+      FUN_08020fbc(param_1,0);
+      uVar3 = 0;
+      *(undefined **)(param_1 + 0x2c) = &DAT_0801e849;
+      *(undefined1 *)(param_1 + 0x30) = 0;
+    }
+    FUN_08020fbc(param_1,uVar3);
+  }
+  return;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+080211ac f8b5 push {r3,r4,r5,r6,r7,lr}
+080211ae 0700 movs r7,r0
+080211b0 3437 adds r7,#0x34
+080211b2 0400 movs r4,r0
+080211b4 3800 movs r0,r7
+080211b6 f5f713ff bl 0x08016fe0
+080211ba 0028 cmp r0,#0x0
+080211bc 1ed0 beq 0x080211fc
+080211be e58f ldrh r5,[r4,#0x3e]
+080211c0 a31c adds r3,r4,#0x2
+080211c2 0135 adds r5,#0x1
+080211c4 adb2 uxth r5,r5
+080211c6 e587 strh r5,[r4,#0x3e]
+080211c8 de8f ldrh r6,[r3,#0x3e]
+080211ca 3b7a ldrb r3,[r7,#0x8]
+080211cc 701b subs r0,r6,r5
+080211ce 5843 muls r0,r3
+080211d0 3100 movs r1,r6
+080211d2 eff74ff8 bl 0x08010274
+080211d6 83b2 uxth r3,r0
+080211d8 002b cmp r3,#0x0
+080211da 02d0 beq 0x080211e2
+080211dc c1b2 uxtb r1,r0
+080211de b542 cmp r5,r6
+080211e0 09d3 bcc 0x080211f6
+080211e2 0021 movs r1,#0x0
+080211e4 2000 movs r0,r4
+080211e6 fff7e9fe bl 0x08020fbc
+080211ea 054b ldr r3,[0x08021200]
+080211ec 0021 movs r1,#0x0
+080211ee e362 str r3,[r4,#0x2c]
+080211f0 2300 movs r3,r4
+080211f2 3033 adds r3,#0x30
+080211f4 1970 strb r1,[r3,#0x0]
+080211f6 2000 movs r0,r4
+080211f8 fff7e0fe bl 0x08020fbc
+080211fc f8bd pop {r3,r4,r5,r6,r7,pc}

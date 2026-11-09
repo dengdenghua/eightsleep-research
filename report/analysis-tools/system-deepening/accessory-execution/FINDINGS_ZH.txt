@@ -1,0 +1,62 @@
+B13 FOT：容器前缀、字节偏移与主控升级入口
+2026-11-08。本轮具体目标是 MTK 包内 B13 FOT，不重做所有附件版本的逆向。
+全部为离线文件读取、哈希、结构验证和主控反编译调用链检查；没有蓝牙连接、发送升级命令或执行固件。
+
+1. 来源先纠正
+
+旧 C11 的 SAMPLE_INVENTORY.json 使用 selected-rootfs/opt/eight/config/default.json，即历史 NXP 来源，B13 默认 V38；本轮 mediatek/rootfs-selected 中默认 speakerFota 是 B13_SOFT_20260922_V42.fot，expectedVersion=42。
+已重新逐字节哈希对照旧24样本：24/24在MTK同相对路径存在且相同，原记录SHA也全部仍匹配。因此旧样本的字节分析可以在明确共同SHA后用于MTK；不能把旧NXP默认选择不加区分地照搬。TriMix、Keeson、B12默认映射相同，只有B13默认不同；细表见 MAPPING_DIFF.json / MAPPING_DIFF_ZH.txt。
+本轮3个FOT均取自 mediatek/rootfs-selected，且主控 Eight.Audio.dll、Eight.Speaker.dll 已按 bundle-inventory 的原可执行文件偏移回读比对，2/2原成员字节匹配。没有混用NXP程序来说明MTK执行路径。
+
+2. 新恢复的文件结构：有可验证前缀，还没有设备端解析器
+
+三个FOT共同观察：
+  file+0x00：46 4f 54 00（FOT\0）
+  file+0x04：LE32，精确等于文件总长-8。
+  file+0x08：c9 ce c6 cf，逐字节清bit7后是INFO；+0x0c长度0x30，内容0x10..0x3f。
+  file+0x40：c4 c5 d6 00，清bit7后是DEV\0；+0x44长度0x0c，内容0x48..0x53。
+  file+0x54：c4 c1 d4 c1，清bit7后是DATA；+0x58长度0x18，内容0x5c..0x73。
+按“4字节标记+LE32长度+内容”顺序恰好闭合到下一段，3个版本都成立。这是由字节关系支持的候选标签/长度格式；未取得设备loader，不能把它提升为厂商格式规范或完整已解析容器。
+
+DATA内容六个LE32：
+             @0x5c   @0x60    @0x64    @0x68    @0x6c @0x70
+V37/V38      0x200   0xdd000  0xdd200  0xdd400  0x100 0x100
+V42          0x200   0xdf000  0xdf200  0xdf400  0x100 0x100
+已证数值关系：word2=word0+word1；word3=word2+0x200。V42的大值都比V38增加0x2000，正好对应文件总长增量8192字节。
+进一步按这些偏移回读原字节：word2处连续512字节与文件开头512字节完全相同，三个版本都成立；word3到文件末尾精确4096字节。因此已得到无重叠、无遗漏的文件区间划分：首头512 + 主体候选word1字节 + 重复首头512 + 尾段4096。重复头不是凭魔数猜测，已比较全部512字节；各区间SHA见JSON。
+0x200起始4字节d8 c3 cf c4清bit7后是XCOD，随后00 08 00 00；但其后尚未闭合与前缀相同的标签链，不能直接把2048当主体实际长度。前0x200范围也不全是零填充，0x100附近另有未解释字段。
+据此支持“0x200为主体候选起点、word1为该主体区间长度”的解释；区间内是机器码、编码数据还是复合结构仍未知。尚不能给后两个0x100命名，更不能把文件偏移当物理Flash地址、入口地址或解密参数。
+header512的原始字节和十六进制表已保存，相关候选边界32字节窗口/绝对偏移见 FOT_FORMAT_AUDIT.json。未把高熵载荷命名为确定加密或某种CPU机器码。
+
+3. CRC确实在哪里算，不能与未知文件内校验混为一谈
+
+主控 BluetrumFotaUpdater.RunUpdate 对完整 firmware byte[] 算 CRC32（初值FFFFFFFF、反射多项式EDB88320、末尾取反），然后放到0x91/02升级请求中的LE32字段。[A03:40–60、209–220]
+本轮逐字节复算与独立 zlib.crc32 相符，另核对123456789→CBF43926标准向量：
+  V37：910336字节，CRC32=9e184e60；SHA256=fae27d1723e1af5e8faec3b927c191c55936dc4688014edcc13af6ff37142461
+  V38：910336字节，CRC32=fd35f55e；SHA256=606e4f02d332388a6d95008ea0250bd36f935d87770e9cd6bd7f0a7d1db08ada
+  V42：918528字节，CRC32=2765e892；SHA256=f74eb3bf5a4fd3962aa16116f8bfc179a3c8f9780578e1785959f10975bf0632
+这是主控传输请求的整文件校验值，不是已找到文件内部签名/校验字段。
+有界阴性检查仅测试4个CRC32范围（整文件、去外层8字节、0x200到末尾、候选主段word0到word2），在前512字节内查其LE/BE连续4字节：3个文件全部无命中。不能由此断言没有内部CRC、密钥、签名或其它算法；更未尝试绕过校验。
+
+4. 主控未切除容器头；传输地址是当前文件索引
+
+生产调用链是 SpeakerUpdater.Update → alias严格等于B13 → fotaConfigurations.FirstOrDefault → File.ReadAllBytes(FirmwarePath) → MinamiSpeaker.WriteFirmwareFota → BluetrumFotaUpdater.Update。[A01:22–42；A02:177–180]
+主控读到的是整文件，并未按FOT长度段解包、解密或跳过0x200。RunUpdate的version只参与日志；wire强制版本字段仍为FFFF，不能拿配置42推成wire版本42。[A03:35–60]
+远端升级响应的startAddress读为LE32，随后转为int作为 for 循环文件索引i，SendBlock(address=i,firmware,sourceOffset=i,length=...)；Array.Copy直接从原文件指定位置拷贝。故响应地址首先是文件发送偏移，不能由名称判断Flash地址。[A03:61–82、123–141、146–165]
+每个块首包10字节头：A0、seq、LE32(address)、LE32(blockLength)，剩余原文件数据最多maxPacket-10；继续包是20、seq两个字节头，数据最多maxPacket-2。这里的10/2是传输帧头，和文件内8字节外头/0x200候选主体起点是三个不同概念。
+
+本轮补明的校验边界：
+  - 升级响应只检cmd=0x91/type=2；随后要求allowed=1、blockLength>0、maxPacket>10。没有验证响应seq是否对应刚发的请求。[A03:61–74、146–165]
+  - startAddress没有显式的0<=offset<fileLength保护。若它处于[fileLength,INT_MAX]，发送循环直接跳过，代码仍可进入最终ReadStatus；只凭方法true不能推出本轮完整字节实际发送过。[A03:77–107]
+  - ReadStatus在最多8个3字节帧里找cmd=0x90，只取第三字节状态，未校验第二字节seq；这不是已恢复可靠事务ID关联。[A03:168–188]
+  - 块后255可提前返回true；发完后的最终0或255均算true。关闭RFCOMM失败只记警告；外层等待120秒后返回Flashed，并未在此方法重新读取软件版本。[A03:82–119；A01:62–67]
+这些均为原主控代码边界，未构造恶意响应、运行目标updater或验证设备实际如此应答。它们限制“主机返回成功”的含义，不能据此宣布设备刷写验证被攻破。
+Rfcomm.WriteWithoutResponse另外要求已初始化且串口打开，否则直接抛错；ReadExact走累计读满或EOF/timeout异常，未把帧读取成功等同于固件应用成功。[A04:84–139]
+
+5. 本轮闭合程度与下一步
+
+已闭合：3个实际MTK文件的前缀长度关系、标签段候选、DATA六字关系；全文件CRC与主控算法；原文件偏移→传输块；2个DLL到原MTK可执行bundle的字节来源。
+未闭合：INFO/DEV/DATA各内容含义、内层校验/编码/压缩、B13 loader如何解析、芯片ISA/加载基址、DSP/功放/音箱具体执行函数。没有因高熵而称“已加密”，也没有把候选0x200切片直接当可反汇编程序。
+下一步最具体材料是对应B13的loader/OTA SDK中FOT读取函数（来源需可验证），再逐字段绑定偏移和校验；若只能继续现存材料，可围绕这3版的候选主段/尾段做严格偏移差异对比，但差异和熵本身不足以恢复loader。当前报告应保留“部分恢复”，不写“音箱固件已完整逆向”。
+
+复跑：python3 audit_b13.py。脚本仅读取固定3个FOT与已列源码，生成头部快照/哈希/结构结果，不联网、不接设备、不运行目标程序。验证计数：3文件、33条结构断言、3次完整CRC独立对照、1个已知CRC向量、2个原bundle成员匹配。全部通过。SOURCE_CONTEXTS.txt保留A01–A04原行号全文。

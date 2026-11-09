@@ -1,0 +1,50 @@
+ORIGINAL SHA256 0a2fa991c548478fa614d227777222f3f0914594f8db779bcc3837f30cd2e67a
+Analysis metadata only, no input bytes changed. Newly defined callback functions use existing Thumb bytes.
+
+void FUN_0801a584(void)
+
+{
+  int iVar1;
+  undefined1 *puVar2;
+  undefined4 local_10c;
+  undefined1 auStack_108 [256];
+  
+  local_10c = 0;
+  iVar1 = FUN_08021dfc(auStack_108,0x100,&local_10c);
+  if (iVar1 == 0) {
+    FUN_08017634("[cmd] cal get: encode failed");
+    FUN_08015fec(1);
+  }
+  else {
+    FUN_08015fec(0);
+    FUN_08015fbc(auStack_108,local_10c);
+    puVar2 = (undefined1 *)FUN_08018c18();
+    FUN_08017634("[cmd] cal get: %u bags, ts=%u, valid=%u",*puVar2,*(undefined4 *)(puVar2 + 4),
+                 puVar2[200]);
+  }
+  return;
+}
+
+
+ASSEMBLY ORIGINAL BYTES
+0801a584 8021 movs r1,#0x80
+0801a586 10b5 push {r4,lr}
+0801a588 0024 movs r4,#0x0
+0801a58a c2b0 sub sp,#0x108
+0801a58c 01aa add r2,sp,#0x4
+0801a58e 4900 lsls r1,r1,#0x1
+0801a590 02a8 add r0,sp,#0x8
+0801a592 0194 str r4,[sp,#0x4]
+0801a594 07f032fc bl 0x08021dfc
+0801a598 a042 cmp r0,r4
+0801a59a 07d1 bne 0x0801a5ac
+0801a59c 0d48 ldr r0,[0x0801a5d4]
+0801a59e fdf749f8 bl 0x08017634
+0801a5a2 0120 movs r0,#0x1
+0801a5a4 fbf722fd bl 0x08015fec
+0801a5a8 42b0 add sp,#0x108
+0801a5aa 10bd pop {r4,pc}
+0801a5ac 2000 movs r0,r4
+0801a5ae fbf71dfd bl 0x08015fec
+0801a5b2 0199 ldr r1,[sp,#0x4]
+0801a5b4 02a8 add r0,sp,#0x8
