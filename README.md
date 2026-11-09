@@ -21,7 +21,7 @@ Git 仓库保存当前报告和代码。完整原字节证据 ZIP 作为 Release
 
 ## 获取完整固件证据
 
-安装 GitHub CLI 并登录具有本私有仓库权限的账号，在仓库根目录运行：
+可从 [Releases](https://github.com/dengdenghua/eightsleep-research/releases/tag/evidence-2026-11-09) 下载全部分片；也可安装并登录 GitHub CLI，在仓库根目录运行：
 
 ```sh
 gh release download evidence-2026-11-09 --repo dengdenghua/eightsleep-research --dir .github-upload
@@ -52,3 +52,7 @@ python3 report/tools/validate.py
 ```
 
 `RELEASE_MANIFEST.json` 是完整本地交付的成员校验清单，包含通过 Release 附件恢复的材料；`github-release-manifest.json` 是 GitHub 分片恢复清单。原厂载荷与第三方组件保留各自的权利和来源，本仓库未另行授予其使用许可。
+
+## 开源许可
+
+本项目独立编写的工具、验证脚本、模型实现及原创报告采用 [MIT 许可](LICENSE)。许可仅覆盖作者有权授权的原创内容；原厂固件、APK、提取文件、反编译或反汇编输出、冻结证据及第三方代码不在该授权范围内，继续遵循原有权利和许可。仓库公开与原创工具的开源授权不代表原厂组件已成为开源软件。
