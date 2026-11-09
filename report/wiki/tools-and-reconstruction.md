@@ -17,7 +17,7 @@ python3 analysis-tools/prepublish-queue/model/run_cases.py
 
  [实时采集工具](live-capture-tool.md) 与下列离线解析器分开运行。双击项目根目录的 `启动实时采集.command`，在 [本地页面](http://127.0.0.1:58764/) 登录并选择绑定设备后，手动读取15/30/60秒；每次限8MiB、4000事件或200000样本，可导出JSONL与元数据。
 
-主报告及本页离线工具不访问账号；实时工具的登录、刷新设备和启动读取会访问官方服务，不发送设备控制命令。会话和未导出数据只存内存。运行配置不放在`report/`，冻结研究TAR则保留APK内置参数的研究副本；工具不会自动读取TAR。换机配置、失败判定及明确标注的`--demo`演示模式见工具说明。最近一次查询找到1台离线Pod6，真实采集仍未发起。
+主报告及本页离线工具不访问账号；实时工具的登录、刷新设备和启动读取会访问官方服务，不发送设备控制命令。会话和未导出数据只存内存。运行配置不放在`report/`，冻结研究TAR则保留APK内置参数的研究副本；工具不会自动读取TAR。换机配置、失败判定及明确标注的`--demo`演示模式见工具说明。用户页面显示 Pod6 在线，但 30 秒 live 读取尚未取得 HTTP 响应；未收到真实事件。
 
 ## 文件与适用输入
 
@@ -25,7 +25,7 @@ python3 analysis-tools/prepublish-queue/model/run_cases.py
 | --- | --- | --- |
 | [adc_spi_decoder.py](../analysis-tools/adc_spi_decoder.py) | 解码 ADC SPI 帧 | 本地二进制帧，需要明确通道数及软件倍率 |
 | [host_signal_parser.py](../analysis-tools/host_signal_parser.py) | MCU USB payload、LSP、主控 CBOR | 支持格式、CRC、槽位与样本数组解析；不做心肺分离 |
-| [decode_uploader.py](../analysis-tools/decode_uploader.py) | uploader 批次、压缩流、session stream、ACK | 输入须是对应协议层的已取得字节；不解密 TLS、不连接服务 |
+| [decode_uploader.py](../analysis-tools/decode_uploader.py) | uploader 批次、压缩流、session stream、ACK | 输入须是对应协议层的已取得字节；冻结样本使用裸 DEFLATE，见[压缩格式](raw-wire-format.md)；不解密 TLS、不连接服务 |
 | [热控重建 C](../reconstructions/thermal-pseudocode.c) | 阅读 Frozen 1.7.7 的关键控制流程 | 不完整可编译程序；不应用于真实设备 |
 | [姿态重建 C](../reconstructions/posture-pipeline.c) | 阅读附件逐通道五点均值与抽取 | 附件样本与床垫生理生产链的部署对应未建立 |
 | [上传失真算例](../analysis-tools/results/upload-distortion.json) | 已保存的缓存、队列和双侧模型结果 | 合成输入，非实机数据 |

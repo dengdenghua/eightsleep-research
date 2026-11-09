@@ -1,0 +1,26 @@
+# jetstream-uploader configuration
+# All [watchdog] and [upload] fields are required by 0.2.7.0+ — no
+# defaults in code (lunars 445280b). The canonical source of truth
+# lives at lunars rawrs/jetstream-uploader.toml; this file mirrors
+# it. The recipe will switch to downloading the canonical TOML from
+# the lunars release in a follow-up — see meta-eight#178.
+
+[jetstream]
+storage = "memory"
+compression = "none"
+max_mb = 6144
+max_age_hours = 24
+
+[watchdog]
+# Must exceed do_delay's DELAY_MAX (60s) so the watchdog doesn't race
+# a legitimate exponential-backoff sleep and trigger the heavy
+# restart path.
+timeout_secs = 90
+
+[upload]
+batch_max_bytes = 262144      # 256KB
+batch_max_messages = 100
+batch_timeout_secs = 2
+chunk_max_time_secs = 2
+batch_interval_ms = 1024
+recv_ack_timeout_secs = 30    # tighten for faster detection, loosen if a slow raw-api produces false reconnects

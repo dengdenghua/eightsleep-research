@@ -46,7 +46,7 @@ HOST-01 的 34 场景止于 `body_candidate`，RAW-02 覆盖的是 NATS 流内�
 {"seq":"<序号整数>","topic":"raw.x.sens.stealth","data":"<原始 payload bytes>"}
 ```
 
-以上是结构示意，不是可直接发送的请求；尖括号字段已省略身份。`version` 是文本 `"2"`。初始 session 声明与 ACK 发生在安装压缩 writer 之前；之后压缩包围 CBOR 协议流，不只是 `data` 字段。已确认持续 deflate 调用，但未独立恢复 wrapper bits/调优参数或以抓包验证解压互通。[CBOR 与压缩边界](../../evidence/analysis/sleep-pipeline/UPLOADER_PROTOCOL.txt)
+以上是结构示意，不是可直接发送的请求；尖括号字段已省略身份。`version` 是文本 `"2"`。初始 session 声明与 ACK 发生在安装压缩 writer 之前；之后压缩包围 CBOR 协议流，不只是 `data` 字段。该样本构造参数已确认是等级 6、关闭 zlib header 的裸 DEFLATE，flags=0x80；flush 使用 Sync，保留同一连接的压缩上下文。协议中的 `compression="zlib"` 字符串不代表实际带 zlib 包装。28 项隔离指令仿真通过，尚无真实抓包互通验证。[压缩参数与解析契约](../raw-wire-format.md)[CBOR 与压缩边界](../../evidence/analysis/sleep-pipeline/UPLOADER_PROTOCOL.txt)
 
 默认主机为 `raw-api-upload.8slp.net:443`，运行期 `/persistent/deviceinfo/endpoints.json` 的 `rawApiUpload` 可覆盖，因此默认值不是当前国行设备实际域名的证明。这里是直接 TLS 客户端协议，尚未恢复 HTTP pathname，不应虚构 POST 路由。返回结构中 `proto/part/id` 用来确认 session 或 batch，并非睡眠阶段向量。[连接与 ACK](../../evidence/analysis/sleep-pipeline/UPLOADER_PROTOCOL.txt)
 

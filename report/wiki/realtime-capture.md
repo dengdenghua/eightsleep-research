@@ -35,7 +35,9 @@
 | --- | --- | --- |
 | App `/v1/devices/{deviceId}/live` | Bearer 鉴权，事件解析包含 piezo.samples、timestamp、tap、button | 国行实机成功响应；既有请求曾返回 404，原因未知；samples 的单位、频率和通道含义未定 |
 | 主控本地 NATS | 发布配置监听 127.0.0.1:4222，raw.> 映射为 rawmem.> | 主控本地访问与生效配置；同一 Wi-Fi 不足以接入 |
-| 设备到云端抓包 | CBOR 批次经压缩、TLS 上传；已恢复的是上传与 ACK 协议 | TLS 明文观察能力；路由器被动抓包只能取得加密载荷与连接信息 |
+| 设备到云端抓包 | CBOR 批次经裸 DEFLATE、TLS 上传；已恢复上传、压缩参数与 ACK 协议 | TLS 明文观察能力；路由器被动抓包只能取得加密载荷与连接信息 |
+
+设备压缩参数、分块门限与明文解析方法见 [压电原始上传](raw-wire-format.md)。
 
 App live 与设备 raw 上传不是同一个接口。拿到 live 的 samples，也不能立即认定取得了完整 ADC/IMU 数据。普通账号凭据也没有被证明能用于下载 raw 上传流。
 
